@@ -397,11 +397,17 @@ pub const VgaMonitor = struct {
 
     pub const vid_width = 640;
     pub const vid_height = 480;
-    const h_back_porch = 12; //in gigatron clocks @TODO: needs overhaul for alternative clock rates
-    const h_front_porch = v_back_porch + 160;
-    const h_cycle_clocks = 200;
-    const v_back_porch = 28 * h_cycle_clocks;
-    const v_front_porch = v_back_porch + (vid_height * h_cycle_clocks);
+    //in gigatron clocks @TODO: needs overhaul for alternative clock rates
+    const h_visible = 160;
+    const h_back_porch = 12;
+    const h_front_porch = 40;
+    const h_cycle = h_back_porch + h_visible + h_front_porch;
+    
+    //in h_cycles
+    const v_visible = 480;
+    const v_back_porch = 28; //(normally 33, ROM adjusts)
+    const v_front_porch = 7; //(normally 10, ROM adjusts)
+    const v_cycle = v_back_porch + v_visible + v_front_porch; //ignores the vblank
     
     pub const Pixel = switch(native_endian) {
         //out byte is VHBBGGRR
@@ -467,28 +473,28 @@ pub const VgaMonitor = struct {
                 .falling, .low => return false,
                 .rising => {
                     //align clock to the nearest H-cycle
-                    self.clock = self.clock - (self.clock % h_cycle_clocks) + h_cycle_clocks;
+                    self.clock = self.clock - (self.clock % h_cycle) + h_cycle;
                 },
                 .high => {},
             },
         }
 
         //Top edge of visible
-        if(self.clock < v_back_porch) return false;
+        if(self.clock < (v_back_porch * h_cycle)) return false;
         //Bottom edge of visibe
-        if(self.clock >= v_front_porch) return false;
+        if(self.clock >= ((v_cycle - v_front_porch) * h_cycle)) return false;
                     
-        const x = self.clock % h_cycle_clocks;
+        const x = self.clock % h_cycle;
         //left edge of visible
         if(x < h_back_porch) {
             self.clock += 1;
             return false;
         }
         //right edge of visible
-        if(x >= h_front_porch) return false;
+        if(x >= (h_cycle - h_front_porch)) return false;
         
-        const y = self.clock / h_cycle_clocks;
-        const y_index = (y - (v_back_porch / h_cycle_clocks)) * vid_width;
+        const y = self.clock / h_cycle;
+        const y_index = (y - v_back_porch) * vid_width;
         const x_offset = (x - h_back_porch) * 4; //4 vga color clocks per gigatron clock
         const i = y_index + x_offset;
         
@@ -499,6 +505,7 @@ pub const VgaMonitor = struct {
     }
 };
 
+//By your command
 pub const BlinkenLights = struct {
     last: u4,
     leds: [4]bool,
@@ -809,21 +816,40 @@ pub const PluggyMcPlugface = struct {
     }
 };
 
-//@TODO: For now I have copied this implementation of
-// high/low pass simulation from 
-// https://github.com/PhilThomas/gigatron/blob/master/src/audio.js
-// but I should understand this better and make it work my own
-// way.
+//Given a sample rate, the Audio peripheral will
+// handle the bandpass filtering of the output.
+//The shcematic indicates a low pass filter of 700Hz
+// and a high pass of 160Hz. However, I am too tone
+// deaf to determine from recordings if these values
+// produce correct results, assuming of course my
+// algorithms are even correct. 
 pub const Audio = struct {
-    bias: f32 = 0.0,
-    alpha: f32 = 0.99,
+    lpf_pv: f32 = 0.0,
+    hpf_pv: f32 = 0.0,
+    lpf_a: f32,
+    hpf_a: f32,
     volume: f32 = 1.0,
+    
+    const lpf_tau_ms = (1.0 / 700.0) * 1000.0;
+    const hpf_tau_ms = (1.0 / 160.0) * 1000.0;
+    
+    pub fn init(rate: u32) @This() {
+        const dt = std.time.ms_per_s / @intToFloat(f32, rate);
+        return .{
+            .lpf_a = dt / lpf_tau_ms,
+            .hpf_a = dt / hpf_tau_ms,
+        };
+    }
 
     pub fn sample(self: *@This(), vm: *VirtualMachine) f32 {
         const level = (vm.reg.xout & 0xF0) >> 4;
-        const level_float = ((@intToFloat(f32, level) / 7.0) * 2.0) - 1.0;
         
-        self.bias = (self.alpha * self.bias) + ((1.0 - self.alpha) * level_float);
-        return (level_float - self.bias) * self.volume;
+        //normalize the 4-bit int to a float [-1.0,1.0]
+        const level_norm = ((@intToFloat(f32, level) / 15.0) * 2.0) - 1.0;
+        
+        self.lpf_pv += self.lpf_a * (level_norm - self.lpf_pv);
+        self.hpf_pv += self.hpf_a * (level_norm - self.hpf_pv);
+        
+        return self.hpf_pv - self.lpf_pv;
     }
 };

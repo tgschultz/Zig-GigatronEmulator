@@ -479,7 +479,8 @@ pub fn main() !void {
     var plugface: Gigatron.PluggyMcPlugface = undefined; 
     var blinken: Gigatron.BlinkenLights = undefined;
     var vga: Gigatron.VgaMonitor = undefined;
-    var audio = Gigatron.Audio{.volume = 0.1};
+    var audio = Gigatron.Audio.init(gigatron_clock_rate / 100);
+    //audio.volume = 0.1;
     
     //@TODO: Selectable rom
     const current_dir = std.fs.cwd();
