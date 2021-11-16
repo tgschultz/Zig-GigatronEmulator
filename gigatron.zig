@@ -867,6 +867,6 @@ pub const Audio = struct {
         self.lpf_pv += self.lpf_a * (level_norm - self.lpf_pv);
         self.hpf_pv += self.hpf_a * (level_norm - self.hpf_pv);
         
-        return self.hpf_pv - self.lpf_pv;
+        return (self.hpf_pv - self.lpf_pv) * self.volume;
     }
 };
