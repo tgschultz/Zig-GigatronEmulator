@@ -504,7 +504,7 @@ pub fn main() !void {
     //defer sound_thread.join();
 
     plugface.init();
-    
+
     //@TODO: This will glitch on rollover (except in debug, where it'll crash)
     // after about 93k years or so of real time
     var cycle: u64 = 0; 
@@ -513,7 +513,8 @@ pub fn main() !void {
         plugface.cycle(&vm);
         blinken.cycle(&vm);
         
-        if(vga.cycle(&vm)) {
+        const render = vga.cycle(&vm);
+        if(render) {
             //@TODO: skip rendering if behind on frames
             try main_window.render(&vga, &blinken);
         }

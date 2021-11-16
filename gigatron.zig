@@ -355,18 +355,12 @@ pub const VirtualMachine = struct {
 //////////////////////
 
 
-//@TODO: rejigger the logic
-// try to avoid so many branches and mod/div
-// Alternatively: rewrite so it is not dependent
-// on gigatron rom timings and instead performs
-// more like a real vga monitor would for non-std
-// software. For that, I guess do timings from the
-// *start* of the pulses?
-//
-//Consider rewriting as a state machine
-//
+//@TODO: This could be cleaner, and it could
+// also be more compatible with alternative timings
+// and cpu clock rates.
 //Consider double buffering here so theoretically
-// a thread could pull video while emulation continues
+// a thread could pull video at any point during
+// instead of waiting for a signal here.
 //
 // why 28 instead of 33 lines of vsync back porch?
 ////Explained in ROMv5a.asm.py lines 187-206:
@@ -392,8 +386,21 @@ pub const VirtualMachine = struct {
 // #    unaffected
 // vBack -= vPulseExtension
 pub const VgaMonitor = struct {
-    clock:  usize,
     pixels: [vid_width * vid_height]Pixel,
+    state: union(enum) {
+        v_blank: void, //wait for vsync to go high
+        v_back_porch: u5, //count hsync pulses
+        v_visible: struct {
+            y: u9,
+            state: union(enum) {
+                h_blank: void, //wait for hsync to go high
+                h_back_porch: u4, //count cycles
+                h_visible: u10, //count pixels
+                h_front_porch: void, //wait for h blank
+            },
+        },
+        v_front_porch: void, //wait for vsync to go low
+    },
 
     pub const vid_width = 640;
     pub const vid_height = 480;
@@ -462,45 +469,56 @@ pub const VgaMonitor = struct {
     pub fn cycle(self: *@This(), vm: *VirtualMachine) bool {
         const px = @bitCast(Pixel, vm.reg.out);
         
-        switch(vm.vsync) {
-            .falling => return true,
-            .low => return false,
-            .rising => {
-                self.clock = 0;
-                return false;
+        switch(self.state) {
+            .v_blank => {
+                if(vm.vsync == .rising) self.state = .{.v_back_porch = 1};
             },
-            .high => switch(vm.hsync) {
-                .falling, .low => return false,
-                .rising => {
-                    //align clock to the nearest H-cycle
-                    self.clock = self.clock - (self.clock % h_cycle) + h_cycle;
+            .v_back_porch => |*h_pulses| {
+                if(vm.hsync == .rising) {
+                    if(h_pulses.* >= v_back_porch) {
+                        self.state = .{.v_visible = .{
+                            .y = 0,
+                            .state = .{.h_back_porch = 1}, //not h_blank because we're already rising
+                        }};
+                        return false;
+                    }
+                    h_pulses.* += 1;
+                }
+            },
+            .v_visible => |*vis| switch(vis.state) {
+                .h_blank => if(vm.hsync == .rising) {
+                    vis.y += 1;
+                    if(vis.y >= vid_height) {
+                        self.state = .{.v_front_porch = void{}};
+                        return false;
+                    }
+                    vis.state = .{.h_back_porch = 1};
                 },
-                .high => {},
+                .h_back_porch => |*count| {
+                    if(count.* >= h_back_porch - 1) {
+                        vis.state = .{.h_visible = 0,};
+                        return false;
+                    }
+                    count.* += 1;
+                },
+                .h_visible => |*x| {
+                    if(x.* >= vid_width) {
+                        vis.state = .{.h_front_porch = void{}};
+                        return false;
+                    }
+                    const idx: usize = (@as(usize, vis.y) * vid_width) + @as(usize, x.*);
+                    for(self.pixels[idx..idx + 4]) |*p| p.* = px;
+                    x.* += 4;
+                },
+                .h_front_porch => {
+                    if(vm.hsync == .falling) vis.state = .{.h_blank = void{}};
+                }
+            },
+            .v_front_porch => if(vm.vsync == .falling) {
+                self.state = .{.v_blank = void{}};
+                return true;
             },
         }
-
-        //Top edge of visible
-        if(self.clock < (v_back_porch * h_cycle)) return false;
-        //Bottom edge of visibe
-        if(self.clock >= ((v_cycle - v_front_porch) * h_cycle)) return false;
-                    
-        const x = self.clock % h_cycle;
-        //left edge of visible
-        if(x < h_back_porch) {
-            self.clock += 1;
-            return false;
-        }
-        //right edge of visible
-        if(x >= (h_cycle - h_front_porch)) return false;
-        
-        const y = self.clock / h_cycle;
-        const y_index = (y - v_back_porch) * vid_width;
-        const x_offset = (x - h_back_porch) * 4; //4 vga color clocks per gigatron clock
-        const i = y_index + x_offset;
-        
-        for(self.pixels[i..(i + 4)]) |*p| p.* = px;
-        
-        self.clock += 1;
         return false;
     }
 };
@@ -706,7 +724,6 @@ pub const PluggyMcPlugface = struct {
                         8 => {
                             if(save.bits !=0 ) self.breakSave();
                             self.state = .{.idle = .{}};
-                            std.debug.print("saved data: \n==\n{s}\n==\n", .{self.data[0..self.data_end]});
                         },
                         9 => {
                             save.register >>= 1;
