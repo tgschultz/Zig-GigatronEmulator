@@ -7,7 +7,7 @@ This is a casual project I work on for my own amusement. I'd never written an em
  - Emulation of the Gigatron itself is more-or-less cycle accurate, with the exception of how undefined behavior behaves relative to real-world.
  - VGA is emulated well enough to show the Gigatron ROM's intended image, although it could be improved in relation to real VGA hardware.
  - Blinkenlights blink.
- - Audio is emulated, although I am skeptical that the implementation of the high and low pass filtering is correct.
+ - Audio is emulated, although I am skeptical that the implementation of the bandpass filtering is correct.
  - Gamepad emulated (though no platforms yet support an actual gamepad).
  - Pluggy McPlugface key inputs work, including gamepad emulation. tinyBasic save/load works (F3 loads, not ctrl-F3).
  
@@ -25,7 +25,7 @@ This is a casual project I work on for my own amusement. I'd never written an em
  - Place resulting binary in a directory with a Gigatron rom file named "ROMv5a.rom", which can be obtained here: https://github.com/kervinck/gigatron-rom/blob/master/ROMv5a.rom
  
  ## Images
- ![ROMv5a Menu](https://github.com/tgschultz/Zig-GigatronEmulator/blob/main/rom5a-menu.png)
- ![Snake](https://github.com/tgschultz/Zig-GigatronEmulator/blob/main/snake.png)
- ![Racer](https://github.com/tgschultz/Zig-GigatronEmulator/blob/main/racer.png)
- ![Tetronis](https://github.com/tgschultz/Zig-GigatronEmulator/blob/main/tetronis.png)
+ ![ROMv5a Menu](https://github.com/tgschultz/Zig-GigatronEmulator/blob/main/snaps/rom5a-menu.png)
+ ![Snake](https://github.com/tgschultz/Zig-GigatronEmulator/blob/main/snaps/snake.png)
+ ![Racer](https://github.com/tgschultz/Zig-GigatronEmulator/blob/main/snaps/racer.png)
+ ![Tetronis](https://github.com/tgschultz/Zig-GigatronEmulator/blob/main/snaps/tetronis.png)

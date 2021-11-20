@@ -8,8 +8,7 @@ const Gigatron = @import("gigatron.zig");
 
 pub fn main() !void {
     var vm: Gigatron.VirtualMachine = undefined; //std.mem.zeroes(Gigatron.VirtualMachine);
-    var blinken: Gigatron.BlinkenLights = undefined; //std.mem.zeroes(Gigatron.Leds);
-    var vga: Gigatron.VgaMonitor = undefined; //std.mem.zeroes(Gigatron.VgaMonitor);
+    var vga = Gigatron.VgaMonitor{}; //std.mem.zeroes(Gigatron.VgaMonitor);
     var plugface: Gigatron.PluggyMcPlugface = undefined;
     
     const current_dir = std.fs.cwd();
@@ -25,8 +24,6 @@ pub fn main() !void {
     var i = @as(u32, 0);
     while(i < 1_000_000_000):(i += 1) {
         vm.cycle();
-        blinken.cycle(&vm);
-        if(blinken.last == @truncate(u4, vm.reg.xout & 0x0F)) std.debug.print("LED: {any}\n", .{blinken.leds});
         plugface.cycle(&vm);
         if(vga.cycle(&vm)) {
             std.debug.print("==render==\n", .{});

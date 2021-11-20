@@ -240,7 +240,7 @@ const MainWindow = struct {
         _ = win32.DestroyWindow(self.hWnd);
     }
     
-    fn render(self: *@This(), vga: *Gigatron.VgaMonitor, bl: *Gigatron.BlinkenLights) !void {
+    fn render(self: *@This(), vga: *Gigatron.VgaMonitor, leds: [4]bool) !void {
         //copy the monitor pixels into the frame buffer:
         for(vga.pixels[0..(vid_width * vid_height)]) |p, i| {
             self.frame_buffer[i] = Gigatron.VgaMonitor.convert(RGB888, p);
@@ -260,12 +260,12 @@ const MainWindow = struct {
             const start_1 = start_0 + width + spacing;
             const start_2 = start_1 + width + spacing;
             const start_3 = start_2 + width + spacing;
-            
+
             p.* = switch(x) {
-                start_0...start_0 + (width - 1) => if(bl.leds[0]) red else black,
-                start_1...start_1 + (width - 1) => if(bl.leds[1]) red else black,
-                start_2...start_2 + (width - 1) => if(bl.leds[2]) red else black,
-                start_3...start_3 + (width - 1) => if(bl.leds[3]) red else black,
+                start_0...start_0 + (width - 1) => if(leds[0]) red else black,
+                start_1...start_1 + (width - 1) => if(leds[1]) red else black,
+                start_2...start_2 + (width - 1) => if(leds[2]) red else black,
+                start_3...start_3 + (width - 1) => if(leds[3]) red else black,
                 else => grey,
             };
         }
@@ -477,8 +477,7 @@ pub const Sound = struct {
 pub fn main() !void {
     var vm: Gigatron.VirtualMachine = undefined;
     var plugface: Gigatron.PluggyMcPlugface = undefined; 
-    var blinken: Gigatron.BlinkenLights = undefined;
-    var vga: Gigatron.VgaMonitor = undefined;
+    var vga = Gigatron.VgaMonitor{};
     var audio = Gigatron.Audio.init(gigatron_clock_rate / 100);
     //audio.volume = 0.1;
     
@@ -506,17 +505,17 @@ pub fn main() !void {
     plugface.init();
 
     //@TODO: This will glitch on rollover (except in debug, where it'll crash)
-    // after about 93k years or so of real time
+    // after about 93k years or so, if running in real time
     var cycle: u64 = 0; 
     while(true) : (cycle += 1) {
         vm.cycle();
         plugface.cycle(&vm);
-        blinken.cycle(&vm);
         
         const render = vga.cycle(&vm);
         if(render) {
+            const leds = Gigatron.BlinkenLights.sample(&vm);
             //@TODO: skip rendering if behind on frames
-            try main_window.render(&vga, &blinken);
+            try main_window.render(&vga, leds);
         }
         
         //62500hz

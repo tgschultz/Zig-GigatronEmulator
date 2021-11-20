@@ -386,33 +386,33 @@ pub const VirtualMachine = struct {
 // #    unaffected
 // vBack -= vPulseExtension
 pub const VgaMonitor = struct {
-    pixels: [vid_width * vid_height]Pixel,
+    pixels: [vid_width * vid_height]Pixel = undefined,
     state: union(enum) {
-        v_blank: void, //wait for vsync to go high
+        v_blank:      void, //wait for vsync to go high
         v_back_porch: u5, //count hsync pulses
-        v_visible: struct {
+        v_visible:    struct {
             y: u9,
             state: union(enum) {
-                h_blank: void, //wait for hsync to go high
-                h_back_porch: u4, //count cycles
-                h_visible: u10, //count pixels
+                h_blank:       void, //wait for hsync to go high
+                h_back_porch:  u4, //count cycles
+                h_visible:     u10, //count pixels
                 h_front_porch: void, //wait for h blank
             },
         },
         v_front_porch: void, //wait for vsync to go low
-    },
+    } = .{.v_blank = void{}},
 
-    pub const vid_width = 640;
+    pub const vid_width  = 640;
     pub const vid_height = 480;
     //in gigatron clocks @TODO: needs overhaul for alternative clock rates
-    const h_visible = 160;
-    const h_back_porch = 12;
-    const h_front_porch = 40;
+    const h_visible      = 160;
+    const h_back_porch   = 12;
+    const h_front_porch  = 40;
     const h_cycle = h_back_porch + h_visible + h_front_porch;
     
     //in h_cycles
-    const v_visible = 480;
-    const v_back_porch = 28; //(normally 33, ROM adjusts)
+    const v_visible     = 480;
+    const v_back_porch  = 28; //(normally 33, ROM adjusts)
     const v_front_porch = 7; //(normally 10, ROM adjusts)
     const v_cycle = v_back_porch + v_visible + v_front_porch; //ignores the vblank
     
@@ -471,14 +471,16 @@ pub const VgaMonitor = struct {
         
         switch(self.state) {
             .v_blank => {
-                if(vm.vsync == .rising) self.state = .{.v_back_porch = 1};
+                if(vm.vsync == .rising) self.state = .{.v_back_porch = 0};
             },
             .v_back_porch => |*h_pulses| {
                 if(vm.hsync == .rising) {
-                    if(h_pulses.* >= v_back_porch) {
+                    if(h_pulses.* >= v_back_porch - 1) {
                         self.state = .{.v_visible = .{
                             .y = 0,
-                            .state = .{.h_back_porch = 1}, //not h_blank because we're already rising
+                            //not h_blank because we're already rising, which means
+                            // we're already 1 cycle in
+                            .state = .{.h_back_porch = 1}, 
                         }};
                         return false;
                     }
@@ -492,7 +494,8 @@ pub const VgaMonitor = struct {
                         self.state = .{.v_front_porch = void{}};
                         return false;
                     }
-                    vis.state = .{.h_back_porch = 1};
+                    //already rising, so already 1 cycle in
+                    vis.state = .{.h_back_porch = 1}; 
                 },
                 .h_back_porch => |*count| {
                     if(count.* >= h_back_porch - 1) {
@@ -525,18 +528,14 @@ pub const VgaMonitor = struct {
 
 //By your command
 pub const BlinkenLights = struct {
-    last: u4,
-    leds: [4]bool,
-    
-    pub fn cycle(self: *@This(), vm: *VirtualMachine) void {
-        const curr = @truncate(u4, vm.reg.xout & 0x0F);
-        //only bother to update leds if anything actually changed
-        if(curr == self.last) return;
-        self.last = curr;
-        self.leds[0] = curr & 0x1 > 0;
-        self.leds[1] = curr & 0x2 > 0;
-        self.leds[2] = curr & 0x4 > 0;
-        self.leds[3] = curr & 0x8 > 0;
+    pub fn sample(vm: *VirtualMachine) [4]bool {
+        const leds = @truncate(u4, vm.reg.xout & 0x0F);
+        return .{
+            leds & 0x1 > 0,
+            leds & 0x2 > 0,
+            leds & 0x4 > 0,
+            leds & 0x8 > 0,
+        };
     }
 };
 
@@ -838,13 +837,14 @@ pub const PluggyMcPlugface = struct {
 //The shcematic indicates a low pass filter of 700Hz
 // and a high pass of 160Hz. However, I am too tone
 // deaf to determine from recordings if these values
-// produce correct results, assuming of course my
+// produce correct results when compared to youtube
+// recordings of real Gigatrons, assuming of course my
 // algorithms are even correct. 
 pub const Audio = struct {
     lpf_pv: f32 = 0.0,
     hpf_pv: f32 = 0.0,
-    lpf_a: f32,
-    hpf_a: f32,
+    lpf_a:  f32,
+    hpf_a:  f32,
     volume: f32 = 1.0,
     
     const lpf_tau_ms = (1.0 / 700.0) * 1000.0;
