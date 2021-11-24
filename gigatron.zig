@@ -3,6 +3,7 @@
 //https://cdn.hackaday.io/files/20781889094304/Schematics%202020-03-20.pdf
 //https://faculty-web.msoe.edu/johnsontimoj/EE3921/files3921/vga_basics.pdf
 //https://forum.gigatron.io/viewtopic.php?f=4&t=248
+//https://github.com/kervinck/gigatron-rom/blob/master/Contrib/pkupper/BabelFish/BabelFish.ino
 
 const std = @import("std");
 const builtin = @import("builtin");
@@ -23,15 +24,15 @@ pub const Instruction = switch(native_endian) {
 
     .Big => packed struct {
         usingnamespace InstructionCommon;
-        operation: InstructionCommon.Operation,
-        mode:      InstructionCommon.Mode,
-        bus:       InstructionCommon.Bus,
+        operation: @This().Operation,
+        mode:      @This().Mode,
+        bus:       @This().Bus,
     },
     .Little => packed struct {
         usingnamespace InstructionCommon;
-        bus:       InstructionCommon.Bus,
-        mode:      InstructionCommon.Mode,
-        operation: InstructionCommon.Operation,
+        bus:       @This().Bus,
+        mode:      @This().Mode,
+        operation: @This().Operation,
     },
 };
 
@@ -351,7 +352,7 @@ pub const VirtualMachine = struct {
 
 //@TODO: Peripherals:
 // Loader
-// rest of the BableFish modes
+// rest of the BabelFish modes
 //////////////////////
 
 
@@ -544,24 +545,24 @@ pub const BlinkenLights = struct {
 // input states
 pub const Buttons = switch(native_endian) {
     .Big => packed struct {
-        a:      u1,
-        b:      u1,
-        select: u1,
-        start:  u1,
-        up:     u1,
-        down:   u1,
-        left:   u1,
-        right:  u1,
+        a:      u1 = 1,
+        b:      u1 = 1,
+        select: u1 = 1,
+        start:  u1 = 1,
+        up:     u1 = 1,
+        down:   u1 = 1,
+        left:   u1 = 1,
+        right:  u1 = 1,
     },
     .Little => packed struct {
-        right:  u1,
-        left:   u1,
-        down:   u1,
-        up:     u1,
-        start:  u1,
-        select: u1,
-        b:      u1,
-        a:      u1,
+        right:  u1 = 1,
+        left:   u1 = 1,
+        down:   u1 = 1,
+        up:     u1 = 1,
+        start:  u1 = 1,
+        select: u1 = 1,
+        b:      u1 = 1,
+        a:      u1 = 1,
     },
 };
 
@@ -598,8 +599,9 @@ pub const Gamepad = struct {
 // (mostly in the loading), is not really correct as I'm just
 // using extended frame counts instead of waiting.
 
-//@TODO: I'm not doing the things necesary to load
+//@TODO: I'm not doing the things necesary to save or load
 // programs in MSBASIC (which requires very very long delays.)
+// and in fact typing too fast seems to confuse it as well
 
 //@TODO: Plugface load TinyBasic from on-board 8k flash
 pub const PluggyMcPlugface = struct {
@@ -637,10 +639,13 @@ pub const PluggyMcPlugface = struct {
         load,
     };
     
-    pub fn init(self: *@This()) void {
-        self.state = .{.idle = .{}};
-        self.buttons = @bitCast(Buttons, @as(u8, 0xFF));
-        self.data_end = 0;
+    pub fn init() @This() {
+        return .{
+            .state = .{.idle = .{}},
+            .buttons = @bitCast(Buttons, @as(u8, 0xFF)),
+            .data_end = 0,
+            .data = undefined,
+        };
     }
 
     //Mimics a 4012B shift register
@@ -831,6 +836,7 @@ pub const PluggyMcPlugface = struct {
         }
     }
 };
+
 
 //Given a sample rate, the Audio peripheral will
 // handle the bandpass filtering of the output.

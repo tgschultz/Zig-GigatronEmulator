@@ -19,7 +19,7 @@ const gigatron_clock_rate = Gigatron.clock_rate;
 var main_window: MainWindow = undefined;
 var sound: Sound = undefined;
 
-//@TODO: Allow for selectable resolution, handle HiDPI
+//@TODO: Allow for selectable resolution, fullscreen, handle HiDPI
 //Handles main display and blinkenlights
 const MainWindow = struct {
     hModule: win32.HINSTANCE,
@@ -48,16 +48,6 @@ const MainWindow = struct {
     fn init(b: *Gigatron.Buttons, p: *Gigatron.PluggyMcPlugface) !void {
         const self = &main_window;
         self.buttons = b;
-        self.buttons.* = .{
-            .a      = 1,
-            .b      = 1,
-            .select = 1,
-            .start  = 1,
-            .up     = 1,
-            .down   = 1,
-            .left   = 1,
-            .right  = 1,
-        };
         self.plugface = p;
         
         self.hModule = try win32.hErr(win32.GetModuleHandleW(null));
@@ -476,7 +466,7 @@ pub const Sound = struct {
 
 pub fn main() !void {
     var vm: Gigatron.VirtualMachine = undefined;
-    var plugface: Gigatron.PluggyMcPlugface = undefined; 
+    var plugface = Gigatron.PluggyMcPlugface.init(); 
     var vga = Gigatron.VgaMonitor{};
     var audio = Gigatron.Audio.init(gigatron_clock_rate / 100);
     //audio.volume = 0.1;
@@ -501,8 +491,6 @@ pub fn main() !void {
     //@NOTE: This would cause any thrown error to simply wait forever
     //for a join that never happens
     //defer sound_thread.join();
-
-    plugface.init();
 
     //@TODO: This will glitch on rollover (except in debug, where it'll crash)
     // after about 93k years or so, if running in real time

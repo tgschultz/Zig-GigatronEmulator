@@ -9,7 +9,7 @@ const Gigatron = @import("gigatron.zig");
 pub fn main() !void {
     var vm: Gigatron.VirtualMachine = undefined; //std.mem.zeroes(Gigatron.VirtualMachine);
     var vga = Gigatron.VgaMonitor{}; //std.mem.zeroes(Gigatron.VgaMonitor);
-    var plugface: Gigatron.PluggyMcPlugface = undefined;
+    var plugface = Gigatron.PluggyMcPlugface.init();
     
     const current_dir = std.fs.cwd();
     const rom_file = try current_dir.openFile("ROMv5a.rom", .{ .read = true });
@@ -18,8 +18,6 @@ pub fn main() !void {
     rom_file.close();
 
     vm.start();
-    
-    plugface.init();
 
     var i = @as(u32, 0);
     while(i < 1_000_000_000):(i += 1) {
