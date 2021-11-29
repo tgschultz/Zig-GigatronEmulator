@@ -1,21 +1,21 @@
-const win32 = @import("win32.zig").everything;
+const win32 = @import("win32.zig");
 const WINAPI = @import("std").os.windows.WINAPI;
 
-const BOOL = win32.BOOL;
-const CHAR = win32.CHAR;
-const DWORD = win32.DWORD;
-const FLOAT = win32.FLOAT;
-const HANDLE = win32.HANDLE;
-const HDC = win32.HDC;
-const HGLRC = win32.HGLRC;
-const INT = win32.INT;
-const INT32 = win32.INT32;
-const INT64 = win32.INT64;
-const LPVOID = win32.LPVOID;
-const RECT = win32.RECT;
+const BOOL = win32.foundation.BOOL;
+const CHAR = win32.foundation.CHAR;
+const DWORD = win32.foundation.DWORD;
+const FLOAT = win32.foundation.FLOAT;
+const HANDLE = win32.foundation.HANDLE;
+const HDC = win32.graphics.gdi.HDC;
+const HGLRC = win32.graphics.open_gl.HGLRC;
+const INT = win32.foundation.INT;
+const INT32 = win32.foundation.INT32;
+const INT64 = win32.foundation.INT64;
+const LPVOID = win32.foundation.LPVOID;
+const RECT = win32.foundation.RECT;
 const UINT = c_uint;
-const USHORT = win32.USHORT;
-const VOID = win32.VOID;
+const USHORT = win32.foundation.USHORT;
+const VOID = win32.foundation.VOID;
 
 
 pub const ERROR_INCOMPATIBLE_AFFINITY_MASKS_NV = 8400;
@@ -1429,24 +1429,3 @@ pub extern "opengl32" fn glVertex4s(x: GLshort, y: GLshort, z: GLshort, w: GLsho
 pub extern "opengl32" fn glVertex4sv(v: ?*const GLshort) callconv(WINAPI) void;
 pub extern "opengl32" fn glVertexPointer(size: GLint, type_0: GLenum, stride: GLsizei, pointer: ?*const GLvoid) callconv(WINAPI) void;
 pub extern "opengl32" fn glViewport(x: GLint, y: GLint, width: GLsizei, height: GLsizei) callconv(WINAPI) void;
-
-//These are actually in win32.everything
-//pub extern "opengl32" fn wglCopyContext(arg0: HGLRC, arg1: HGLRC, arg2: UINT) callconv(WINAPI) BOOL;
-//pub extern "opengl32" fn wglCreateContext(arg0: HDC) callconv(WINAPI) HGLRC;
-//pub extern "opengl32" fn wglCreateLayerContext(arg0: HDC, arg1: c_int) callconv(WINAPI) HGLRC;
-//pub extern "opengl32" fn wglDeleteContext(arg0: HGLRC) callconv(WINAPI) BOOL;
-//pub extern "opengl32" fn wglDescribeLayerPlane(arg0: HDC, arg1: c_int, arg2: c_int, arg3: UINT, arg4: ?*LAYERPLANEDESCRIPTOR) callconv(WINAPI) BOOL;
-//pub extern "opengl32" fn wglGetCurrentContext() callconv(WINAPI) HGLRC;
-//pub extern "opengl32" fn wglGetCurrentDC() callconv(WINAPI) HDC;
-//pub extern "opengl32" fn wglGetLayerPaletteEntries(arg0: HDC, arg1: c_int, arg2: c_int, arg3: c_int, arg4: ?*COLORREF) callconv(WINAPI) c_int;
-//pub extern "opengl32" fn wglGetProcAddress(LPCSTR) callconv(WINAPI) PROC;
-//pub extern "opengl32" fn wglMakeCurrent(arg0: HDC, arg1: HGLRC) callconv(WINAPI) BOOL;
-//pub extern "opengl32" fn wglRealizeLayerPalette(arg0: HDC, arg1: c_int, arg2: BOOL) callconv(WINAPI) BOOL;
-//pub extern "opengl32" fn wglSetLayerPaletteEntries(arg0: HDC, arg1: c_int, arg2: c_int, arg3: c_int, arg4: ?*const COLORREF) callconv(WINAPI) c_int;
-//pub extern "opengl32" fn wglShareLists(arg0: HGLRC, arg1: HGLRC) callconv(WINAPI) BOOL;
-//pub extern "opengl32" fn wglSwapLayerBuffers(arg0: HDC, arg1: UINT) callconv(WINAPI) BOOL;
-//pub extern "opengl32" fn wglSwapMultipleBuffers(arg0: UINT, arg1: ?*const WGLSWAP) callconv(WINAPI) DWORD;
-//pub extern "opengl32" fn wglUseFontBitmapsA(arg0: HDC, arg1: DWORD, arg2: DWORD, arg3: DWORD) callconv(WINAPI) BOOL;
-//pub extern "opengl32" fn wglUseFontBitmapsW(arg0: HDC, arg1: DWORD, arg2: DWORD, arg3: DWORD) callconv(WINAPI) BOOL;
-//pub extern "opengl32" fn wglUseFontOutlinesA(arg0: HDC, arg1: DWORD, arg2: DWORD, arg3: DWORD, arg4: FLOAT, arg5: FLOAT, arg6: c_int, arg7: ?*GLYPHMETRICSFLOAT) callconv(WINAPI) BOOL;
-//pub extern "opengl32" fn wglUseFontOutlinesW(arg0: HDC, arg1: DWORD, arg2: DWORD, arg3: DWORD, arg4: FLOAT, arg5: FLOAT, arg6: c_int, arg7: ?*GLYPHMETRICSFLOAT) callconv(WINAPI) BOOL;
