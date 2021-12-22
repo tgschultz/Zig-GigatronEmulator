@@ -595,245 +595,212 @@ pub const Gamepad = struct {
     }
 };
 
-//@TODO: All behavior involving delays after sending characters
-// (mostly in the loading), is not really correct as I'm just
-// using extended frame counts instead of waiting.
-
-//@TODO: I'm not doing the things necesary to save or load
-// programs in MSBASIC (which requires very very long delays.)
-// and in fact typing too fast seems to confuse it as well
-
-//@TODO: Plugface load TinyBasic from on-board 8k flash
-pub const PluggyMcPlugface = struct {
-    state: State,
-    buttons: Buttons,
-
-    data: [510]u8, //double check this value, why not 512?
-    data_end: u10,
-
-    pub const State = union(enum) {
-        idle: struct {
-            pulses: u4 = 0,
-        },
-        send: struct {
-            value: u8,
-            register: u8,
-            bits: u4 = 8,
-            frames: u8 = 1,
-        },
-        save: struct {
-            register: u8,
-            bits: u4,
-            pulses: u4 = 0,
-            line_empty: bool = true,
-        },
-        load: struct {
-            index: u10,
-            frames: u8 = 4,
-            register: u8,
-            bits: u4 = 8,
-        },
+//@TODO: MSBASIC save still not working...
+// pretty sure it is broken on Gigatron ROM end
+// https://github.com/kervinck/gigatron-rom/issues/205
+pub const BabelFish = struct {
+    frame:     anyframe        = undefined,
+    coroutine: @Frame(run)     = undefined,
+    vm:        *VirtualMachine = undefined,
+    tape:      Tape            = .{},
+    buttons:   Buttons         = .{},
+    key:       Key             = .{ .none = void{}, },
+    
+    const Tape = struct {
+        data:       []u8  = std.mem.zeroes([]u8),
+        pos:        usize = 0,
+        line_empty: bool  = true,
     };
     
-    pub const ControlKey = enum {
+    const Key = union(enum) {
+        none:  void,
+        //technically u7, but who needs all that casting?
+        ascii: u8,
+        ctrl:  ControlKey,
+    };
+    
+    const ControlKey = enum {
         load,
     };
     
-    pub fn init() @This() {
-        return .{
-            .state = .{.idle = .{}},
-            .buttons = @bitCast(Buttons, @as(u8, 0xFF)),
-            .data_end = 0,
-            .data = undefined,
-        };
+    pub fn init(self: *@This(), tape: []u8) void {
+        self.tape.data = tape;
+        self.coroutine = async run(self);
     }
 
-    //Mimics a 4012B shift register
-    // see gamepad notes for more details
-    //McPlugace emulates the gamepad using up/down/left/right arrow
-    // for dpad, pgdown/up for select/start, end/del/bksp for A and
-    // home or insert for B
     pub fn cycle(self: *@This(), vm: *VirtualMachine) void {
-        switch(self.state) {
-            .idle => |*idle| switch(vm.vsync) {
-                .falling => {
-                    const buttons_byte = @bitCast(u8, self.buttons);
-                    if(buttons_byte != 0xFF) {
-                        self.state = .{.send = .{
-                            .value = buttons_byte,
-                            .register = buttons_byte,
-                        }};
-                    } else idle.pulses = 0;
+        self.vm = vm;
+        resume self.frame;
+    }
+    
+    pub fn run(self: *@This()) void {
+        suspend {self.frame = @frame();}
+        
+        var byte: u8 = 0;
+        var bits: u4 = 0;
+        while(true) {
+            //count vsync pulses trying to form a byte
+            
+            //wait for vsync to be falling so we know we're at the
+            //start, in case we looped back here in the middle of a pulse
+            while(self.vm.vsync != .falling) { suspend {} }
+            
+            var count: u4 = 0;
+            while(self.vm.vsync != .rising) {
+                if(self.vm.hsync == .rising) count += 1;
+                //BabelFish sends ones by default
+                self.vm.reg.in <<= 1;
+                self.vm.reg.in |= 1;
+                suspend {}
+            }
+            
+            switch(count) {
+                7 => {
+                    byte >>= 1;
+                    bits += 1;
                 },
-                .low => if(vm.hsync == .rising) {
-                    idle.pulses += 1;
-                    //by default, BabelFish holds input high unless sending
-                    vm.reg.in <<= 1;
-                    vm.reg.in |= 0x01;
+                9 => {
+                    byte >>= 1;
+                    byte |= 0x80;
+                    bits += 1;
                 },
-                .rising => {
-                    switch(idle.pulses) {
-                        7 => self.state = .{.save = .{
-                            .register = 0,
-                            .bits = 1,
-                        }},
-                        9 => self.state = .{.save = .{
-                            .register = 0x80, //bits are sent low-to-high
-                            .bits = 1,
-                        }},
-                        else => {},
-                    }
+                else => {
+                    byte = 0;
+                    bits = 0;
                 },
-                else => {}
-            },
+            }
+            
+            if(bits == 8) {
+                self.recordTapeByte(byte);
+                bits = 0;
+                byte = 0;
+            }
+            
+            //handle input stuff
+            
+            //repeat inputs without returning to the rest
+            // of the loop as long as there is input
+            // to process
 
-            .send => |*send| switch(vm.vsync) {
-                .falling => {
-                    send.register = send.value;
-                    send.bits = 8;
-                },
-                .low => if(vm.hsync == .rising) {
-                    //shift out register
-                    const bit = (send.register & 0x80) >> 7;
-                    vm.reg.in <<= 1;
-                    vm.reg.in |= bit;
-                    send.register <<= 1;
-                    send.bits -= 1;
-                    if(send.bits == 0) send.frames -= 1;
-                },
-                else => if(send.frames == 0) {
-                    self.state = .{.idle = .{}};
-                },
-            },
+            while(@bitCast(u8, self.buttons) != 0xFF) {
+                self.sendKey(@bitCast(u8, self.buttons), 1);
+                suspend {}
+            }
             
-            .save => |*save| switch(vm.vsync) {
-                .falling => save.pulses = 0,
-                .low => if(vm.hsync == .rising) {
-                    save.pulses += 1;
-                    //by default, BabelFish holds input high unless sending
-                    vm.reg.in <<= 1;
-                    vm.reg.in |= 0x01;
-                },
-                .rising => {
-                     //bits are sent low-to-high
-                    switch(save.pulses) {
-                        7 => {
-                            save.register >>= 1;
-                            save.bits += 1;
-                            if(save.bits == 8) {
-                                self.saveChar(save.register);
-                                save.bits = 0;
-                            }
-                        },
-                        8 => {
-                            if(save.bits !=0 ) self.breakSave();
-                            self.state = .{.idle = .{}};
-                        },
-                        9 => {
-                            save.register >>= 1;
-                            save.register |= 0x80;
-                            save.bits += 1;
-                            if(save.bits == 8) {
-                                self.saveChar(save.register);
-                                save.bits = 0;
-                            }
-                        },
-                        else => self.breakSave(),
+            while(self.key != .none) {
+                switch(self.key) {
+                    .none => unreachable,
+                    .ascii => |k| {
+                        //we do this before so when we come back we don't overwrite a waiting key
+                        self.key = .{ .none = void{}, };
+                        self.sendKey(k, 2);
+                    },
+                    .ctrl => {
+                        self.key = .{ .none = void{}, };
+                        self.replayTape();
                     }
-                },
-                .high => { 
-                    if(self.inputReady()) self.state = .{.idle = .{}};
-                },
-            },
-            
-            .load => |*load| switch(vm.vsync) {
-                .falling => {
-                    load.register = self.data[load.index];
-                    load.bits = 8;
-                },
-                .low => if(vm.hsync == .rising) {
-                    if(load.bits == 0) {
-                        vm.reg.in <<= 1;
-                        vm.reg.in |= 0x1;
-                    } else {
-                        //shift out register
-                        const bit = (load.register & 0x80) >> 7;
-                        vm.reg.in <<= 1;
-                        vm.reg.in |= bit;
-                        load.register <<= 1;
-                        load.bits -= 1;
-                    }
-                },
-                .rising => {
-                    load.frames -= 1;
-                    if(load.frames == 0) {
-                        load.index += 1;
-                        if(load.index >= self.data_end) {
-                            self.state = .{.idle = .{}};
-                        } else load.frames = switch(self.data[load.index]) {
-                            '\n' => 8,
-                            else => 4,
-                        };
-                    }
-                },
-                else => {},
-            },
+                }
+                suspend {}
+            }
         }
     }
     
-    fn inputReady(self: *@This()) bool {
-        return @bitCast(u8, self.buttons) != 0xFF;
+    //wait for given number of emulated milliseconds
+    fn waitMs(self: *@This(), ms: usize) void {
+        const prev_frame = self.frame;
+        self.frame = @frame();
+        defer self.frame = prev_frame;
+
+        const clk_per_ms = clock_rate / 1000;
+        var cycles = ms * clk_per_ms;
+        while(cycles > 0) : (cycles -= 1) { suspend {} }
     }
     
-    fn breakSave(self: *@This()) void {
-        //invalidate save
-        self.data_end = 0;
-        self.asciiKeyPress(0x03); //ctrl-C (ascii EXT)
-        self.state.send.frames = 10; //make it a long one
-    }
+    //send controller data or keyboard key for frames
+    fn sendKey(self: *@This(), byte: u8, frames: u8) void {
+        const prev_frame = self.frame;
+        self.frame = @frame();
+        defer self.frame = prev_frame;
     
-    //Only printable chars count for line content. an empty line deletes
-    // the stored program. all stored programs end with a newline, so
-    // can check the last stored char >= 32 for empty line or not
-    fn saveChar(self: *@This(), char: u8) void {
-        const save = &self.state.save;
-        if(char == '\n') {
-            if(self.data_end == 0) return; //program already cleared, empty line does nothing
-            if(save.line_empty) {
-                //empty line is a signal to clear the current program
-                self.data_end = 0;
-                return;
-            }
-            if(self.data_end == self.data.len) {
-                //Out of memory
-                self.breakSave();
-                return;
-            }
-            save.line_empty = true;
-        } else if(char >= 32) save.line_empty = false;
+        while(self.vm.vsync != .falling) { suspend {} }
+        suspend {} //suspend one more cycle so we're in the pulse
         
-        self.data[self.data_end] = char;
-        self.data_end += 1;
+        var register = byte;
+        var f = frames;
+        while(f > 0) : (f -= 1) {
+            while(self.vm.vsync == .low) {
+                if(self.vm.hsync == .rising) {
+                    const bit = (register & 0x80) >> 7;
+                    self.vm.reg.in <<= 1;
+                    self.vm.reg.in |= bit;
+                    register <<= 1;
+                    //BabelFish sends ones by default
+                    register |= 1;
+                }
+                suspend {}
+            }
+        }
     }
     
-    pub fn asciiKeyPress(self: *@This(), ascii: u8) void {
-        self.state = .{.send = .{
-            .value = ascii,
-            .register = ascii,
-            .frames = 2,
-        }};
+    //replay the text stored in the buffer (usually a basic program)
+    fn replayTape(self: *@This()) void {
+        var line_delay: usize = 50;
+        var line_idx: usize = 0;
+        for(self.tape.data[0..self.tape.pos]) |byte| {
+            line_idx += 1;
+            self.sendKey(byte, 2);
+            
+            //delay extra at end of displayable line
+            const delay: usize = if(line_idx % 26 == 0) 300 else 20;
+            self.waitMs(delay);
+            
+            //additional line delays because MSBASIC
+            // in particular is slow
+            if(byte == '\r') {
+                line_delay = 300 + (line_idx * 50);
+            } else if(byte == '\n') {
+                self.waitMs(line_delay);
+                line_idx = 0;
+            }
+        }
+    }
+    
+    //append a byte to the buffer (usually a basic program)
+    fn recordTapeByte(self: *@This(), byte: u8) void {
+        //if we're out of space send a long break key,
+        // unless the line is empty
+        if(self.tape.pos != self.tape.data.len) {
+            self.tape.data[self.tape.pos] = byte;
+            self.tape.pos += 1;
+        } else if(!self.tape.line_empty) {
+            self.sendKey(0x03, 10);
+        }
+        
+        if(byte >= 32) {
+            self.tape.line_empty = false;
+        } else if(byte == '\n') {
+            //Two blank lines means: clear the tape.
+            if(self.tape.line_empty) {
+                self.tape.pos = 0;
+            }
+            self.tape.line_empty = true;
+        }
+    }
+    
+    //pub fn loadGt1(self: *@This()) void {
+    //    //60-bytes per frame
+    //    // 
+    //    
+    //}
+    
+    ///////////////
+    
+    pub fn asciiKeyPress(self: *@This(), key: u8) void {
+        self.key = .{ .ascii = key };
     }
     
     pub fn controlKeyPress(self: *@This(), control_key: ControlKey) void {
-        switch(control_key) {
-            .load => {
-                if(self.data_end == 0) return;
-                self.state = .{.load = .{
-                    .index = 0,
-                    .register = self.data[0],
-                }};
-            },
-        }
+        self.key = .{ .ctrl = control_key, };
     }
 };
 

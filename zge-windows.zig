@@ -17,10 +17,9 @@ pub fn hrStatus(hresult: win32.foundation.HRESULT) !win32.foundation.HRESULT {
     return error.HResultError;
 }
 
-
 pub fn intErr(atom: anytype) !@TypeOf(atom) {
     if(atom != 0) return atom;
-    const err = win32.system.diagnostics.debug.GetLastError();
+    const err = win32.foundation.GetLastError();
     const err_code = @truncate(u16, @enumToInt(err));
     std.log.err("INT error: {}, last error: 0x{X:0>4} - {s}\n", .{atom, err_code, err});
     return error.IntError;
@@ -28,7 +27,7 @@ pub fn intErr(atom: anytype) !@TypeOf(atom) {
 
 pub fn boolErr(b: win32.foundation.BOOL) !void {
     if(b != 0) return;
-    const err = win32.system.diagnostics.debug.GetLastError();
+    const err = win32.foundation.GetLastError();
     const err_code = @truncate(u16, @enumToInt(err));
     std.log.err("BOOL error: 0x{X:0>4} - {s}\n", .{err_code, err});
     return error.BoolError;
@@ -62,7 +61,7 @@ pub fn glErr(v: void) !void {
 // Alternatively we can just have a global for each window.
 //
 // Main window: vga output, blinkenlights
-// Debugger: step, watch, disassembly, ram view, rom view, register view, plugface data view
+// Debugger: step, watch, disassembly, ram view, rom view, register view, babelfish data view
 
 const gigatron_clock_rate = Gigatron.clock_rate;
 
@@ -72,18 +71,22 @@ var sound: Sound = undefined;
 //@TODO: Allow for selectable resolution, fullscreen, handle HiDPI
 //Handles main display and blinkenlights
 const MainWindow = struct {
-    hModule: win32.foundation.HINSTANCE,
-    wndClass: win32.ui.windows_and_messaging.WNDCLASSEXW,
-    hWnd: win32.foundation.HWND,
+    const wf = win32.foundation;
+    const wg = win32.graphics;
+    const wnm = win32.ui.windows_and_messaging;
     
-    hDC: win32.graphics.gdi.HDC,
-    wglRC: win32.graphics.open_gl.HGLRC,
+    hModule: wf.HINSTANCE,
+    wndClass: wnm.WNDCLASSEXW,
+    hWnd: wf.HWND,
+    
+    hDC: wg.gdi.HDC,
+    wglRC: wg.open_gl.HGLRC,
     
     gl_texture: gl.GLuint,
     frame_buffer: [vid_width * (vid_height + blinken_height)]RGB888,
     
     buttons: *Gigatron.Buttons,
-    plugface: *Gigatron.PluggyMcPlugface,
+    babelfish: *Gigatron.BabelFish,
 
     const vid_width = Gigatron.VgaMonitor.vid_width;
     const vid_height = Gigatron.VgaMonitor.vid_height;
@@ -95,34 +98,34 @@ const MainWindow = struct {
         b: u8,
     };
     
-    fn init(b: *Gigatron.Buttons, p: *Gigatron.PluggyMcPlugface) !void {
+    fn init(b: *Gigatron.Buttons, bf: *Gigatron.BabelFish) !void {
         const self = &main_window;
         self.buttons = b;
-        self.plugface = p;
+        self.babelfish = bf;
         
         self.hModule = win32.system.library_loader.GetModuleHandleW(null) orelse return error.InvalidModuleHanlde;
         
-        self.wndClass = std.mem.zeroes(win32.ui.windows_and_messaging.WNDCLASSEXW);
-        self.wndClass.cbSize = @sizeOf(win32.ui.windows_and_messaging.WNDCLASSEXW);
-        self.wndClass.style = win32.ui.windows_and_messaging.CS_OWNDC;
+        self.wndClass = std.mem.zeroes(wnm.WNDCLASSEXW);
+        self.wndClass.cbSize = @sizeOf(wnm.WNDCLASSEXW);
+        self.wndClass.style = wnm.CS_OWNDC;
         self.wndClass.lpfnWndProc = winProc;
         self.wndClass.hInstance = @ptrCast(
-            win32.foundation.HINSTANCE,
+            wf.HINSTANCE,
             self.hModule,
         );
-        self.wndClass.hCursor = win32.ui.windows_and_messaging.LoadCursorW(
+        self.wndClass.hCursor = wnm.LoadCursorW(
             null,
-            win32.ui.windows_and_messaging.IDC_ARROW,
+            wnm.IDC_ARROW,
         );
         self.wndClass.hbrBackground = @ptrCast(
-            win32.graphics.gdi.HBRUSH,
-            win32.graphics.gdi.GetStockObject(win32.graphics.gdi.BLACK_BRUSH),
+            wg.gdi.HBRUSH,
+            wg.gdi.GetStockObject(wg.gdi.BLACK_BRUSH),
         );
         self.wndClass.lpszClassName = std.unicode.utf8ToUtf16LeStringLiteral("ZGE");
 
-        _ = try intErr(win32.ui.windows_and_messaging.RegisterClassExW(&self.wndClass));
+        _ = try intErr(wnm.RegisterClassExW(&self.wndClass));
         
-        var display_rect = win32.foundation.RECT{
+        var display_rect = wf.RECT{
             .left   = 0,
             .top    = 0,
             .right  = vid_width,
@@ -131,70 +134,70 @@ const MainWindow = struct {
         
         //@TODO: use GetSystemMetrics instead of AdjustWindowRectEx because the latter is stupid. Alternatively
         // just create the window and then resize it afterwards by the difference between clientrect and its rect.
-        try boolErr(win32.ui.windows_and_messaging.AdjustWindowRectEx(
+        try boolErr(wnm.AdjustWindowRectEx(
             &display_rect, 
-            win32.ui.windows_and_messaging.WS_CAPTION,
+            wnm.WS_CAPTION,
             win32.zig.FALSE,
-            @intToEnum(win32.ui.windows_and_messaging.WINDOW_EX_STYLE, 0),
+            @intToEnum(wnm.WINDOW_EX_STYLE, 0),
         ));
         
-        const window_style = @intToEnum(win32.ui.windows_and_messaging.WINDOW_STYLE,
-            @enumToInt(win32.ui.windows_and_messaging.WS_OVERLAPPED)  |
-            @enumToInt(win32.ui.windows_and_messaging.WS_MINIMIZEBOX) |
-            @enumToInt(win32.ui.windows_and_messaging.WS_SYSMENU)
+        const window_style = @intToEnum(wnm.WINDOW_STYLE,
+            @enumToInt(wnm.WS_OVERLAPPED)  |
+            @enumToInt(wnm.WS_MINIMIZEBOX) |
+            @enumToInt(wnm.WS_SYSMENU)
         );
         
-        self.hWnd = win32.ui.windows_and_messaging.CreateWindowExW(
-            @intToEnum(win32.ui.windows_and_messaging.WINDOW_EX_STYLE, 0),
+        self.hWnd = wnm.CreateWindowExW(
+            @intToEnum(wnm.WINDOW_EX_STYLE, 0),
             self.wndClass.lpszClassName,
             std.unicode.utf8ToUtf16LeStringLiteral("Zig Gigatron Emulator"), //why not Zigatron? Because that's tacky.
             window_style,
-            win32.ui.windows_and_messaging.CW_USEDEFAULT,
-            win32.ui.windows_and_messaging.CW_USEDEFAULT,
+            wnm.CW_USEDEFAULT,
+            wnm.CW_USEDEFAULT,
             display_rect.right - display_rect.left,
             display_rect.bottom - display_rect.top,
             null,
             null,
-            @ptrCast(win32.foundation.HINSTANCE, self.hModule),
+            @ptrCast(wf.HINSTANCE, self.hModule),
             null
         ) orelse return error.CreateWindowFailed;
-        errdefer _ = win32.ui.windows_and_messaging.DestroyWindow(self.hWnd);
+        errdefer _ = wnm.DestroyWindow(self.hWnd);
 
         //We're going to use OpenGL to put a simple frame buffer on the screen because
         // frankly, it's the simplest way.
-        self.hDC = win32.graphics.gdi.GetDC(self.hWnd) orelse return error.InvalidDc;
-        errdefer _ = win32.graphics.gdi.ReleaseDC(self.hWnd, self.hDC);
-        var pfd = std.mem.zeroes(win32.graphics.open_gl.PIXELFORMATDESCRIPTOR);
-        pfd.nSize = @sizeOf(win32.graphics.open_gl.PIXELFORMATDESCRIPTOR);
+        self.hDC = wg.gdi.GetDC(self.hWnd) orelse return error.InvalidDc;
+        errdefer _ = wg.gdi.ReleaseDC(self.hWnd, self.hDC);
+        var pfd = std.mem.zeroes(wg.open_gl.PIXELFORMATDESCRIPTOR);
+        pfd.nSize = @sizeOf(wg.open_gl.PIXELFORMATDESCRIPTOR);
         pfd.nVersion = 1;
         pfd.dwFlags = 
-            win32.graphics.gdi.PFD_DRAW_TO_WINDOW
-            | win32.graphics.gdi.PFD_SUPPORT_OPENGL
-            | win32.graphics.gdi.PFD_DOUBLEBUFFER
-            | win32.graphics.gdi.PFD_TYPE_RGBA
+            wg.gdi.PFD_DRAW_TO_WINDOW
+            | wg.gdi.PFD_SUPPORT_OPENGL
+            | wg.gdi.PFD_DOUBLEBUFFER
+            | wg.gdi.PFD_TYPE_RGBA
         ;
         pfd.cColorBits = 24;
         pfd.cDepthBits = 0;
-        pfd.iLayerType = win32.graphics.gdi.PFD_MAIN_PLANE;
+        pfd.iLayerType = wg.gdi.PFD_MAIN_PLANE;
         
-        const pfi = try intErr(win32.graphics.open_gl.ChoosePixelFormat(self.hDC, &pfd));
-        try boolErr(win32.graphics.open_gl.SetPixelFormat(self.hDC, pfi, &pfd));
+        const pfi = try intErr(wg.open_gl.ChoosePixelFormat(self.hDC, &pfd));
+        try boolErr(wg.open_gl.SetPixelFormat(self.hDC, pfi, &pfd));
         
-        self.wglRC = win32.graphics.open_gl.wglCreateContext(self.hDC) orelse return error.CreateGlContextFailure;
-        errdefer _ = win32.graphics.open_gl.wglDeleteContext(self.wglRC);
+        self.wglRC = wg.open_gl.wglCreateContext(self.hDC) orelse return error.CreateGlContextFailure;
+        errdefer _ = wg.open_gl.wglDeleteContext(self.wglRC);
 
-        try boolErr(win32.graphics.open_gl.wglMakeCurrent(self.hDC, self.wglRC));
+        try boolErr(wg.open_gl.wglMakeCurrent(self.hDC, self.wglRC));
 
         try glErr(gl.glGenTextures(1, &self.gl_texture));
         
         //return indicates if window is already visible or not, we don't care.
-        _ = win32.ui.windows_and_messaging.ShowWindow(self.hWnd, win32.ui.windows_and_messaging.SW_SHOW); 
+        _ = wnm.ShowWindow(self.hWnd, wnm.SW_SHOW); 
         
         //This disables vsync, assuming the driver isn't forcing it
         // if we get forced to vsync then missed frames are likely.
         // We should probably do something about that, like run
         // the display copy in a different thread.
-        const wglSwapIntervalEXT_proc_addr = win32.graphics.open_gl.wglGetProcAddress("wglSwapIntervalEXT") orelse return error.GetProcAddressFailure;
+        const wglSwapIntervalEXT_proc_addr = wg.open_gl.wglGetProcAddress("wglSwapIntervalEXT") orelse return error.GetProcAddressFailure;
         const wglSwapIntervalEXT = @intToPtr(
             gl.PFNWGLSWAPINTERVALEXTPROC,
             @ptrToInt(wglSwapIntervalEXT_proc_addr)
@@ -204,97 +207,99 @@ const MainWindow = struct {
     
     //Ye olde WNDPROC
     pub fn winProc(
-        hWnd: win32.foundation.HWND,
+        hWnd: wf.HWND,
         uMsg: c_uint,
-        wParam: win32.foundation.WPARAM,
-        lParam: win32.foundation.LPARAM
-    ) callconv(std.os.windows.WINAPI) win32.foundation.LRESULT {
+        wParam: wf.WPARAM,
+        lParam: wf.LPARAM
+    ) callconv(std.os.windows.WINAPI) wf.LRESULT {
+        const wkm = win32.ui.input.keyboard_and_mouse;
+        
         const self = &main_window;
     
         //@TODO: actual gamepads, configurable controls
         switch(uMsg) {
-            win32.ui.windows_and_messaging.WM_CLOSE => win32.system.threading.ExitProcess(1),
+            wnm.WM_CLOSE => win32.system.threading.ExitProcess(1),
 
-            win32.ui.windows_and_messaging.WM_SYSKEYDOWN,
-            win32.ui.windows_and_messaging.WM_KEYDOWN => {
-                const key_param = @intToEnum(win32.ui.keyboard_and_mouse_input.VIRTUAL_KEY, wParam);
+            wnm.WM_SYSKEYDOWN,
+            wnm.WM_KEYDOWN => {
+                const key_param = @intToEnum(wkm.VIRTUAL_KEY, wParam);
                 switch(key_param) {
-                    win32.ui.keyboard_and_mouse_input.VK_UP     => self.buttons.up     = 0,
-                    win32.ui.keyboard_and_mouse_input.VK_DOWN   => self.buttons.down   = 0,
-                    win32.ui.keyboard_and_mouse_input.VK_LEFT   => self.buttons.left   = 0,
-                    win32.ui.keyboard_and_mouse_input.VK_RIGHT  => self.buttons.right  = 0,
-                    win32.ui.keyboard_and_mouse_input.VK_NEXT   => self.buttons.select = 0, //pg down
-                    win32.ui.keyboard_and_mouse_input.VK_PRIOR  => self.buttons.start  = 0, //pg up
-                    win32.ui.keyboard_and_mouse_input.VK_HOME,
-                    win32.ui.keyboard_and_mouse_input.VK_INSERT => self.buttons.b      = 0, //home or insert
-                    win32.ui.keyboard_and_mouse_input.VK_END,
-                    win32.ui.keyboard_and_mouse_input.VK_DELETE,
-                    win32.ui.keyboard_and_mouse_input.VK_BACK   => self.buttons.a      = 0, //end, del, bksp
+                    wkm.VK_UP     => self.buttons.up     = 0,
+                    wkm.VK_DOWN   => self.buttons.down   = 0,
+                    wkm.VK_LEFT   => self.buttons.left   = 0,
+                    wkm.VK_RIGHT  => self.buttons.right  = 0,
+                    wkm.VK_NEXT   => self.buttons.select = 0, //pg down
+                    wkm.VK_PRIOR  => self.buttons.start  = 0, //pg up
+                    wkm.VK_HOME,
+                    wkm.VK_INSERT => self.buttons.b      = 0, //home or insert
+                    wkm.VK_END,
+                    wkm.VK_DELETE,
+                    wkm.VK_BACK   => self.buttons.a      = 0, //end, del, bksp
                     
                     //@TODO: this *should* be control+f3
-                    win32.ui.keyboard_and_mouse_input.VK_F3     => self.plugface.controlKeyPress(.load),
-                    else => return win32.ui.windows_and_messaging.DefWindowProcW(hWnd, uMsg, wParam, lParam),
+                    wkm.VK_F3     => self.babelfish.controlKeyPress(.load),
+                    else => return wnm.DefWindowProcW(hWnd, uMsg, wParam, lParam),
                 }
             },
-            win32.ui.windows_and_messaging.WM_SYSKEYUP,
-            win32.ui.windows_and_messaging.WM_KEYUP => {
-                const key_param = @intToEnum(win32.ui.keyboard_and_mouse_input.VIRTUAL_KEY, wParam);
+            wnm.WM_SYSKEYUP,
+            wnm.WM_KEYUP => {
+                const key_param = @intToEnum(wkm.VIRTUAL_KEY, wParam);
                 switch(key_param) {
-                    win32.ui.keyboard_and_mouse_input.VK_UP     => self.buttons.up     = 1,
-                    win32.ui.keyboard_and_mouse_input.VK_DOWN   => self.buttons.down   = 1,
-                    win32.ui.keyboard_and_mouse_input.VK_LEFT   => self.buttons.left   = 1,
-                    win32.ui.keyboard_and_mouse_input.VK_RIGHT  => self.buttons.right  = 1,
-                    win32.ui.keyboard_and_mouse_input.VK_NEXT   => self.buttons.select = 1, //pg down
-                    win32.ui.keyboard_and_mouse_input.VK_PRIOR  => self.buttons.start  = 1, //pg up
-                    win32.ui.keyboard_and_mouse_input.VK_HOME,
-                    win32.ui.keyboard_and_mouse_input.VK_INSERT => self.buttons.b      = 1, //home or insert
-                    win32.ui.keyboard_and_mouse_input.VK_END,
-                    win32.ui.keyboard_and_mouse_input.VK_DELETE,
-                    win32.ui.keyboard_and_mouse_input.VK_BACK   => self.buttons.a      = 1, //end, del, bksp
+                    wkm.VK_UP     => self.buttons.up     = 1,
+                    wkm.VK_DOWN   => self.buttons.down   = 1,
+                    wkm.VK_LEFT   => self.buttons.left   = 1,
+                    wkm.VK_RIGHT  => self.buttons.right  = 1,
+                    wkm.VK_NEXT   => self.buttons.select = 1, //pg down
+                    wkm.VK_PRIOR  => self.buttons.start  = 1, //pg up
+                    wkm.VK_HOME,
+                    wkm.VK_INSERT => self.buttons.b      = 1, //home or insert
+                    wkm.VK_END,
+                    wkm.VK_DELETE,
+                    wkm.VK_BACK   => self.buttons.a      = 1, //end, del, bksp
                     
-                    else => return win32.ui.windows_and_messaging.DefWindowProcW(hWnd, uMsg, wParam, lParam),
+                    else => return wnm.DefWindowProcW(hWnd, uMsg, wParam, lParam),
                 }
             },
-            win32.ui.windows_and_messaging.WM_CHAR => {
+            wnm.WM_CHAR => {
                 if(wParam >=0 and wParam <= 127) {
                     //lparam:
                     //0-15 repeat count, 16-23 scan code, 24 extended key, 25-28 reserved, 29 alt, 30 prev state, 31 transition
-                    //seems like it is never sent for UP transitions, but that's ok because the plugface doesn't seem to 
+                    //seems like it is never sent for UP transitions, but that's ok because the babelfish doesn't seem to 
                     //care anyway
                     const ascii = @truncate(u8, wParam);
                     
-                    const key = if(ascii == '\r') '\n' else ascii; //return generates cr, but plugface treats it as lf
-                    self.plugface.asciiKeyPress(key);
-                } else return win32.ui.windows_and_messaging.DefWindowProcW(hWnd, uMsg, wParam, lParam);
+                    const key = if(ascii == '\r') '\n' else ascii; //return generates cr, but babelfish treats it as lf
+                    self.babelfish.asciiKeyPress(key);
+                } else return wnm.DefWindowProcW(hWnd, uMsg, wParam, lParam);
             },
             
-            else => return win32.ui.windows_and_messaging.DefWindowProcW(hWnd, uMsg, wParam, lParam),
+            else => return wnm.DefWindowProcW(hWnd, uMsg, wParam, lParam),
         }
         
         return 0;
     }
     
     fn handleMessages(self: *@This()) void {
-        var message: win32.ui.windows_and_messaging.MSG = undefined;
+        var message: wnm.MSG = undefined;
         while(
-            win32.ui.windows_and_messaging.PeekMessageW(
+            wnm.PeekMessageW(
                 &message, 
                 self.hWnd, 
                 0, 
                 0, 
-                win32.ui.windows_and_messaging.PM_REMOVE
+                wnm.PM_REMOVE
             ) 
         != win32.zig.FALSE) {
-            _ = win32.ui.windows_and_messaging.TranslateMessage(&message);
-            _ = win32.ui.windows_and_messaging.DispatchMessageW(&message);
+            _ = wnm.TranslateMessage(&message);
+            _ = wnm.DispatchMessageW(&message);
         }
     }
     
     fn destroy(self: *@This()) void {
-        _ = win32.graphics.open_gl.wglMakeCurrent(null, null);
-        _ = win32.graphics.open_gl.wglDeleteContext(self.wglRC);
-        _ = win32.graphics.gdi.ReleaseDC(self.hWnd, self.hDC);
-        _ = win32.ui.windows_and_messaging.DestroyWindow(self.hWnd);
+        _ = wg.open_gl.wglMakeCurrent(null, null);
+        _ = wg.open_gl.wglDeleteContext(self.wglRC);
+        _ = wg.gdi.ReleaseDC(self.hWnd, self.hDC);
+        _ = wnm.DestroyWindow(self.hWnd);
     }
     
     fn render(self: *@This(), vga: *Gigatron.VgaMonitor, leds: [4]bool) !void {
@@ -360,7 +365,7 @@ const MainWindow = struct {
             gl.glDisable(gl.GL_TEXTURE_2D);
         });
         
-        try boolErr(win32.graphics.open_gl.SwapBuffers(self.hDC));
+        try boolErr(wg.open_gl.SwapBuffers(self.hDC));
     }
 };
 
@@ -368,14 +373,17 @@ const MainWindow = struct {
 // using the size of the audio sample buffer to determine the passage of
 // time. This was weirdly consistent compared to the alternatives.
 pub const Sound = struct {
-    device_enumerator: *win32.media.audio.core_audio.IMMDeviceEnumerator,
-    device: *win32.media.audio.core_audio.IMMDevice,
-    client: *win32.media.audio.core_audio.IAudioClient,
-    render_client: *win32.media.audio.core_audio.IAudioRenderClient,
+    const wca = win32.media.audio;
+    const wf = win32.foundation;
+    
+    device_enumerator: *wca.IMMDeviceEnumerator,
+    device: *wca.IMMDevice,
+    client: *wca.IAudioClient,
+    render_client: *wca.IAudioRenderClient,
     samples: Samples,
     sample_lock: bool,
     buffer_frames: c_uint,
-    buffer_event: win32.foundation.HANDLE,
+    buffer_event: wf.HANDLE,
     
     const Samples = std.fifo.LinearFifo(f32, .{.Static = 2048});
     
@@ -387,14 +395,14 @@ pub const Sound = struct {
         // the sound buffer for timing now.
         //ignore any errors, shouldn't be possible and we can't do anything
         // about them anyway
-        _ = win32.media.multimedia.timeBeginPeriod(1);
+        _ = win32.media.timeBeginPeriod(1);
         
         try hrErr(win32.system.com.CoCreateInstance(
-            win32.media.audio.core_audio.CLSID_MMDeviceEnumerator,
+            wca.CLSID_MMDeviceEnumerator,
             null,
             win32.system.com.CLSCTX_INPROC_SERVER,
-            win32.media.audio.core_audio.IID_IMMDeviceEnumerator,
-            @ptrCast(*?*c_void, &self.device_enumerator),
+            wca.IID_IMMDeviceEnumerator,
+            @ptrCast(*?*anyopaque, &self.device_enumerator),
         ));
         errdefer _ = self.device_enumerator.IUnknown_Release();
         
@@ -406,17 +414,17 @@ pub const Sound = struct {
         errdefer _ = self.device.IUnknown_Release();
 
         try hrErr(self.device.IMMDevice_Activate(
-            win32.media.audio.core_audio.IID_IAudioClient,
+            wca.IID_IAudioClient,
             @enumToInt(win32.system.com.CLSCTX_INPROC_SERVER),
             null,
-            @ptrCast(*?*c_void, &self.client),
+            @ptrCast(*?*anyopaque, &self.client),
         ));
         errdefer _ = self.client.IUnknown_Release();
         
         //We can force the driver to handle sample conversion, so for
         // simplicity we set our sample rate to an even division of
         // the gigatron clock rate. Float is used because why not.
-        const target_format = win32.media.multimedia.WAVEFORMATEX{
+        const target_format = win32.media.audio.WAVEFORMATEX{
             .wFormatTag = win32.media.multimedia.WAVE_FORMAT_IEEE_FLOAT,
             .nChannels = 1,
             .nSamplesPerSec = gigatron_clock_rate / 100, 
@@ -428,9 +436,9 @@ pub const Sound = struct {
 
         try hrErr(self.client.IAudioClient_Initialize(
             .SHARED,
-            win32.media.audio.core_audio.AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | //should force the mixer to convert for us. Vista and above.
-            win32.media.audio.core_audio.AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY | //better quality conversion, may add latency?
-            win32.media.audio.core_audio.AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 
+            wca.AUDCLNT_STREAMFLAGS_AUTOCONVERTPCM | //should force the mixer to convert for us. Vista and above.
+            wca.AUDCLNT_STREAMFLAGS_SRC_DEFAULT_QUALITY | //better quality conversion, may add latency?
+            wca.AUDCLNT_STREAMFLAGS_EVENTCALLBACK, 
             0,
             0,
             &target_format,
@@ -438,8 +446,8 @@ pub const Sound = struct {
         ));
         
         try hrErr(self.client.IAudioClient_GetService(
-            win32.media.audio.core_audio.IID_IAudioRenderClient,
-            @ptrCast(*?*c_void, &self.render_client),
+            wca.IID_IAudioRenderClient,
+            @ptrCast(*?*anyopaque, &self.render_client),
         ));
         errdefer _ = self.render_client.IUnknown_Release();
         
@@ -449,7 +457,7 @@ pub const Sound = struct {
             @intToEnum(win32.system.threading.CREATE_EVENT, 0),
             0x1F0003, //2031619 = EVENT_ALL_ACCESS
         ) orelse return error.CreateEventFailed;
-        errdefer _ = win32.foundation.CloseHandle(self.buffer_event);
+        errdefer _ = wf.CloseHandle(self.buffer_event);
         
         try hrErr(self.client.IAudioClient_SetEventHandle(self.buffer_event));
         try hrErr(self.client.IAudioClient_GetBufferSize(&self.buffer_frames));
@@ -488,8 +496,10 @@ pub const Sound = struct {
             win32.system.windows_programming.INFINITE,
         );
         switch(wait_return_cause) {
-            .OBJECT_0 => {},
-            .ABANDONED, .TIMEOUT, .FAILED => std.debug.panic("Wait failed: {}\n", .{wait_return_cause}),
+            win32.system.threading.WAIT_OBJECT_0 => {},
+            win32.system.threading.WAIT_ABANDONED, 
+            @enumToInt(win32.foundation.WAIT_TIMEOUT),
+            @enumToInt(win32.foundation.WAIT_FAILED) => std.debug.panic("Wait failed: {}\n", .{wait_return_cause}),
             else => std.debug.panic("Unknown wait status: {}\n", .{wait_return_cause}),
         }
     }
@@ -523,13 +533,13 @@ pub const Sound = struct {
     }
     
     pub fn deinit(self: *@This()) void {
-        _ = win32.foundation.CloseHandle(self.buffer_event);
+        _ = wf.CloseHandle(self.buffer_event);
         _ = self.client.IAudioClient_Stop();
         _ = self.render_client.IUnknown_Release();
         _ = self.client.IUnknown_Release();
         _ = self.device.IUnknown_Release();
         _ = self.device_enumerator.IUnknown_Release();
-        _ = win32.media.multimedia.timeEndPeriod(1);
+        _ = win32.media.timeEndPeriod(1);
     }
 };
 
@@ -537,20 +547,22 @@ pub const Sound = struct {
 
 pub fn main() !void {
     var vm: Gigatron.VirtualMachine = undefined;
-    var plugface = Gigatron.PluggyMcPlugface.init(); 
+    var babelfish = Gigatron.BabelFish{};
+    var tape = [_]u8{0} ** 512;
+    babelfish.init(&tape);
     var vga = Gigatron.VgaMonitor{};
     var audio = Gigatron.Audio.init(gigatron_clock_rate / 100);
     
     //@TODO: Selectable rom
     const current_dir = std.fs.cwd();
-    const rom_file = try current_dir.openFile("ROMv5a.rom", .{ .read = true });
+    const rom_file = try current_dir.openFile("gigatron.rom", .{ .read = true });
     var reader = rom_file.reader();
     _ = try vm.loadRom(reader);
     rom_file.close();
 
     vm.start();
 
-    try MainWindow.init(&plugface.buttons, &plugface);
+    try MainWindow.init(&babelfish.buttons, &babelfish);
     defer main_window.destroy();
     
     sound = try Sound.init();
@@ -567,7 +579,7 @@ pub fn main() !void {
     var cycle: u64 = 0; 
     while(true) : (cycle += 1) {
         vm.cycle();
-        plugface.cycle(&vm);
+        babelfish.cycle(&vm);
         
         const render = vga.cycle(&vm);
         if(render) {
