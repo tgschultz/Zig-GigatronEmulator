@@ -118,10 +118,10 @@ pub const HGESTUREINFO = *opaque{};
 
 pub const HTOUCHINPUT = *opaque{};
 
-const CLSID_InertiaProcessor_Value = @import("../../zig.zig").Guid.initString("abb27087-4ce0-4e58-a0cb-e24df96814be");
+const CLSID_InertiaProcessor_Value = Guid.initString("abb27087-4ce0-4e58-a0cb-e24df96814be");
 pub const CLSID_InertiaProcessor = &CLSID_InertiaProcessor_Value;
 
-const CLSID_ManipulationProcessor_Value = @import("../../zig.zig").Guid.initString("597d4fb0-47fd-4aff-89b9-c6cfae8cf08e");
+const CLSID_ManipulationProcessor_Value = Guid.initString("597d4fb0-47fd-4aff-89b9-c6cfae8cf08e");
 pub const CLSID_ManipulationProcessor = &CLSID_ManipulationProcessor_Value;
 
 pub const MANIPULATION_PROCESSOR_MANIPULATIONS = enum(i32) {
@@ -140,41 +140,77 @@ pub const MANIPULATION_ROTATE = MANIPULATION_PROCESSOR_MANIPULATIONS.ROTATE;
 pub const MANIPULATION_ALL = MANIPULATION_PROCESSOR_MANIPULATIONS.ALL;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID__IManipulationEvents_Value = @import("../../zig.zig").Guid.initString("4f62c8da-9c53-4b22-93df-927a862bbb03");
+const IID__IManipulationEvents_Value = Guid.initString("4f62c8da-9c53-4b22-93df-927a862bbb03");
 pub const IID__IManipulationEvents = &IID__IManipulationEvents_Value;
 pub const _IManipulationEvents = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ManipulationStarted: fn(
-            self: *const _IManipulationEvents,
-            x: f32,
-            y: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ManipulationDelta: fn(
-            self: *const _IManipulationEvents,
-            x: f32,
-            y: f32,
-            translationDeltaX: f32,
-            translationDeltaY: f32,
-            scaleDelta: f32,
-            expansionDelta: f32,
-            rotationDelta: f32,
-            cumulativeTranslationX: f32,
-            cumulativeTranslationY: f32,
-            cumulativeScale: f32,
-            cumulativeExpansion: f32,
-            cumulativeRotation: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ManipulationCompleted: fn(
-            self: *const _IManipulationEvents,
-            x: f32,
-            y: f32,
-            cumulativeTranslationX: f32,
-            cumulativeTranslationY: f32,
-            cumulativeScale: f32,
-            cumulativeExpansion: f32,
-            cumulativeRotation: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ManipulationStarted: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const _IManipulationEvents,
+                x: f32,
+                y: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const _IManipulationEvents,
+                x: f32,
+                y: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ManipulationDelta: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const _IManipulationEvents,
+                x: f32,
+                y: f32,
+                translationDeltaX: f32,
+                translationDeltaY: f32,
+                scaleDelta: f32,
+                expansionDelta: f32,
+                rotationDelta: f32,
+                cumulativeTranslationX: f32,
+                cumulativeTranslationY: f32,
+                cumulativeScale: f32,
+                cumulativeExpansion: f32,
+                cumulativeRotation: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const _IManipulationEvents,
+                x: f32,
+                y: f32,
+                translationDeltaX: f32,
+                translationDeltaY: f32,
+                scaleDelta: f32,
+                expansionDelta: f32,
+                rotationDelta: f32,
+                cumulativeTranslationX: f32,
+                cumulativeTranslationY: f32,
+                cumulativeScale: f32,
+                cumulativeExpansion: f32,
+                cumulativeRotation: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ManipulationCompleted: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const _IManipulationEvents,
+                x: f32,
+                y: f32,
+                cumulativeTranslationX: f32,
+                cumulativeTranslationY: f32,
+                cumulativeScale: f32,
+                cumulativeExpansion: f32,
+                cumulativeRotation: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const _IManipulationEvents,
+                x: f32,
+                y: f32,
+                cumulativeTranslationX: f32,
+                cumulativeTranslationY: f32,
+                cumulativeScale: f32,
+                cumulativeExpansion: f32,
+                cumulativeRotation: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -196,250 +232,631 @@ pub const _IManipulationEvents = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IInertiaProcessor_Value = @import("../../zig.zig").Guid.initString("18b00c6d-c5ee-41b1-90a9-9d4a929095ad");
+const IID_IInertiaProcessor_Value = Guid.initString("18b00c6d-c5ee-41b1-90a9-9d4a929095ad");
 pub const IID_IInertiaProcessor = &IID_IInertiaProcessor_Value;
 pub const IInertiaProcessor = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_InitialOriginX: fn(
-            self: *const IInertiaProcessor,
-            x: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_InitialOriginX: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                x: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                x: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_InitialOriginX: fn(
-            self: *const IInertiaProcessor,
-            x: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_InitialOriginX: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                x: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                x: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_InitialOriginY: fn(
-            self: *const IInertiaProcessor,
-            y: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_InitialOriginY: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                y: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                y: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_InitialOriginY: fn(
-            self: *const IInertiaProcessor,
-            y: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_InitialOriginY: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                y: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                y: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_InitialVelocityX: fn(
-            self: *const IInertiaProcessor,
-            x: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_InitialVelocityX: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                x: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                x: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_InitialVelocityX: fn(
-            self: *const IInertiaProcessor,
-            x: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_InitialVelocityX: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                x: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                x: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_InitialVelocityY: fn(
-            self: *const IInertiaProcessor,
-            y: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_InitialVelocityY: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                y: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                y: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_InitialVelocityY: fn(
-            self: *const IInertiaProcessor,
-            y: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_InitialVelocityY: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                y: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                y: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_InitialAngularVelocity: fn(
-            self: *const IInertiaProcessor,
-            velocity: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_InitialAngularVelocity: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                velocity: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                velocity: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_InitialAngularVelocity: fn(
-            self: *const IInertiaProcessor,
-            velocity: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_InitialAngularVelocity: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                velocity: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                velocity: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_InitialExpansionVelocity: fn(
-            self: *const IInertiaProcessor,
-            velocity: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_InitialExpansionVelocity: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                velocity: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                velocity: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_InitialExpansionVelocity: fn(
-            self: *const IInertiaProcessor,
-            velocity: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_InitialExpansionVelocity: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                velocity: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                velocity: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_InitialRadius: fn(
-            self: *const IInertiaProcessor,
-            radius: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_InitialRadius: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                radius: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                radius: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_InitialRadius: fn(
-            self: *const IInertiaProcessor,
-            radius: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_InitialRadius: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                radius: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                radius: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_BoundaryLeft: fn(
-            self: *const IInertiaProcessor,
-            left: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_BoundaryLeft: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                left: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                left: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_BoundaryLeft: fn(
-            self: *const IInertiaProcessor,
-            left: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_BoundaryLeft: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                left: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                left: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_BoundaryTop: fn(
-            self: *const IInertiaProcessor,
-            top: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_BoundaryTop: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                top: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                top: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_BoundaryTop: fn(
-            self: *const IInertiaProcessor,
-            top: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_BoundaryTop: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                top: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                top: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_BoundaryRight: fn(
-            self: *const IInertiaProcessor,
-            right: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_BoundaryRight: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                right: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                right: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_BoundaryRight: fn(
-            self: *const IInertiaProcessor,
-            right: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_BoundaryRight: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                right: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                right: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_BoundaryBottom: fn(
-            self: *const IInertiaProcessor,
-            bottom: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_BoundaryBottom: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                bottom: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                bottom: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_BoundaryBottom: fn(
-            self: *const IInertiaProcessor,
-            bottom: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_BoundaryBottom: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                bottom: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                bottom: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_ElasticMarginLeft: fn(
-            self: *const IInertiaProcessor,
-            left: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_ElasticMarginLeft: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                left: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                left: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_ElasticMarginLeft: fn(
-            self: *const IInertiaProcessor,
-            left: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_ElasticMarginLeft: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                left: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                left: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_ElasticMarginTop: fn(
-            self: *const IInertiaProcessor,
-            top: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_ElasticMarginTop: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                top: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                top: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_ElasticMarginTop: fn(
-            self: *const IInertiaProcessor,
-            top: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_ElasticMarginTop: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                top: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                top: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_ElasticMarginRight: fn(
-            self: *const IInertiaProcessor,
-            right: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_ElasticMarginRight: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                right: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                right: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_ElasticMarginRight: fn(
-            self: *const IInertiaProcessor,
-            right: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_ElasticMarginRight: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                right: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                right: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_ElasticMarginBottom: fn(
-            self: *const IInertiaProcessor,
-            bottom: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_ElasticMarginBottom: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                bottom: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                bottom: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_ElasticMarginBottom: fn(
-            self: *const IInertiaProcessor,
-            bottom: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_ElasticMarginBottom: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                bottom: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                bottom: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DesiredDisplacement: fn(
-            self: *const IInertiaProcessor,
-            displacement: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DesiredDisplacement: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                displacement: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                displacement: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_DesiredDisplacement: fn(
-            self: *const IInertiaProcessor,
-            displacement: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_DesiredDisplacement: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                displacement: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                displacement: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DesiredRotation: fn(
-            self: *const IInertiaProcessor,
-            rotation: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DesiredRotation: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                rotation: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                rotation: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_DesiredRotation: fn(
-            self: *const IInertiaProcessor,
-            rotation: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_DesiredRotation: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                rotation: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                rotation: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DesiredExpansion: fn(
-            self: *const IInertiaProcessor,
-            expansion: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DesiredExpansion: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                expansion: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                expansion: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_DesiredExpansion: fn(
-            self: *const IInertiaProcessor,
-            expansion: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_DesiredExpansion: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                expansion: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                expansion: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DesiredDeceleration: fn(
-            self: *const IInertiaProcessor,
-            deceleration: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DesiredDeceleration: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                deceleration: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                deceleration: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_DesiredDeceleration: fn(
-            self: *const IInertiaProcessor,
-            deceleration: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_DesiredDeceleration: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                deceleration: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                deceleration: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DesiredAngularDeceleration: fn(
-            self: *const IInertiaProcessor,
-            deceleration: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DesiredAngularDeceleration: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                deceleration: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                deceleration: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_DesiredAngularDeceleration: fn(
-            self: *const IInertiaProcessor,
-            deceleration: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_DesiredAngularDeceleration: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                deceleration: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                deceleration: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DesiredExpansionDeceleration: fn(
-            self: *const IInertiaProcessor,
-            deceleration: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DesiredExpansionDeceleration: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                deceleration: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                deceleration: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_DesiredExpansionDeceleration: fn(
-            self: *const IInertiaProcessor,
-            deceleration: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_DesiredExpansionDeceleration: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                deceleration: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                deceleration: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_InitialTimestamp: fn(
-            self: *const IInertiaProcessor,
-            timestamp: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_InitialTimestamp: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                timestamp: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                timestamp: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_InitialTimestamp: fn(
-            self: *const IInertiaProcessor,
-            timestamp: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Reset: fn(
-            self: *const IInertiaProcessor,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Process: fn(
-            self: *const IInertiaProcessor,
-            completed: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProcessTime: fn(
-            self: *const IInertiaProcessor,
-            timestamp: u32,
-            completed: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Complete: fn(
-            self: *const IInertiaProcessor,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CompleteTime: fn(
-            self: *const IInertiaProcessor,
-            timestamp: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_InitialTimestamp: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                timestamp: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                timestamp: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Reset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInertiaProcessor,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Process: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                completed: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                completed: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProcessTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                timestamp: u32,
+                completed: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                timestamp: u32,
+                completed: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Complete: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInertiaProcessor,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CompleteTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInertiaProcessor,
+                timestamp: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInertiaProcessor,
+                timestamp: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -645,119 +1062,279 @@ pub const IInertiaProcessor = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IManipulationProcessor_Value = @import("../../zig.zig").Guid.initString("a22ac519-8300-48a0-bef4-f1be8737dba4");
+const IID_IManipulationProcessor_Value = Guid.initString("a22ac519-8300-48a0-bef4-f1be8737dba4");
 pub const IID_IManipulationProcessor = &IID_IManipulationProcessor_Value;
 pub const IManipulationProcessor = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_SupportedManipulations: fn(
-            self: *const IManipulationProcessor,
-            manipulations: ?*MANIPULATION_PROCESSOR_MANIPULATIONS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_SupportedManipulations: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                manipulations: ?*MANIPULATION_PROCESSOR_MANIPULATIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                manipulations: ?*MANIPULATION_PROCESSOR_MANIPULATIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_SupportedManipulations: fn(
-            self: *const IManipulationProcessor,
-            manipulations: MANIPULATION_PROCESSOR_MANIPULATIONS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_SupportedManipulations: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                manipulations: MANIPULATION_PROCESSOR_MANIPULATIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                manipulations: MANIPULATION_PROCESSOR_MANIPULATIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_PivotPointX: fn(
-            self: *const IManipulationProcessor,
-            pivotPointX: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_PivotPointX: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                pivotPointX: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                pivotPointX: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_PivotPointX: fn(
-            self: *const IManipulationProcessor,
-            pivotPointX: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_PivotPointX: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                pivotPointX: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                pivotPointX: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_PivotPointY: fn(
-            self: *const IManipulationProcessor,
-            pivotPointY: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_PivotPointY: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                pivotPointY: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                pivotPointY: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_PivotPointY: fn(
-            self: *const IManipulationProcessor,
-            pivotPointY: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_PivotPointY: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                pivotPointY: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                pivotPointY: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_PivotRadius: fn(
-            self: *const IManipulationProcessor,
-            pivotRadius: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_PivotRadius: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                pivotRadius: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                pivotRadius: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_PivotRadius: fn(
-            self: *const IManipulationProcessor,
-            pivotRadius: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CompleteManipulation: fn(
-            self: *const IManipulationProcessor,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProcessDown: fn(
-            self: *const IManipulationProcessor,
-            manipulatorId: u32,
-            x: f32,
-            y: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProcessMove: fn(
-            self: *const IManipulationProcessor,
-            manipulatorId: u32,
-            x: f32,
-            y: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProcessUp: fn(
-            self: *const IManipulationProcessor,
-            manipulatorId: u32,
-            x: f32,
-            y: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProcessDownWithTime: fn(
-            self: *const IManipulationProcessor,
-            manipulatorId: u32,
-            x: f32,
-            y: f32,
-            timestamp: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProcessMoveWithTime: fn(
-            self: *const IManipulationProcessor,
-            manipulatorId: u32,
-            x: f32,
-            y: f32,
-            timestamp: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProcessUpWithTime: fn(
-            self: *const IManipulationProcessor,
-            manipulatorId: u32,
-            x: f32,
-            y: f32,
-            timestamp: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVelocityX: fn(
-            self: *const IManipulationProcessor,
-            velocityX: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVelocityY: fn(
-            self: *const IManipulationProcessor,
-            velocityY: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetExpansionVelocity: fn(
-            self: *const IManipulationProcessor,
-            expansionVelocity: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAngularVelocity: fn(
-            self: *const IManipulationProcessor,
-            angularVelocity: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_PivotRadius: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                pivotRadius: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                pivotRadius: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CompleteManipulation: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IManipulationProcessor,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProcessDown: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                manipulatorId: u32,
+                x: f32,
+                y: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                manipulatorId: u32,
+                x: f32,
+                y: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProcessMove: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                manipulatorId: u32,
+                x: f32,
+                y: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                manipulatorId: u32,
+                x: f32,
+                y: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProcessUp: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                manipulatorId: u32,
+                x: f32,
+                y: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                manipulatorId: u32,
+                x: f32,
+                y: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProcessDownWithTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                manipulatorId: u32,
+                x: f32,
+                y: f32,
+                timestamp: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                manipulatorId: u32,
+                x: f32,
+                y: f32,
+                timestamp: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProcessMoveWithTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                manipulatorId: u32,
+                x: f32,
+                y: f32,
+                timestamp: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                manipulatorId: u32,
+                x: f32,
+                y: f32,
+                timestamp: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProcessUpWithTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                manipulatorId: u32,
+                x: f32,
+                y: f32,
+                timestamp: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                manipulatorId: u32,
+                x: f32,
+                y: f32,
+                timestamp: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVelocityX: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                velocityX: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                velocityX: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVelocityY: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                velocityY: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                velocityY: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetExpansionVelocity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                expansionVelocity: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                expansionVelocity: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAngularVelocity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                angularVelocity: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                angularVelocity: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_MinimumScaleRotateRadius: fn(
-            self: *const IManipulationProcessor,
-            minRadius: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_MinimumScaleRotateRadius: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                minRadius: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                minRadius: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_MinimumScaleRotateRadius: fn(
-            self: *const IManipulationProcessor,
-            minRadius: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_MinimumScaleRotateRadius: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IManipulationProcessor,
+                minRadius: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IManipulationProcessor,
+                minRadius: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -894,7 +1471,7 @@ pub const GESTURECONFIG = extern struct {
 // Section: Functions (10)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "USER32" fn GetTouchInputInfo(
+pub extern "user32" fn GetTouchInputInfo(
     hTouchInput: ?HTOUCHINPUT,
     cInputs: u32,
     pInputs: [*]TOUCHINPUT,
@@ -902,35 +1479,35 @@ pub extern "USER32" fn GetTouchInputInfo(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "USER32" fn CloseTouchInputHandle(
+pub extern "user32" fn CloseTouchInputHandle(
     hTouchInput: ?HTOUCHINPUT,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "USER32" fn RegisterTouchWindow(
+pub extern "user32" fn RegisterTouchWindow(
     hwnd: ?HWND,
     ulFlags: REGISTER_TOUCH_WINDOW_FLAGS,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "USER32" fn UnregisterTouchWindow(
+pub extern "user32" fn UnregisterTouchWindow(
     hwnd: ?HWND,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "USER32" fn IsTouchWindow(
+pub extern "user32" fn IsTouchWindow(
     hwnd: ?HWND,
     pulFlags: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "USER32" fn GetGestureInfo(
+pub extern "user32" fn GetGestureInfo(
     hGestureInfo: ?HGESTUREINFO,
     pGestureInfo: ?*GESTUREINFO,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "USER32" fn GetGestureExtraArgs(
+pub extern "user32" fn GetGestureExtraArgs(
     hGestureInfo: ?HGESTUREINFO,
     cbExtraArgs: u32,
     // TODO: what to do with BytesParamIndex 1?
@@ -938,12 +1515,12 @@ pub extern "USER32" fn GetGestureExtraArgs(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "USER32" fn CloseGestureInfoHandle(
+pub extern "user32" fn CloseGestureInfoHandle(
     hGestureInfo: ?HGESTUREINFO,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "USER32" fn SetGestureConfig(
+pub extern "user32" fn SetGestureConfig(
     hwnd: ?HWND,
     dwReserved: u32,
     cIDs: u32,
@@ -952,7 +1529,7 @@ pub extern "USER32" fn SetGestureConfig(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "USER32" fn GetGestureConfig(
+pub extern "user32" fn GetGestureConfig(
     hwnd: ?HWND,
     dwReserved: u32,
     dwFlags: u32,
@@ -976,8 +1553,9 @@ pub usingnamespace switch (@import("../../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (6)
+// Section: Imports (7)
 //--------------------------------------------------------------------------------
+const Guid = @import("../../zig.zig").Guid;
 const BOOL = @import("../../foundation.zig").BOOL;
 const HANDLE = @import("../../foundation.zig").HANDLE;
 const HRESULT = @import("../../foundation.zig").HRESULT;
@@ -987,14 +1565,14 @@ const POINTS = @import("../../foundation.zig").POINTS;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

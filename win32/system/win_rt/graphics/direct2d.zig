@@ -31,39 +31,79 @@ pub const GRAPHICS_EFFECT_PROPERTY_MAPPING_COLORMATRIX_ALPHA_MODE = GRAPHICS_EFF
 pub const GRAPHICS_EFFECT_PROPERTY_MAPPING_COLOR_TO_VECTOR3 = GRAPHICS_EFFECT_PROPERTY_MAPPING.COLOR_TO_VECTOR3;
 pub const GRAPHICS_EFFECT_PROPERTY_MAPPING_COLOR_TO_VECTOR4 = GRAPHICS_EFFECT_PROPERTY_MAPPING.COLOR_TO_VECTOR4;
 
-const IID_IGraphicsEffectD2D1Interop_Value = @import("../../../zig.zig").Guid.initString("2fc57384-a068-44d7-a331-30982fcf7177");
+const IID_IGraphicsEffectD2D1Interop_Value = Guid.initString("2fc57384-a068-44d7-a331-30982fcf7177");
 pub const IID_IGraphicsEffectD2D1Interop = &IID_IGraphicsEffectD2D1Interop_Value;
 pub const IGraphicsEffectD2D1Interop = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetEffectId: fn(
-            self: *const IGraphicsEffectD2D1Interop,
-            id: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNamedPropertyMapping: fn(
-            self: *const IGraphicsEffectD2D1Interop,
-            name: ?[*:0]const u16,
-            index: ?*u32,
-            mapping: ?*GRAPHICS_EFFECT_PROPERTY_MAPPING,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPropertyCount: fn(
-            self: *const IGraphicsEffectD2D1Interop,
-            count: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetProperty: fn(
-            self: *const IGraphicsEffectD2D1Interop,
-            index: u32,
-            value: ?**struct{comment: []const u8 = "MissingClrType IPropertyValue.Windows.Foundation"},
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSource: fn(
-            self: *const IGraphicsEffectD2D1Interop,
-            index: u32,
-            source: ?**struct{comment: []const u8 = "MissingClrType IGraphicsEffectSource.Windows.Graphics.Effects"},
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSourceCount: fn(
-            self: *const IGraphicsEffectD2D1Interop,
-            count: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetEffectId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IGraphicsEffectD2D1Interop,
+                id: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IGraphicsEffectD2D1Interop,
+                id: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNamedPropertyMapping: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IGraphicsEffectD2D1Interop,
+                name: ?[*:0]const u16,
+                index: ?*u32,
+                mapping: ?*GRAPHICS_EFFECT_PROPERTY_MAPPING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IGraphicsEffectD2D1Interop,
+                name: ?[*:0]const u16,
+                index: ?*u32,
+                mapping: ?*GRAPHICS_EFFECT_PROPERTY_MAPPING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPropertyCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IGraphicsEffectD2D1Interop,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IGraphicsEffectD2D1Interop,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetProperty: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IGraphicsEffectD2D1Interop,
+                index: u32,
+                value: ?**struct{comment: []const u8 = "MissingClrType IPropertyValue.Windows.Foundation"},
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IGraphicsEffectD2D1Interop,
+                index: u32,
+                value: ?**struct{comment: []const u8 = "MissingClrType IPropertyValue.Windows.Foundation"},
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSource: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IGraphicsEffectD2D1Interop,
+                index: u32,
+                source: ?**struct{comment: []const u8 = "MissingClrType IGraphicsEffectSource.Windows.Graphics.Effects"},
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IGraphicsEffectD2D1Interop,
+                index: u32,
+                source: ?**struct{comment: []const u8 = "MissingClrType IGraphicsEffectSource.Windows.Graphics.Effects"},
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSourceCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IGraphicsEffectD2D1Interop,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IGraphicsEffectD2D1Interop,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -96,20 +136,33 @@ pub const IGraphicsEffectD2D1Interop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IGeometrySource2DInterop_Value = @import("../../../zig.zig").Guid.initString("0657af73-53fd-47cf-84ff-c8492d2a80a3");
+const IID_IGeometrySource2DInterop_Value = Guid.initString("0657af73-53fd-47cf-84ff-c8492d2a80a3");
 pub const IID_IGeometrySource2DInterop = &IID_IGeometrySource2DInterop_Value;
 pub const IGeometrySource2DInterop = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetGeometry: fn(
-            self: *const IGeometrySource2DInterop,
-            value: ?*?*ID2D1Geometry,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        TryGetGeometryUsingFactory: fn(
-            self: *const IGeometrySource2DInterop,
-            factory: ?*ID2D1Factory,
-            value: ?*?*ID2D1Geometry,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetGeometry: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IGeometrySource2DInterop,
+                value: ?*?*ID2D1Geometry,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IGeometrySource2DInterop,
+                value: ?*?*ID2D1Geometry,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        TryGetGeometryUsingFactory: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IGeometrySource2DInterop,
+                factory: ?*ID2D1Factory,
+                value: ?*?*ID2D1Geometry,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IGeometrySource2DInterop,
+                factory: ?*ID2D1Factory,
+                value: ?*?*ID2D1Geometry,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -156,14 +209,14 @@ const PWSTR = @import("../../../foundation.zig").PWSTR;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

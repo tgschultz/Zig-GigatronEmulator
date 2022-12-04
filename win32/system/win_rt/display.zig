@@ -6,25 +6,43 @@
 //--------------------------------------------------------------------------------
 // Section: Types (2)
 //--------------------------------------------------------------------------------
-const IID_IDisplayDeviceInterop_Value = @import("../../zig.zig").Guid.initString("64338358-366a-471b-bd56-dd8ef48e439b");
+const IID_IDisplayDeviceInterop_Value = Guid.initString("64338358-366a-471b-bd56-dd8ef48e439b");
 pub const IID_IDisplayDeviceInterop = &IID_IDisplayDeviceInterop_Value;
 pub const IDisplayDeviceInterop = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateSharedHandle: fn(
-            self: *const IDisplayDeviceInterop,
-            pObject: ?*IInspectable,
-            pSecurityAttributes: ?*const SECURITY_ATTRIBUTES,
-            Access: u32,
-            Name: ?HSTRING,
-            pHandle: ?*?HANDLE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OpenSharedHandle: fn(
-            self: *const IDisplayDeviceInterop,
-            NTHandle: ?HANDLE,
-            riid: Guid,
-            ppvObj: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateSharedHandle: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDisplayDeviceInterop,
+                pObject: ?*IInspectable,
+                pSecurityAttributes: ?*const SECURITY_ATTRIBUTES,
+                Access: u32,
+                Name: ?HSTRING,
+                pHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDisplayDeviceInterop,
+                pObject: ?*IInspectable,
+                pSecurityAttributes: ?*const SECURITY_ATTRIBUTES,
+                Access: u32,
+                Name: ?HSTRING,
+                pHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OpenSharedHandle: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDisplayDeviceInterop,
+                NTHandle: ?HANDLE,
+                riid: Guid,
+                ppvObj: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDisplayDeviceInterop,
+                NTHandle: ?HANDLE,
+                riid: Guid,
+                ppvObj: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -41,19 +59,31 @@ pub const IDisplayDeviceInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDisplayPathInterop_Value = @import("../../zig.zig").Guid.initString("a6ba4205-e59e-4e71-b25b-4e436d21ee3d");
+const IID_IDisplayPathInterop_Value = Guid.initString("a6ba4205-e59e-4e71-b25b-4e436d21ee3d");
 pub const IID_IDisplayPathInterop = &IID_IDisplayPathInterop_Value;
 pub const IDisplayPathInterop = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateSourcePresentationHandle: fn(
-            self: *const IDisplayPathInterop,
-            pValue: ?*?HANDLE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSourceId: fn(
-            self: *const IDisplayPathInterop,
-            pSourceId: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateSourcePresentationHandle: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDisplayPathInterop,
+                pValue: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDisplayPathInterop,
+                pValue: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSourceId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDisplayPathInterop,
+                pSourceId: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDisplayPathInterop,
+                pSourceId: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -101,14 +131,14 @@ const SECURITY_ATTRIBUTES = @import("../../security.zig").SECURITY_ATTRIBUTES;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

@@ -1,7 +1,6 @@
 const std = @import("std");
 const CrossTarget = std.zig.CrossTarget;
 
-
 const BuildTarget = struct {
     target: CrossTarget,
     src_name: []const u8,
@@ -28,7 +27,11 @@ const build_targets = [_]BuildTarget{
 
 pub fn build(b: *std.build.Builder) !void {
     const mode = b.standardReleaseOptions();
-    
+
+    // Until async support is added to Stage 2 we need .use_stage1 = true
+    //for `anyframe` which is used in the VGA coroutine.
+    b.use_stage1 = true;
+
     for(build_targets) |bt| {
         const zge = b.addExecutable(bt.exe_name, bt.src_name);
         zge.setTarget(bt.target);

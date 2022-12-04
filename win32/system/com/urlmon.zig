@@ -326,40 +326,81 @@ pub const IE_EPM_OBJECT_FILE = IEObjectType.FILE;
 pub const IE_EPM_OBJECT_NAMED_PIPE = IEObjectType.NAMED_PIPE;
 pub const IE_EPM_OBJECT_REGISTRY = IEObjectType.REGISTRY;
 
-const IID_IPersistMoniker_Value = @import("../../zig.zig").Guid.initString("79eac9c9-baf9-11ce-8c82-00aa004ba90b");
+const IID_IPersistMoniker_Value = Guid.initString("79eac9c9-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IPersistMoniker = &IID_IPersistMoniker_Value;
 pub const IPersistMoniker = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetClassID: fn(
-            self: *const IPersistMoniker,
-            pClassID: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsDirty: fn(
-            self: *const IPersistMoniker,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Load: fn(
-            self: *const IPersistMoniker,
-            fFullyAvailable: BOOL,
-            pimkName: ?*IMoniker,
-            pibc: ?*IBindCtx,
-            grfMode: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Save: fn(
-            self: *const IPersistMoniker,
-            pimkName: ?*IMoniker,
-            pbc: ?*IBindCtx,
-            fRemember: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SaveCompleted: fn(
-            self: *const IPersistMoniker,
-            pimkName: ?*IMoniker,
-            pibc: ?*IBindCtx,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurMoniker: fn(
-            self: *const IPersistMoniker,
-            ppimkName: ?*?*IMoniker,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetClassID: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPersistMoniker,
+                pClassID: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPersistMoniker,
+                pClassID: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsDirty: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPersistMoniker,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPersistMoniker,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Load: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPersistMoniker,
+                fFullyAvailable: BOOL,
+                pimkName: ?*IMoniker,
+                pibc: ?*IBindCtx,
+                grfMode: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPersistMoniker,
+                fFullyAvailable: BOOL,
+                pimkName: ?*IMoniker,
+                pibc: ?*IBindCtx,
+                grfMode: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Save: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPersistMoniker,
+                pimkName: ?*IMoniker,
+                pbc: ?*IBindCtx,
+                fRemember: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPersistMoniker,
+                pimkName: ?*IMoniker,
+                pbc: ?*IBindCtx,
+                fRemember: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SaveCompleted: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPersistMoniker,
+                pimkName: ?*IMoniker,
+                pibc: ?*IBindCtx,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPersistMoniker,
+                pimkName: ?*IMoniker,
+                pibc: ?*IBindCtx,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurMoniker: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPersistMoniker,
+                ppimkName: ?*?*IMoniker,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPersistMoniker,
+                ppimkName: ?*?*IMoniker,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -405,16 +446,23 @@ pub const CLASSIDPROP = MONIKERPROPERTY.CLASSIDPROP;
 pub const TRUSTEDDOWNLOADPROP = MONIKERPROPERTY.TRUSTEDDOWNLOADPROP;
 pub const POPUPLEVELPROP = MONIKERPROPERTY.POPUPLEVELPROP;
 
-const IID_IMonikerProp_Value = @import("../../zig.zig").Guid.initString("a5ca5f7f-1847-4d87-9c5b-918509f7511d");
+const IID_IMonikerProp_Value = Guid.initString("a5ca5f7f-1847-4d87-9c5b-918509f7511d");
 pub const IID_IMonikerProp = &IID_IMonikerProp_Value;
 pub const IMonikerProp = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        PutProperty: fn(
-            self: *const IMonikerProp,
-            mkp: MONIKERPROPERTY,
-            val: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        PutProperty: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IMonikerProp,
+                mkp: MONIKERPROPERTY,
+                val: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IMonikerProp,
+                mkp: MONIKERPROPERTY,
+                val: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -427,17 +475,25 @@ pub const IMonikerProp = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IBindProtocol_Value = @import("../../zig.zig").Guid.initString("79eac9cd-baf9-11ce-8c82-00aa004ba90b");
+const IID_IBindProtocol_Value = Guid.initString("79eac9cd-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IBindProtocol = &IID_IBindProtocol_Value;
 pub const IBindProtocol = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateBinding: fn(
-            self: *const IBindProtocol,
-            szUrl: ?[*:0]const u16,
-            pbc: ?*IBindCtx,
-            ppb: ?*?*IBinding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateBinding: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBindProtocol,
+                szUrl: ?[*:0]const u16,
+                pbc: ?*IBindCtx,
+                ppb: ?*?*IBinding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBindProtocol,
+                szUrl: ?[*:0]const u16,
+                pbc: ?*IBindCtx,
+                ppb: ?*?*IBinding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -852,25 +908,43 @@ pub const AUTHENTICATEF_PROXY = AUTHENTICATEF.PROXY;
 pub const AUTHENTICATEF_BASIC = AUTHENTICATEF.BASIC;
 pub const AUTHENTICATEF_HTTP = AUTHENTICATEF.HTTP;
 
-const IID_IHttpNegotiate_Value = @import("../../zig.zig").Guid.initString("79eac9d2-baf9-11ce-8c82-00aa004ba90b");
+const IID_IHttpNegotiate_Value = Guid.initString("79eac9d2-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IHttpNegotiate = &IID_IHttpNegotiate_Value;
 pub const IHttpNegotiate = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        BeginningTransaction: fn(
-            self: *const IHttpNegotiate,
-            szURL: ?[*:0]const u16,
-            szHeaders: ?[*:0]const u16,
-            dwReserved: u32,
-            pszAdditionalHeaders: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnResponse: fn(
-            self: *const IHttpNegotiate,
-            dwResponseCode: u32,
-            szResponseHeaders: ?[*:0]const u16,
-            szRequestHeaders: ?[*:0]const u16,
-            pszAdditionalRequestHeaders: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        BeginningTransaction: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IHttpNegotiate,
+                szURL: ?[*:0]const u16,
+                szHeaders: ?[*:0]const u16,
+                dwReserved: u32,
+                pszAdditionalHeaders: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IHttpNegotiate,
+                szURL: ?[*:0]const u16,
+                szHeaders: ?[*:0]const u16,
+                dwReserved: u32,
+                pszAdditionalHeaders: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnResponse: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IHttpNegotiate,
+                dwResponseCode: u32,
+                szResponseHeaders: ?[*:0]const u16,
+                szRequestHeaders: ?[*:0]const u16,
+                pszAdditionalRequestHeaders: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IHttpNegotiate,
+                dwResponseCode: u32,
+                szResponseHeaders: ?[*:0]const u16,
+                szRequestHeaders: ?[*:0]const u16,
+                pszAdditionalRequestHeaders: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -887,17 +961,25 @@ pub const IHttpNegotiate = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IHttpNegotiate2_Value = @import("../../zig.zig").Guid.initString("4f9f9fcb-e0f4-48eb-b7ab-fa2ea9365cb4");
+const IID_IHttpNegotiate2_Value = Guid.initString("4f9f9fcb-e0f4-48eb-b7ab-fa2ea9365cb4");
 pub const IID_IHttpNegotiate2 = &IID_IHttpNegotiate2_Value;
 pub const IHttpNegotiate2 = extern struct {
     pub const VTable = extern struct {
         base: IHttpNegotiate.VTable,
-        GetRootSecurityId: fn(
-            self: *const IHttpNegotiate2,
-            pbSecurityId: [*:0]u8,
-            pcbSecurityId: ?*u32,
-            dwReserved: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetRootSecurityId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IHttpNegotiate2,
+                pbSecurityId: [*:0]u8,
+                pcbSecurityId: ?*u32,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IHttpNegotiate2,
+                pbSecurityId: [*:0]u8,
+                pcbSecurityId: ?*u32,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -910,16 +992,23 @@ pub const IHttpNegotiate2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IHttpNegotiate3_Value = @import("../../zig.zig").Guid.initString("57b6c80a-34c2-4602-bc26-66a02fc57153");
+const IID_IHttpNegotiate3_Value = Guid.initString("57b6c80a-34c2-4602-bc26-66a02fc57153");
 pub const IID_IHttpNegotiate3 = &IID_IHttpNegotiate3_Value;
 pub const IHttpNegotiate3 = extern struct {
     pub const VTable = extern struct {
         base: IHttpNegotiate2.VTable,
-        GetSerializedClientCertContext: fn(
-            self: *const IHttpNegotiate3,
-            ppbCert: [*]?*u8,
-            pcbCert: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetSerializedClientCertContext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IHttpNegotiate3,
+                ppbCert: [*]?*u8,
+                pcbCert: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IHttpNegotiate3,
+                ppbCert: [*]?*u8,
+                pcbCert: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -932,20 +1021,33 @@ pub const IHttpNegotiate3 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IWinInetFileStream_Value = @import("../../zig.zig").Guid.initString("f134c4b7-b1f8-4e75-b886-74b90943becb");
+const IID_IWinInetFileStream_Value = Guid.initString("f134c4b7-b1f8-4e75-b886-74b90943becb");
 pub const IID_IWinInetFileStream = &IID_IWinInetFileStream_Value;
 pub const IWinInetFileStream = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetHandleForUnlock: fn(
-            self: *const IWinInetFileStream,
-            hWinInetLockHandle: usize,
-            dwReserved: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDeleteFile: fn(
-            self: *const IWinInetFileStream,
-            dwReserved: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetHandleForUnlock: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWinInetFileStream,
+                hWinInetLockHandle: usize,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWinInetFileStream,
+                hWinInetLockHandle: usize,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDeleteFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWinInetFileStream,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWinInetFileStream,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -962,16 +1064,23 @@ pub const IWinInetFileStream = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IWindowForBindingUI_Value = @import("../../zig.zig").Guid.initString("79eac9d5-bafa-11ce-8c82-00aa004ba90b");
+const IID_IWindowForBindingUI_Value = Guid.initString("79eac9d5-bafa-11ce-8c82-00aa004ba90b");
 pub const IID_IWindowForBindingUI = &IID_IWindowForBindingUI_Value;
 pub const IWindowForBindingUI = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetWindow: fn(
-            self: *const IWindowForBindingUI,
-            rguidReason: ?*const Guid,
-            phwnd: ?*?HWND,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWindowForBindingUI,
+                rguidReason: ?*const Guid,
+                phwnd: ?*?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWindowForBindingUI,
+                rguidReason: ?*const Guid,
+                phwnd: ?*?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1007,18 +1116,27 @@ pub const CIP_UNSAFE_TO_ABORT = CIP_STATUS.UNSAFE_TO_ABORT;
 pub const CIP_NEED_REBOOT = CIP_STATUS.NEED_REBOOT;
 pub const CIP_NEED_REBOOT_UI_PERMISSION = CIP_STATUS.NEED_REBOOT_UI_PERMISSION;
 
-const IID_ICodeInstall_Value = @import("../../zig.zig").Guid.initString("79eac9d1-baf9-11ce-8c82-00aa004ba90b");
+const IID_ICodeInstall_Value = Guid.initString("79eac9d1-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_ICodeInstall = &IID_ICodeInstall_Value;
 pub const ICodeInstall = extern struct {
     pub const VTable = extern struct {
         base: IWindowForBindingUI.VTable,
-        OnCodeInstallProblem: fn(
-            self: *const ICodeInstall,
-            ulStatusCode: u32,
-            szDestination: ?[*:0]const u16,
-            szSource: ?[*:0]const u16,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnCodeInstallProblem: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICodeInstall,
+                ulStatusCode: u32,
+                szDestination: ?[*:0]const u16,
+                szSource: ?[*:0]const u16,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICodeInstall,
+                ulStatusCode: u32,
+                szDestination: ?[*:0]const u16,
+                szSource: ?[*:0]const u16,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1044,15 +1162,21 @@ pub const Uri_HOST_IPV4 = Uri_HOST_TYPE.IPV4;
 pub const Uri_HOST_IPV6 = Uri_HOST_TYPE.IPV6;
 pub const Uri_HOST_IDN = Uri_HOST_TYPE.IDN;
 
-const IID_IUriContainer_Value = @import("../../zig.zig").Guid.initString("a158a630-ed6f-45fb-b987-f68676f57752");
+const IID_IUriContainer_Value = Guid.initString("a158a630-ed6f-45fb-b987-f68676f57752");
 pub const IID_IUriContainer = &IID_IUriContainer_Value;
 pub const IUriContainer = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetIUri: fn(
-            self: *const IUriContainer,
-            ppIUri: ?*?*IUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetIUri: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUriContainer,
+                ppIUri: ?*?*IUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUriContainer,
+                ppIUri: ?*?*IUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1065,23 +1189,39 @@ pub const IUriContainer = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IUriBuilderFactory_Value = @import("../../zig.zig").Guid.initString("e982ce48-0b96-440c-bc37-0c869b27a29e");
+const IID_IUriBuilderFactory_Value = Guid.initString("e982ce48-0b96-440c-bc37-0c869b27a29e");
 pub const IID_IUriBuilderFactory = &IID_IUriBuilderFactory_Value;
 pub const IUriBuilderFactory = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateIUriBuilder: fn(
-            self: *const IUriBuilderFactory,
-            dwFlags: u32,
-            dwReserved: usize,
-            ppIUriBuilder: ?*?*IUriBuilder,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateInitializedIUriBuilder: fn(
-            self: *const IUriBuilderFactory,
-            dwFlags: u32,
-            dwReserved: usize,
-            ppIUriBuilder: ?*?*IUriBuilder,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateIUriBuilder: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUriBuilderFactory,
+                dwFlags: u32,
+                dwReserved: usize,
+                ppIUriBuilder: ?*?*IUriBuilder,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUriBuilderFactory,
+                dwFlags: u32,
+                dwReserved: usize,
+                ppIUriBuilder: ?*?*IUriBuilder,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateInitializedIUriBuilder: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUriBuilderFactory,
+                dwFlags: u32,
+                dwReserved: usize,
+                ppIUriBuilder: ?*?*IUriBuilder,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUriBuilderFactory,
+                dwFlags: u32,
+                dwReserved: usize,
+                ppIUriBuilder: ?*?*IUriBuilder,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1098,17 +1238,25 @@ pub const IUriBuilderFactory = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IWinInetInfo_Value = @import("../../zig.zig").Guid.initString("79eac9d6-bafa-11ce-8c82-00aa004ba90b");
+const IID_IWinInetInfo_Value = Guid.initString("79eac9d6-bafa-11ce-8c82-00aa004ba90b");
 pub const IID_IWinInetInfo = &IID_IWinInetInfo_Value;
 pub const IWinInetInfo = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        QueryOption: fn(
-            self: *const IWinInetInfo,
-            dwOption: u32,
-            pBuffer: [*]u8,
-            pcbBuf: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        QueryOption: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWinInetInfo,
+                dwOption: u32,
+                pBuffer: [*]u8,
+                pcbBuf: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWinInetInfo,
+                dwOption: u32,
+                pBuffer: [*]u8,
+                pcbBuf: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1121,15 +1269,21 @@ pub const IWinInetInfo = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IHttpSecurity_Value = @import("../../zig.zig").Guid.initString("79eac9d7-bafa-11ce-8c82-00aa004ba90b");
+const IID_IHttpSecurity_Value = Guid.initString("79eac9d7-bafa-11ce-8c82-00aa004ba90b");
 pub const IID_IHttpSecurity = &IID_IHttpSecurity_Value;
 pub const IHttpSecurity = extern struct {
     pub const VTable = extern struct {
         base: IWindowForBindingUI.VTable,
-        OnSecurityProblem: fn(
-            self: *const IHttpSecurity,
-            dwProblem: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnSecurityProblem: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IHttpSecurity,
+                dwProblem: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IHttpSecurity,
+                dwProblem: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1142,19 +1296,29 @@ pub const IHttpSecurity = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IWinInetHttpInfo_Value = @import("../../zig.zig").Guid.initString("79eac9d8-bafa-11ce-8c82-00aa004ba90b");
+const IID_IWinInetHttpInfo_Value = Guid.initString("79eac9d8-bafa-11ce-8c82-00aa004ba90b");
 pub const IID_IWinInetHttpInfo = &IID_IWinInetHttpInfo_Value;
 pub const IWinInetHttpInfo = extern struct {
     pub const VTable = extern struct {
         base: IWinInetInfo.VTable,
-        QueryInfo: fn(
-            self: *const IWinInetHttpInfo,
-            dwOption: u32,
-            pBuffer: [*]u8,
-            pcbBuf: ?*u32,
-            pdwFlags: ?*u32,
-            pdwReserved: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        QueryInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWinInetHttpInfo,
+                dwOption: u32,
+                pBuffer: [*]u8,
+                pcbBuf: ?*u32,
+                pdwFlags: ?*u32,
+                pdwReserved: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWinInetHttpInfo,
+                dwOption: u32,
+                pBuffer: [*]u8,
+                pcbBuf: ?*u32,
+                pdwFlags: ?*u32,
+                pdwReserved: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1167,17 +1331,25 @@ pub const IWinInetHttpInfo = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IWinInetHttpTimeouts_Value = @import("../../zig.zig").Guid.initString("f286fa56-c1fd-4270-8e67-b3eb790a81e8");
+const IID_IWinInetHttpTimeouts_Value = Guid.initString("f286fa56-c1fd-4270-8e67-b3eb790a81e8");
 pub const IID_IWinInetHttpTimeouts = &IID_IWinInetHttpTimeouts_Value;
 pub const IWinInetHttpTimeouts = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetRequestTimeouts: fn(
-            self: *const IWinInetHttpTimeouts,
-            pdwConnectTimeout: ?*u32,
-            pdwSendTimeout: ?*u32,
-            pdwReceiveTimeout: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetRequestTimeouts: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWinInetHttpTimeouts,
+                pdwConnectTimeout: ?*u32,
+                pdwSendTimeout: ?*u32,
+                pdwReceiveTimeout: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWinInetHttpTimeouts,
+                pdwConnectTimeout: ?*u32,
+                pdwSendTimeout: ?*u32,
+                pdwReceiveTimeout: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1190,19 +1362,29 @@ pub const IWinInetHttpTimeouts = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IWinInetCacheHints_Value = @import("../../zig.zig").Guid.initString("dd1ec3b3-8391-4fdb-a9e6-347c3caaa7dd");
+const IID_IWinInetCacheHints_Value = Guid.initString("dd1ec3b3-8391-4fdb-a9e6-347c3caaa7dd");
 pub const IID_IWinInetCacheHints = &IID_IWinInetCacheHints_Value;
 pub const IWinInetCacheHints = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetCacheExtension: fn(
-            self: *const IWinInetCacheHints,
-            pwzExt: ?[*:0]const u16,
-            pszCacheFile: [*]u8,
-            pcbCacheFile: ?*u32,
-            pdwWinInetError: ?*u32,
-            pdwReserved: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetCacheExtension: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWinInetCacheHints,
+                pwzExt: ?[*:0]const u16,
+                pszCacheFile: [*]u8,
+                pcbCacheFile: ?*u32,
+                pdwWinInetError: ?*u32,
+                pdwReserved: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWinInetCacheHints,
+                pwzExt: ?[*:0]const u16,
+                pszCacheFile: [*]u8,
+                pcbCacheFile: ?*u32,
+                pdwWinInetError: ?*u32,
+                pdwReserved: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1215,19 +1397,29 @@ pub const IWinInetCacheHints = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IWinInetCacheHints2_Value = @import("../../zig.zig").Guid.initString("7857aeac-d31f-49bf-884e-dd46df36780a");
+const IID_IWinInetCacheHints2_Value = Guid.initString("7857aeac-d31f-49bf-884e-dd46df36780a");
 pub const IID_IWinInetCacheHints2 = &IID_IWinInetCacheHints2_Value;
 pub const IWinInetCacheHints2 = extern struct {
     pub const VTable = extern struct {
         base: IWinInetCacheHints.VTable,
-        SetCacheExtension2: fn(
-            self: *const IWinInetCacheHints2,
-            pwzExt: ?[*:0]const u16,
-            pwzCacheFile: ?PWSTR,
-            pcchCacheFile: ?*u32,
-            pdwWinInetError: ?*u32,
-            pdwReserved: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetCacheExtension2: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWinInetCacheHints2,
+                pwzExt: ?[*:0]const u16,
+                pwzCacheFile: ?PWSTR,
+                pcchCacheFile: ?*u32,
+                pdwWinInetError: ?*u32,
+                pdwReserved: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWinInetCacheHints2,
+                pwzExt: ?[*:0]const u16,
+                pwzCacheFile: ?PWSTR,
+                pcchCacheFile: ?*u32,
+                pdwWinInetError: ?*u32,
+                pdwReserved: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1240,7 +1432,7 @@ pub const IWinInetCacheHints2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IInternet_Value = @import("../../zig.zig").Guid.initString("79eac9e0-baf9-11ce-8c82-00aa004ba90b");
+const IID_IInternet_Value = Guid.initString("79eac9e0-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IInternet = &IID_IInternet_Value;
 pub const IInternet = extern struct {
     pub const VTable = extern struct {
@@ -1308,23 +1500,39 @@ pub const BINDSTRING_ENTERPRISE_ID = BINDSTRING.ENTERPRISE_ID;
 pub const BINDSTRING_DOC_URL = BINDSTRING.DOC_URL;
 pub const BINDSTRING_SAMESITE_COOKIE_LEVEL = BINDSTRING.SAMESITE_COOKIE_LEVEL;
 
-const IID_IInternetBindInfo_Value = @import("../../zig.zig").Guid.initString("79eac9e1-baf9-11ce-8c82-00aa004ba90b");
+const IID_IInternetBindInfo_Value = Guid.initString("79eac9e1-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IInternetBindInfo = &IID_IInternetBindInfo_Value;
 pub const IInternetBindInfo = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetBindInfo: fn(
-            self: *const IInternetBindInfo,
-            grfBINDF: ?*u32,
-            pbindinfo: ?*BINDINFO,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetBindString: fn(
-            self: *const IInternetBindInfo,
-            ulStringType: u32,
-            ppwzStr: ?*?PWSTR,
-            cEl: u32,
-            pcElFetched: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetBindInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetBindInfo,
+                grfBINDF: ?*u32,
+                pbindinfo: ?*BINDINFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetBindInfo,
+                grfBINDF: ?*u32,
+                pbindinfo: ?*BINDINFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetBindString: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetBindInfo,
+                ulStringType: u32,
+                ppwzStr: ?*?PWSTR,
+                cEl: u32,
+                pcElFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetBindInfo,
+                ulStringType: u32,
+                ppwzStr: ?*?PWSTR,
+                cEl: u32,
+                pcElFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1341,18 +1549,27 @@ pub const IInternetBindInfo = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IInternetBindInfoEx_Value = @import("../../zig.zig").Guid.initString("a3e015b7-a82c-4dcd-a150-569aeeed36ab");
+const IID_IInternetBindInfoEx_Value = Guid.initString("a3e015b7-a82c-4dcd-a150-569aeeed36ab");
 pub const IID_IInternetBindInfoEx = &IID_IInternetBindInfoEx_Value;
 pub const IInternetBindInfoEx = extern struct {
     pub const VTable = extern struct {
         base: IInternetBindInfo.VTable,
-        GetBindInfoEx: fn(
-            self: *const IInternetBindInfoEx,
-            grfBINDF: ?*u32,
-            pbindinfo: ?*BINDINFO,
-            grfBINDF2: ?*u32,
-            pdwReserved: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetBindInfoEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetBindInfoEx,
+                grfBINDF: ?*u32,
+                pbindinfo: ?*BINDINFO,
+                grfBINDF2: ?*u32,
+                pdwReserved: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetBindInfoEx,
+                grfBINDF: ?*u32,
+                pbindinfo: ?*BINDINFO,
+                grfBINDF2: ?*u32,
+                pdwReserved: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1411,38 +1628,77 @@ pub const StartParam = extern struct {
     pItf: ?*IUnknown,
 };
 
-const IID_IInternetProtocolRoot_Value = @import("../../zig.zig").Guid.initString("79eac9e3-baf9-11ce-8c82-00aa004ba90b");
+const IID_IInternetProtocolRoot_Value = Guid.initString("79eac9e3-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IInternetProtocolRoot = &IID_IInternetProtocolRoot_Value;
 pub const IInternetProtocolRoot = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Start: fn(
-            self: *const IInternetProtocolRoot,
-            szUrl: ?[*:0]const u16,
-            pOIProtSink: ?*IInternetProtocolSink,
-            pOIBindInfo: ?*IInternetBindInfo,
-            grfPI: u32,
-            dwReserved: HANDLE_PTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Continue: fn(
-            self: *const IInternetProtocolRoot,
-            pProtocolData: ?*PROTOCOLDATA,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Abort: fn(
-            self: *const IInternetProtocolRoot,
-            hrReason: HRESULT,
-            dwOptions: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Terminate: fn(
-            self: *const IInternetProtocolRoot,
-            dwOptions: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Suspend: fn(
-            self: *const IInternetProtocolRoot,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Resume: fn(
-            self: *const IInternetProtocolRoot,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Start: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolRoot,
+                szUrl: ?[*:0]const u16,
+                pOIProtSink: ?*IInternetProtocolSink,
+                pOIBindInfo: ?*IInternetBindInfo,
+                grfPI: u32,
+                dwReserved: HANDLE_PTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolRoot,
+                szUrl: ?[*:0]const u16,
+                pOIProtSink: ?*IInternetProtocolSink,
+                pOIBindInfo: ?*IInternetBindInfo,
+                grfPI: u32,
+                dwReserved: HANDLE_PTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Continue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolRoot,
+                pProtocolData: ?*PROTOCOLDATA,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolRoot,
+                pProtocolData: ?*PROTOCOLDATA,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Abort: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolRoot,
+                hrReason: HRESULT,
+                dwOptions: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolRoot,
+                hrReason: HRESULT,
+                dwOptions: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Terminate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolRoot,
+                dwOptions: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolRoot,
+                dwOptions: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Suspend: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolRoot,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolRoot,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Resume: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolRoot,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolRoot,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1475,30 +1731,57 @@ pub const IInternetProtocolRoot = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IInternetProtocol_Value = @import("../../zig.zig").Guid.initString("79eac9e4-baf9-11ce-8c82-00aa004ba90b");
+const IID_IInternetProtocol_Value = Guid.initString("79eac9e4-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IInternetProtocol = &IID_IInternetProtocol_Value;
 pub const IInternetProtocol = extern struct {
     pub const VTable = extern struct {
         base: IInternetProtocolRoot.VTable,
-        Read: fn(
-            self: *const IInternetProtocol,
-            pv: [*]u8,
-            cb: u32,
-            pcbRead: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Seek: fn(
-            self: *const IInternetProtocol,
-            dlibMove: LARGE_INTEGER,
-            dwOrigin: u32,
-            plibNewPosition: ?*ULARGE_INTEGER,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        LockRequest: fn(
-            self: *const IInternetProtocol,
-            dwOptions: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UnlockRequest: fn(
-            self: *const IInternetProtocol,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Read: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocol,
+                pv: [*]u8,
+                cb: u32,
+                pcbRead: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocol,
+                pv: [*]u8,
+                cb: u32,
+                pcbRead: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Seek: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocol,
+                dlibMove: LARGE_INTEGER,
+                dwOrigin: u32,
+                plibNewPosition: ?*ULARGE_INTEGER,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocol,
+                dlibMove: LARGE_INTEGER,
+                dwOrigin: u32,
+                plibNewPosition: ?*ULARGE_INTEGER,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        LockRequest: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocol,
+                dwOptions: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocol,
+                dwOptions: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UnlockRequest: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocol,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocol,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1523,19 +1806,29 @@ pub const IInternetProtocol = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IInternetProtocolEx_Value = @import("../../zig.zig").Guid.initString("c7a98e66-1010-492c-a1c8-c809e1f75905");
+const IID_IInternetProtocolEx_Value = Guid.initString("c7a98e66-1010-492c-a1c8-c809e1f75905");
 pub const IID_IInternetProtocolEx = &IID_IInternetProtocolEx_Value;
 pub const IInternetProtocolEx = extern struct {
     pub const VTable = extern struct {
         base: IInternetProtocol.VTable,
-        StartEx: fn(
-            self: *const IInternetProtocolEx,
-            pUri: ?*IUri,
-            pOIProtSink: ?*IInternetProtocolSink,
-            pOIBindInfo: ?*IInternetBindInfo,
-            grfPI: u32,
-            dwReserved: HANDLE_PTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        StartEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolEx,
+                pUri: ?*IUri,
+                pOIProtSink: ?*IInternetProtocolSink,
+                pOIBindInfo: ?*IInternetBindInfo,
+                grfPI: u32,
+                dwReserved: HANDLE_PTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolEx,
+                pUri: ?*IUri,
+                pOIProtSink: ?*IInternetProtocolSink,
+                pOIBindInfo: ?*IInternetBindInfo,
+                grfPI: u32,
+                dwReserved: HANDLE_PTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1548,32 +1841,61 @@ pub const IInternetProtocolEx = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IInternetProtocolSink_Value = @import("../../zig.zig").Guid.initString("79eac9e5-baf9-11ce-8c82-00aa004ba90b");
+const IID_IInternetProtocolSink_Value = Guid.initString("79eac9e5-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IInternetProtocolSink = &IID_IInternetProtocolSink_Value;
 pub const IInternetProtocolSink = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Switch: fn(
-            self: *const IInternetProtocolSink,
-            pProtocolData: ?*PROTOCOLDATA,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ReportProgress: fn(
-            self: *const IInternetProtocolSink,
-            ulStatusCode: u32,
-            szStatusText: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ReportData: fn(
-            self: *const IInternetProtocolSink,
-            grfBSCF: u32,
-            ulProgress: u32,
-            ulProgressMax: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ReportResult: fn(
-            self: *const IInternetProtocolSink,
-            hrResult: HRESULT,
-            dwError: u32,
-            szResult: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Switch: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolSink,
+                pProtocolData: ?*PROTOCOLDATA,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolSink,
+                pProtocolData: ?*PROTOCOLDATA,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ReportProgress: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolSink,
+                ulStatusCode: u32,
+                szStatusText: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolSink,
+                ulStatusCode: u32,
+                szStatusText: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ReportData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolSink,
+                grfBSCF: u32,
+                ulProgress: u32,
+                ulProgressMax: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolSink,
+                grfBSCF: u32,
+                ulProgress: u32,
+                ulProgressMax: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ReportResult: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolSink,
+                hrResult: HRESULT,
+                dwError: u32,
+                szResult: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolSink,
+                hrResult: HRESULT,
+                dwError: u32,
+                szResult: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1598,21 +1920,37 @@ pub const IInternetProtocolSink = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IInternetProtocolSinkStackable_Value = @import("../../zig.zig").Guid.initString("79eac9f0-baf9-11ce-8c82-00aa004ba90b");
+const IID_IInternetProtocolSinkStackable_Value = Guid.initString("79eac9f0-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IInternetProtocolSinkStackable = &IID_IInternetProtocolSinkStackable_Value;
 pub const IInternetProtocolSinkStackable = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SwitchSink: fn(
-            self: *const IInternetProtocolSinkStackable,
-            pOIProtSink: ?*IInternetProtocolSink,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CommitSwitch: fn(
-            self: *const IInternetProtocolSinkStackable,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RollbackSwitch: fn(
-            self: *const IInternetProtocolSinkStackable,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SwitchSink: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolSinkStackable,
+                pOIProtSink: ?*IInternetProtocolSink,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolSinkStackable,
+                pOIProtSink: ?*IInternetProtocolSink,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CommitSwitch: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolSinkStackable,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolSinkStackable,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RollbackSwitch: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolSinkStackable,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolSinkStackable,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1640,59 +1978,121 @@ pub const OIBDG_FLAGS = enum(i32) {
 pub const OIBDG_APARTMENTTHREADED = OIBDG_FLAGS.APARTMENTTHREADED;
 pub const OIBDG_DATAONLY = OIBDG_FLAGS.DATAONLY;
 
-const IID_IInternetSession_Value = @import("../../zig.zig").Guid.initString("79eac9e7-baf9-11ce-8c82-00aa004ba90b");
+const IID_IInternetSession_Value = Guid.initString("79eac9e7-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IInternetSession = &IID_IInternetSession_Value;
 pub const IInternetSession = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        RegisterNameSpace: fn(
-            self: *const IInternetSession,
-            pCF: ?*IClassFactory,
-            rclsid: ?*const Guid,
-            pwzProtocol: ?[*:0]const u16,
-            cPatterns: u32,
-            ppwzPatterns: ?*const ?PWSTR,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UnregisterNameSpace: fn(
-            self: *const IInternetSession,
-            pCF: ?*IClassFactory,
-            pszProtocol: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RegisterMimeFilter: fn(
-            self: *const IInternetSession,
-            pCF: ?*IClassFactory,
-            rclsid: ?*const Guid,
-            pwzType: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UnregisterMimeFilter: fn(
-            self: *const IInternetSession,
-            pCF: ?*IClassFactory,
-            pwzType: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateBinding: fn(
-            self: *const IInternetSession,
-            pBC: ?*IBindCtx,
-            szUrl: ?[*:0]const u16,
-            pUnkOuter: ?*IUnknown,
-            ppUnk: ?*?*IUnknown,
-            ppOInetProt: ?*?*IInternetProtocol,
-            dwOption: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetSessionOption: fn(
-            self: *const IInternetSession,
-            dwOption: u32,
-            pBuffer: ?*anyopaque,
-            dwBufferLength: u32,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSessionOption: fn(
-            self: *const IInternetSession,
-            dwOption: u32,
-            pBuffer: ?*anyopaque,
-            pdwBufferLength: ?*u32,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        RegisterNameSpace: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSession,
+                pCF: ?*IClassFactory,
+                rclsid: ?*const Guid,
+                pwzProtocol: ?[*:0]const u16,
+                cPatterns: u32,
+                ppwzPatterns: ?*const ?PWSTR,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSession,
+                pCF: ?*IClassFactory,
+                rclsid: ?*const Guid,
+                pwzProtocol: ?[*:0]const u16,
+                cPatterns: u32,
+                ppwzPatterns: ?*const ?PWSTR,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UnregisterNameSpace: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSession,
+                pCF: ?*IClassFactory,
+                pszProtocol: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSession,
+                pCF: ?*IClassFactory,
+                pszProtocol: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RegisterMimeFilter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSession,
+                pCF: ?*IClassFactory,
+                rclsid: ?*const Guid,
+                pwzType: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSession,
+                pCF: ?*IClassFactory,
+                rclsid: ?*const Guid,
+                pwzType: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UnregisterMimeFilter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSession,
+                pCF: ?*IClassFactory,
+                pwzType: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSession,
+                pCF: ?*IClassFactory,
+                pwzType: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateBinding: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSession,
+                pBC: ?*IBindCtx,
+                szUrl: ?[*:0]const u16,
+                pUnkOuter: ?*IUnknown,
+                ppUnk: ?*?*IUnknown,
+                ppOInetProt: ?*?*IInternetProtocol,
+                dwOption: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSession,
+                pBC: ?*IBindCtx,
+                szUrl: ?[*:0]const u16,
+                pUnkOuter: ?*IUnknown,
+                ppUnk: ?*?*IUnknown,
+                ppOInetProt: ?*?*IInternetProtocol,
+                dwOption: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetSessionOption: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSession,
+                dwOption: u32,
+                pBuffer: ?*anyopaque,
+                dwBufferLength: u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSession,
+                dwOption: u32,
+                pBuffer: ?*anyopaque,
+                dwBufferLength: u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSessionOption: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSession,
+                dwOption: u32,
+                pBuffer: ?*anyopaque,
+                pdwBufferLength: ?*u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSession,
+                dwOption: u32,
+                pBuffer: ?*anyopaque,
+                pdwBufferLength: ?*u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1729,17 +2129,27 @@ pub const IInternetSession = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IInternetThreadSwitch_Value = @import("../../zig.zig").Guid.initString("79eac9e8-baf9-11ce-8c82-00aa004ba90b");
+const IID_IInternetThreadSwitch_Value = Guid.initString("79eac9e8-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IInternetThreadSwitch = &IID_IInternetThreadSwitch_Value;
 pub const IInternetThreadSwitch = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Prepare: fn(
-            self: *const IInternetThreadSwitch,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Continue: fn(
-            self: *const IInternetThreadSwitch,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Prepare: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetThreadSwitch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetThreadSwitch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Continue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetThreadSwitch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetThreadSwitch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1756,19 +2166,31 @@ pub const IInternetThreadSwitch = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IInternetPriority_Value = @import("../../zig.zig").Guid.initString("79eac9eb-baf9-11ce-8c82-00aa004ba90b");
+const IID_IInternetPriority_Value = Guid.initString("79eac9eb-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IInternetPriority = &IID_IInternetPriority_Value;
 pub const IInternetPriority = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetPriority: fn(
-            self: *const IInternetPriority,
-            nPriority: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPriority: fn(
-            self: *const IInternetPriority,
-            pnPriority: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetPriority: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetPriority,
+                nPriority: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetPriority,
+                nPriority: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPriority: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetPriority,
+                pnPriority: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetPriority,
+                pnPriority: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1868,47 +2290,91 @@ pub const QUERY_IS_SAFE = QUERYOPTION.IS_SAFE;
 pub const QUERY_USES_HISTORYFOLDER = QUERYOPTION.USES_HISTORYFOLDER;
 pub const QUERY_IS_CACHED_AND_USABLE_OFFLINE = QUERYOPTION.IS_CACHED_AND_USABLE_OFFLINE;
 
-const IID_IInternetProtocolInfo_Value = @import("../../zig.zig").Guid.initString("79eac9ec-baf9-11ce-8c82-00aa004ba90b");
+const IID_IInternetProtocolInfo_Value = Guid.initString("79eac9ec-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IInternetProtocolInfo = &IID_IInternetProtocolInfo_Value;
 pub const IInternetProtocolInfo = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ParseUrl: fn(
-            self: *const IInternetProtocolInfo,
-            pwzUrl: ?[*:0]const u16,
-            ParseAction: PARSEACTION,
-            dwParseFlags: u32,
-            pwzResult: ?PWSTR,
-            cchResult: u32,
-            pcchResult: ?*u32,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CombineUrl: fn(
-            self: *const IInternetProtocolInfo,
-            pwzBaseUrl: ?[*:0]const u16,
-            pwzRelativeUrl: ?[*:0]const u16,
-            dwCombineFlags: u32,
-            pwzResult: ?PWSTR,
-            cchResult: u32,
-            pcchResult: ?*u32,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CompareUrl: fn(
-            self: *const IInternetProtocolInfo,
-            pwzUrl1: ?[*:0]const u16,
-            pwzUrl2: ?[*:0]const u16,
-            dwCompareFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        QueryInfo: fn(
-            self: *const IInternetProtocolInfo,
-            pwzUrl: ?[*:0]const u16,
-            OueryOption: QUERYOPTION,
-            dwQueryFlags: u32,
-            pBuffer: [*]u8,
-            cbBuffer: u32,
-            pcbBuf: ?*u32,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ParseUrl: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolInfo,
+                pwzUrl: ?[*:0]const u16,
+                ParseAction: PARSEACTION,
+                dwParseFlags: u32,
+                pwzResult: ?PWSTR,
+                cchResult: u32,
+                pcchResult: ?*u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolInfo,
+                pwzUrl: ?[*:0]const u16,
+                ParseAction: PARSEACTION,
+                dwParseFlags: u32,
+                pwzResult: ?PWSTR,
+                cchResult: u32,
+                pcchResult: ?*u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CombineUrl: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolInfo,
+                pwzBaseUrl: ?[*:0]const u16,
+                pwzRelativeUrl: ?[*:0]const u16,
+                dwCombineFlags: u32,
+                pwzResult: ?PWSTR,
+                cchResult: u32,
+                pcchResult: ?*u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolInfo,
+                pwzBaseUrl: ?[*:0]const u16,
+                pwzRelativeUrl: ?[*:0]const u16,
+                dwCombineFlags: u32,
+                pwzResult: ?PWSTR,
+                cchResult: u32,
+                pcchResult: ?*u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CompareUrl: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolInfo,
+                pwzUrl1: ?[*:0]const u16,
+                pwzUrl2: ?[*:0]const u16,
+                dwCompareFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolInfo,
+                pwzUrl1: ?[*:0]const u16,
+                pwzUrl2: ?[*:0]const u16,
+                dwCompareFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        QueryInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetProtocolInfo,
+                pwzUrl: ?[*:0]const u16,
+                OueryOption: QUERYOPTION,
+                dwQueryFlags: u32,
+                pBuffer: [*]u8,
+                cbBuffer: u32,
+                pcbBuf: ?*u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetProtocolInfo,
+                pwzUrl: ?[*:0]const u16,
+                OueryOption: QUERYOPTION,
+                dwQueryFlags: u32,
+                pBuffer: [*]u8,
+                cbBuffer: u32,
+                pcbBuf: ?*u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1994,19 +2460,31 @@ pub const FEATURE_FEEDS = INTERNETFEATURELIST.FEEDS;
 pub const FEATURE_BLOCK_INPUT_PROMPTS = INTERNETFEATURELIST.BLOCK_INPUT_PROMPTS;
 pub const FEATURE_ENTRY_COUNT = INTERNETFEATURELIST.ENTRY_COUNT;
 
-const IID_IInternetSecurityMgrSite_Value = @import("../../zig.zig").Guid.initString("79eac9ed-baf9-11ce-8c82-00aa004ba90b");
+const IID_IInternetSecurityMgrSite_Value = Guid.initString("79eac9ed-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IInternetSecurityMgrSite = &IID_IInternetSecurityMgrSite_Value;
 pub const IInternetSecurityMgrSite = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetWindow: fn(
-            self: *const IInternetSecurityMgrSite,
-            phwnd: ?*?HWND,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnableModeless: fn(
-            self: *const IInternetSecurityMgrSite,
-            fEnable: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityMgrSite,
+                phwnd: ?*?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityMgrSite,
+                phwnd: ?*?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnableModeless: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityMgrSite,
+                fEnable: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityMgrSite,
+                fEnable: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2082,65 +2560,135 @@ pub const SZM_FLAGS = enum(i32) {
 pub const SZM_CREATE = SZM_FLAGS.CREATE;
 pub const SZM_DELETE = SZM_FLAGS.DELETE;
 
-const IID_IInternetSecurityManager_Value = @import("../../zig.zig").Guid.initString("79eac9ee-baf9-11ce-8c82-00aa004ba90b");
+const IID_IInternetSecurityManager_Value = Guid.initString("79eac9ee-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IInternetSecurityManager = &IID_IInternetSecurityManager_Value;
 pub const IInternetSecurityManager = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetSecuritySite: fn(
-            self: *const IInternetSecurityManager,
-            pSite: ?*IInternetSecurityMgrSite,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSecuritySite: fn(
-            self: *const IInternetSecurityManager,
-            ppSite: ?*?*IInternetSecurityMgrSite,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MapUrlToZone: fn(
-            self: *const IInternetSecurityManager,
-            pwszUrl: ?[*:0]const u16,
-            pdwZone: ?*u32,
-            dwFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSecurityId: fn(
-            self: *const IInternetSecurityManager,
-            pwszUrl: ?[*:0]const u16,
-            pbSecurityId: *[512]u8,
-            pcbSecurityId: ?*u32,
-            dwReserved: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProcessUrlAction: fn(
-            self: *const IInternetSecurityManager,
-            pwszUrl: ?[*:0]const u16,
-            dwAction: u32,
-            pPolicy: [*:0]u8,
-            cbPolicy: u32,
-            pContext: ?*u8,
-            cbContext: u32,
-            dwFlags: u32,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        QueryCustomPolicy: fn(
-            self: *const IInternetSecurityManager,
-            pwszUrl: ?[*:0]const u16,
-            guidKey: ?*const Guid,
-            ppPolicy: [*]?*u8,
-            pcbPolicy: ?*u32,
-            pContext: ?*u8,
-            cbContext: u32,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetZoneMapping: fn(
-            self: *const IInternetSecurityManager,
-            dwZone: u32,
-            lpszPattern: ?[*:0]const u16,
-            dwFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetZoneMappings: fn(
-            self: *const IInternetSecurityManager,
-            dwZone: u32,
-            ppenumString: ?*?*IEnumString,
-            dwFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetSecuritySite: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityManager,
+                pSite: ?*IInternetSecurityMgrSite,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityManager,
+                pSite: ?*IInternetSecurityMgrSite,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSecuritySite: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityManager,
+                ppSite: ?*?*IInternetSecurityMgrSite,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityManager,
+                ppSite: ?*?*IInternetSecurityMgrSite,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MapUrlToZone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityManager,
+                pwszUrl: ?[*:0]const u16,
+                pdwZone: ?*u32,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityManager,
+                pwszUrl: ?[*:0]const u16,
+                pdwZone: ?*u32,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSecurityId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityManager,
+                pwszUrl: ?[*:0]const u16,
+                pbSecurityId: *[512]u8,
+                pcbSecurityId: ?*u32,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityManager,
+                pwszUrl: ?[*:0]const u16,
+                pbSecurityId: *[512]u8,
+                pcbSecurityId: ?*u32,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProcessUrlAction: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityManager,
+                pwszUrl: ?[*:0]const u16,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                pContext: ?*u8,
+                cbContext: u32,
+                dwFlags: u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityManager,
+                pwszUrl: ?[*:0]const u16,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                pContext: ?*u8,
+                cbContext: u32,
+                dwFlags: u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        QueryCustomPolicy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityManager,
+                pwszUrl: ?[*:0]const u16,
+                guidKey: ?*const Guid,
+                ppPolicy: [*]?*u8,
+                pcbPolicy: ?*u32,
+                pContext: ?*u8,
+                cbContext: u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityManager,
+                pwszUrl: ?[*:0]const u16,
+                guidKey: ?*const Guid,
+                ppPolicy: [*]?*u8,
+                pcbPolicy: ?*u32,
+                pContext: ?*u8,
+                cbContext: u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetZoneMapping: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityManager,
+                dwZone: u32,
+                lpszPattern: ?[*:0]const u16,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityManager,
+                dwZone: u32,
+                lpszPattern: ?[*:0]const u16,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetZoneMappings: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityManager,
+                dwZone: u32,
+                ppenumString: ?*?*IEnumString,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityManager,
+                dwZone: u32,
+                ppenumString: ?*?*IEnumString,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2181,23 +2729,37 @@ pub const IInternetSecurityManager = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IInternetSecurityManagerEx_Value = @import("../../zig.zig").Guid.initString("f164edf1-cc7c-4f0d-9a94-34222625c393");
+const IID_IInternetSecurityManagerEx_Value = Guid.initString("f164edf1-cc7c-4f0d-9a94-34222625c393");
 pub const IID_IInternetSecurityManagerEx = &IID_IInternetSecurityManagerEx_Value;
 pub const IInternetSecurityManagerEx = extern struct {
     pub const VTable = extern struct {
         base: IInternetSecurityManager.VTable,
-        ProcessUrlActionEx: fn(
-            self: *const IInternetSecurityManagerEx,
-            pwszUrl: ?[*:0]const u16,
-            dwAction: u32,
-            pPolicy: [*:0]u8,
-            cbPolicy: u32,
-            pContext: ?*u8,
-            cbContext: u32,
-            dwFlags: u32,
-            dwReserved: u32,
-            pdwOutFlags: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ProcessUrlActionEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityManagerEx,
+                pwszUrl: ?[*:0]const u16,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                pContext: ?*u8,
+                cbContext: u32,
+                dwFlags: u32,
+                dwReserved: u32,
+                pdwOutFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityManagerEx,
+                pwszUrl: ?[*:0]const u16,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                pContext: ?*u8,
+                cbContext: u32,
+                dwFlags: u32,
+                dwReserved: u32,
+                pdwOutFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2210,48 +2772,93 @@ pub const IInternetSecurityManagerEx = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IInternetSecurityManagerEx2_Value = @import("../../zig.zig").Guid.initString("f1e50292-a795-4117-8e09-2b560a72ac60");
+const IID_IInternetSecurityManagerEx2_Value = Guid.initString("f1e50292-a795-4117-8e09-2b560a72ac60");
 pub const IID_IInternetSecurityManagerEx2 = &IID_IInternetSecurityManagerEx2_Value;
 pub const IInternetSecurityManagerEx2 = extern struct {
     pub const VTable = extern struct {
         base: IInternetSecurityManagerEx.VTable,
-        MapUrlToZoneEx2: fn(
-            self: *const IInternetSecurityManagerEx2,
-            pUri: ?*IUri,
-            pdwZone: ?*u32,
-            dwFlags: u32,
-            ppwszMappedUrl: ?*?PWSTR,
-            pdwOutFlags: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProcessUrlActionEx2: fn(
-            self: *const IInternetSecurityManagerEx2,
-            pUri: ?*IUri,
-            dwAction: u32,
-            pPolicy: [*:0]u8,
-            cbPolicy: u32,
-            pContext: ?*u8,
-            cbContext: u32,
-            dwFlags: u32,
-            dwReserved: usize,
-            pdwOutFlags: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSecurityIdEx2: fn(
-            self: *const IInternetSecurityManagerEx2,
-            pUri: ?*IUri,
-            pbSecurityId: *[512]u8,
-            pcbSecurityId: ?*u32,
-            dwReserved: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        QueryCustomPolicyEx2: fn(
-            self: *const IInternetSecurityManagerEx2,
-            pUri: ?*IUri,
-            guidKey: ?*const Guid,
-            ppPolicy: [*]?*u8,
-            pcbPolicy: ?*u32,
-            pContext: ?*u8,
-            cbContext: u32,
-            dwReserved: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        MapUrlToZoneEx2: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityManagerEx2,
+                pUri: ?*IUri,
+                pdwZone: ?*u32,
+                dwFlags: u32,
+                ppwszMappedUrl: ?*?PWSTR,
+                pdwOutFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityManagerEx2,
+                pUri: ?*IUri,
+                pdwZone: ?*u32,
+                dwFlags: u32,
+                ppwszMappedUrl: ?*?PWSTR,
+                pdwOutFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProcessUrlActionEx2: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityManagerEx2,
+                pUri: ?*IUri,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                pContext: ?*u8,
+                cbContext: u32,
+                dwFlags: u32,
+                dwReserved: usize,
+                pdwOutFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityManagerEx2,
+                pUri: ?*IUri,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                pContext: ?*u8,
+                cbContext: u32,
+                dwFlags: u32,
+                dwReserved: usize,
+                pdwOutFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSecurityIdEx2: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityManagerEx2,
+                pUri: ?*IUri,
+                pbSecurityId: *[512]u8,
+                pcbSecurityId: ?*u32,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityManagerEx2,
+                pUri: ?*IUri,
+                pbSecurityId: *[512]u8,
+                pcbSecurityId: ?*u32,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        QueryCustomPolicyEx2: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetSecurityManagerEx2,
+                pUri: ?*IUri,
+                guidKey: ?*const Guid,
+                ppPolicy: [*]?*u8,
+                pcbPolicy: ?*u32,
+                pContext: ?*u8,
+                cbContext: u32,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetSecurityManagerEx2,
+                pUri: ?*IUri,
+                guidKey: ?*const Guid,
+                ppPolicy: [*]?*u8,
+                pcbPolicy: ?*u32,
+                pContext: ?*u8,
+                cbContext: u32,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2276,22 +2883,39 @@ pub const IInternetSecurityManagerEx2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IZoneIdentifier_Value = @import("../../zig.zig").Guid.initString("cd45f185-1b21-48e2-967b-ead743a8914e");
+const IID_IZoneIdentifier_Value = Guid.initString("cd45f185-1b21-48e2-967b-ead743a8914e");
 pub const IID_IZoneIdentifier = &IID_IZoneIdentifier_Value;
 pub const IZoneIdentifier = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetId: fn(
-            self: *const IZoneIdentifier,
-            pdwZone: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetId: fn(
-            self: *const IZoneIdentifier,
-            dwZone: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Remove: fn(
-            self: *const IZoneIdentifier,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IZoneIdentifier,
+                pdwZone: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IZoneIdentifier,
+                pdwZone: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IZoneIdentifier,
+                dwZone: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IZoneIdentifier,
+                dwZone: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Remove: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IZoneIdentifier,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IZoneIdentifier,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2312,33 +2936,67 @@ pub const IZoneIdentifier = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IZoneIdentifier2_Value = @import("../../zig.zig").Guid.initString("eb5e760c-09ef-45c0-b510-70830ce31e6a");
+const IID_IZoneIdentifier2_Value = Guid.initString("eb5e760c-09ef-45c0-b510-70830ce31e6a");
 pub const IID_IZoneIdentifier2 = &IID_IZoneIdentifier2_Value;
 pub const IZoneIdentifier2 = extern struct {
     pub const VTable = extern struct {
         base: IZoneIdentifier.VTable,
-        GetLastWriterPackageFamilyName: fn(
-            self: *const IZoneIdentifier2,
-            packageFamilyName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetLastWriterPackageFamilyName: fn(
-            self: *const IZoneIdentifier2,
-            packageFamilyName: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RemoveLastWriterPackageFamilyName: fn(
-            self: *const IZoneIdentifier2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAppZoneId: fn(
-            self: *const IZoneIdentifier2,
-            zone: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetAppZoneId: fn(
-            self: *const IZoneIdentifier2,
-            zone: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RemoveAppZoneId: fn(
-            self: *const IZoneIdentifier2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetLastWriterPackageFamilyName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IZoneIdentifier2,
+                packageFamilyName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IZoneIdentifier2,
+                packageFamilyName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetLastWriterPackageFamilyName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IZoneIdentifier2,
+                packageFamilyName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IZoneIdentifier2,
+                packageFamilyName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RemoveLastWriterPackageFamilyName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IZoneIdentifier2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IZoneIdentifier2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAppZoneId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IZoneIdentifier2,
+                zone: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IZoneIdentifier2,
+                zone: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetAppZoneId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IZoneIdentifier2,
+                zone: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IZoneIdentifier2,
+                zone: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RemoveAppZoneId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IZoneIdentifier2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IZoneIdentifier2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2371,36 +3029,67 @@ pub const IZoneIdentifier2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IInternetHostSecurityManager_Value = @import("../../zig.zig").Guid.initString("3af280b6-cb3f-11d0-891e-00c04fb6bfc4");
+const IID_IInternetHostSecurityManager_Value = Guid.initString("3af280b6-cb3f-11d0-891e-00c04fb6bfc4");
 pub const IID_IInternetHostSecurityManager = &IID_IInternetHostSecurityManager_Value;
 pub const IInternetHostSecurityManager = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetSecurityId: fn(
-            self: *const IInternetHostSecurityManager,
-            pbSecurityId: [*:0]u8,
-            pcbSecurityId: ?*u32,
-            dwReserved: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProcessUrlAction: fn(
-            self: *const IInternetHostSecurityManager,
-            dwAction: u32,
-            pPolicy: ?*u8,
-            cbPolicy: u32,
-            pContext: ?[*:0]u8,
-            cbContext: u32,
-            dwFlags: u32,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        QueryCustomPolicy: fn(
-            self: *const IInternetHostSecurityManager,
-            guidKey: ?*const Guid,
-            ppPolicy: ?[*]?*u8,
-            pcbPolicy: ?*u32,
-            pContext: [*:0]u8,
-            cbContext: u32,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetSecurityId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetHostSecurityManager,
+                pbSecurityId: [*:0]u8,
+                pcbSecurityId: ?*u32,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetHostSecurityManager,
+                pbSecurityId: [*:0]u8,
+                pcbSecurityId: ?*u32,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProcessUrlAction: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetHostSecurityManager,
+                dwAction: u32,
+                pPolicy: ?*u8,
+                cbPolicy: u32,
+                pContext: ?[*:0]u8,
+                cbContext: u32,
+                dwFlags: u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetHostSecurityManager,
+                dwAction: u32,
+                pPolicy: ?*u8,
+                cbPolicy: u32,
+                pContext: ?[*:0]u8,
+                cbContext: u32,
+                dwFlags: u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        QueryCustomPolicy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetHostSecurityManager,
+                guidKey: ?*const Guid,
+                ppPolicy: ?[*]?*u8,
+                pcbPolicy: ?*u32,
+                pContext: [*:0]u8,
+                cbContext: u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetHostSecurityManager,
+                guidKey: ?*const Guid,
+                ppPolicy: ?[*]?*u8,
+                pcbPolicy: ?*u32,
+                pContext: [*:0]u8,
+                cbContext: u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2517,90 +3206,193 @@ pub const URLZONEREG_DEFAULT = URLZONEREG.DEFAULT;
 pub const URLZONEREG_HKLM = URLZONEREG.HKLM;
 pub const URLZONEREG_HKCU = URLZONEREG.HKCU;
 
-const IID_IInternetZoneManager_Value = @import("../../zig.zig").Guid.initString("79eac9ef-baf9-11ce-8c82-00aa004ba90b");
+const IID_IInternetZoneManager_Value = Guid.initString("79eac9ef-baf9-11ce-8c82-00aa004ba90b");
 pub const IID_IInternetZoneManager = &IID_IInternetZoneManager_Value;
 pub const IInternetZoneManager = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetZoneAttributes: fn(
-            self: *const IInternetZoneManager,
-            dwZone: u32,
-            pZoneAttributes: ?*ZONEATTRIBUTES,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetZoneAttributes: fn(
-            self: *const IInternetZoneManager,
-            dwZone: u32,
-            pZoneAttributes: ?*ZONEATTRIBUTES,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetZoneCustomPolicy: fn(
-            self: *const IInternetZoneManager,
-            dwZone: u32,
-            guidKey: ?*const Guid,
-            ppPolicy: ?*?*u8,
-            pcbPolicy: ?*u32,
-            urlZoneReg: URLZONEREG,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetZoneCustomPolicy: fn(
-            self: *const IInternetZoneManager,
-            dwZone: u32,
-            guidKey: ?*const Guid,
-            pPolicy: [*:0]u8,
-            cbPolicy: u32,
-            urlZoneReg: URLZONEREG,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetZoneActionPolicy: fn(
-            self: *const IInternetZoneManager,
-            dwZone: u32,
-            dwAction: u32,
-            pPolicy: [*:0]u8,
-            cbPolicy: u32,
-            urlZoneReg: URLZONEREG,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetZoneActionPolicy: fn(
-            self: *const IInternetZoneManager,
-            dwZone: u32,
-            dwAction: u32,
-            pPolicy: [*:0]u8,
-            cbPolicy: u32,
-            urlZoneReg: URLZONEREG,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        PromptAction: fn(
-            self: *const IInternetZoneManager,
-            dwAction: u32,
-            hwndParent: ?HWND,
-            pwszUrl: ?[*:0]const u16,
-            pwszText: ?[*:0]const u16,
-            dwPromptFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        LogAction: fn(
-            self: *const IInternetZoneManager,
-            dwAction: u32,
-            pwszUrl: ?[*:0]const u16,
-            pwszText: ?[*:0]const u16,
-            dwLogFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateZoneEnumerator: fn(
-            self: *const IInternetZoneManager,
-            pdwEnum: ?*u32,
-            pdwCount: ?*u32,
-            dwFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetZoneAt: fn(
-            self: *const IInternetZoneManager,
-            dwEnum: u32,
-            dwIndex: u32,
-            pdwZone: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DestroyZoneEnumerator: fn(
-            self: *const IInternetZoneManager,
-            dwEnum: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CopyTemplatePoliciesToZone: fn(
-            self: *const IInternetZoneManager,
-            dwTemplate: u32,
-            dwZone: u32,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetZoneAttributes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManager,
+                dwZone: u32,
+                pZoneAttributes: ?*ZONEATTRIBUTES,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManager,
+                dwZone: u32,
+                pZoneAttributes: ?*ZONEATTRIBUTES,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetZoneAttributes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManager,
+                dwZone: u32,
+                pZoneAttributes: ?*ZONEATTRIBUTES,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManager,
+                dwZone: u32,
+                pZoneAttributes: ?*ZONEATTRIBUTES,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetZoneCustomPolicy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManager,
+                dwZone: u32,
+                guidKey: ?*const Guid,
+                ppPolicy: ?*?*u8,
+                pcbPolicy: ?*u32,
+                urlZoneReg: URLZONEREG,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManager,
+                dwZone: u32,
+                guidKey: ?*const Guid,
+                ppPolicy: ?*?*u8,
+                pcbPolicy: ?*u32,
+                urlZoneReg: URLZONEREG,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetZoneCustomPolicy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManager,
+                dwZone: u32,
+                guidKey: ?*const Guid,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                urlZoneReg: URLZONEREG,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManager,
+                dwZone: u32,
+                guidKey: ?*const Guid,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                urlZoneReg: URLZONEREG,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetZoneActionPolicy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManager,
+                dwZone: u32,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                urlZoneReg: URLZONEREG,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManager,
+                dwZone: u32,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                urlZoneReg: URLZONEREG,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetZoneActionPolicy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManager,
+                dwZone: u32,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                urlZoneReg: URLZONEREG,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManager,
+                dwZone: u32,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                urlZoneReg: URLZONEREG,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        PromptAction: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManager,
+                dwAction: u32,
+                hwndParent: ?HWND,
+                pwszUrl: ?[*:0]const u16,
+                pwszText: ?[*:0]const u16,
+                dwPromptFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManager,
+                dwAction: u32,
+                hwndParent: ?HWND,
+                pwszUrl: ?[*:0]const u16,
+                pwszText: ?[*:0]const u16,
+                dwPromptFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        LogAction: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManager,
+                dwAction: u32,
+                pwszUrl: ?[*:0]const u16,
+                pwszText: ?[*:0]const u16,
+                dwLogFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManager,
+                dwAction: u32,
+                pwszUrl: ?[*:0]const u16,
+                pwszText: ?[*:0]const u16,
+                dwLogFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateZoneEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManager,
+                pdwEnum: ?*u32,
+                pdwCount: ?*u32,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManager,
+                pdwEnum: ?*u32,
+                pdwCount: ?*u32,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetZoneAt: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManager,
+                dwEnum: u32,
+                dwIndex: u32,
+                pdwZone: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManager,
+                dwEnum: u32,
+                dwIndex: u32,
+                pdwZone: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DestroyZoneEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManager,
+                dwEnum: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManager,
+                dwEnum: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CopyTemplatePoliciesToZone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManager,
+                dwTemplate: u32,
+                dwZone: u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManager,
+                dwTemplate: u32,
+                dwZone: u32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2657,29 +3449,51 @@ pub const IInternetZoneManager = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IInternetZoneManagerEx_Value = @import("../../zig.zig").Guid.initString("a4c23339-8e06-431e-9bf4-7e711c085648");
+const IID_IInternetZoneManagerEx_Value = Guid.initString("a4c23339-8e06-431e-9bf4-7e711c085648");
 pub const IID_IInternetZoneManagerEx = &IID_IInternetZoneManagerEx_Value;
 pub const IInternetZoneManagerEx = extern struct {
     pub const VTable = extern struct {
         base: IInternetZoneManager.VTable,
-        GetZoneActionPolicyEx: fn(
-            self: *const IInternetZoneManagerEx,
-            dwZone: u32,
-            dwAction: u32,
-            pPolicy: [*:0]u8,
-            cbPolicy: u32,
-            urlZoneReg: URLZONEREG,
-            dwFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetZoneActionPolicyEx: fn(
-            self: *const IInternetZoneManagerEx,
-            dwZone: u32,
-            dwAction: u32,
-            pPolicy: [*:0]u8,
-            cbPolicy: u32,
-            urlZoneReg: URLZONEREG,
-            dwFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetZoneActionPolicyEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManagerEx,
+                dwZone: u32,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                urlZoneReg: URLZONEREG,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManagerEx,
+                dwZone: u32,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                urlZoneReg: URLZONEREG,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetZoneActionPolicyEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManagerEx,
+                dwZone: u32,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                urlZoneReg: URLZONEREG,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManagerEx,
+                dwZone: u32,
+                dwAction: u32,
+                pPolicy: [*:0]u8,
+                cbPolicy: u32,
+                urlZoneReg: URLZONEREG,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2696,34 +3510,65 @@ pub const IInternetZoneManagerEx = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IInternetZoneManagerEx2_Value = @import("../../zig.zig").Guid.initString("edc17559-dd5d-4846-8eef-8becba5a4abf");
+const IID_IInternetZoneManagerEx2_Value = Guid.initString("edc17559-dd5d-4846-8eef-8becba5a4abf");
 pub const IID_IInternetZoneManagerEx2 = &IID_IInternetZoneManagerEx2_Value;
 pub const IInternetZoneManagerEx2 = extern struct {
     pub const VTable = extern struct {
         base: IInternetZoneManagerEx.VTable,
-        GetZoneAttributesEx: fn(
-            self: *const IInternetZoneManagerEx2,
-            dwZone: u32,
-            pZoneAttributes: ?*ZONEATTRIBUTES,
-            dwFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetZoneSecurityState: fn(
-            self: *const IInternetZoneManagerEx2,
-            dwZoneIndex: u32,
-            fRespectPolicy: BOOL,
-            pdwState: ?*u32,
-            pfPolicyEncountered: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetIESecurityState: fn(
-            self: *const IInternetZoneManagerEx2,
-            fRespectPolicy: BOOL,
-            pdwState: ?*u32,
-            pfPolicyEncountered: ?*BOOL,
-            fNoCache: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        FixUnsecureSettings: fn(
-            self: *const IInternetZoneManagerEx2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetZoneAttributesEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManagerEx2,
+                dwZone: u32,
+                pZoneAttributes: ?*ZONEATTRIBUTES,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManagerEx2,
+                dwZone: u32,
+                pZoneAttributes: ?*ZONEATTRIBUTES,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetZoneSecurityState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManagerEx2,
+                dwZoneIndex: u32,
+                fRespectPolicy: BOOL,
+                pdwState: ?*u32,
+                pfPolicyEncountered: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManagerEx2,
+                dwZoneIndex: u32,
+                fRespectPolicy: BOOL,
+                pdwState: ?*u32,
+                pfPolicyEncountered: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetIESecurityState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManagerEx2,
+                fRespectPolicy: BOOL,
+                pdwState: ?*u32,
+                pfPolicyEncountered: ?*BOOL,
+                fNoCache: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManagerEx2,
+                fRespectPolicy: BOOL,
+                pdwState: ?*u32,
+                pfPolicyEncountered: ?*BOOL,
+                fNoCache: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        FixUnsecureSettings: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInternetZoneManagerEx2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInternetZoneManagerEx2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2773,34 +3618,65 @@ pub const SOFTDISTINFO = extern struct {
     dwReserved: u32,
 };
 
-const IID_ISoftDistExt_Value = @import("../../zig.zig").Guid.initString("b15b8dc1-c7e1-11d0-8680-00aa00bdcb71");
+const IID_ISoftDistExt_Value = Guid.initString("b15b8dc1-c7e1-11d0-8680-00aa00bdcb71");
 pub const IID_ISoftDistExt = &IID_ISoftDistExt_Value;
 pub const ISoftDistExt = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ProcessSoftDist: fn(
-            self: *const ISoftDistExt,
-            szCDFURL: ?[*:0]const u16,
-            pSoftDistElement: ?*IXMLElement,
-            lpsdi: ?*SOFTDISTINFO,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFirstCodeBase: fn(
-            self: *const ISoftDistExt,
-            szCodeBase: ?*?PWSTR,
-            dwMaxSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNextCodeBase: fn(
-            self: *const ISoftDistExt,
-            szCodeBase: ?*?PWSTR,
-            dwMaxSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AsyncInstallDistributionUnit: fn(
-            self: *const ISoftDistExt,
-            pbc: ?*IBindCtx,
-            pvReserved: ?*anyopaque,
-            flags: u32,
-            lpcbh: ?*CODEBASEHOLD,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ProcessSoftDist: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISoftDistExt,
+                szCDFURL: ?[*:0]const u16,
+                pSoftDistElement: ?*IXMLElement,
+                lpsdi: ?*SOFTDISTINFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISoftDistExt,
+                szCDFURL: ?[*:0]const u16,
+                pSoftDistElement: ?*IXMLElement,
+                lpsdi: ?*SOFTDISTINFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFirstCodeBase: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISoftDistExt,
+                szCodeBase: ?*?PWSTR,
+                dwMaxSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISoftDistExt,
+                szCodeBase: ?*?PWSTR,
+                dwMaxSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNextCodeBase: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISoftDistExt,
+                szCodeBase: ?*?PWSTR,
+                dwMaxSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISoftDistExt,
+                szCodeBase: ?*?PWSTR,
+                dwMaxSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AsyncInstallDistributionUnit: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISoftDistExt,
+                pbc: ?*IBindCtx,
+                pvReserved: ?*anyopaque,
+                flags: u32,
+                lpcbh: ?*CODEBASEHOLD,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISoftDistExt,
+                pbc: ?*IBindCtx,
+                pvReserved: ?*anyopaque,
+                flags: u32,
+                lpcbh: ?*CODEBASEHOLD,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2825,19 +3701,31 @@ pub const ISoftDistExt = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_ICatalogFileInfo_Value = @import("../../zig.zig").Guid.initString("711c7600-6b48-11d1-b403-00aa00b92af1");
+const IID_ICatalogFileInfo_Value = Guid.initString("711c7600-6b48-11d1-b403-00aa00b92af1");
 pub const IID_ICatalogFileInfo = &IID_ICatalogFileInfo_Value;
 pub const ICatalogFileInfo = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCatalogFile: fn(
-            self: *const ICatalogFileInfo,
-            ppszCatalogFile: ?*?PSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetJavaTrust: fn(
-            self: *const ICatalogFileInfo,
-            ppJavaTrust: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCatalogFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICatalogFileInfo,
+                ppszCatalogFile: ?*?PSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICatalogFileInfo,
+                ppszCatalogFile: ?*?PSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetJavaTrust: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICatalogFileInfo,
+                ppJavaTrust: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICatalogFileInfo,
+                ppJavaTrust: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2854,39 +3742,73 @@ pub const ICatalogFileInfo = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDataFilter_Value = @import("../../zig.zig").Guid.initString("69d14c80-c18e-11d0-a9ce-006097942311");
+const IID_IDataFilter_Value = Guid.initString("69d14c80-c18e-11d0-a9ce-006097942311");
 pub const IID_IDataFilter = &IID_IDataFilter_Value;
 pub const IDataFilter = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        DoEncode: fn(
-            self: *const IDataFilter,
-            dwFlags: u32,
-            lInBufferSize: i32,
-            pbInBuffer: [*:0]u8,
-            lOutBufferSize: i32,
-            pbOutBuffer: [*:0]u8,
-            lInBytesAvailable: i32,
-            plInBytesRead: ?*i32,
-            plOutBytesWritten: ?*i32,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DoDecode: fn(
-            self: *const IDataFilter,
-            dwFlags: u32,
-            lInBufferSize: i32,
-            pbInBuffer: [*:0]u8,
-            lOutBufferSize: i32,
-            pbOutBuffer: [*:0]u8,
-            lInBytesAvailable: i32,
-            plInBytesRead: ?*i32,
-            plOutBytesWritten: ?*i32,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetEncodingLevel: fn(
-            self: *const IDataFilter,
-            dwEncLevel: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        DoEncode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDataFilter,
+                dwFlags: u32,
+                lInBufferSize: i32,
+                pbInBuffer: [*:0]u8,
+                lOutBufferSize: i32,
+                pbOutBuffer: [*:0]u8,
+                lInBytesAvailable: i32,
+                plInBytesRead: ?*i32,
+                plOutBytesWritten: ?*i32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDataFilter,
+                dwFlags: u32,
+                lInBufferSize: i32,
+                pbInBuffer: [*:0]u8,
+                lOutBufferSize: i32,
+                pbOutBuffer: [*:0]u8,
+                lInBytesAvailable: i32,
+                plInBytesRead: ?*i32,
+                plOutBytesWritten: ?*i32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DoDecode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDataFilter,
+                dwFlags: u32,
+                lInBufferSize: i32,
+                pbInBuffer: [*:0]u8,
+                lOutBufferSize: i32,
+                pbOutBuffer: [*:0]u8,
+                lInBytesAvailable: i32,
+                plInBytesRead: ?*i32,
+                plOutBytesWritten: ?*i32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDataFilter,
+                dwFlags: u32,
+                lInBufferSize: i32,
+                pbInBuffer: [*:0]u8,
+                lOutBufferSize: i32,
+                pbOutBuffer: [*:0]u8,
+                lInBytesAvailable: i32,
+                plInBytesRead: ?*i32,
+                plOutBytesWritten: ?*i32,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetEncodingLevel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDataFilter,
+                dwEncLevel: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDataFilter,
+                dwEncLevel: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2922,24 +3844,41 @@ pub const DATAINFO = extern struct {
     ulProcessorSpeed: u32,
 };
 
-const IID_IEncodingFilterFactory_Value = @import("../../zig.zig").Guid.initString("70bdde00-c18e-11d0-a9ce-006097942311");
+const IID_IEncodingFilterFactory_Value = Guid.initString("70bdde00-c18e-11d0-a9ce-006097942311");
 pub const IID_IEncodingFilterFactory = &IID_IEncodingFilterFactory_Value;
 pub const IEncodingFilterFactory = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        FindBestFilter: fn(
-            self: *const IEncodingFilterFactory,
-            pwzCodeIn: ?[*:0]const u16,
-            pwzCodeOut: ?[*:0]const u16,
-            info: DATAINFO,
-            ppDF: ?*?*IDataFilter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDefaultFilter: fn(
-            self: *const IEncodingFilterFactory,
-            pwzCodeIn: ?[*:0]const u16,
-            pwzCodeOut: ?[*:0]const u16,
-            ppDF: ?*?*IDataFilter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        FindBestFilter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEncodingFilterFactory,
+                pwzCodeIn: ?[*:0]const u16,
+                pwzCodeOut: ?[*:0]const u16,
+                info: DATAINFO,
+                ppDF: ?*?*IDataFilter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEncodingFilterFactory,
+                pwzCodeIn: ?[*:0]const u16,
+                pwzCodeOut: ?[*:0]const u16,
+                info: DATAINFO,
+                ppDF: ?*?*IDataFilter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDefaultFilter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEncodingFilterFactory,
+                pwzCodeIn: ?[*:0]const u16,
+                pwzCodeOut: ?[*:0]const u16,
+                ppDF: ?*?*IDataFilter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEncodingFilterFactory,
+                pwzCodeIn: ?[*:0]const u16,
+                pwzCodeOut: ?[*:0]const u16,
+                ppDF: ?*?*IDataFilter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2970,16 +3909,23 @@ pub const CONFIRMSAFETY = extern struct {
     dwFlags: u32,
 };
 
-const IID_IWrappedProtocol_Value = @import("../../zig.zig").Guid.initString("53c84785-8425-4dc5-971b-e58d9c19f9b6");
+const IID_IWrappedProtocol_Value = Guid.initString("53c84785-8425-4dc5-971b-e58d9c19f9b6");
 pub const IID_IWrappedProtocol = &IID_IWrappedProtocol_Value;
 pub const IWrappedProtocol = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetWrapperCode: fn(
-            self: *const IWrappedProtocol,
-            pnCode: ?*i32,
-            dwReserved: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetWrapperCode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWrappedProtocol,
+                pnCode: ?*i32,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWrappedProtocol,
+                pnCode: ?*i32,
+                dwReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3001,16 +3947,23 @@ pub const BINDHANDLETYPES_APPCACHE = BINDHANDLETYPES.APPCACHE;
 pub const BINDHANDLETYPES_DEPENDENCY = BINDHANDLETYPES.DEPENDENCY;
 pub const BINDHANDLETYPES_COUNT = BINDHANDLETYPES.COUNT;
 
-const IID_IGetBindHandle_Value = @import("../../zig.zig").Guid.initString("af0ff408-129d-4b20-91f0-02bd23d88352");
+const IID_IGetBindHandle_Value = Guid.initString("af0ff408-129d-4b20-91f0-02bd23d88352");
 pub const IID_IGetBindHandle = &IID_IGetBindHandle_Value;
 pub const IGetBindHandle = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetBindHandle: fn(
-            self: *const IGetBindHandle,
-            enumRequestedHandle: BINDHANDLETYPES,
-            pRetHandle: ?*?HANDLE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetBindHandle: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IGetBindHandle,
+                enumRequestedHandle: BINDHANDLETYPES,
+                pRetHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IGetBindHandle,
+                enumRequestedHandle: BINDHANDLETYPES,
+                pRetHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3028,16 +3981,23 @@ pub const PROTOCOL_ARGUMENT = extern struct {
     szTargetUrl: ?[*:0]const u16,
 };
 
-const IID_IBindCallbackRedirect_Value = @import("../../zig.zig").Guid.initString("11c81bc2-121e-4ed5-b9c4-b430bd54f2c0");
+const IID_IBindCallbackRedirect_Value = Guid.initString("11c81bc2-121e-4ed5-b9c4-b430bd54f2c0");
 pub const IID_IBindCallbackRedirect = &IID_IBindCallbackRedirect_Value;
 pub const IBindCallbackRedirect = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Redirect: fn(
-            self: *const IBindCallbackRedirect,
-            lpcUrl: ?[*:0]const u16,
-            vbCancel: ?*i16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Redirect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBindCallbackRedirect,
+                lpcUrl: ?[*:0]const u16,
+                vbCancel: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBindCallbackRedirect,
+                lpcUrl: ?[*:0]const u16,
+                vbCancel: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3050,15 +4010,21 @@ pub const IBindCallbackRedirect = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IBindHttpSecurity_Value = @import("../../zig.zig").Guid.initString("a9eda967-f50e-4a33-b358-206f6ef3086d");
+const IID_IBindHttpSecurity_Value = Guid.initString("a9eda967-f50e-4a33-b358-206f6ef3086d");
 pub const IID_IBindHttpSecurity = &IID_IBindHttpSecurity_Value;
 pub const IBindHttpSecurity = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetIgnoreCertMask: fn(
-            self: *const IBindHttpSecurity,
-            pdwIgnoreCertMask: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetIgnoreCertMask: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBindHttpSecurity,
+                pdwIgnoreCertMask: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBindHttpSecurity,
+                pdwIgnoreCertMask: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3651,14 +4617,14 @@ const ULARGE_INTEGER = @import("../../foundation.zig").ULARGE_INTEGER;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

@@ -246,100 +246,225 @@ pub const DiagnosticsInfo = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_INetDiagHelper_Value = @import("../zig.zig").Guid.initString("c0b35746-ebf5-11d8-bbe9-505054503030");
+const IID_INetDiagHelper_Value = Guid.initString("c0b35746-ebf5-11d8-bbe9-505054503030");
 pub const IID_INetDiagHelper = &IID_INetDiagHelper_Value;
 pub const INetDiagHelper = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Initialize: fn(
-            self: *const INetDiagHelper,
-            celt: u32,
-            rgAttributes: [*]HELPER_ATTRIBUTE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDiagnosticsInfo: fn(
-            self: *const INetDiagHelper,
-            ppInfo: ?*?*DiagnosticsInfo,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetKeyAttributes: fn(
-            self: *const INetDiagHelper,
-            pcelt: ?*u32,
-            pprgAttributes: [*]?*HELPER_ATTRIBUTE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        LowHealth: fn(
-            self: *const INetDiagHelper,
-            pwszInstanceDescription: ?[*:0]const u16,
-            ppwszDescription: ?*?PWSTR,
-            pDeferredTime: ?*i32,
-            pStatus: ?*DIAGNOSIS_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        HighUtilization: fn(
-            self: *const INetDiagHelper,
-            pwszInstanceDescription: ?[*:0]const u16,
-            ppwszDescription: ?*?PWSTR,
-            pDeferredTime: ?*i32,
-            pStatus: ?*DIAGNOSIS_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetLowerHypotheses: fn(
-            self: *const INetDiagHelper,
-            pcelt: ?*u32,
-            pprgHypotheses: [*]?*HYPOTHESIS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDownStreamHypotheses: fn(
-            self: *const INetDiagHelper,
-            pcelt: ?*u32,
-            pprgHypotheses: [*]?*HYPOTHESIS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHigherHypotheses: fn(
-            self: *const INetDiagHelper,
-            pcelt: ?*u32,
-            pprgHypotheses: [*]?*HYPOTHESIS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetUpStreamHypotheses: fn(
-            self: *const INetDiagHelper,
-            pcelt: ?*u32,
-            pprgHypotheses: [*]?*HYPOTHESIS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Repair: fn(
-            self: *const INetDiagHelper,
-            pInfo: ?*RepairInfo,
-            pDeferredTime: ?*i32,
-            pStatus: ?*REPAIR_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Validate: fn(
-            self: *const INetDiagHelper,
-            problem: PROBLEM_TYPE,
-            pDeferredTime: ?*i32,
-            pStatus: ?*REPAIR_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRepairInfo: fn(
-            self: *const INetDiagHelper,
-            problem: PROBLEM_TYPE,
-            pcelt: ?*u32,
-            ppInfo: [*]?*RepairInfo,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetLifeTime: fn(
-            self: *const INetDiagHelper,
-            pLifeTime: ?*LIFE_TIME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetLifeTime: fn(
-            self: *const INetDiagHelper,
-            lifeTime: LIFE_TIME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCacheTime: fn(
-            self: *const INetDiagHelper,
-            pCacheTime: ?*FILETIME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAttributes: fn(
-            self: *const INetDiagHelper,
-            pcelt: ?*u32,
-            pprgAttributes: [*]?*HELPER_ATTRIBUTE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Cancel: fn(
-            self: *const INetDiagHelper,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Cleanup: fn(
-            self: *const INetDiagHelper,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Initialize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                celt: u32,
+                rgAttributes: [*]HELPER_ATTRIBUTE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                celt: u32,
+                rgAttributes: [*]HELPER_ATTRIBUTE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDiagnosticsInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                ppInfo: ?*?*DiagnosticsInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                ppInfo: ?*?*DiagnosticsInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetKeyAttributes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                pcelt: ?*u32,
+                pprgAttributes: [*]?*HELPER_ATTRIBUTE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                pcelt: ?*u32,
+                pprgAttributes: [*]?*HELPER_ATTRIBUTE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        LowHealth: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                pwszInstanceDescription: ?[*:0]const u16,
+                ppwszDescription: ?*?PWSTR,
+                pDeferredTime: ?*i32,
+                pStatus: ?*DIAGNOSIS_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                pwszInstanceDescription: ?[*:0]const u16,
+                ppwszDescription: ?*?PWSTR,
+                pDeferredTime: ?*i32,
+                pStatus: ?*DIAGNOSIS_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        HighUtilization: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                pwszInstanceDescription: ?[*:0]const u16,
+                ppwszDescription: ?*?PWSTR,
+                pDeferredTime: ?*i32,
+                pStatus: ?*DIAGNOSIS_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                pwszInstanceDescription: ?[*:0]const u16,
+                ppwszDescription: ?*?PWSTR,
+                pDeferredTime: ?*i32,
+                pStatus: ?*DIAGNOSIS_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetLowerHypotheses: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                pcelt: ?*u32,
+                pprgHypotheses: [*]?*HYPOTHESIS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                pcelt: ?*u32,
+                pprgHypotheses: [*]?*HYPOTHESIS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDownStreamHypotheses: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                pcelt: ?*u32,
+                pprgHypotheses: [*]?*HYPOTHESIS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                pcelt: ?*u32,
+                pprgHypotheses: [*]?*HYPOTHESIS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHigherHypotheses: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                pcelt: ?*u32,
+                pprgHypotheses: [*]?*HYPOTHESIS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                pcelt: ?*u32,
+                pprgHypotheses: [*]?*HYPOTHESIS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetUpStreamHypotheses: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                pcelt: ?*u32,
+                pprgHypotheses: [*]?*HYPOTHESIS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                pcelt: ?*u32,
+                pprgHypotheses: [*]?*HYPOTHESIS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Repair: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                pInfo: ?*RepairInfo,
+                pDeferredTime: ?*i32,
+                pStatus: ?*REPAIR_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                pInfo: ?*RepairInfo,
+                pDeferredTime: ?*i32,
+                pStatus: ?*REPAIR_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Validate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                problem: PROBLEM_TYPE,
+                pDeferredTime: ?*i32,
+                pStatus: ?*REPAIR_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                problem: PROBLEM_TYPE,
+                pDeferredTime: ?*i32,
+                pStatus: ?*REPAIR_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRepairInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                problem: PROBLEM_TYPE,
+                pcelt: ?*u32,
+                ppInfo: [*]?*RepairInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                problem: PROBLEM_TYPE,
+                pcelt: ?*u32,
+                ppInfo: [*]?*RepairInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetLifeTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                pLifeTime: ?*LIFE_TIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                pLifeTime: ?*LIFE_TIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetLifeTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                lifeTime: LIFE_TIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                lifeTime: LIFE_TIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCacheTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                pCacheTime: ?*FILETIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                pCacheTime: ?*FILETIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAttributes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+                pcelt: ?*u32,
+                pprgAttributes: [*]?*HELPER_ATTRIBUTE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+                pcelt: ?*u32,
+                pprgAttributes: [*]?*HELPER_ATTRIBUTE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Cancel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Cleanup: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelper,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelper,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -426,16 +551,23 @@ pub const HypothesisResult = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_INetDiagHelperUtilFactory_Value = @import("../zig.zig").Guid.initString("104613fb-bc57-4178-95ba-88809698354a");
+const IID_INetDiagHelperUtilFactory_Value = Guid.initString("104613fb-bc57-4178-95ba-88809698354a");
 pub const IID_INetDiagHelperUtilFactory = &IID_INetDiagHelperUtilFactory_Value;
 pub const INetDiagHelperUtilFactory = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateUtilityInstance: fn(
-            self: *const INetDiagHelperUtilFactory,
-            riid: ?*const Guid,
-            ppvObject: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateUtilityInstance: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelperUtilFactory,
+                riid: ?*const Guid,
+                ppvObject: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelperUtilFactory,
+                riid: ?*const Guid,
+                ppvObject: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -449,25 +581,45 @@ pub const INetDiagHelperUtilFactory = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_INetDiagHelperEx_Value = @import("../zig.zig").Guid.initString("972dab4d-e4e3-4fc6-ae54-5f65ccde4a15");
+const IID_INetDiagHelperEx_Value = Guid.initString("972dab4d-e4e3-4fc6-ae54-5f65ccde4a15");
 pub const IID_INetDiagHelperEx = &IID_INetDiagHelperEx_Value;
 pub const INetDiagHelperEx = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ReconfirmLowHealth: fn(
-            self: *const INetDiagHelperEx,
-            celt: u32,
-            pResults: [*]HypothesisResult,
-            ppwszUpdatedDescription: ?*?PWSTR,
-            pUpdatedStatus: ?*DIAGNOSIS_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetUtilities: fn(
-            self: *const INetDiagHelperEx,
-            pUtilities: ?*INetDiagHelperUtilFactory,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ReproduceFailure: fn(
-            self: *const INetDiagHelperEx,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ReconfirmLowHealth: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelperEx,
+                celt: u32,
+                pResults: [*]HypothesisResult,
+                ppwszUpdatedDescription: ?*?PWSTR,
+                pUpdatedStatus: ?*DIAGNOSIS_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelperEx,
+                celt: u32,
+                pResults: [*]HypothesisResult,
+                ppwszUpdatedDescription: ?*?PWSTR,
+                pUpdatedStatus: ?*DIAGNOSIS_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetUtilities: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelperEx,
+                pUtilities: ?*INetDiagHelperUtilFactory,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelperEx,
+                pUtilities: ?*INetDiagHelperUtilFactory,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ReproduceFailure: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelperEx,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelperEx,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -489,16 +641,23 @@ pub const INetDiagHelperEx = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_INetDiagHelperInfo_Value = @import("../zig.zig").Guid.initString("c0b35747-ebf5-11d8-bbe9-505054503030");
+const IID_INetDiagHelperInfo_Value = Guid.initString("c0b35747-ebf5-11d8-bbe9-505054503030");
 pub const IID_INetDiagHelperInfo = &IID_INetDiagHelperInfo_Value;
 pub const INetDiagHelperInfo = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetAttributeInfo: fn(
-            self: *const INetDiagHelperInfo,
-            pcelt: ?*u32,
-            pprgAttributeInfos: [*]?*HelperAttributeInfo,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetAttributeInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagHelperInfo,
+                pcelt: ?*u32,
+                pprgAttributeInfos: [*]?*HelperAttributeInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagHelperInfo,
+                pcelt: ?*u32,
+                pprgAttributeInfos: [*]?*HelperAttributeInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -511,18 +670,27 @@ pub const INetDiagHelperInfo = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_INetDiagExtensibleHelper_Value = @import("../zig.zig").Guid.initString("c0b35748-ebf5-11d8-bbe9-505054503030");
+const IID_INetDiagExtensibleHelper_Value = Guid.initString("c0b35748-ebf5-11d8-bbe9-505054503030");
 pub const IID_INetDiagExtensibleHelper = &IID_INetDiagExtensibleHelper_Value;
 pub const INetDiagExtensibleHelper = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ResolveAttributes: fn(
-            self: *const INetDiagExtensibleHelper,
-            celt: u32,
-            rgKeyAttributes: [*]HELPER_ATTRIBUTE,
-            pcelt: ?*u32,
-            prgMatchValues: [*]?*HELPER_ATTRIBUTE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ResolveAttributes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetDiagExtensibleHelper,
+                celt: u32,
+                rgKeyAttributes: [*]HELPER_ATTRIBUTE,
+                pcelt: ?*u32,
+                prgMatchValues: [*]?*HELPER_ATTRIBUTE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetDiagExtensibleHelper,
+                celt: u32,
+                rgKeyAttributes: [*]HELPER_ATTRIBUTE,
+                pcelt: ?*u32,
+                prgMatchValues: [*]?*HELPER_ATTRIBUTE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -540,7 +708,7 @@ pub const INetDiagExtensibleHelper = extern struct {
 // Section: Functions (16)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NDFAPI" fn NdfCreateIncident(
+pub extern "ndfapi" fn NdfCreateIncident(
     helperClassName: ?[*:0]const u16,
     celt: u32,
     attributes: [*]HELPER_ATTRIBUTE,
@@ -548,7 +716,7 @@ pub extern "NDFAPI" fn NdfCreateIncident(
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NDFAPI" fn NdfCreateWinSockIncident(
+pub extern "ndfapi" fn NdfCreateWinSockIncident(
     sock: ?SOCKET,
     host: ?[*:0]const u16,
     port: u16,
@@ -558,13 +726,13 @@ pub extern "NDFAPI" fn NdfCreateWinSockIncident(
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NDFAPI" fn NdfCreateWebIncident(
+pub extern "ndfapi" fn NdfCreateWebIncident(
     url: ?[*:0]const u16,
     handle: ?*?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NDFAPI" fn NdfCreateWebIncidentEx(
+pub extern "ndfapi" fn NdfCreateWebIncidentEx(
     url: ?[*:0]const u16,
     useWinHTTP: BOOL,
     moduleName: ?PWSTR,
@@ -572,31 +740,31 @@ pub extern "NDFAPI" fn NdfCreateWebIncidentEx(
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NDFAPI" fn NdfCreateSharingIncident(
+pub extern "ndfapi" fn NdfCreateSharingIncident(
     UNCPath: ?[*:0]const u16,
     handle: ?*?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NDFAPI" fn NdfCreateDNSIncident(
+pub extern "ndfapi" fn NdfCreateDNSIncident(
     hostname: ?[*:0]const u16,
     queryType: u16,
     handle: ?*?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NDFAPI" fn NdfCreateConnectivityIncident(
+pub extern "ndfapi" fn NdfCreateConnectivityIncident(
     handle: ?*?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "NDFAPI" fn NdfCreateNetConnectionIncident(
+pub extern "ndfapi" fn NdfCreateNetConnectionIncident(
     handle: ?*?*anyopaque,
     id: Guid,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "NDFAPI" fn NdfCreatePnrpIncident(
+pub extern "ndfapi" fn NdfCreatePnrpIncident(
     cloudname: ?[*:0]const u16,
     peername: ?[*:0]const u16,
     diagnosePublish: BOOL,
@@ -605,7 +773,7 @@ pub extern "NDFAPI" fn NdfCreatePnrpIncident(
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "NDFAPI" fn NdfCreateGroupingIncident(
+pub extern "ndfapi" fn NdfCreateGroupingIncident(
     CloudName: ?[*:0]const u16,
     GroupName: ?[*:0]const u16,
     Identity: ?[*:0]const u16,
@@ -616,18 +784,18 @@ pub extern "NDFAPI" fn NdfCreateGroupingIncident(
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NDFAPI" fn NdfExecuteDiagnosis(
+pub extern "ndfapi" fn NdfExecuteDiagnosis(
     handle: ?*anyopaque,
     hwnd: ?HWND,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NDFAPI" fn NdfCloseIncident(
+pub extern "ndfapi" fn NdfCloseIncident(
     handle: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "NDFAPI" fn NdfDiagnoseIncident(
+pub extern "ndfapi" fn NdfDiagnoseIncident(
     Handle: ?*anyopaque,
     RootCauseCount: ?*u32,
     RootCauses: ?*?*RootCauseInfo,
@@ -636,19 +804,19 @@ pub extern "NDFAPI" fn NdfDiagnoseIncident(
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "NDFAPI" fn NdfRepairIncident(
+pub extern "ndfapi" fn NdfRepairIncident(
     Handle: ?*anyopaque,
     RepairEx: ?*RepairInfoEx,
     dwWait: u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "NDFAPI" fn NdfCancelIncident(
+pub extern "ndfapi" fn NdfCancelIncident(
     Handle: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "NDFAPI" fn NdfGetTraceFile(
+pub extern "ndfapi" fn NdfGetTraceFile(
     Handle: ?*anyopaque,
     TraceFileLocation: ?*?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
@@ -684,14 +852,14 @@ const SOCKET_ADDRESS_LIST = @import("../networking/win_sock.zig").SOCKET_ADDRESS
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

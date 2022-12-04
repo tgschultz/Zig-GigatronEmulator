@@ -74,28 +74,28 @@ pub const GUID_DEVINTERFACE_GNSS = Guid.initString("3336e5e4-018a-4669-84c5-bd05
 //--------------------------------------------------------------------------------
 // Section: Types (87)
 //--------------------------------------------------------------------------------
-const CLSID_Location_Value = @import("../zig.zig").Guid.initString("e5b8e079-ee6d-4e33-a438-c87f2e959254");
+const CLSID_Location_Value = Guid.initString("e5b8e079-ee6d-4e33-a438-c87f2e959254");
 pub const CLSID_Location = &CLSID_Location_Value;
 
-const CLSID_DefaultLocation_Value = @import("../zig.zig").Guid.initString("8b7fbfe0-5cd7-494a-af8c-283a65707506");
+const CLSID_DefaultLocation_Value = Guid.initString("8b7fbfe0-5cd7-494a-af8c-283a65707506");
 pub const CLSID_DefaultLocation = &CLSID_DefaultLocation_Value;
 
-const CLSID_LatLongReport_Value = @import("../zig.zig").Guid.initString("ed81c073-1f84-4ca8-a161-183c776bc651");
+const CLSID_LatLongReport_Value = Guid.initString("ed81c073-1f84-4ca8-a161-183c776bc651");
 pub const CLSID_LatLongReport = &CLSID_LatLongReport_Value;
 
-const CLSID_CivicAddressReport_Value = @import("../zig.zig").Guid.initString("d39e7bdd-7d05-46b8-8721-80cf035f57d7");
+const CLSID_CivicAddressReport_Value = Guid.initString("d39e7bdd-7d05-46b8-8721-80cf035f57d7");
 pub const CLSID_CivicAddressReport = &CLSID_CivicAddressReport_Value;
 
-const CLSID_LatLongReportFactory_Value = @import("../zig.zig").Guid.initString("9dcc3cc8-8609-4863-bad4-03601f4c65e8");
+const CLSID_LatLongReportFactory_Value = Guid.initString("9dcc3cc8-8609-4863-bad4-03601f4c65e8");
 pub const CLSID_LatLongReportFactory = &CLSID_LatLongReportFactory_Value;
 
-const CLSID_CivicAddressReportFactory_Value = @import("../zig.zig").Guid.initString("2a11f42c-3e81-4ad4-9cbe-45579d89671a");
+const CLSID_CivicAddressReportFactory_Value = Guid.initString("2a11f42c-3e81-4ad4-9cbe-45579d89671a");
 pub const CLSID_CivicAddressReportFactory = &CLSID_CivicAddressReportFactory_Value;
 
-const CLSID_DispLatLongReport_Value = @import("../zig.zig").Guid.initString("7a7c3277-8f84-4636-95b2-ebb5507ff77e");
+const CLSID_DispLatLongReport_Value = Guid.initString("7a7c3277-8f84-4636-95b2-ebb5507ff77e");
 pub const CLSID_DispLatLongReport = &CLSID_DispLatLongReport_Value;
 
-const CLSID_DispCivicAddressReport_Value = @import("../zig.zig").Guid.initString("4c596aec-8544-4082-ba9f-eb0a7d8e65c6");
+const CLSID_DispCivicAddressReport_Value = Guid.initString("4c596aec-8544-4082-ba9f-eb0a7d8e65c6");
 pub const CLSID_DispCivicAddressReport = &CLSID_DispCivicAddressReport_Value;
 
 pub const LOCATION_REPORT_STATUS = enum(i32) {
@@ -112,24 +112,43 @@ pub const REPORT_INITIALIZING = LOCATION_REPORT_STATUS.INITIALIZING;
 pub const REPORT_RUNNING = LOCATION_REPORT_STATUS.RUNNING;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_ILocationReport_Value = @import("../zig.zig").Guid.initString("c8b7f7ee-75d0-4db9-b62d-7a0f369ca456");
+const IID_ILocationReport_Value = Guid.initString("c8b7f7ee-75d0-4db9-b62d-7a0f369ca456");
 pub const IID_ILocationReport = &IID_ILocationReport_Value;
 pub const ILocationReport = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetSensorID: fn(
-            self: *const ILocationReport,
-            pSensorID: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTimestamp: fn(
-            self: *const ILocationReport,
-            pCreationTime: ?*SYSTEMTIME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetValue: fn(
-            self: *const ILocationReport,
-            pKey: ?*const PROPERTYKEY,
-            pValue: ?*PROPVARIANT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetSensorID: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocationReport,
+                pSensorID: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocationReport,
+                pSensorID: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTimestamp: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocationReport,
+                pCreationTime: ?*SYSTEMTIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocationReport,
+                pCreationTime: ?*SYSTEMTIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocationReport,
+                pKey: ?*const PROPERTYKEY,
+                pValue: ?*PROPVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocationReport,
+                pKey: ?*const PROPERTYKEY,
+                pValue: ?*PROPVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -151,31 +170,61 @@ pub const ILocationReport = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_ILatLongReport_Value = @import("../zig.zig").Guid.initString("7fed806d-0ef8-4f07-80ac-36a0beae3134");
+const IID_ILatLongReport_Value = Guid.initString("7fed806d-0ef8-4f07-80ac-36a0beae3134");
 pub const IID_ILatLongReport = &IID_ILatLongReport_Value;
 pub const ILatLongReport = extern struct {
     pub const VTable = extern struct {
         base: ILocationReport.VTable,
-        GetLatitude: fn(
-            self: *const ILatLongReport,
-            pLatitude: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetLongitude: fn(
-            self: *const ILatLongReport,
-            pLongitude: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetErrorRadius: fn(
-            self: *const ILatLongReport,
-            pErrorRadius: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAltitude: fn(
-            self: *const ILatLongReport,
-            pAltitude: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAltitudeError: fn(
-            self: *const ILatLongReport,
-            pAltitudeError: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetLatitude: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILatLongReport,
+                pLatitude: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILatLongReport,
+                pLatitude: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetLongitude: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILatLongReport,
+                pLongitude: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILatLongReport,
+                pLongitude: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetErrorRadius: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILatLongReport,
+                pErrorRadius: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILatLongReport,
+                pErrorRadius: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAltitude: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILatLongReport,
+                pAltitude: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILatLongReport,
+                pAltitude: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAltitudeError: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILatLongReport,
+                pAltitudeError: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILatLongReport,
+                pAltitudeError: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -205,39 +254,81 @@ pub const ILatLongReport = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_ICivicAddressReport_Value = @import("../zig.zig").Guid.initString("c0b19f70-4adf-445d-87f2-cad8fd711792");
+const IID_ICivicAddressReport_Value = Guid.initString("c0b19f70-4adf-445d-87f2-cad8fd711792");
 pub const IID_ICivicAddressReport = &IID_ICivicAddressReport_Value;
 pub const ICivicAddressReport = extern struct {
     pub const VTable = extern struct {
         base: ILocationReport.VTable,
-        GetAddressLine1: fn(
-            self: *const ICivicAddressReport,
-            pbstrAddress1: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAddressLine2: fn(
-            self: *const ICivicAddressReport,
-            pbstrAddress2: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCity: fn(
-            self: *const ICivicAddressReport,
-            pbstrCity: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStateProvince: fn(
-            self: *const ICivicAddressReport,
-            pbstrStateProvince: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPostalCode: fn(
-            self: *const ICivicAddressReport,
-            pbstrPostalCode: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCountryRegion: fn(
-            self: *const ICivicAddressReport,
-            pbstrCountryRegion: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDetailLevel: fn(
-            self: *const ICivicAddressReport,
-            pDetailLevel: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetAddressLine1: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICivicAddressReport,
+                pbstrAddress1: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICivicAddressReport,
+                pbstrAddress1: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAddressLine2: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICivicAddressReport,
+                pbstrAddress2: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICivicAddressReport,
+                pbstrAddress2: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICivicAddressReport,
+                pbstrCity: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICivicAddressReport,
+                pbstrCity: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStateProvince: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICivicAddressReport,
+                pbstrStateProvince: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICivicAddressReport,
+                pbstrStateProvince: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPostalCode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICivicAddressReport,
+                pbstrPostalCode: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICivicAddressReport,
+                pbstrPostalCode: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCountryRegion: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICivicAddressReport,
+                pbstrCountryRegion: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICivicAddressReport,
+                pbstrCountryRegion: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDetailLevel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICivicAddressReport,
+                pDetailLevel: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICivicAddressReport,
+                pDetailLevel: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -275,58 +366,123 @@ pub const ICivicAddressReport = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_ILocation_Value = @import("../zig.zig").Guid.initString("ab2ece69-56d9-4f28-b525-de1b0ee44237");
+const IID_ILocation_Value = Guid.initString("ab2ece69-56d9-4f28-b525-de1b0ee44237");
 pub const IID_ILocation = &IID_ILocation_Value;
 pub const ILocation = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        RegisterForReport: fn(
-            self: *const ILocation,
-            pEvents: ?*ILocationEvents,
-            reportType: ?*const Guid,
-            dwRequestedReportInterval: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UnregisterForReport: fn(
-            self: *const ILocation,
-            reportType: ?*const Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetReport: fn(
-            self: *const ILocation,
-            reportType: ?*const Guid,
-            ppLocationReport: ?*?*ILocationReport,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetReportStatus: fn(
-            self: *const ILocation,
-            reportType: ?*const Guid,
-            pStatus: ?*LOCATION_REPORT_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetReportInterval: fn(
-            self: *const ILocation,
-            reportType: ?*const Guid,
-            pMilliseconds: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetReportInterval: fn(
-            self: *const ILocation,
-            reportType: ?*const Guid,
-            millisecondsRequested: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDesiredAccuracy: fn(
-            self: *const ILocation,
-            reportType: ?*const Guid,
-            pDesiredAccuracy: ?*LOCATION_DESIRED_ACCURACY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDesiredAccuracy: fn(
-            self: *const ILocation,
-            reportType: ?*const Guid,
-            desiredAccuracy: LOCATION_DESIRED_ACCURACY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestPermissions: fn(
-            self: *const ILocation,
-            hParent: ?HWND,
-            pReportTypes: [*]Guid,
-            count: u32,
-            fModal: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        RegisterForReport: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocation,
+                pEvents: ?*ILocationEvents,
+                reportType: ?*const Guid,
+                dwRequestedReportInterval: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocation,
+                pEvents: ?*ILocationEvents,
+                reportType: ?*const Guid,
+                dwRequestedReportInterval: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UnregisterForReport: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetReport: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+                ppLocationReport: ?*?*ILocationReport,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+                ppLocationReport: ?*?*ILocationReport,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetReportStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+                pStatus: ?*LOCATION_REPORT_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+                pStatus: ?*LOCATION_REPORT_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetReportInterval: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+                pMilliseconds: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+                pMilliseconds: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetReportInterval: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+                millisecondsRequested: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+                millisecondsRequested: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDesiredAccuracy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+                pDesiredAccuracy: ?*LOCATION_DESIRED_ACCURACY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+                pDesiredAccuracy: ?*LOCATION_DESIRED_ACCURACY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDesiredAccuracy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+                desiredAccuracy: LOCATION_DESIRED_ACCURACY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocation,
+                reportType: ?*const Guid,
+                desiredAccuracy: LOCATION_DESIRED_ACCURACY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestPermissions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocation,
+                hParent: ?HWND,
+                pReportTypes: [*]Guid,
+                count: u32,
+                fModal: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocation,
+                hParent: ?HWND,
+                pReportTypes: [*]Guid,
+                count: u32,
+                fModal: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -372,17 +528,27 @@ pub const ILocation = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_ILocationPower_Value = @import("../zig.zig").Guid.initString("193e7729-ab6b-4b12-8617-7596e1bb191c");
+const IID_ILocationPower_Value = Guid.initString("193e7729-ab6b-4b12-8617-7596e1bb191c");
 pub const IID_ILocationPower = &IID_ILocationPower_Value;
 pub const ILocationPower = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Connect: fn(
-            self: *const ILocationPower,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Disconnect: fn(
-            self: *const ILocationPower,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Connect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocationPower,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocationPower,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Disconnect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocationPower,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocationPower,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -400,21 +566,35 @@ pub const ILocationPower = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IDefaultLocation_Value = @import("../zig.zig").Guid.initString("a65af77e-969a-4a2e-8aca-33bb7cbb1235");
+const IID_IDefaultLocation_Value = Guid.initString("a65af77e-969a-4a2e-8aca-33bb7cbb1235");
 pub const IID_IDefaultLocation = &IID_IDefaultLocation_Value;
 pub const IDefaultLocation = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetReport: fn(
-            self: *const IDefaultLocation,
-            reportType: ?*const Guid,
-            pLocationReport: ?*ILocationReport,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetReport: fn(
-            self: *const IDefaultLocation,
-            reportType: ?*const Guid,
-            ppLocationReport: ?*?*ILocationReport,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetReport: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDefaultLocation,
+                reportType: ?*const Guid,
+                pLocationReport: ?*ILocationReport,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDefaultLocation,
+                reportType: ?*const Guid,
+                pLocationReport: ?*ILocationReport,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetReport: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDefaultLocation,
+                reportType: ?*const Guid,
+                ppLocationReport: ?*?*ILocationReport,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDefaultLocation,
+                reportType: ?*const Guid,
+                ppLocationReport: ?*?*ILocationReport,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -432,21 +612,35 @@ pub const IDefaultLocation = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_ILocationEvents_Value = @import("../zig.zig").Guid.initString("cae02bbf-798b-4508-a207-35a7906dc73d");
+const IID_ILocationEvents_Value = Guid.initString("cae02bbf-798b-4508-a207-35a7906dc73d");
 pub const IID_ILocationEvents = &IID_ILocationEvents_Value;
 pub const ILocationEvents = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnLocationChanged: fn(
-            self: *const ILocationEvents,
-            reportType: ?*const Guid,
-            pLocationReport: ?*ILocationReport,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnStatusChanged: fn(
-            self: *const ILocationEvents,
-            reportType: ?*const Guid,
-            newStatus: LOCATION_REPORT_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnLocationChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocationEvents,
+                reportType: ?*const Guid,
+                pLocationReport: ?*ILocationReport,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocationEvents,
+                reportType: ?*const Guid,
+                pLocationReport: ?*ILocationReport,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnStatusChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocationEvents,
+                reportType: ?*const Guid,
+                newStatus: LOCATION_REPORT_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocationEvents,
+                reportType: ?*const Guid,
+                newStatus: LOCATION_REPORT_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -463,41 +657,89 @@ pub const ILocationEvents = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDispLatLongReport_Value = @import("../zig.zig").Guid.initString("8ae32723-389b-4a11-9957-5bdd48fc9617");
+const IID_IDispLatLongReport_Value = Guid.initString("8ae32723-389b-4a11-9957-5bdd48fc9617");
 pub const IID_IDispLatLongReport = &IID_IDispLatLongReport_Value;
 pub const IDispLatLongReport = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Latitude: fn(
-            self: *const IDispLatLongReport,
-            pVal: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Latitude: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispLatLongReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispLatLongReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Longitude: fn(
-            self: *const IDispLatLongReport,
-            pVal: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Longitude: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispLatLongReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispLatLongReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_ErrorRadius: fn(
-            self: *const IDispLatLongReport,
-            pVal: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_ErrorRadius: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispLatLongReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispLatLongReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Altitude: fn(
-            self: *const IDispLatLongReport,
-            pVal: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Altitude: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispLatLongReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispLatLongReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_AltitudeError: fn(
-            self: *const IDispLatLongReport,
-            pVal: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_AltitudeError: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispLatLongReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispLatLongReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Timestamp: fn(
-            self: *const IDispLatLongReport,
-            pVal: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Timestamp: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispLatLongReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispLatLongReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -530,51 +772,115 @@ pub const IDispLatLongReport = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDispCivicAddressReport_Value = @import("../zig.zig").Guid.initString("16ff1a34-9e30-42c3-b44d-e22513b5767a");
+const IID_IDispCivicAddressReport_Value = Guid.initString("16ff1a34-9e30-42c3-b44d-e22513b5767a");
 pub const IID_IDispCivicAddressReport = &IID_IDispCivicAddressReport_Value;
 pub const IDispCivicAddressReport = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_AddressLine1: fn(
-            self: *const IDispCivicAddressReport,
-            pAddress1: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_AddressLine1: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispCivicAddressReport,
+                pAddress1: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispCivicAddressReport,
+                pAddress1: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_AddressLine2: fn(
-            self: *const IDispCivicAddressReport,
-            pAddress2: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_AddressLine2: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispCivicAddressReport,
+                pAddress2: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispCivicAddressReport,
+                pAddress2: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_City: fn(
-            self: *const IDispCivicAddressReport,
-            pCity: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_City: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispCivicAddressReport,
+                pCity: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispCivicAddressReport,
+                pCity: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_StateProvince: fn(
-            self: *const IDispCivicAddressReport,
-            pStateProvince: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_StateProvince: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispCivicAddressReport,
+                pStateProvince: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispCivicAddressReport,
+                pStateProvince: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_PostalCode: fn(
-            self: *const IDispCivicAddressReport,
-            pPostalCode: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_PostalCode: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispCivicAddressReport,
+                pPostalCode: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispCivicAddressReport,
+                pPostalCode: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_CountryRegion: fn(
-            self: *const IDispCivicAddressReport,
-            pCountryRegion: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_CountryRegion: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispCivicAddressReport,
+                pCountryRegion: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispCivicAddressReport,
+                pCountryRegion: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DetailLevel: fn(
-            self: *const IDispCivicAddressReport,
-            pDetailLevel: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DetailLevel: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispCivicAddressReport,
+                pDetailLevel: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispCivicAddressReport,
+                pDetailLevel: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Timestamp: fn(
-            self: *const IDispCivicAddressReport,
-            pVal: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Timestamp: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IDispCivicAddressReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IDispCivicAddressReport,
+                pVal: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -615,47 +921,104 @@ pub const IDispCivicAddressReport = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_ILocationReportFactory_Value = @import("../zig.zig").Guid.initString("2daec322-90b2-47e4-bb08-0da841935a6b");
+const IID_ILocationReportFactory_Value = Guid.initString("2daec322-90b2-47e4-bb08-0da841935a6b");
 pub const IID_ILocationReportFactory = &IID_ILocationReportFactory_Value;
 pub const ILocationReportFactory = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        ListenForReports: fn(
-            self: *const ILocationReportFactory,
-            requestedReportInterval: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        StopListeningForReports: fn(
-            self: *const ILocationReportFactory,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ListenForReports: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocationReportFactory,
+                requestedReportInterval: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocationReportFactory,
+                requestedReportInterval: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        StopListeningForReports: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocationReportFactory,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocationReportFactory,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Status: fn(
-            self: *const ILocationReportFactory,
-            pVal: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Status: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const ILocationReportFactory,
+                pVal: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const ILocationReportFactory,
+                pVal: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_ReportInterval: fn(
-            self: *const ILocationReportFactory,
-            pMilliseconds: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_ReportInterval: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const ILocationReportFactory,
+                pMilliseconds: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const ILocationReportFactory,
+                pMilliseconds: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_ReportInterval: fn(
-            self: *const ILocationReportFactory,
-            millisecondsRequested: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_ReportInterval: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const ILocationReportFactory,
+                millisecondsRequested: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const ILocationReportFactory,
+                millisecondsRequested: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DesiredAccuracy: fn(
-            self: *const ILocationReportFactory,
-            pDesiredAccuracy: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DesiredAccuracy: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const ILocationReportFactory,
+                pDesiredAccuracy: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const ILocationReportFactory,
+                pDesiredAccuracy: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_DesiredAccuracy: fn(
-            self: *const ILocationReportFactory,
-            desiredAccuracy: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestPermissions: fn(
-            self: *const ILocationReportFactory,
-            hWnd: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_DesiredAccuracy: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const ILocationReportFactory,
+                desiredAccuracy: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const ILocationReportFactory,
+                desiredAccuracy: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestPermissions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILocationReportFactory,
+                hWnd: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILocationReportFactory,
+                hWnd: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -696,16 +1059,24 @@ pub const ILocationReportFactory = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_ILatLongReportFactory_Value = @import("../zig.zig").Guid.initString("3f0804cb-b114-447d-83dd-390174ebb082");
+const IID_ILatLongReportFactory_Value = Guid.initString("3f0804cb-b114-447d-83dd-390174ebb082");
 pub const IID_ILatLongReportFactory = &IID_ILatLongReportFactory_Value;
 pub const ILatLongReportFactory = extern struct {
     pub const VTable = extern struct {
         base: ILocationReportFactory.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_LatLongReport: fn(
-            self: *const ILatLongReportFactory,
-            pVal: ?*?*IDispLatLongReport,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_LatLongReport: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const ILatLongReportFactory,
+                pVal: ?*?*IDispLatLongReport,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const ILatLongReportFactory,
+                pVal: ?*?*IDispLatLongReport,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -718,16 +1089,24 @@ pub const ILatLongReportFactory = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_ICivicAddressReportFactory_Value = @import("../zig.zig").Guid.initString("bf773b93-c64f-4bee-beb2-67c0b8df66e0");
+const IID_ICivicAddressReportFactory_Value = Guid.initString("bf773b93-c64f-4bee-beb2-67c0b8df66e0");
 pub const IID_ICivicAddressReportFactory = &IID_ICivicAddressReportFactory_Value;
 pub const ICivicAddressReportFactory = extern struct {
     pub const VTable = extern struct {
         base: ILocationReportFactory.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_CivicAddressReport: fn(
-            self: *const ICivicAddressReportFactory,
-            pVal: ?*?*IDispCivicAddressReport,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_CivicAddressReport: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const ICivicAddressReportFactory,
+                pVal: ?*?*IDispCivicAddressReport,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const ICivicAddressReportFactory,
+                pVal: ?*?*IDispCivicAddressReport,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -740,7 +1119,7 @@ pub const ICivicAddressReportFactory = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID__ILatLongReportFactoryEvents_Value = @import("../zig.zig").Guid.initString("16ee6cb7-ab3c-424b-849f-269be551fcbc");
+const IID__ILatLongReportFactoryEvents_Value = Guid.initString("16ee6cb7-ab3c-424b-849f-269be551fcbc");
 pub const IID__ILatLongReportFactoryEvents = &IID__ILatLongReportFactoryEvents_Value;
 pub const _ILatLongReportFactoryEvents = extern struct {
     pub const VTable = extern struct {
@@ -753,7 +1132,7 @@ pub const _ILatLongReportFactoryEvents = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID__ICivicAddressReportFactoryEvents_Value = @import("../zig.zig").Guid.initString("c96039ff-72ec-4617-89bd-84d88bedc722");
+const IID__ICivicAddressReportFactoryEvents_Value = Guid.initString("c96039ff-72ec-4617-89bd-84d88bedc722");
 pub const IID__ICivicAddressReportFactoryEvents = &IID__ICivicAddressReportFactoryEvents_Value;
 pub const _ICivicAddressReportFactoryEvents = extern struct {
     pub const VTable = extern struct {
@@ -1469,14 +1848,14 @@ const SYSTEMTIME = @import("../foundation.zig").SYSTEMTIME;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

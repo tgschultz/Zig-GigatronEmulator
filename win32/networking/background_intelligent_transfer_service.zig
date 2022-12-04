@@ -222,7 +222,7 @@ pub const BG_TOKEN = enum(u32) {
 pub const BG_TOKEN_LOCAL_FILE = BG_TOKEN.LOCAL_FILE;
 pub const BG_TOKEN_NETWORK = BG_TOKEN.NETWORK;
 
-const CLSID_BackgroundCopyManager_Value = @import("../zig.zig").Guid.initString("4991d34b-80a1-4291-83b6-3328366b9097");
+const CLSID_BackgroundCopyManager_Value = Guid.initString("4991d34b-80a1-4291-83b6-3328366b9097");
 pub const CLSID_BackgroundCopyManager = &CLSID_BackgroundCopyManager_Value;
 
 pub const BG_FILE_PROGRESS = extern struct {
@@ -232,23 +232,41 @@ pub const BG_FILE_PROGRESS = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-const IID_IBackgroundCopyFile_Value = @import("../zig.zig").Guid.initString("01b7bd23-fb88-4a77-8490-5891d3e4653a");
+const IID_IBackgroundCopyFile_Value = Guid.initString("01b7bd23-fb88-4a77-8490-5891d3e4653a");
 pub const IID_IBackgroundCopyFile = &IID_IBackgroundCopyFile_Value;
 pub const IBackgroundCopyFile = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetRemoteName: fn(
-            self: *const IBackgroundCopyFile,
-            pVal: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetLocalName: fn(
-            self: *const IBackgroundCopyFile,
-            pVal: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetProgress: fn(
-            self: *const IBackgroundCopyFile,
-            pVal: ?*BG_FILE_PROGRESS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetRemoteName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile,
+                pVal: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile,
+                pVal: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetLocalName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile,
+                pVal: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile,
+                pVal: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetProgress: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile,
+                pVal: ?*BG_FILE_PROGRESS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile,
+                pVal: ?*BG_FILE_PROGRESS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -270,32 +288,63 @@ pub const IBackgroundCopyFile = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-const IID_IEnumBackgroundCopyFiles_Value = @import("../zig.zig").Guid.initString("ca51e165-c365-424c-8d41-24aaa4ff3c40");
+const IID_IEnumBackgroundCopyFiles_Value = Guid.initString("ca51e165-c365-424c-8d41-24aaa4ff3c40");
 pub const IID_IEnumBackgroundCopyFiles = &IID_IEnumBackgroundCopyFiles_Value;
 pub const IEnumBackgroundCopyFiles = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Next: fn(
-            self: *const IEnumBackgroundCopyFiles,
-            celt: u32,
-            rgelt: ?*?*IBackgroundCopyFile,
-            pceltFetched: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Skip: fn(
-            self: *const IEnumBackgroundCopyFiles,
-            celt: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Reset: fn(
-            self: *const IEnumBackgroundCopyFiles,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IEnumBackgroundCopyFiles,
-            ppenum: ?*?*IEnumBackgroundCopyFiles,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCount: fn(
-            self: *const IEnumBackgroundCopyFiles,
-            puCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Next: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyFiles,
+                celt: u32,
+                rgelt: ?*?*IBackgroundCopyFile,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyFiles,
+                celt: u32,
+                rgelt: ?*?*IBackgroundCopyFile,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Skip: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyFiles,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyFiles,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Reset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyFiles,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyFiles,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyFiles,
+                ppenum: ?*?*IEnumBackgroundCopyFiles,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyFiles,
+                ppenum: ?*?*IEnumBackgroundCopyFiles,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyFiles,
+                puCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyFiles,
+                puCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -346,34 +395,67 @@ pub const BG_ERROR_CONTEXT_REMOTE_APPLICATION = BG_ERROR_CONTEXT.REMOTE_APPLICAT
 pub const BG_ERROR_CONTEXT_SERVER_CERTIFICATE_CALLBACK = BG_ERROR_CONTEXT.SERVER_CERTIFICATE_CALLBACK;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-const IID_IBackgroundCopyError_Value = @import("../zig.zig").Guid.initString("19c613a0-fcb8-4f28-81ae-897c3d078f81");
+const IID_IBackgroundCopyError_Value = Guid.initString("19c613a0-fcb8-4f28-81ae-897c3d078f81");
 pub const IID_IBackgroundCopyError = &IID_IBackgroundCopyError_Value;
 pub const IBackgroundCopyError = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetError: fn(
-            self: *const IBackgroundCopyError,
-            pContext: ?*BG_ERROR_CONTEXT,
-            pCode: ?*HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFile: fn(
-            self: *const IBackgroundCopyError,
-            pVal: ?*?*IBackgroundCopyFile,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetErrorDescription: fn(
-            self: *const IBackgroundCopyError,
-            LanguageId: u32,
-            pErrorDescription: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetErrorContextDescription: fn(
-            self: *const IBackgroundCopyError,
-            LanguageId: u32,
-            pContextDescription: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetProtocol: fn(
-            self: *const IBackgroundCopyError,
-            pProtocol: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetError: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyError,
+                pContext: ?*BG_ERROR_CONTEXT,
+                pCode: ?*HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyError,
+                pContext: ?*BG_ERROR_CONTEXT,
+                pCode: ?*HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyError,
+                pVal: ?*?*IBackgroundCopyFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyError,
+                pVal: ?*?*IBackgroundCopyFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetErrorDescription: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyError,
+                LanguageId: u32,
+                pErrorDescription: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyError,
+                LanguageId: u32,
+                pErrorDescription: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetErrorContextDescription: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyError,
+                LanguageId: u32,
+                pContextDescription: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyError,
+                LanguageId: u32,
+                pContextDescription: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetProtocol: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyError,
+                pProtocol: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyError,
+                pProtocol: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -473,140 +555,333 @@ pub const BG_JOB_PROXY_USAGE_OVERRIDE = BG_JOB_PROXY_USAGE.OVERRIDE;
 pub const BG_JOB_PROXY_USAGE_AUTODETECT = BG_JOB_PROXY_USAGE.AUTODETECT;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-const IID_IBackgroundCopyJob_Value = @import("../zig.zig").Guid.initString("37668d37-507e-4160-9316-26306d150b12");
+const IID_IBackgroundCopyJob_Value = Guid.initString("37668d37-507e-4160-9316-26306d150b12");
 pub const IID_IBackgroundCopyJob = &IID_IBackgroundCopyJob_Value;
 pub const IBackgroundCopyJob = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddFileSet: fn(
-            self: *const IBackgroundCopyJob,
-            cFileCount: u32,
-            pFileSet: [*]BG_FILE_INFO,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddFile: fn(
-            self: *const IBackgroundCopyJob,
-            RemoteUrl: ?[*:0]const u16,
-            LocalName: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumFiles: fn(
-            self: *const IBackgroundCopyJob,
-            pEnum: ?*?*IEnumBackgroundCopyFiles,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Suspend: fn(
-            self: *const IBackgroundCopyJob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Resume: fn(
-            self: *const IBackgroundCopyJob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Cancel: fn(
-            self: *const IBackgroundCopyJob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Complete: fn(
-            self: *const IBackgroundCopyJob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetId: fn(
-            self: *const IBackgroundCopyJob,
-            pVal: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetType: fn(
-            self: *const IBackgroundCopyJob,
-            pVal: ?*BG_JOB_TYPE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetProgress: fn(
-            self: *const IBackgroundCopyJob,
-            pVal: ?*BG_JOB_PROGRESS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTimes: fn(
-            self: *const IBackgroundCopyJob,
-            pVal: ?*BG_JOB_TIMES,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetState: fn(
-            self: *const IBackgroundCopyJob,
-            pVal: ?*BG_JOB_STATE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetError: fn(
-            self: *const IBackgroundCopyJob,
-            ppError: ?*?*IBackgroundCopyError,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetOwner: fn(
-            self: *const IBackgroundCopyJob,
-            pVal: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDisplayName: fn(
-            self: *const IBackgroundCopyJob,
-            Val: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDisplayName: fn(
-            self: *const IBackgroundCopyJob,
-            pVal: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDescription: fn(
-            self: *const IBackgroundCopyJob,
-            Val: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDescription: fn(
-            self: *const IBackgroundCopyJob,
-            pVal: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetPriority: fn(
-            self: *const IBackgroundCopyJob,
-            Val: BG_JOB_PRIORITY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPriority: fn(
-            self: *const IBackgroundCopyJob,
-            pVal: ?*BG_JOB_PRIORITY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetNotifyFlags: fn(
-            self: *const IBackgroundCopyJob,
-            Val: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNotifyFlags: fn(
-            self: *const IBackgroundCopyJob,
-            pVal: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetNotifyInterface: fn(
-            self: *const IBackgroundCopyJob,
-            Val: ?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNotifyInterface: fn(
-            self: *const IBackgroundCopyJob,
-            pVal: ?*?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetMinimumRetryDelay: fn(
-            self: *const IBackgroundCopyJob,
-            Seconds: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetMinimumRetryDelay: fn(
-            self: *const IBackgroundCopyJob,
-            Seconds: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetNoProgressTimeout: fn(
-            self: *const IBackgroundCopyJob,
-            Seconds: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNoProgressTimeout: fn(
-            self: *const IBackgroundCopyJob,
-            Seconds: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetErrorCount: fn(
-            self: *const IBackgroundCopyJob,
-            Errors: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetProxySettings: fn(
-            self: *const IBackgroundCopyJob,
-            ProxyUsage: BG_JOB_PROXY_USAGE,
-            ProxyList: ?[*:0]const u16,
-            ProxyBypassList: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetProxySettings: fn(
-            self: *const IBackgroundCopyJob,
-            pProxyUsage: ?*BG_JOB_PROXY_USAGE,
-            pProxyList: ?*?PWSTR,
-            pProxyBypassList: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        TakeOwnership: fn(
-            self: *const IBackgroundCopyJob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddFileSet: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                cFileCount: u32,
+                pFileSet: [*]BG_FILE_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                cFileCount: u32,
+                pFileSet: [*]BG_FILE_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                RemoteUrl: ?[*:0]const u16,
+                LocalName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                RemoteUrl: ?[*:0]const u16,
+                LocalName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumFiles: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                pEnum: ?*?*IEnumBackgroundCopyFiles,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                pEnum: ?*?*IEnumBackgroundCopyFiles,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Suspend: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Resume: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Cancel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Complete: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*BG_JOB_TYPE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*BG_JOB_TYPE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetProgress: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*BG_JOB_PROGRESS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*BG_JOB_PROGRESS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTimes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*BG_JOB_TIMES,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*BG_JOB_TIMES,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*BG_JOB_STATE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*BG_JOB_STATE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetError: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                ppError: ?*?*IBackgroundCopyError,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                ppError: ?*?*IBackgroundCopyError,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetOwner: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDisplayName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                Val: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                Val: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDisplayName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDescription: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                Val: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                Val: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDescription: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetPriority: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                Val: BG_JOB_PRIORITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                Val: BG_JOB_PRIORITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPriority: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*BG_JOB_PRIORITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*BG_JOB_PRIORITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetNotifyFlags: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                Val: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                Val: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNotifyFlags: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetNotifyInterface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                Val: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                Val: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNotifyInterface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                pVal: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetMinimumRetryDelay: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                Seconds: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                Seconds: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetMinimumRetryDelay: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                Seconds: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                Seconds: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetNoProgressTimeout: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                Seconds: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                Seconds: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNoProgressTimeout: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                Seconds: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                Seconds: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetErrorCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                Errors: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                Errors: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetProxySettings: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                ProxyUsage: BG_JOB_PROXY_USAGE,
+                ProxyList: ?[*:0]const u16,
+                ProxyBypassList: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                ProxyUsage: BG_JOB_PROXY_USAGE,
+                ProxyList: ?[*:0]const u16,
+                ProxyBypassList: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetProxySettings: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+                pProxyUsage: ?*BG_JOB_PROXY_USAGE,
+                pProxyList: ?*?PWSTR,
+                pProxyBypassList: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+                pProxyUsage: ?*BG_JOB_PROXY_USAGE,
+                pProxyList: ?*?PWSTR,
+                pProxyBypassList: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        TakeOwnership: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -744,32 +1019,63 @@ pub const IBackgroundCopyJob = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-const IID_IEnumBackgroundCopyJobs_Value = @import("../zig.zig").Guid.initString("1af4f612-3b71-466f-8f58-7b6f73ac57ad");
+const IID_IEnumBackgroundCopyJobs_Value = Guid.initString("1af4f612-3b71-466f-8f58-7b6f73ac57ad");
 pub const IID_IEnumBackgroundCopyJobs = &IID_IEnumBackgroundCopyJobs_Value;
 pub const IEnumBackgroundCopyJobs = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Next: fn(
-            self: *const IEnumBackgroundCopyJobs,
-            celt: u32,
-            rgelt: ?*?*IBackgroundCopyJob,
-            pceltFetched: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Skip: fn(
-            self: *const IEnumBackgroundCopyJobs,
-            celt: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Reset: fn(
-            self: *const IEnumBackgroundCopyJobs,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IEnumBackgroundCopyJobs,
-            ppenum: ?*?*IEnumBackgroundCopyJobs,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCount: fn(
-            self: *const IEnumBackgroundCopyJobs,
-            puCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Next: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyJobs,
+                celt: u32,
+                rgelt: ?*?*IBackgroundCopyJob,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyJobs,
+                celt: u32,
+                rgelt: ?*?*IBackgroundCopyJob,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Skip: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyJobs,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyJobs,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Reset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyJobs,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyJobs,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyJobs,
+                ppenum: ?*?*IEnumBackgroundCopyJobs,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyJobs,
+                ppenum: ?*?*IEnumBackgroundCopyJobs,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyJobs,
+                puCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyJobs,
+                puCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -799,25 +1105,45 @@ pub const IEnumBackgroundCopyJobs = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-const IID_IBackgroundCopyCallback_Value = @import("../zig.zig").Guid.initString("97ea99c7-0186-4ad4-8df9-c5b4e0ed6b22");
+const IID_IBackgroundCopyCallback_Value = Guid.initString("97ea99c7-0186-4ad4-8df9-c5b4e0ed6b22");
 pub const IID_IBackgroundCopyCallback = &IID_IBackgroundCopyCallback_Value;
 pub const IBackgroundCopyCallback = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        JobTransferred: fn(
-            self: *const IBackgroundCopyCallback,
-            pJob: ?*IBackgroundCopyJob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        JobError: fn(
-            self: *const IBackgroundCopyCallback,
-            pJob: ?*IBackgroundCopyJob,
-            pError: ?*IBackgroundCopyError,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        JobModification: fn(
-            self: *const IBackgroundCopyCallback,
-            pJob: ?*IBackgroundCopyJob,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        JobTransferred: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyCallback,
+                pJob: ?*IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyCallback,
+                pJob: ?*IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        JobError: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyCallback,
+                pJob: ?*IBackgroundCopyJob,
+                pError: ?*IBackgroundCopyError,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyCallback,
+                pJob: ?*IBackgroundCopyJob,
+                pError: ?*IBackgroundCopyError,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        JobModification: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyCallback,
+                pJob: ?*IBackgroundCopyJob,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyCallback,
+                pJob: ?*IBackgroundCopyJob,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -838,34 +1164,69 @@ pub const IBackgroundCopyCallback = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_AsyncIBackgroundCopyCallback_Value = @import("../zig.zig").Guid.initString("ca29d251-b4bb-4679-a3d9-ae8006119d54");
+const IID_AsyncIBackgroundCopyCallback_Value = Guid.initString("ca29d251-b4bb-4679-a3d9-ae8006119d54");
 pub const IID_AsyncIBackgroundCopyCallback = &IID_AsyncIBackgroundCopyCallback_Value;
 pub const AsyncIBackgroundCopyCallback = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Begin_JobTransferred: fn(
-            self: *const AsyncIBackgroundCopyCallback,
-            pJob: ?*IBackgroundCopyJob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Finish_JobTransferred: fn(
-            self: *const AsyncIBackgroundCopyCallback,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Begin_JobError: fn(
-            self: *const AsyncIBackgroundCopyCallback,
-            pJob: ?*IBackgroundCopyJob,
-            pError: ?*IBackgroundCopyError,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Finish_JobError: fn(
-            self: *const AsyncIBackgroundCopyCallback,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Begin_JobModification: fn(
-            self: *const AsyncIBackgroundCopyCallback,
-            pJob: ?*IBackgroundCopyJob,
-            dwReserved: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Finish_JobModification: fn(
-            self: *const AsyncIBackgroundCopyCallback,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Begin_JobTransferred: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const AsyncIBackgroundCopyCallback,
+                pJob: ?*IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const AsyncIBackgroundCopyCallback,
+                pJob: ?*IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Finish_JobTransferred: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const AsyncIBackgroundCopyCallback,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const AsyncIBackgroundCopyCallback,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Begin_JobError: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const AsyncIBackgroundCopyCallback,
+                pJob: ?*IBackgroundCopyJob,
+                pError: ?*IBackgroundCopyError,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const AsyncIBackgroundCopyCallback,
+                pJob: ?*IBackgroundCopyJob,
+                pError: ?*IBackgroundCopyError,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Finish_JobError: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const AsyncIBackgroundCopyCallback,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const AsyncIBackgroundCopyCallback,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Begin_JobModification: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const AsyncIBackgroundCopyCallback,
+                pJob: ?*IBackgroundCopyJob,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const AsyncIBackgroundCopyCallback,
+                pJob: ?*IBackgroundCopyJob,
+                dwReserved: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Finish_JobModification: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const AsyncIBackgroundCopyCallback,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const AsyncIBackgroundCopyCallback,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -899,34 +1260,65 @@ pub const AsyncIBackgroundCopyCallback = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-const IID_IBackgroundCopyManager_Value = @import("../zig.zig").Guid.initString("5ce34c0d-0dc9-4c1f-897c-daa1b78cee7c");
+const IID_IBackgroundCopyManager_Value = Guid.initString("5ce34c0d-0dc9-4c1f-897c-daa1b78cee7c");
 pub const IID_IBackgroundCopyManager = &IID_IBackgroundCopyManager_Value;
 pub const IBackgroundCopyManager = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateJob: fn(
-            self: *const IBackgroundCopyManager,
-            DisplayName: ?[*:0]const u16,
-            Type: BG_JOB_TYPE,
-            pJobId: ?*Guid,
-            ppJob: ?*?*IBackgroundCopyJob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetJob: fn(
-            self: *const IBackgroundCopyManager,
-            jobID: ?*const Guid,
-            ppJob: ?*?*IBackgroundCopyJob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumJobs: fn(
-            self: *const IBackgroundCopyManager,
-            dwFlags: u32,
-            ppEnum: ?*?*IEnumBackgroundCopyJobs,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetErrorDescription: fn(
-            self: *const IBackgroundCopyManager,
-            hResult: HRESULT,
-            LanguageId: u32,
-            pErrorDescription: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateJob: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyManager,
+                DisplayName: ?[*:0]const u16,
+                Type: BG_JOB_TYPE,
+                pJobId: ?*Guid,
+                ppJob: ?*?*IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyManager,
+                DisplayName: ?[*:0]const u16,
+                Type: BG_JOB_TYPE,
+                pJobId: ?*Guid,
+                ppJob: ?*?*IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetJob: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyManager,
+                jobID: ?*const Guid,
+                ppJob: ?*?*IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyManager,
+                jobID: ?*const Guid,
+                ppJob: ?*?*IBackgroundCopyJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumJobs: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyManager,
+                dwFlags: u32,
+                ppEnum: ?*?*IEnumBackgroundCopyJobs,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyManager,
+                dwFlags: u32,
+                ppEnum: ?*?*IEnumBackgroundCopyJobs,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetErrorDescription: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyManager,
+                hResult: HRESULT,
+                LanguageId: u32,
+                pErrorDescription: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyManager,
+                hResult: HRESULT,
+                LanguageId: u32,
+                pErrorDescription: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -951,7 +1343,7 @@ pub const IBackgroundCopyManager = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const CLSID_BackgroundCopyManager1_5_Value = @import("../zig.zig").Guid.initString("f087771f-d74f-4c1a-bb8a-e16aca9124ea");
+const CLSID_BackgroundCopyManager1_5_Value = Guid.initString("f087771f-d74f-4c1a-bb8a-e16aca9124ea");
 pub const CLSID_BackgroundCopyManager1_5 = &CLSID_BackgroundCopyManager1_5_Value;
 
 pub const BG_JOB_REPLY_PROGRESS = extern struct {
@@ -995,47 +1387,99 @@ pub const BG_AUTH_CREDENTIALS = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IBackgroundCopyJob2_Value = @import("../zig.zig").Guid.initString("54b50739-686f-45eb-9dff-d6a9a0faa9af");
+const IID_IBackgroundCopyJob2_Value = Guid.initString("54b50739-686f-45eb-9dff-d6a9a0faa9af");
 pub const IID_IBackgroundCopyJob2 = &IID_IBackgroundCopyJob2_Value;
 pub const IBackgroundCopyJob2 = extern struct {
     pub const VTable = extern struct {
         base: IBackgroundCopyJob.VTable,
-        SetNotifyCmdLine: fn(
-            self: *const IBackgroundCopyJob2,
-            Program: ?[*:0]const u16,
-            Parameters: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNotifyCmdLine: fn(
-            self: *const IBackgroundCopyJob2,
-            pProgram: ?*?PWSTR,
-            pParameters: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetReplyProgress: fn(
-            self: *const IBackgroundCopyJob2,
-            pProgress: ?*BG_JOB_REPLY_PROGRESS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetReplyData: fn(
-            self: *const IBackgroundCopyJob2,
-            ppBuffer: ?*?*u8,
-            pLength: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetReplyFileName: fn(
-            self: *const IBackgroundCopyJob2,
-            ReplyFileName: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetReplyFileName: fn(
-            self: *const IBackgroundCopyJob2,
-            pReplyFileName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetCredentials: fn(
-            self: *const IBackgroundCopyJob2,
-            credentials: ?*BG_AUTH_CREDENTIALS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RemoveCredentials: fn(
-            self: *const IBackgroundCopyJob2,
-            Target: BG_AUTH_TARGET,
-            Scheme: BG_AUTH_SCHEME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetNotifyCmdLine: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob2,
+                Program: ?[*:0]const u16,
+                Parameters: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob2,
+                Program: ?[*:0]const u16,
+                Parameters: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNotifyCmdLine: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob2,
+                pProgram: ?*?PWSTR,
+                pParameters: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob2,
+                pProgram: ?*?PWSTR,
+                pParameters: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetReplyProgress: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob2,
+                pProgress: ?*BG_JOB_REPLY_PROGRESS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob2,
+                pProgress: ?*BG_JOB_REPLY_PROGRESS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetReplyData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob2,
+                ppBuffer: ?*?*u8,
+                pLength: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob2,
+                ppBuffer: ?*?*u8,
+                pLength: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetReplyFileName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob2,
+                ReplyFileName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob2,
+                ReplyFileName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetReplyFileName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob2,
+                pReplyFileName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob2,
+                pReplyFileName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetCredentials: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob2,
+                credentials: ?*BG_AUTH_CREDENTIALS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob2,
+                credentials: ?*BG_AUTH_CREDENTIALS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RemoveCredentials: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob2,
+                Target: BG_AUTH_TARGET,
+                Scheme: BG_AUTH_SCHEME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob2,
+                Target: BG_AUTH_TARGET,
+                Scheme: BG_AUTH_SCHEME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1076,7 +1520,7 @@ pub const IBackgroundCopyJob2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const CLSID_BackgroundCopyManager2_0_Value = @import("../zig.zig").Guid.initString("6d18ad12-bde3-4393-b311-099c346e6df9");
+const CLSID_BackgroundCopyManager2_0_Value = Guid.initString("6d18ad12-bde3-4393-b311-099c346e6df9");
 pub const CLSID_BackgroundCopyManager2_0 = &CLSID_BackgroundCopyManager2_0_Value;
 
 pub const BG_FILE_RANGE = extern struct {
@@ -1085,31 +1529,59 @@ pub const BG_FILE_RANGE = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IBackgroundCopyJob3_Value = @import("../zig.zig").Guid.initString("443c8934-90ff-48ed-bcde-26f5c7450042");
+const IID_IBackgroundCopyJob3_Value = Guid.initString("443c8934-90ff-48ed-bcde-26f5c7450042");
 pub const IID_IBackgroundCopyJob3 = &IID_IBackgroundCopyJob3_Value;
 pub const IBackgroundCopyJob3 = extern struct {
     pub const VTable = extern struct {
         base: IBackgroundCopyJob2.VTable,
-        ReplaceRemotePrefix: fn(
-            self: *const IBackgroundCopyJob3,
-            OldPrefix: ?[*:0]const u16,
-            NewPrefix: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddFileWithRanges: fn(
-            self: *const IBackgroundCopyJob3,
-            RemoteUrl: ?[*:0]const u16,
-            LocalName: ?[*:0]const u16,
-            RangeCount: u32,
-            Ranges: [*]BG_FILE_RANGE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetFileACLFlags: fn(
-            self: *const IBackgroundCopyJob3,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFileACLFlags: fn(
-            self: *const IBackgroundCopyJob3,
-            Flags: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ReplaceRemotePrefix: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob3,
+                OldPrefix: ?[*:0]const u16,
+                NewPrefix: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob3,
+                OldPrefix: ?[*:0]const u16,
+                NewPrefix: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddFileWithRanges: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob3,
+                RemoteUrl: ?[*:0]const u16,
+                LocalName: ?[*:0]const u16,
+                RangeCount: u32,
+                Ranges: [*]BG_FILE_RANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob3,
+                RemoteUrl: ?[*:0]const u16,
+                LocalName: ?[*:0]const u16,
+                RangeCount: u32,
+                Ranges: [*]BG_FILE_RANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetFileACLFlags: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob3,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob3,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFileACLFlags: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob3,
+                Flags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob3,
+                Flags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1135,20 +1607,33 @@ pub const IBackgroundCopyJob3 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IBackgroundCopyFile2_Value = @import("../zig.zig").Guid.initString("83e81b93-0873-474d-8a8c-f2018b1a939c");
+const IID_IBackgroundCopyFile2_Value = Guid.initString("83e81b93-0873-474d-8a8c-f2018b1a939c");
 pub const IID_IBackgroundCopyFile2 = &IID_IBackgroundCopyFile2_Value;
 pub const IBackgroundCopyFile2 = extern struct {
     pub const VTable = extern struct {
         base: IBackgroundCopyFile.VTable,
-        GetFileRanges: fn(
-            self: *const IBackgroundCopyFile2,
-            RangeCount: ?*u32,
-            Ranges: [*]?*BG_FILE_RANGE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetRemoteName: fn(
-            self: *const IBackgroundCopyFile2,
-            Val: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetFileRanges: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile2,
+                RangeCount: ?*u32,
+                Ranges: [*]?*BG_FILE_RANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile2,
+                RangeCount: ?*u32,
+                Ranges: [*]?*BG_FILE_RANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetRemoteName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile2,
+                Val: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile2,
+                Val: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1165,7 +1650,7 @@ pub const IBackgroundCopyFile2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const CLSID_BackgroundCopyManager2_5_Value = @import("../zig.zig").Guid.initString("03ca98d6-ff5d-49b8-abc6-03dd84127020");
+const CLSID_BackgroundCopyManager2_5_Value = Guid.initString("03ca98d6-ff5d-49b8-abc6-03dd84127020");
 pub const CLSID_BackgroundCopyManager2_5 = &CLSID_BackgroundCopyManager2_5_Value;
 
 pub const BG_CERT_STORE_LOCATION = enum(i32) {
@@ -1188,49 +1673,103 @@ pub const BG_CERT_STORE_LOCATION_LOCAL_MACHINE_GROUP_POLICY = BG_CERT_STORE_LOCA
 pub const BG_CERT_STORE_LOCATION_LOCAL_MACHINE_ENTERPRISE = BG_CERT_STORE_LOCATION.LOCAL_MACHINE_ENTERPRISE;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IBackgroundCopyJobHttpOptions_Value = @import("../zig.zig").Guid.initString("f1bd1079-9f01-4bdc-8036-f09b70095066");
+const IID_IBackgroundCopyJobHttpOptions_Value = Guid.initString("f1bd1079-9f01-4bdc-8036-f09b70095066");
 pub const IID_IBackgroundCopyJobHttpOptions = &IID_IBackgroundCopyJobHttpOptions_Value;
 pub const IBackgroundCopyJobHttpOptions = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetClientCertificateByID: fn(
-            self: *const IBackgroundCopyJobHttpOptions,
-            StoreLocation: BG_CERT_STORE_LOCATION,
-            StoreName: ?[*:0]const u16,
-            pCertHashBlob: *[20]u8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetClientCertificateByName: fn(
-            self: *const IBackgroundCopyJobHttpOptions,
-            StoreLocation: BG_CERT_STORE_LOCATION,
-            StoreName: ?[*:0]const u16,
-            SubjectName: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RemoveClientCertificate: fn(
-            self: *const IBackgroundCopyJobHttpOptions,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetClientCertificate: fn(
-            self: *const IBackgroundCopyJobHttpOptions,
-            pStoreLocation: ?*BG_CERT_STORE_LOCATION,
-            pStoreName: ?*?PWSTR,
-            ppCertHashBlob: ?*[20]?*u8,
-            pSubjectName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetCustomHeaders: fn(
-            self: *const IBackgroundCopyJobHttpOptions,
-            RequestHeaders: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCustomHeaders: fn(
-            self: *const IBackgroundCopyJobHttpOptions,
-            pRequestHeaders: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetSecurityFlags: fn(
-            self: *const IBackgroundCopyJobHttpOptions,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSecurityFlags: fn(
-            self: *const IBackgroundCopyJobHttpOptions,
-            pFlags: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetClientCertificateByID: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                StoreLocation: BG_CERT_STORE_LOCATION,
+                StoreName: ?[*:0]const u16,
+                pCertHashBlob: *[20]u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                StoreLocation: BG_CERT_STORE_LOCATION,
+                StoreName: ?[*:0]const u16,
+                pCertHashBlob: *[20]u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetClientCertificateByName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                StoreLocation: BG_CERT_STORE_LOCATION,
+                StoreName: ?[*:0]const u16,
+                SubjectName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                StoreLocation: BG_CERT_STORE_LOCATION,
+                StoreName: ?[*:0]const u16,
+                SubjectName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RemoveClientCertificate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetClientCertificate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                pStoreLocation: ?*BG_CERT_STORE_LOCATION,
+                pStoreName: ?*?PWSTR,
+                ppCertHashBlob: ?*[20]?*u8,
+                pSubjectName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                pStoreLocation: ?*BG_CERT_STORE_LOCATION,
+                pStoreName: ?*?PWSTR,
+                ppCertHashBlob: ?*[20]?*u8,
+                pSubjectName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetCustomHeaders: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                RequestHeaders: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                RequestHeaders: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCustomHeaders: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                pRequestHeaders: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                pRequestHeaders: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetSecurityFlags: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSecurityFlags: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                pFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJobHttpOptions,
+                pFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1271,43 +1810,85 @@ pub const IBackgroundCopyJobHttpOptions = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const CLSID_BackgroundCopyManager3_0_Value = @import("../zig.zig").Guid.initString("659cdea7-489e-11d9-a9cd-000d56965251");
+const CLSID_BackgroundCopyManager3_0_Value = Guid.initString("659cdea7-489e-11d9-a9cd-000d56965251");
 pub const CLSID_BackgroundCopyManager3_0 = &CLSID_BackgroundCopyManager3_0_Value;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IBitsPeerCacheRecord_Value = @import("../zig.zig").Guid.initString("659cdeaf-489e-11d9-a9cd-000d56965251");
+const IID_IBitsPeerCacheRecord_Value = Guid.initString("659cdeaf-489e-11d9-a9cd-000d56965251");
 pub const IID_IBitsPeerCacheRecord = &IID_IBitsPeerCacheRecord_Value;
 pub const IBitsPeerCacheRecord = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetId: fn(
-            self: *const IBitsPeerCacheRecord,
-            pVal: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetOriginUrl: fn(
-            self: *const IBitsPeerCacheRecord,
-            pVal: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFileSize: fn(
-            self: *const IBitsPeerCacheRecord,
-            pVal: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFileModificationTime: fn(
-            self: *const IBitsPeerCacheRecord,
-            pVal: ?*FILETIME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetLastAccessTime: fn(
-            self: *const IBitsPeerCacheRecord,
-            pVal: ?*FILETIME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsFileValidated: fn(
-            self: *const IBitsPeerCacheRecord,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFileRanges: fn(
-            self: *const IBitsPeerCacheRecord,
-            pRangeCount: ?*u32,
-            ppRanges: [*]?*BG_FILE_RANGE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheRecord,
+                pVal: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheRecord,
+                pVal: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetOriginUrl: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheRecord,
+                pVal: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheRecord,
+                pVal: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFileSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheRecord,
+                pVal: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheRecord,
+                pVal: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFileModificationTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheRecord,
+                pVal: ?*FILETIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheRecord,
+                pVal: ?*FILETIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetLastAccessTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheRecord,
+                pVal: ?*FILETIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheRecord,
+                pVal: ?*FILETIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsFileValidated: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheRecord,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheRecord,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFileRanges: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheRecord,
+                pRangeCount: ?*u32,
+                ppRanges: [*]?*BG_FILE_RANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheRecord,
+                pRangeCount: ?*u32,
+                ppRanges: [*]?*BG_FILE_RANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1345,32 +1926,63 @@ pub const IBitsPeerCacheRecord = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IEnumBitsPeerCacheRecords_Value = @import("../zig.zig").Guid.initString("659cdea4-489e-11d9-a9cd-000d56965251");
+const IID_IEnumBitsPeerCacheRecords_Value = Guid.initString("659cdea4-489e-11d9-a9cd-000d56965251");
 pub const IID_IEnumBitsPeerCacheRecords = &IID_IEnumBitsPeerCacheRecords_Value;
 pub const IEnumBitsPeerCacheRecords = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Next: fn(
-            self: *const IEnumBitsPeerCacheRecords,
-            celt: u32,
-            rgelt: ?*?*IBitsPeerCacheRecord,
-            pceltFetched: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Skip: fn(
-            self: *const IEnumBitsPeerCacheRecords,
-            celt: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Reset: fn(
-            self: *const IEnumBitsPeerCacheRecords,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IEnumBitsPeerCacheRecords,
-            ppenum: ?*?*IEnumBitsPeerCacheRecords,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCount: fn(
-            self: *const IEnumBitsPeerCacheRecords,
-            puCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Next: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBitsPeerCacheRecords,
+                celt: u32,
+                rgelt: ?*?*IBitsPeerCacheRecord,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBitsPeerCacheRecords,
+                celt: u32,
+                rgelt: ?*?*IBitsPeerCacheRecord,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Skip: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBitsPeerCacheRecords,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBitsPeerCacheRecords,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Reset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBitsPeerCacheRecords,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBitsPeerCacheRecords,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBitsPeerCacheRecords,
+                ppenum: ?*?*IEnumBitsPeerCacheRecords,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBitsPeerCacheRecords,
+                ppenum: ?*?*IEnumBitsPeerCacheRecords,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBitsPeerCacheRecords,
+                puCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBitsPeerCacheRecords,
+                puCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1400,23 +2012,41 @@ pub const IEnumBitsPeerCacheRecords = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IBitsPeer_Value = @import("../zig.zig").Guid.initString("659cdea2-489e-11d9-a9cd-000d56965251");
+const IID_IBitsPeer_Value = Guid.initString("659cdea2-489e-11d9-a9cd-000d56965251");
 pub const IID_IBitsPeer = &IID_IBitsPeer_Value;
 pub const IBitsPeer = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetPeerName: fn(
-            self: *const IBitsPeer,
-            pName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsAuthenticated: fn(
-            self: *const IBitsPeer,
-            pAuth: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsAvailable: fn(
-            self: *const IBitsPeer,
-            pOnline: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetPeerName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeer,
+                pName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeer,
+                pName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsAuthenticated: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeer,
+                pAuth: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeer,
+                pAuth: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsAvailable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeer,
+                pOnline: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeer,
+                pOnline: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1438,32 +2068,63 @@ pub const IBitsPeer = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IEnumBitsPeers_Value = @import("../zig.zig").Guid.initString("659cdea5-489e-11d9-a9cd-000d56965251");
+const IID_IEnumBitsPeers_Value = Guid.initString("659cdea5-489e-11d9-a9cd-000d56965251");
 pub const IID_IEnumBitsPeers = &IID_IEnumBitsPeers_Value;
 pub const IEnumBitsPeers = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Next: fn(
-            self: *const IEnumBitsPeers,
-            celt: u32,
-            rgelt: ?*?*IBitsPeer,
-            pceltFetched: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Skip: fn(
-            self: *const IEnumBitsPeers,
-            celt: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Reset: fn(
-            self: *const IEnumBitsPeers,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IEnumBitsPeers,
-            ppenum: ?*?*IEnumBitsPeers,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCount: fn(
-            self: *const IEnumBitsPeers,
-            puCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Next: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBitsPeers,
+                celt: u32,
+                rgelt: ?*?*IBitsPeer,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBitsPeers,
+                celt: u32,
+                rgelt: ?*?*IBitsPeer,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Skip: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBitsPeers,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBitsPeers,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Reset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBitsPeers,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBitsPeers,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBitsPeers,
+                ppenum: ?*?*IEnumBitsPeers,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBitsPeers,
+                ppenum: ?*?*IEnumBitsPeers,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBitsPeers,
+                puCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBitsPeers,
+                puCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1493,65 +2154,147 @@ pub const IEnumBitsPeers = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IBitsPeerCacheAdministration_Value = @import("../zig.zig").Guid.initString("659cdead-489e-11d9-a9cd-000d56965251");
+const IID_IBitsPeerCacheAdministration_Value = Guid.initString("659cdead-489e-11d9-a9cd-000d56965251");
 pub const IID_IBitsPeerCacheAdministration = &IID_IBitsPeerCacheAdministration_Value;
 pub const IBitsPeerCacheAdministration = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetMaximumCacheSize: fn(
-            self: *const IBitsPeerCacheAdministration,
-            pBytes: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetMaximumCacheSize: fn(
-            self: *const IBitsPeerCacheAdministration,
-            Bytes: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetMaximumContentAge: fn(
-            self: *const IBitsPeerCacheAdministration,
-            pSeconds: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetMaximumContentAge: fn(
-            self: *const IBitsPeerCacheAdministration,
-            Seconds: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetConfigurationFlags: fn(
-            self: *const IBitsPeerCacheAdministration,
-            pFlags: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetConfigurationFlags: fn(
-            self: *const IBitsPeerCacheAdministration,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumRecords: fn(
-            self: *const IBitsPeerCacheAdministration,
-            ppEnum: ?*?*IEnumBitsPeerCacheRecords,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRecord: fn(
-            self: *const IBitsPeerCacheAdministration,
-            id: ?*const Guid,
-            ppRecord: ?*?*IBitsPeerCacheRecord,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ClearRecords: fn(
-            self: *const IBitsPeerCacheAdministration,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DeleteRecord: fn(
-            self: *const IBitsPeerCacheAdministration,
-            id: ?*const Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DeleteUrl: fn(
-            self: *const IBitsPeerCacheAdministration,
-            url: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumPeers: fn(
-            self: *const IBitsPeerCacheAdministration,
-            ppEnum: ?*?*IEnumBitsPeers,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ClearPeers: fn(
-            self: *const IBitsPeerCacheAdministration,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DiscoverPeers: fn(
-            self: *const IBitsPeerCacheAdministration,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetMaximumCacheSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+                pBytes: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+                pBytes: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetMaximumCacheSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+                Bytes: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+                Bytes: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetMaximumContentAge: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+                pSeconds: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+                pSeconds: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetMaximumContentAge: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+                Seconds: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+                Seconds: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetConfigurationFlags: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+                pFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+                pFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetConfigurationFlags: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumRecords: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+                ppEnum: ?*?*IEnumBitsPeerCacheRecords,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+                ppEnum: ?*?*IEnumBitsPeerCacheRecords,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRecord: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+                id: ?*const Guid,
+                ppRecord: ?*?*IBitsPeerCacheRecord,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+                id: ?*const Guid,
+                ppRecord: ?*?*IBitsPeerCacheRecord,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ClearRecords: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DeleteRecord: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+                id: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+                id: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DeleteUrl: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+                url: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+                url: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumPeers: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+                ppEnum: ?*?*IEnumBitsPeers,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+                ppEnum: ?*?*IEnumBitsPeers,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ClearPeers: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DiscoverPeers: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsPeerCacheAdministration,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsPeerCacheAdministration,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1617,35 +2360,71 @@ pub const IBitsPeerCacheAdministration = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IBackgroundCopyJob4_Value = @import("../zig.zig").Guid.initString("659cdeae-489e-11d9-a9cd-000d56965251");
+const IID_IBackgroundCopyJob4_Value = Guid.initString("659cdeae-489e-11d9-a9cd-000d56965251");
 pub const IID_IBackgroundCopyJob4 = &IID_IBackgroundCopyJob4_Value;
 pub const IBackgroundCopyJob4 = extern struct {
     pub const VTable = extern struct {
         base: IBackgroundCopyJob3.VTable,
-        SetPeerCachingFlags: fn(
-            self: *const IBackgroundCopyJob4,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPeerCachingFlags: fn(
-            self: *const IBackgroundCopyJob4,
-            pFlags: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetOwnerIntegrityLevel: fn(
-            self: *const IBackgroundCopyJob4,
-            pLevel: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetOwnerElevationState: fn(
-            self: *const IBackgroundCopyJob4,
-            pElevated: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetMaximumDownloadTime: fn(
-            self: *const IBackgroundCopyJob4,
-            Timeout: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetMaximumDownloadTime: fn(
-            self: *const IBackgroundCopyJob4,
-            pTimeout: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetPeerCachingFlags: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob4,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob4,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPeerCachingFlags: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob4,
+                pFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob4,
+                pFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetOwnerIntegrityLevel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob4,
+                pLevel: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob4,
+                pLevel: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetOwnerElevationState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob4,
+                pElevated: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob4,
+                pElevated: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetMaximumDownloadTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob4,
+                Timeout: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob4,
+                Timeout: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetMaximumDownloadTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob4,
+                pTimeout: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob4,
+                pTimeout: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1679,27 +2458,51 @@ pub const IBackgroundCopyJob4 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IBackgroundCopyFile3_Value = @import("../zig.zig").Guid.initString("659cdeaa-489e-11d9-a9cd-000d56965251");
+const IID_IBackgroundCopyFile3_Value = Guid.initString("659cdeaa-489e-11d9-a9cd-000d56965251");
 pub const IID_IBackgroundCopyFile3 = &IID_IBackgroundCopyFile3_Value;
 pub const IBackgroundCopyFile3 = extern struct {
     pub const VTable = extern struct {
         base: IBackgroundCopyFile2.VTable,
-        GetTemporaryName: fn(
-            self: *const IBackgroundCopyFile3,
-            pFilename: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetValidationState: fn(
-            self: *const IBackgroundCopyFile3,
-            state: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetValidationState: fn(
-            self: *const IBackgroundCopyFile3,
-            pState: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsDownloadedFromPeer: fn(
-            self: *const IBackgroundCopyFile3,
-            pVal: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetTemporaryName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile3,
+                pFilename: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile3,
+                pFilename: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetValidationState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile3,
+                state: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile3,
+                state: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetValidationState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile3,
+                pState: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile3,
+                pState: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsDownloadedFromPeer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile3,
+                pVal: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile3,
+                pVal: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1725,16 +2528,23 @@ pub const IBackgroundCopyFile3 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IBackgroundCopyCallback2_Value = @import("../zig.zig").Guid.initString("659cdeac-489e-11d9-a9cd-000d56965251");
+const IID_IBackgroundCopyCallback2_Value = Guid.initString("659cdeac-489e-11d9-a9cd-000d56965251");
 pub const IID_IBackgroundCopyCallback2 = &IID_IBackgroundCopyCallback2_Value;
 pub const IBackgroundCopyCallback2 = extern struct {
     pub const VTable = extern struct {
         base: IBackgroundCopyCallback.VTable,
-        FileTransferred: fn(
-            self: *const IBackgroundCopyCallback2,
-            pJob: ?*IBackgroundCopyJob,
-            pFile: ?*IBackgroundCopyFile,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        FileTransferred: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyCallback2,
+                pJob: ?*IBackgroundCopyJob,
+                pFile: ?*IBackgroundCopyFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyCallback2,
+                pJob: ?*IBackgroundCopyJob,
+                pFile: ?*IBackgroundCopyFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1747,33 +2557,61 @@ pub const IBackgroundCopyCallback2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const CLSID_BackgroundCopyManager4_0_Value = @import("../zig.zig").Guid.initString("bb6df56b-cace-11dc-9992-0019b93a3a84");
+const CLSID_BackgroundCopyManager4_0_Value = Guid.initString("bb6df56b-cace-11dc-9992-0019b93a3a84");
 pub const CLSID_BackgroundCopyManager4_0 = &CLSID_BackgroundCopyManager4_0_Value;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IBitsTokenOptions_Value = @import("../zig.zig").Guid.initString("9a2584c3-f7d2-457a-9a5e-22b67bffc7d2");
+const IID_IBitsTokenOptions_Value = Guid.initString("9a2584c3-f7d2-457a-9a5e-22b67bffc7d2");
 pub const IID_IBitsTokenOptions = &IID_IBitsTokenOptions_Value;
 pub const IBitsTokenOptions = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetHelperTokenFlags: fn(
-            self: *const IBitsTokenOptions,
-            UsageFlags: BG_TOKEN,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHelperTokenFlags: fn(
-            self: *const IBitsTokenOptions,
-            pFlags: ?*BG_TOKEN,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetHelperToken: fn(
-            self: *const IBitsTokenOptions,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ClearHelperToken: fn(
-            self: *const IBitsTokenOptions,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHelperTokenSid: fn(
-            self: *const IBitsTokenOptions,
-            pSid: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetHelperTokenFlags: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsTokenOptions,
+                UsageFlags: BG_TOKEN,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsTokenOptions,
+                UsageFlags: BG_TOKEN,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHelperTokenFlags: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsTokenOptions,
+                pFlags: ?*BG_TOKEN,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsTokenOptions,
+                pFlags: ?*BG_TOKEN,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetHelperToken: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsTokenOptions,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsTokenOptions,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ClearHelperToken: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsTokenOptions,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsTokenOptions,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHelperTokenSid: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBitsTokenOptions,
+                pSid: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBitsTokenOptions,
+                pSid: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1803,16 +2641,23 @@ pub const IBitsTokenOptions = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IBackgroundCopyFile4_Value = @import("../zig.zig").Guid.initString("ef7e0655-7888-4960-b0e5-730846e03492");
+const IID_IBackgroundCopyFile4_Value = Guid.initString("ef7e0655-7888-4960-b0e5-730846e03492");
 pub const IID_IBackgroundCopyFile4 = &IID_IBackgroundCopyFile4_Value;
 pub const IBackgroundCopyFile4 = extern struct {
     pub const VTable = extern struct {
         base: IBackgroundCopyFile3.VTable,
-        GetPeerDownloadStats: fn(
-            self: *const IBackgroundCopyFile4,
-            pFromOrigin: ?*u64,
-            pFromPeers: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetPeerDownloadStats: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile4,
+                pFromOrigin: ?*u64,
+                pFromPeers: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile4,
+                pFromOrigin: ?*u64,
+                pFromPeers: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1825,7 +2670,7 @@ pub const IBackgroundCopyFile4 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const CLSID_BackgroundCopyManager5_0_Value = @import("../zig.zig").Guid.initString("1ecca34c-e88a-44e3-8d6a-8921bde9e452");
+const CLSID_BackgroundCopyManager5_0_Value = Guid.initString("1ecca34c-e88a-44e3-8d6a-8921bde9e452");
 pub const CLSID_BackgroundCopyManager5_0 = &CLSID_BackgroundCopyManager5_0_Value;
 
 pub const BITS_JOB_TRANSFER_POLICY = enum(i32) {
@@ -1878,21 +2723,35 @@ pub const BITS_FILE_PROPERTY_VALUE = extern union {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IBackgroundCopyJob5_Value = @import("../zig.zig").Guid.initString("e847030c-bbba-4657-af6d-484aa42bf1fe");
+const IID_IBackgroundCopyJob5_Value = Guid.initString("e847030c-bbba-4657-af6d-484aa42bf1fe");
 pub const IID_IBackgroundCopyJob5 = &IID_IBackgroundCopyJob5_Value;
 pub const IBackgroundCopyJob5 = extern struct {
     pub const VTable = extern struct {
         base: IBackgroundCopyJob4.VTable,
-        SetProperty: fn(
-            self: *const IBackgroundCopyJob5,
-            PropertyId: BITS_JOB_PROPERTY_ID,
-            PropertyValue: BITS_JOB_PROPERTY_VALUE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetProperty: fn(
-            self: *const IBackgroundCopyJob5,
-            PropertyId: BITS_JOB_PROPERTY_ID,
-            PropertyValue: ?*BITS_JOB_PROPERTY_VALUE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetProperty: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob5,
+                PropertyId: BITS_JOB_PROPERTY_ID,
+                PropertyValue: BITS_JOB_PROPERTY_VALUE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob5,
+                PropertyId: BITS_JOB_PROPERTY_ID,
+                PropertyValue: BITS_JOB_PROPERTY_VALUE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetProperty: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob5,
+                PropertyId: BITS_JOB_PROPERTY_ID,
+                PropertyValue: ?*BITS_JOB_PROPERTY_VALUE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob5,
+                PropertyId: BITS_JOB_PROPERTY_ID,
+                PropertyValue: ?*BITS_JOB_PROPERTY_VALUE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1910,21 +2769,35 @@ pub const IBackgroundCopyJob5 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IBackgroundCopyFile5_Value = @import("../zig.zig").Guid.initString("85c1657f-dafc-40e8-8834-df18ea25717e");
+const IID_IBackgroundCopyFile5_Value = Guid.initString("85c1657f-dafc-40e8-8834-df18ea25717e");
 pub const IID_IBackgroundCopyFile5 = &IID_IBackgroundCopyFile5_Value;
 pub const IBackgroundCopyFile5 = extern struct {
     pub const VTable = extern struct {
         base: IBackgroundCopyFile4.VTable,
-        SetProperty: fn(
-            self: *const IBackgroundCopyFile5,
-            PropertyId: BITS_FILE_PROPERTY_ID,
-            PropertyValue: BITS_FILE_PROPERTY_VALUE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetProperty: fn(
-            self: *const IBackgroundCopyFile5,
-            PropertyId: BITS_FILE_PROPERTY_ID,
-            PropertyValue: ?*BITS_FILE_PROPERTY_VALUE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetProperty: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile5,
+                PropertyId: BITS_FILE_PROPERTY_ID,
+                PropertyValue: BITS_FILE_PROPERTY_VALUE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile5,
+                PropertyId: BITS_FILE_PROPERTY_ID,
+                PropertyValue: BITS_FILE_PROPERTY_VALUE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetProperty: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile5,
+                PropertyId: BITS_FILE_PROPERTY_ID,
+                PropertyValue: ?*BITS_FILE_PROPERTY_VALUE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile5,
+                PropertyId: BITS_FILE_PROPERTY_ID,
+                PropertyValue: ?*BITS_FILE_PROPERTY_VALUE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1941,22 +2814,31 @@ pub const IBackgroundCopyFile5 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const CLSID_BackgroundCopyManager10_1_Value = @import("../zig.zig").Guid.initString("4bd3e4e1-7bd4-4a2b-9964-496400de5193");
+const CLSID_BackgroundCopyManager10_1_Value = Guid.initString("4bd3e4e1-7bd4-4a2b-9964-496400de5193");
 pub const CLSID_BackgroundCopyManager10_1 = &CLSID_BackgroundCopyManager10_1_Value;
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-const IID_IBackgroundCopyCallback3_Value = @import("../zig.zig").Guid.initString("98c97bd2-e32b-4ad8-a528-95fd8b16bd42");
+const IID_IBackgroundCopyCallback3_Value = Guid.initString("98c97bd2-e32b-4ad8-a528-95fd8b16bd42");
 pub const IID_IBackgroundCopyCallback3 = &IID_IBackgroundCopyCallback3_Value;
 pub const IBackgroundCopyCallback3 = extern struct {
     pub const VTable = extern struct {
         base: IBackgroundCopyCallback2.VTable,
-        FileRangesTransferred: fn(
-            self: *const IBackgroundCopyCallback3,
-            job: ?*IBackgroundCopyJob,
-            file: ?*IBackgroundCopyFile,
-            rangeCount: u32,
-            ranges: [*]const BG_FILE_RANGE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        FileRangesTransferred: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyCallback3,
+                job: ?*IBackgroundCopyJob,
+                file: ?*IBackgroundCopyFile,
+                rangeCount: u32,
+                ranges: [*]const BG_FILE_RANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyCallback3,
+                job: ?*IBackgroundCopyJob,
+                file: ?*IBackgroundCopyFile,
+                rangeCount: u32,
+                ranges: [*]const BG_FILE_RANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1970,25 +2852,45 @@ pub const IBackgroundCopyCallback3 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-const IID_IBackgroundCopyFile6_Value = @import("../zig.zig").Guid.initString("cf6784f7-d677-49fd-9368-cb47aee9d1ad");
+const IID_IBackgroundCopyFile6_Value = Guid.initString("cf6784f7-d677-49fd-9368-cb47aee9d1ad");
 pub const IID_IBackgroundCopyFile6 = &IID_IBackgroundCopyFile6_Value;
 pub const IBackgroundCopyFile6 = extern struct {
     pub const VTable = extern struct {
         base: IBackgroundCopyFile5.VTable,
-        UpdateDownloadPosition: fn(
-            self: *const IBackgroundCopyFile6,
-            offset: u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestFileRanges: fn(
-            self: *const IBackgroundCopyFile6,
-            rangeCount: u32,
-            ranges: [*]const BG_FILE_RANGE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFilledFileRanges: fn(
-            self: *const IBackgroundCopyFile6,
-            rangeCount: ?*u32,
-            ranges: [*]?*BG_FILE_RANGE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        UpdateDownloadPosition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile6,
+                offset: u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile6,
+                offset: u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestFileRanges: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile6,
+                rangeCount: u32,
+                ranges: [*]const BG_FILE_RANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile6,
+                rangeCount: u32,
+                ranges: [*]const BG_FILE_RANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFilledFileRanges: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyFile6,
+                rangeCount: ?*u32,
+                ranges: [*]?*BG_FILE_RANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyFile6,
+                rangeCount: ?*u32,
+                ranges: [*]?*BG_FILE_RANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2009,23 +2911,35 @@ pub const IBackgroundCopyFile6 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const CLSID_BackgroundCopyManager10_2_Value = @import("../zig.zig").Guid.initString("4575438f-a6c8-4976-b0fe-2f26b80d959e");
+const CLSID_BackgroundCopyManager10_2_Value = Guid.initString("4575438f-a6c8-4976-b0fe-2f26b80d959e");
 pub const CLSID_BackgroundCopyManager10_2 = &CLSID_BackgroundCopyManager10_2_Value;
 
 // TODO: this type is limited to platform 'windows10.0.17763'
-const IID_IBackgroundCopyJobHttpOptions2_Value = @import("../zig.zig").Guid.initString("b591a192-a405-4fc3-8323-4c5c542578fc");
+const IID_IBackgroundCopyJobHttpOptions2_Value = Guid.initString("b591a192-a405-4fc3-8323-4c5c542578fc");
 pub const IID_IBackgroundCopyJobHttpOptions2 = &IID_IBackgroundCopyJobHttpOptions2_Value;
 pub const IBackgroundCopyJobHttpOptions2 = extern struct {
     pub const VTable = extern struct {
         base: IBackgroundCopyJobHttpOptions.VTable,
-        SetHttpMethod: fn(
-            self: *const IBackgroundCopyJobHttpOptions2,
-            method: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHttpMethod: fn(
-            self: *const IBackgroundCopyJobHttpOptions2,
-            method: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetHttpMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJobHttpOptions2,
+                method: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJobHttpOptions2,
+                method: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHttpMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJobHttpOptions2,
+                method: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJobHttpOptions2,
+                method: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2042,24 +2956,36 @@ pub const IBackgroundCopyJobHttpOptions2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const CLSID_BackgroundCopyManager10_3_Value = @import("../zig.zig").Guid.initString("5fd42ad5-c04e-4d36-adc7-e08ff15737ad");
+const CLSID_BackgroundCopyManager10_3_Value = Guid.initString("5fd42ad5-c04e-4d36-adc7-e08ff15737ad");
 pub const CLSID_BackgroundCopyManager10_3 = &CLSID_BackgroundCopyManager10_3_Value;
 
-const IID_IBackgroundCopyServerCertificateValidationCallback_Value = @import("../zig.zig").Guid.initString("4cec0d02-def7-4158-813a-c32a46945ff7");
+const IID_IBackgroundCopyServerCertificateValidationCallback_Value = Guid.initString("4cec0d02-def7-4158-813a-c32a46945ff7");
 pub const IID_IBackgroundCopyServerCertificateValidationCallback = &IID_IBackgroundCopyServerCertificateValidationCallback_Value;
 pub const IBackgroundCopyServerCertificateValidationCallback = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ValidateServerCertificate: fn(
-            self: *const IBackgroundCopyServerCertificateValidationCallback,
-            job: ?*IBackgroundCopyJob,
-            file: ?*IBackgroundCopyFile,
-            certLength: u32,
-            certData: [*:0]const u8,
-            certEncodingType: u32,
-            certStoreLength: u32,
-            certStoreData: [*:0]const u8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ValidateServerCertificate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyServerCertificateValidationCallback,
+                job: ?*IBackgroundCopyJob,
+                file: ?*IBackgroundCopyFile,
+                certLength: u32,
+                certData: [*:0]const u8,
+                certEncodingType: u32,
+                certStoreLength: u32,
+                certStoreData: [*:0]const u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyServerCertificateValidationCallback,
+                job: ?*IBackgroundCopyJob,
+                file: ?*IBackgroundCopyFile,
+                certLength: u32,
+                certData: [*:0]const u8,
+                certEncodingType: u32,
+                certStoreLength: u32,
+                certStoreData: [*:0]const u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2072,18 +2998,29 @@ pub const IBackgroundCopyServerCertificateValidationCallback = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IBackgroundCopyJobHttpOptions3_Value = @import("../zig.zig").Guid.initString("8a9263d3-fd4c-4eda-9b28-30132a4d4e3c");
+const IID_IBackgroundCopyJobHttpOptions3_Value = Guid.initString("8a9263d3-fd4c-4eda-9b28-30132a4d4e3c");
 pub const IID_IBackgroundCopyJobHttpOptions3 = &IID_IBackgroundCopyJobHttpOptions3_Value;
 pub const IBackgroundCopyJobHttpOptions3 = extern struct {
     pub const VTable = extern struct {
         base: IBackgroundCopyJobHttpOptions2.VTable,
-        SetServerCertificateValidationInterface: fn(
-            self: *const IBackgroundCopyJobHttpOptions3,
-            certValidationCallback: ?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MakeCustomHeadersWriteOnly: fn(
-            self: *const IBackgroundCopyJobHttpOptions3,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetServerCertificateValidationInterface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJobHttpOptions3,
+                certValidationCallback: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJobHttpOptions3,
+                certValidationCallback: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MakeCustomHeadersWriteOnly: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJobHttpOptions3,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJobHttpOptions3,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2100,30 +3037,53 @@ pub const IBackgroundCopyJobHttpOptions3 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const CLSID_BITSExtensionSetupFactory_Value = @import("../zig.zig").Guid.initString("efbbab68-7286-4783-94bf-9461d8b7e7e9");
+const CLSID_BITSExtensionSetupFactory_Value = Guid.initString("efbbab68-7286-4783-94bf-9461d8b7e7e9");
 pub const CLSID_BITSExtensionSetupFactory = &CLSID_BITSExtensionSetupFactory_Value;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IBITSExtensionSetup_Value = @import("../zig.zig").Guid.initString("29cfbbf7-09e4-4b97-b0bc-f2287e3d8eb3");
+const IID_IBITSExtensionSetup_Value = Guid.initString("29cfbbf7-09e4-4b97-b0bc-f2287e3d8eb3");
 pub const IID_IBITSExtensionSetup = &IID_IBITSExtensionSetup_Value;
 pub const IBITSExtensionSetup = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        EnableBITSUploads: fn(
-            self: *const IBITSExtensionSetup,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DisableBITSUploads: fn(
-            self: *const IBITSExtensionSetup,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCleanupTaskName: fn(
-            self: *const IBITSExtensionSetup,
-            pTaskName: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCleanupTask: fn(
-            self: *const IBITSExtensionSetup,
-            riid: ?*const Guid,
-            ppUnk: ?*?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        EnableBITSUploads: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBITSExtensionSetup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBITSExtensionSetup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DisableBITSUploads: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBITSExtensionSetup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBITSExtensionSetup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCleanupTaskName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBITSExtensionSetup,
+                pTaskName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBITSExtensionSetup,
+                pTaskName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCleanupTask: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBITSExtensionSetup,
+                riid: ?*const Guid,
+                ppUnk: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBITSExtensionSetup,
+                riid: ?*const Guid,
+                ppUnk: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2149,16 +3109,23 @@ pub const IBITSExtensionSetup = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IBITSExtensionSetupFactory_Value = @import("../zig.zig").Guid.initString("d5d2d542-5503-4e64-8b48-72ef91a32ee1");
+const IID_IBITSExtensionSetupFactory_Value = Guid.initString("d5d2d542-5503-4e64-8b48-72ef91a32ee1");
 pub const IID_IBITSExtensionSetupFactory = &IID_IBITSExtensionSetupFactory_Value;
 pub const IBITSExtensionSetupFactory = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        GetObject: fn(
-            self: *const IBITSExtensionSetupFactory,
-            Path: ?BSTR,
-            ppExtensionSetup: ?*?*IBITSExtensionSetup,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetObject: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBITSExtensionSetupFactory,
+                Path: ?BSTR,
+                ppExtensionSetup: ?*?*IBITSExtensionSetup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBITSExtensionSetupFactory,
+                Path: ?BSTR,
+                ppExtensionSetup: ?*?*IBITSExtensionSetup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2171,7 +3138,7 @@ pub const IBITSExtensionSetupFactory = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const CLSID_BackgroundCopyQMgr_Value = @import("../zig.zig").Guid.initString("69ad4aee-51be-439b-a92c-86ae490e8b30");
+const CLSID_BackgroundCopyQMgr_Value = Guid.initString("69ad4aee-51be-439b-a92c-86ae490e8b30");
 pub const CLSID_BackgroundCopyQMgr = &CLSID_BackgroundCopyQMgr_Value;
 
 pub const FILESETINFO = extern struct {
@@ -2181,48 +3148,102 @@ pub const FILESETINFO = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-const IID_IBackgroundCopyJob1_Value = @import("../zig.zig").Guid.initString("59f5553c-2031-4629-bb18-2645a6970947");
+const IID_IBackgroundCopyJob1_Value = Guid.initString("59f5553c-2031-4629-bb18-2645a6970947");
 pub const IID_IBackgroundCopyJob1 = &IID_IBackgroundCopyJob1_Value;
 pub const IBackgroundCopyJob1 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CancelJob: fn(
-            self: *const IBackgroundCopyJob1,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetProgress: fn(
-            self: *const IBackgroundCopyJob1,
-            dwFlags: u32,
-            pdwProgress: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStatus: fn(
-            self: *const IBackgroundCopyJob1,
-            pdwStatus: ?*u32,
-            pdwWin32Result: ?*u32,
-            pdwTransportResult: ?*u32,
-            pdwNumOfRetries: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddFiles: fn(
-            self: *const IBackgroundCopyJob1,
-            cFileCount: u32,
-            ppFileSet: [*]?*FILESETINFO,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFile: fn(
-            self: *const IBackgroundCopyJob1,
-            cFileIndex: u32,
-            pFileInfo: ?*FILESETINFO,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFileCount: fn(
-            self: *const IBackgroundCopyJob1,
-            pdwFileCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SwitchToForeground: fn(
-            self: *const IBackgroundCopyJob1,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CancelJob: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetProgress: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob1,
+                dwFlags: u32,
+                pdwProgress: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob1,
+                dwFlags: u32,
+                pdwProgress: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob1,
+                pdwStatus: ?*u32,
+                pdwWin32Result: ?*u32,
+                pdwTransportResult: ?*u32,
+                pdwNumOfRetries: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob1,
+                pdwStatus: ?*u32,
+                pdwWin32Result: ?*u32,
+                pdwTransportResult: ?*u32,
+                pdwNumOfRetries: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddFiles: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob1,
+                cFileCount: u32,
+                ppFileSet: [*]?*FILESETINFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob1,
+                cFileCount: u32,
+                ppFileSet: [*]?*FILESETINFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob1,
+                cFileIndex: u32,
+                pFileInfo: ?*FILESETINFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob1,
+                cFileIndex: u32,
+                pFileInfo: ?*FILESETINFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFileCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob1,
+                pdwFileCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob1,
+                pdwFileCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SwitchToForeground: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyJob1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_JobID: fn(
-            self: *const IBackgroundCopyJob1,
-            pguidJobID: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_JobID: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IBackgroundCopyJob1,
+                pguidJobID: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IBackgroundCopyJob1,
+                pguidJobID: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2264,32 +3285,63 @@ pub const IBackgroundCopyJob1 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-const IID_IEnumBackgroundCopyJobs1_Value = @import("../zig.zig").Guid.initString("8baeba9d-8f1c-42c4-b82c-09ae79980d25");
+const IID_IEnumBackgroundCopyJobs1_Value = Guid.initString("8baeba9d-8f1c-42c4-b82c-09ae79980d25");
 pub const IID_IEnumBackgroundCopyJobs1 = &IID_IEnumBackgroundCopyJobs1_Value;
 pub const IEnumBackgroundCopyJobs1 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Next: fn(
-            self: *const IEnumBackgroundCopyJobs1,
-            celt: u32,
-            rgelt: [*]Guid,
-            pceltFetched: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Skip: fn(
-            self: *const IEnumBackgroundCopyJobs1,
-            celt: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Reset: fn(
-            self: *const IEnumBackgroundCopyJobs1,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IEnumBackgroundCopyJobs1,
-            ppenum: ?*?*IEnumBackgroundCopyJobs1,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCount: fn(
-            self: *const IEnumBackgroundCopyJobs1,
-            puCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Next: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyJobs1,
+                celt: u32,
+                rgelt: [*]Guid,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyJobs1,
+                celt: u32,
+                rgelt: [*]Guid,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Skip: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyJobs1,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyJobs1,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Reset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyJobs1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyJobs1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyJobs1,
+                ppenum: ?*?*IEnumBackgroundCopyJobs1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyJobs1,
+                ppenum: ?*?*IEnumBackgroundCopyJobs1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyJobs1,
+                puCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyJobs1,
+                puCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2348,78 +3400,177 @@ pub const GROUPPROP_DISPLAYNAME = GROUPPROP.DISPLAYNAME;
 pub const GROUPPROP_DESCRIPTION = GROUPPROP.DESCRIPTION;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-const IID_IBackgroundCopyGroup_Value = @import("../zig.zig").Guid.initString("1ded80a7-53ea-424f-8a04-17fea9adc4f5");
+const IID_IBackgroundCopyGroup_Value = Guid.initString("1ded80a7-53ea-424f-8a04-17fea9adc4f5");
 pub const IID_IBackgroundCopyGroup = &IID_IBackgroundCopyGroup_Value;
 pub const IBackgroundCopyGroup = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetProp: fn(
-            self: *const IBackgroundCopyGroup,
-            propID: GROUPPROP,
-            pvarVal: ?*VARIANT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetProp: fn(
-            self: *const IBackgroundCopyGroup,
-            propID: GROUPPROP,
-            pvarVal: ?*VARIANT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetProgress: fn(
-            self: *const IBackgroundCopyGroup,
-            dwFlags: u32,
-            pdwProgress: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStatus: fn(
-            self: *const IBackgroundCopyGroup,
-            pdwStatus: ?*u32,
-            pdwJobIndex: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetJob: fn(
-            self: *const IBackgroundCopyGroup,
-            jobID: Guid,
-            ppJob: ?*?*IBackgroundCopyJob1,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SuspendGroup: fn(
-            self: *const IBackgroundCopyGroup,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ResumeGroup: fn(
-            self: *const IBackgroundCopyGroup,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CancelGroup: fn(
-            self: *const IBackgroundCopyGroup,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetProp: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+                propID: GROUPPROP,
+                pvarVal: ?*VARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+                propID: GROUPPROP,
+                pvarVal: ?*VARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetProp: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+                propID: GROUPPROP,
+                pvarVal: ?*VARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+                propID: GROUPPROP,
+                pvarVal: ?*VARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetProgress: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+                dwFlags: u32,
+                pdwProgress: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+                dwFlags: u32,
+                pdwProgress: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+                pdwStatus: ?*u32,
+                pdwJobIndex: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+                pdwStatus: ?*u32,
+                pdwJobIndex: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetJob: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+                jobID: Guid,
+                ppJob: ?*?*IBackgroundCopyJob1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+                jobID: Guid,
+                ppJob: ?*?*IBackgroundCopyJob1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SuspendGroup: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ResumeGroup: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CancelGroup: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Size: fn(
-            self: *const IBackgroundCopyGroup,
-            pdwSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Size: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+                pdwSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+                pdwSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_GroupID: fn(
-            self: *const IBackgroundCopyGroup,
-            pguidGroupID: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateJob: fn(
-            self: *const IBackgroundCopyGroup,
-            guidJobID: Guid,
-            ppJob: ?*?*IBackgroundCopyJob1,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumJobs: fn(
-            self: *const IBackgroundCopyGroup,
-            dwFlags: u32,
-            ppEnumJobs: ?*?*IEnumBackgroundCopyJobs1,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SwitchToForeground: fn(
-            self: *const IBackgroundCopyGroup,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        QueryNewJobInterface: fn(
-            self: *const IBackgroundCopyGroup,
-            iid: ?*const Guid,
-            pUnk: ?*?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetNotificationPointer: fn(
-            self: *const IBackgroundCopyGroup,
-            iid: ?*const Guid,
-            pUnk: ?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_GroupID: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+                pguidGroupID: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+                pguidGroupID: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateJob: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+                guidJobID: Guid,
+                ppJob: ?*?*IBackgroundCopyJob1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+                guidJobID: Guid,
+                ppJob: ?*?*IBackgroundCopyJob1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumJobs: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+                dwFlags: u32,
+                ppEnumJobs: ?*?*IEnumBackgroundCopyJobs1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+                dwFlags: u32,
+                ppEnumJobs: ?*?*IEnumBackgroundCopyJobs1,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SwitchToForeground: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        QueryNewJobInterface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+                iid: ?*const Guid,
+                pUnk: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+                iid: ?*const Guid,
+                pUnk: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetNotificationPointer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyGroup,
+                iid: ?*const Guid,
+                pUnk: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyGroup,
+                iid: ?*const Guid,
+                pUnk: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2489,32 +3640,63 @@ pub const IBackgroundCopyGroup = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-const IID_IEnumBackgroundCopyGroups_Value = @import("../zig.zig").Guid.initString("d993e603-4aa4-47c5-8665-c20d39c2ba4f");
+const IID_IEnumBackgroundCopyGroups_Value = Guid.initString("d993e603-4aa4-47c5-8665-c20d39c2ba4f");
 pub const IID_IEnumBackgroundCopyGroups = &IID_IEnumBackgroundCopyGroups_Value;
 pub const IEnumBackgroundCopyGroups = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Next: fn(
-            self: *const IEnumBackgroundCopyGroups,
-            celt: u32,
-            rgelt: [*]Guid,
-            pceltFetched: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Skip: fn(
-            self: *const IEnumBackgroundCopyGroups,
-            celt: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Reset: fn(
-            self: *const IEnumBackgroundCopyGroups,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IEnumBackgroundCopyGroups,
-            ppenum: ?*?*IEnumBackgroundCopyGroups,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCount: fn(
-            self: *const IEnumBackgroundCopyGroups,
-            puCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Next: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyGroups,
+                celt: u32,
+                rgelt: [*]Guid,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyGroups,
+                celt: u32,
+                rgelt: [*]Guid,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Skip: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyGroups,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyGroups,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Reset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyGroups,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyGroups,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyGroups,
+                ppenum: ?*?*IEnumBackgroundCopyGroups,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyGroups,
+                ppenum: ?*?*IEnumBackgroundCopyGroups,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumBackgroundCopyGroups,
+                puCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumBackgroundCopyGroups,
+                puCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2544,39 +3726,73 @@ pub const IEnumBackgroundCopyGroups = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-const IID_IBackgroundCopyCallback1_Value = @import("../zig.zig").Guid.initString("084f6593-3800-4e08-9b59-99fa59addf82");
+const IID_IBackgroundCopyCallback1_Value = Guid.initString("084f6593-3800-4e08-9b59-99fa59addf82");
 pub const IID_IBackgroundCopyCallback1 = &IID_IBackgroundCopyCallback1_Value;
 pub const IBackgroundCopyCallback1 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnStatus: fn(
-            self: *const IBackgroundCopyCallback1,
-            pGroup: ?*IBackgroundCopyGroup,
-            pJob: ?*IBackgroundCopyJob1,
-            dwFileIndex: u32,
-            dwStatus: u32,
-            dwNumOfRetries: u32,
-            dwWin32Result: u32,
-            dwTransportResult: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnProgress: fn(
-            self: *const IBackgroundCopyCallback1,
-            ProgressType: u32,
-            pGroup: ?*IBackgroundCopyGroup,
-            pJob: ?*IBackgroundCopyJob1,
-            dwFileIndex: u32,
-            dwProgressValue: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnProgressEx: fn(
-            self: *const IBackgroundCopyCallback1,
-            ProgressType: u32,
-            pGroup: ?*IBackgroundCopyGroup,
-            pJob: ?*IBackgroundCopyJob1,
-            dwFileIndex: u32,
-            dwProgressValue: u32,
-            dwByteArraySize: u32,
-            pByte: [*:0]u8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyCallback1,
+                pGroup: ?*IBackgroundCopyGroup,
+                pJob: ?*IBackgroundCopyJob1,
+                dwFileIndex: u32,
+                dwStatus: u32,
+                dwNumOfRetries: u32,
+                dwWin32Result: u32,
+                dwTransportResult: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyCallback1,
+                pGroup: ?*IBackgroundCopyGroup,
+                pJob: ?*IBackgroundCopyJob1,
+                dwFileIndex: u32,
+                dwStatus: u32,
+                dwNumOfRetries: u32,
+                dwWin32Result: u32,
+                dwTransportResult: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnProgress: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyCallback1,
+                ProgressType: u32,
+                pGroup: ?*IBackgroundCopyGroup,
+                pJob: ?*IBackgroundCopyJob1,
+                dwFileIndex: u32,
+                dwProgressValue: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyCallback1,
+                ProgressType: u32,
+                pGroup: ?*IBackgroundCopyGroup,
+                pJob: ?*IBackgroundCopyJob1,
+                dwFileIndex: u32,
+                dwProgressValue: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnProgressEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyCallback1,
+                ProgressType: u32,
+                pGroup: ?*IBackgroundCopyGroup,
+                pJob: ?*IBackgroundCopyJob1,
+                dwFileIndex: u32,
+                dwProgressValue: u32,
+                dwByteArraySize: u32,
+                pByte: [*:0]u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyCallback1,
+                ProgressType: u32,
+                pGroup: ?*IBackgroundCopyGroup,
+                pJob: ?*IBackgroundCopyJob1,
+                dwFileIndex: u32,
+                dwProgressValue: u32,
+                dwByteArraySize: u32,
+                pByte: [*:0]u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2598,26 +3814,47 @@ pub const IBackgroundCopyCallback1 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-const IID_IBackgroundCopyQMgr_Value = @import("../zig.zig").Guid.initString("16f41c69-09f5-41d2-8cd8-3c08c47bc8a8");
+const IID_IBackgroundCopyQMgr_Value = Guid.initString("16f41c69-09f5-41d2-8cd8-3c08c47bc8a8");
 pub const IID_IBackgroundCopyQMgr = &IID_IBackgroundCopyQMgr_Value;
 pub const IBackgroundCopyQMgr = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateGroup: fn(
-            self: *const IBackgroundCopyQMgr,
-            guidGroupID: Guid,
-            ppGroup: ?*?*IBackgroundCopyGroup,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetGroup: fn(
-            self: *const IBackgroundCopyQMgr,
-            groupID: Guid,
-            ppGroup: ?*?*IBackgroundCopyGroup,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumGroups: fn(
-            self: *const IBackgroundCopyQMgr,
-            dwFlags: u32,
-            ppEnumGroups: ?*?*IEnumBackgroundCopyGroups,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateGroup: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyQMgr,
+                guidGroupID: Guid,
+                ppGroup: ?*?*IBackgroundCopyGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyQMgr,
+                guidGroupID: Guid,
+                ppGroup: ?*?*IBackgroundCopyGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetGroup: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyQMgr,
+                groupID: Guid,
+                ppGroup: ?*?*IBackgroundCopyGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyQMgr,
+                groupID: Guid,
+                ppGroup: ?*?*IBackgroundCopyGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumGroups: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBackgroundCopyQMgr,
+                dwFlags: u32,
+                ppEnumGroups: ?*?*IEnumBackgroundCopyGroups,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBackgroundCopyQMgr,
+                dwFlags: u32,
+                ppEnumGroups: ?*?*IEnumBackgroundCopyGroups,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2671,14 +3908,14 @@ const VARIANT = @import("../system/com.zig").VARIANT;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

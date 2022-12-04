@@ -21,7 +21,7 @@ pub fn intErr(atom: anytype) !@TypeOf(atom) {
     if(atom != 0) return atom;
     const err = win32.foundation.GetLastError();
     const err_code = @truncate(u16, @enumToInt(err));
-    std.log.err("INT error: {}, last error: 0x{X:0>4} - {s}\n", .{atom, err_code, err});
+    std.log.err("INT error: {}, last error: 0x{X:0>4} - {}\n", .{atom, err_code, err});
     return error.IntError;
 }
 
@@ -29,7 +29,7 @@ pub fn boolErr(b: win32.foundation.BOOL) !void {
     if(b != 0) return;
     const err = win32.foundation.GetLastError();
     const err_code = @truncate(u16, @enumToInt(err));
-    std.log.err("BOOL error: 0x{X:0>4} - {s}\n", .{err_code, err});
+    std.log.err("BOOL error: 0x{X:0>4} - {}\n", .{err_code, err});
     return error.BoolError;
 }
 
@@ -261,7 +261,7 @@ const MainWindow = struct {
                 }
             },
             wnm.WM_CHAR => {
-                if(wParam >=0 and wParam <= 127) {
+                if(wParam >= 0 and wParam <= 127) {
                     //lparam:
                     //0-15 repeat count, 16-23 scan code, 24 extended key, 25-28 reserved, 29 alt, 30 prev state, 31 transition
                     //seems like it is never sent for UP transitions, but that's ok because the babelfish doesn't seem to 
@@ -555,7 +555,7 @@ pub fn main() !void {
     
     //@TODO: Selectable rom
     const current_dir = std.fs.cwd();
-    const rom_file = try current_dir.openFile("gigatron.rom", .{ .read = true });
+    const rom_file = try current_dir.openFile("gigatron.rom", .{ .mode = .read_only });
     var reader = rom_file.reader();
     _ = try vm.loadRom(reader);
     rom_file.close();

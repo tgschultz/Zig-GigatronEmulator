@@ -26,14 +26,14 @@ pub const GUID_DEVINTERFACE_HIDDEN_VOLUME = Guid.initString("7f108a28-9833-4b3b-
 pub const GUID_DEVINTERFACE_UNIFIED_ACCESS_RPMB = Guid.initString("27447c21-bcc3-4d07-a05b-a3395bb4eee7");
 pub const GUID_DEVICEDUMP_STORAGE_DEVICE = Guid.initString("d8e2592f-1aab-4d56-a746-1f7585df40f4");
 pub const GUID_DEVICEDUMP_DRIVER_STORAGE_PORT = Guid.initString("da82441d-7142-4bc1-b844-0807c5a4b67f");
-pub const DEVPKEY_Storage_Portable = PROPERTYKEY { .fmtid = @import("../zig.zig").Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 2 };
-pub const DEVPKEY_Storage_Removable_Media = PROPERTYKEY { .fmtid = @import("../zig.zig").Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 3 };
-pub const DEVPKEY_Storage_System_Critical = PROPERTYKEY { .fmtid = @import("../zig.zig").Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 4 };
-pub const DEVPKEY_Storage_Disk_Number = PROPERTYKEY { .fmtid = @import("../zig.zig").Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 5 };
-pub const DEVPKEY_Storage_Partition_Number = PROPERTYKEY { .fmtid = @import("../zig.zig").Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 6 };
-pub const DEVPKEY_Storage_Mbr_Type = PROPERTYKEY { .fmtid = @import("../zig.zig").Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 7 };
-pub const DEVPKEY_Storage_Gpt_Type = PROPERTYKEY { .fmtid = @import("../zig.zig").Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 8 };
-pub const DEVPKEY_Storage_Gpt_Name = PROPERTYKEY { .fmtid = @import("../zig.zig").Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 9 };
+pub const DEVPKEY_Storage_Portable = PROPERTYKEY { .fmtid = Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 2 };
+pub const DEVPKEY_Storage_Removable_Media = PROPERTYKEY { .fmtid = Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 3 };
+pub const DEVPKEY_Storage_System_Critical = PROPERTYKEY { .fmtid = Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 4 };
+pub const DEVPKEY_Storage_Disk_Number = PROPERTYKEY { .fmtid = Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 5 };
+pub const DEVPKEY_Storage_Partition_Number = PROPERTYKEY { .fmtid = Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 6 };
+pub const DEVPKEY_Storage_Mbr_Type = PROPERTYKEY { .fmtid = Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 7 };
+pub const DEVPKEY_Storage_Gpt_Type = PROPERTYKEY { .fmtid = Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 8 };
+pub const DEVPKEY_Storage_Gpt_Name = PROPERTYKEY { .fmtid = Guid.initString("4d1ebee8-0803-4774-9842-b77db50265e9"), .pid = 9 };
 pub const IOCTL_STORAGE_CHECK_VERIFY = @as(u32, 2967552);
 pub const IOCTL_STORAGE_CHECK_VERIFY2 = @as(u32, 2951168);
 pub const IOCTL_STORAGE_MEDIA_REMOVAL = @as(u32, 2967556);
@@ -6419,11 +6419,18 @@ pub const VOLUME_GET_GPT_ATTRIBUTES_INFORMATION = extern struct {
     GptAttributes: u64,
 };
 
-pub const PIO_IRP_EXT_PROCESS_TRACKED_OFFSET_CALLBACK = fn(
-    SourceContext: ?*IO_IRP_EXT_TRACK_OFFSET_HEADER,
-    TargetContext: ?*IO_IRP_EXT_TRACK_OFFSET_HEADER,
-    RelativeOffset: i64,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const PIO_IRP_EXT_PROCESS_TRACKED_OFFSET_CALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        SourceContext: ?*IO_IRP_EXT_TRACK_OFFSET_HEADER,
+        TargetContext: ?*IO_IRP_EXT_TRACK_OFFSET_HEADER,
+        RelativeOffset: i64,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        SourceContext: ?*IO_IRP_EXT_TRACK_OFFSET_HEADER,
+        TargetContext: ?*IO_IRP_EXT_TRACK_OFFSET_HEADER,
+        RelativeOffset: i64,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 pub const IO_IRP_EXT_TRACK_OFFSET_HEADER = extern struct {
     Validation: u16,
@@ -6508,14 +6515,14 @@ test {
     if (@hasDecl(@This(), "PIO_IRP_EXT_PROCESS_TRACKED_OFFSET_CALLBACK")) { _ = PIO_IRP_EXT_PROCESS_TRACKED_OFFSET_CALLBACK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

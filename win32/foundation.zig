@@ -13119,14 +13119,26 @@ pub const DECIMAL = extern struct {
     },
 };
 
-pub const FARPROC = fn(
-) callconv(@import("std").os.windows.WINAPI) isize;
+pub const FARPROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+    ) callconv(@import("std").os.windows.WINAPI) isize,
+    else => *const fn(
+    ) callconv(@import("std").os.windows.WINAPI) isize,
+} ;
 
-pub const NEARPROC = fn(
-) callconv(@import("std").os.windows.WINAPI) isize;
+pub const NEARPROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+    ) callconv(@import("std").os.windows.WINAPI) isize,
+    else => *const fn(
+    ) callconv(@import("std").os.windows.WINAPI) isize,
+} ;
 
-pub const PROC = fn(
-) callconv(@import("std").os.windows.WINAPI) isize;
+pub const PROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+    ) callconv(@import("std").os.windows.WINAPI) isize,
+    else => *const fn(
+    ) callconv(@import("std").os.windows.WINAPI) isize,
+} ;
 
 pub const HSPRITE__ = extern struct {
     unused: i32,
@@ -13227,68 +13239,73 @@ pub const LUID = extern struct {
     HighPart: i32,
 };
 
-pub const PAPCFUNC = fn(
-    Parameter: usize,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const PAPCFUNC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        Parameter: usize,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        Parameter: usize,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 
 //--------------------------------------------------------------------------------
 // Section: Functions (19)
 //--------------------------------------------------------------------------------
-pub extern "OLEAUT32" fn SysAllocString(
+pub extern "oleaut32" fn SysAllocString(
     psz: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) ?BSTR;
 
-pub extern "OLEAUT32" fn SysReAllocString(
+pub extern "oleaut32" fn SysReAllocString(
     pbstr: ?*?BSTR,
     psz: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "OLEAUT32" fn SysAllocStringLen(
+pub extern "oleaut32" fn SysAllocStringLen(
     strIn: ?[*:0]const u16,
     ui: u32,
 ) callconv(@import("std").os.windows.WINAPI) ?BSTR;
 
-pub extern "OLEAUT32" fn SysReAllocStringLen(
+pub extern "oleaut32" fn SysReAllocStringLen(
     pbstr: ?*?BSTR,
     psz: ?[*:0]const u16,
     len: u32,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "OLEAUT32" fn SysAddRefString(
+pub extern "oleaut32" fn SysAddRefString(
     bstrString: ?BSTR,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "OLEAUT32" fn SysReleaseString(
+pub extern "oleaut32" fn SysReleaseString(
     bstrString: ?BSTR,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
-pub extern "OLEAUT32" fn SysFreeString(
+pub extern "oleaut32" fn SysFreeString(
     bstrString: ?BSTR,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
-pub extern "OLEAUT32" fn SysStringLen(
+pub extern "oleaut32" fn SysStringLen(
     pbstr: ?BSTR,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "OLEAUT32" fn SysStringByteLen(
+pub extern "oleaut32" fn SysStringByteLen(
     bstr: ?BSTR,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "OLEAUT32" fn SysAllocStringByteLen(
+pub extern "oleaut32" fn SysAllocStringByteLen(
     psz: ?[*:0]const u8,
     len: u32,
 ) callconv(@import("std").os.windows.WINAPI) ?BSTR;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "KERNEL32" fn CloseHandle(
+pub extern "kernel32" fn CloseHandle(
     hObject: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "KERNEL32" fn DuplicateHandle(
+pub extern "kernel32" fn DuplicateHandle(
     hSourceProcessHandle: ?HANDLE,
     hSourceHandle: ?HANDLE,
     hTargetProcessHandle: ?HANDLE,
@@ -13305,29 +13322,29 @@ pub extern "api-ms-win-core-handle-l1-1-0" fn CompareObjectHandles(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "KERNEL32" fn GetHandleInformation(
+pub extern "kernel32" fn GetHandleInformation(
     hObject: ?HANDLE,
     lpdwFlags: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "KERNEL32" fn SetHandleInformation(
+pub extern "kernel32" fn SetHandleInformation(
     hObject: ?HANDLE,
     dwMask: u32,
     dwFlags: HANDLE_FLAGS,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "KERNEL32" fn GetLastError(
+pub extern "kernel32" fn GetLastError(
 ) callconv(@import("std").os.windows.WINAPI) WIN32_ERROR;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "KERNEL32" fn SetLastError(
+pub extern "kernel32" fn SetLastError(
     dwErrCode: WIN32_ERROR,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "USER32" fn SetLastErrorEx(
+pub extern "user32" fn SetLastErrorEx(
     dwErrCode: WIN32_ERROR,
     dwType: u32,
 ) callconv(@import("std").os.windows.WINAPI) void;
@@ -13363,14 +13380,14 @@ test {
     if (@hasDecl(@This(), "PAPCFUNC")) { _ = PAPCFUNC; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

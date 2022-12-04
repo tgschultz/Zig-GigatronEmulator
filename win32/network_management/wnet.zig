@@ -403,194 +403,409 @@ pub const NETCONNECTINFOSTRUCT = extern struct {
     dwOptDataSize: u32,
 };
 
-pub const PF_NPAddConnection = fn(
-    lpNetResource: ?*NETRESOURCEW,
-    lpPassword: ?PWSTR,
-    lpUserName: ?PWSTR,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPAddConnection = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpNetResource: ?*NETRESOURCEW,
+        lpPassword: ?PWSTR,
+        lpUserName: ?PWSTR,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpNetResource: ?*NETRESOURCEW,
+        lpPassword: ?PWSTR,
+        lpUserName: ?PWSTR,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPAddConnection3 = fn(
-    hwndOwner: ?HWND,
-    lpNetResource: ?*NETRESOURCEW,
-    lpPassword: ?PWSTR,
-    lpUserName: ?PWSTR,
-    dwFlags: u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPAddConnection3 = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        hwndOwner: ?HWND,
+        lpNetResource: ?*NETRESOURCEW,
+        lpPassword: ?PWSTR,
+        lpUserName: ?PWSTR,
+        dwFlags: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        hwndOwner: ?HWND,
+        lpNetResource: ?*NETRESOURCEW,
+        lpPassword: ?PWSTR,
+        lpUserName: ?PWSTR,
+        dwFlags: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPAddConnection4 = fn(
-    hwndOwner: ?HWND,
-    lpNetResource: ?*NETRESOURCEW,
-    // TODO: what to do with BytesParamIndex 3?
-    lpAuthBuffer: ?*anyopaque,
-    cbAuthBuffer: u32,
-    dwFlags: u32,
-    // TODO: what to do with BytesParamIndex 6?
-    lpUseOptions: ?*u8,
-    cbUseOptions: u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPAddConnection4 = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        hwndOwner: ?HWND,
+        lpNetResource: ?*NETRESOURCEW,
+        // TODO: what to do with BytesParamIndex 3?
+        lpAuthBuffer: ?*anyopaque,
+        cbAuthBuffer: u32,
+        dwFlags: u32,
+        // TODO: what to do with BytesParamIndex 6?
+        lpUseOptions: ?*u8,
+        cbUseOptions: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        hwndOwner: ?HWND,
+        lpNetResource: ?*NETRESOURCEW,
+        // TODO: what to do with BytesParamIndex 3?
+        lpAuthBuffer: ?*anyopaque,
+        cbAuthBuffer: u32,
+        dwFlags: u32,
+        // TODO: what to do with BytesParamIndex 6?
+        lpUseOptions: ?*u8,
+        cbUseOptions: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPCancelConnection = fn(
-    lpName: ?PWSTR,
-    fForce: BOOL,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPCancelConnection = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpName: ?PWSTR,
+        fForce: BOOL,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpName: ?PWSTR,
+        fForce: BOOL,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPCancelConnection2 = fn(
-    lpName: ?PWSTR,
-    fForce: BOOL,
-    dwFlags: u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPCancelConnection2 = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpName: ?PWSTR,
+        fForce: BOOL,
+        dwFlags: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpName: ?PWSTR,
+        fForce: BOOL,
+        dwFlags: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPGetConnection = fn(
-    lpLocalName: ?PWSTR,
-    lpRemoteName: ?[*:0]u16,
-    lpnBufferLen: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPGetConnection = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpLocalName: ?PWSTR,
+        lpRemoteName: ?[*:0]u16,
+        lpnBufferLen: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpLocalName: ?PWSTR,
+        lpRemoteName: ?[*:0]u16,
+        lpnBufferLen: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPGetConnection3 = fn(
-    lpLocalName: ?[*:0]const u16,
-    dwLevel: u32,
-    // TODO: what to do with BytesParamIndex 3?
-    lpBuffer: ?*anyopaque,
-    lpBufferSize: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPGetConnection3 = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpLocalName: ?[*:0]const u16,
+        dwLevel: u32,
+        // TODO: what to do with BytesParamIndex 3?
+        lpBuffer: ?*anyopaque,
+        lpBufferSize: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpLocalName: ?[*:0]const u16,
+        dwLevel: u32,
+        // TODO: what to do with BytesParamIndex 3?
+        lpBuffer: ?*anyopaque,
+        lpBufferSize: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPGetUniversalName = fn(
-    lpLocalPath: ?[*:0]const u16,
-    dwInfoLevel: u32,
-    // TODO: what to do with BytesParamIndex 3?
-    lpBuffer: ?*anyopaque,
-    lpnBufferSize: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPGetUniversalName = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpLocalPath: ?[*:0]const u16,
+        dwInfoLevel: u32,
+        // TODO: what to do with BytesParamIndex 3?
+        lpBuffer: ?*anyopaque,
+        lpnBufferSize: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpLocalPath: ?[*:0]const u16,
+        dwInfoLevel: u32,
+        // TODO: what to do with BytesParamIndex 3?
+        lpBuffer: ?*anyopaque,
+        lpnBufferSize: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPGetConnectionPerformance = fn(
-    lpRemoteName: ?[*:0]const u16,
-    lpNetConnectInfo: ?*NETCONNECTINFOSTRUCT,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPGetConnectionPerformance = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpRemoteName: ?[*:0]const u16,
+        lpNetConnectInfo: ?*NETCONNECTINFOSTRUCT,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpRemoteName: ?[*:0]const u16,
+        lpNetConnectInfo: ?*NETCONNECTINFOSTRUCT,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPOpenEnum = fn(
-    dwScope: u32,
-    dwType: u32,
-    dwUsage: u32,
-    lpNetResource: ?*NETRESOURCEW,
-    lphEnum: ?*?HANDLE,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPOpenEnum = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        dwScope: u32,
+        dwType: u32,
+        dwUsage: u32,
+        lpNetResource: ?*NETRESOURCEW,
+        lphEnum: ?*?HANDLE,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        dwScope: u32,
+        dwType: u32,
+        dwUsage: u32,
+        lpNetResource: ?*NETRESOURCEW,
+        lphEnum: ?*?HANDLE,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPEnumResource = fn(
-    hEnum: ?HANDLE,
-    lpcCount: ?*u32,
-    // TODO: what to do with BytesParamIndex 3?
-    lpBuffer: ?*anyopaque,
-    lpBufferSize: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPEnumResource = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        hEnum: ?HANDLE,
+        lpcCount: ?*u32,
+        // TODO: what to do with BytesParamIndex 3?
+        lpBuffer: ?*anyopaque,
+        lpBufferSize: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        hEnum: ?HANDLE,
+        lpcCount: ?*u32,
+        // TODO: what to do with BytesParamIndex 3?
+        lpBuffer: ?*anyopaque,
+        lpBufferSize: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPCloseEnum = fn(
-    hEnum: ?HANDLE,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPCloseEnum = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        hEnum: ?HANDLE,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        hEnum: ?HANDLE,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPGetCaps = fn(
-    ndex: u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPGetCaps = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        ndex: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        ndex: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPGetUser = fn(
-    lpName: ?PWSTR,
-    lpUserName: [*:0]u16,
-    lpnBufferLen: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPGetUser = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpName: ?PWSTR,
+        lpUserName: [*:0]u16,
+        lpnBufferLen: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpName: ?PWSTR,
+        lpUserName: [*:0]u16,
+        lpnBufferLen: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPGetPersistentUseOptionsForConnection = fn(
-    lpRemotePath: ?PWSTR,
-    // TODO: what to do with BytesParamIndex 2?
-    lpReadUseOptions: ?*u8,
-    cbReadUseOptions: u32,
-    // TODO: what to do with BytesParamIndex 4?
-    lpWriteUseOptions: ?*u8,
-    lpSizeWriteUseOptions: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPGetPersistentUseOptionsForConnection = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpRemotePath: ?PWSTR,
+        // TODO: what to do with BytesParamIndex 2?
+        lpReadUseOptions: ?*u8,
+        cbReadUseOptions: u32,
+        // TODO: what to do with BytesParamIndex 4?
+        lpWriteUseOptions: ?*u8,
+        lpSizeWriteUseOptions: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpRemotePath: ?PWSTR,
+        // TODO: what to do with BytesParamIndex 2?
+        lpReadUseOptions: ?*u8,
+        cbReadUseOptions: u32,
+        // TODO: what to do with BytesParamIndex 4?
+        lpWriteUseOptions: ?*u8,
+        lpSizeWriteUseOptions: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPDeviceMode = fn(
-    hParent: ?HWND,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPDeviceMode = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        hParent: ?HWND,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        hParent: ?HWND,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPSearchDialog = fn(
-    hwndParent: ?HWND,
-    lpNetResource: ?*NETRESOURCEW,
-    lpBuffer: [*]u8,
-    cbBuffer: u32,
-    lpnFlags: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPSearchDialog = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        hwndParent: ?HWND,
+        lpNetResource: ?*NETRESOURCEW,
+        lpBuffer: [*]u8,
+        cbBuffer: u32,
+        lpnFlags: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        hwndParent: ?HWND,
+        lpNetResource: ?*NETRESOURCEW,
+        lpBuffer: [*]u8,
+        cbBuffer: u32,
+        lpnFlags: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPGetResourceParent = fn(
-    lpNetResource: ?*NETRESOURCEW,
-    // TODO: what to do with BytesParamIndex 2?
-    lpBuffer: ?*anyopaque,
-    lpBufferSize: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPGetResourceParent = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpNetResource: ?*NETRESOURCEW,
+        // TODO: what to do with BytesParamIndex 2?
+        lpBuffer: ?*anyopaque,
+        lpBufferSize: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpNetResource: ?*NETRESOURCEW,
+        // TODO: what to do with BytesParamIndex 2?
+        lpBuffer: ?*anyopaque,
+        lpBufferSize: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPGetResourceInformation = fn(
-    lpNetResource: ?*NETRESOURCEW,
-    // TODO: what to do with BytesParamIndex 2?
-    lpBuffer: ?*anyopaque,
-    lpBufferSize: ?*u32,
-    lplpSystem: ?*?PWSTR,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPGetResourceInformation = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpNetResource: ?*NETRESOURCEW,
+        // TODO: what to do with BytesParamIndex 2?
+        lpBuffer: ?*anyopaque,
+        lpBufferSize: ?*u32,
+        lplpSystem: ?*?PWSTR,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpNetResource: ?*NETRESOURCEW,
+        // TODO: what to do with BytesParamIndex 2?
+        lpBuffer: ?*anyopaque,
+        lpBufferSize: ?*u32,
+        lplpSystem: ?*?PWSTR,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPFormatNetworkName = fn(
-    lpRemoteName: ?PWSTR,
-    lpFormattedName: [*:0]u16,
-    lpnLength: ?*u32,
-    dwFlags: u32,
-    dwAveCharPerLine: u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPFormatNetworkName = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpRemoteName: ?PWSTR,
+        lpFormattedName: [*:0]u16,
+        lpnLength: ?*u32,
+        dwFlags: u32,
+        dwAveCharPerLine: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpRemoteName: ?PWSTR,
+        lpFormattedName: [*:0]u16,
+        lpnLength: ?*u32,
+        dwFlags: u32,
+        dwAveCharPerLine: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPGetPropertyText = fn(
-    iButton: u32,
-    nPropSel: u32,
-    lpName: ?PWSTR,
-    lpButtonName: [*:0]u16,
-    nButtonNameLen: u32,
-    nType: u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPGetPropertyText = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        iButton: u32,
+        nPropSel: u32,
+        lpName: ?PWSTR,
+        lpButtonName: [*:0]u16,
+        nButtonNameLen: u32,
+        nType: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        iButton: u32,
+        nPropSel: u32,
+        lpName: ?PWSTR,
+        lpButtonName: [*:0]u16,
+        nButtonNameLen: u32,
+        nType: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPPropertyDialog = fn(
-    hwndParent: ?HWND,
-    iButtonDlg: u32,
-    nPropSel: u32,
-    lpFileName: ?PWSTR,
-    nType: u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPPropertyDialog = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        hwndParent: ?HWND,
+        iButtonDlg: u32,
+        nPropSel: u32,
+        lpFileName: ?PWSTR,
+        nType: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        hwndParent: ?HWND,
+        iButtonDlg: u32,
+        nPropSel: u32,
+        lpFileName: ?PWSTR,
+        nType: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPGetDirectoryType = fn(
-    lpName: ?PWSTR,
-    lpType: ?*i32,
-    bFlushCache: BOOL,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPGetDirectoryType = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpName: ?PWSTR,
+        lpType: ?*i32,
+        bFlushCache: BOOL,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpName: ?PWSTR,
+        lpType: ?*i32,
+        bFlushCache: BOOL,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPDirectoryNotify = fn(
-    hwnd: ?HWND,
-    lpDir: ?PWSTR,
-    dwOper: u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPDirectoryNotify = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        hwnd: ?HWND,
+        lpDir: ?PWSTR,
+        dwOper: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        hwnd: ?HWND,
+        lpDir: ?PWSTR,
+        dwOper: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPLogonNotify = fn(
-    lpLogonId: ?*LUID,
-    lpAuthentInfoType: ?[*:0]const u16,
-    lpAuthentInfo: ?*anyopaque,
-    lpPreviousAuthentInfoType: ?[*:0]const u16,
-    lpPreviousAuthentInfo: ?*anyopaque,
-    lpStationName: ?PWSTR,
-    StationHandle: ?*anyopaque,
-    lpLogonScript: ?*?PWSTR,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPLogonNotify = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpLogonId: ?*LUID,
+        lpAuthentInfoType: ?[*:0]const u16,
+        lpAuthentInfo: ?*anyopaque,
+        lpPreviousAuthentInfoType: ?[*:0]const u16,
+        lpPreviousAuthentInfo: ?*anyopaque,
+        lpStationName: ?PWSTR,
+        StationHandle: ?*anyopaque,
+        lpLogonScript: ?*?PWSTR,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpLogonId: ?*LUID,
+        lpAuthentInfoType: ?[*:0]const u16,
+        lpAuthentInfo: ?*anyopaque,
+        lpPreviousAuthentInfoType: ?[*:0]const u16,
+        lpPreviousAuthentInfo: ?*anyopaque,
+        lpStationName: ?PWSTR,
+        StationHandle: ?*anyopaque,
+        lpLogonScript: ?*?PWSTR,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPPasswordChangeNotify = fn(
-    lpAuthentInfoType: ?[*:0]const u16,
-    lpAuthentInfo: ?*anyopaque,
-    lpPreviousAuthentInfoType: ?[*:0]const u16,
-    lpPreviousAuthentInfo: ?*anyopaque,
-    lpStationName: ?PWSTR,
-    StationHandle: ?*anyopaque,
-    dwChangeInfo: u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPPasswordChangeNotify = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpAuthentInfoType: ?[*:0]const u16,
+        lpAuthentInfo: ?*anyopaque,
+        lpPreviousAuthentInfoType: ?[*:0]const u16,
+        lpPreviousAuthentInfo: ?*anyopaque,
+        lpStationName: ?PWSTR,
+        StationHandle: ?*anyopaque,
+        dwChangeInfo: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpAuthentInfoType: ?[*:0]const u16,
+        lpAuthentInfo: ?*anyopaque,
+        lpPreviousAuthentInfoType: ?[*:0]const u16,
+        lpPreviousAuthentInfo: ?*anyopaque,
+        lpStationName: ?PWSTR,
+        StationHandle: ?*anyopaque,
+        dwChangeInfo: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
 pub const NOTIFYINFO = extern struct {
     dwNotifyStatus: u32,
@@ -611,55 +826,89 @@ pub const NOTIFYCANCEL = extern struct {
     fForce: BOOL,
 };
 
-pub const PF_AddConnectNotify = fn(
-    lpNotifyInfo: ?*NOTIFYINFO,
-    lpAddInfo: ?*NOTIFYADD,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_AddConnectNotify = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpNotifyInfo: ?*NOTIFYINFO,
+        lpAddInfo: ?*NOTIFYADD,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpNotifyInfo: ?*NOTIFYINFO,
+        lpAddInfo: ?*NOTIFYADD,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_CancelConnectNotify = fn(
-    lpNotifyInfo: ?*NOTIFYINFO,
-    lpCancelInfo: ?*NOTIFYCANCEL,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_CancelConnectNotify = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpNotifyInfo: ?*NOTIFYINFO,
+        lpCancelInfo: ?*NOTIFYCANCEL,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpNotifyInfo: ?*NOTIFYINFO,
+        lpCancelInfo: ?*NOTIFYCANCEL,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPFMXGetPermCaps = fn(
-    lpDriveName: ?PWSTR,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPFMXGetPermCaps = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpDriveName: ?PWSTR,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpDriveName: ?PWSTR,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPFMXEditPerm = fn(
-    lpDriveName: ?PWSTR,
-    hwndFMX: ?HWND,
-    nDialogType: u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPFMXEditPerm = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpDriveName: ?PWSTR,
+        hwndFMX: ?HWND,
+        nDialogType: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpDriveName: ?PWSTR,
+        hwndFMX: ?HWND,
+        nDialogType: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PF_NPFMXGetPermHelp = fn(
-    lpDriveName: ?PWSTR,
-    nDialogType: u32,
-    fDirectory: BOOL,
-    lpFileNameBuffer: [*]u8,
-    lpBufferSize: ?*u32,
-    lpnHelpContext: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PF_NPFMXGetPermHelp = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpDriveName: ?PWSTR,
+        nDialogType: u32,
+        fDirectory: BOOL,
+        lpFileNameBuffer: [*]u8,
+        lpBufferSize: ?*u32,
+        lpnHelpContext: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpDriveName: ?PWSTR,
+        nDialogType: u32,
+        fDirectory: BOOL,
+        lpFileNameBuffer: [*]u8,
+        lpBufferSize: ?*u32,
+        lpnHelpContext: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
 
 //--------------------------------------------------------------------------------
 // Section: Functions (65)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetAddConnectionA(
+pub extern "mpr" fn WNetAddConnectionA(
     lpRemoteName: ?[*:0]const u8,
     lpPassword: ?[*:0]const u8,
     lpLocalName: ?[*:0]const u8,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetAddConnectionW(
+pub extern "mpr" fn WNetAddConnectionW(
     lpRemoteName: ?[*:0]const u16,
     lpPassword: ?[*:0]const u16,
     lpLocalName: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetAddConnection2A(
+pub extern "mpr" fn WNetAddConnection2A(
     lpNetResource: ?*NETRESOURCEA,
     lpPassword: ?[*:0]const u8,
     lpUserName: ?[*:0]const u8,
@@ -667,7 +916,7 @@ pub extern "MPR" fn WNetAddConnection2A(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetAddConnection2W(
+pub extern "mpr" fn WNetAddConnection2W(
     lpNetResource: ?*NETRESOURCEW,
     lpPassword: ?[*:0]const u16,
     lpUserName: ?[*:0]const u16,
@@ -675,7 +924,7 @@ pub extern "MPR" fn WNetAddConnection2W(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetAddConnection3A(
+pub extern "mpr" fn WNetAddConnection3A(
     hwndOwner: ?HWND,
     lpNetResource: ?*NETRESOURCEA,
     lpPassword: ?[*:0]const u8,
@@ -684,7 +933,7 @@ pub extern "MPR" fn WNetAddConnection3A(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetAddConnection3W(
+pub extern "mpr" fn WNetAddConnection3W(
     hwndOwner: ?HWND,
     lpNetResource: ?*NETRESOURCEW,
     lpPassword: ?[*:0]const u16,
@@ -692,7 +941,7 @@ pub extern "MPR" fn WNetAddConnection3W(
     dwFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "MPR" fn WNetAddConnection4A(
+pub extern "mpr" fn WNetAddConnection4A(
     hwndOwner: ?HWND,
     lpNetResource: ?*NETRESOURCEA,
     // TODO: what to do with BytesParamIndex 3?
@@ -704,7 +953,7 @@ pub extern "MPR" fn WNetAddConnection4A(
     cbUseOptions: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "MPR" fn WNetAddConnection4W(
+pub extern "mpr" fn WNetAddConnection4W(
     hwndOwner: ?HWND,
     lpNetResource: ?*NETRESOURCEW,
     // TODO: what to do with BytesParamIndex 3?
@@ -717,47 +966,47 @@ pub extern "MPR" fn WNetAddConnection4W(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetCancelConnectionA(
+pub extern "mpr" fn WNetCancelConnectionA(
     lpName: ?[*:0]const u8,
     fForce: BOOL,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetCancelConnectionW(
+pub extern "mpr" fn WNetCancelConnectionW(
     lpName: ?[*:0]const u16,
     fForce: BOOL,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetCancelConnection2A(
+pub extern "mpr" fn WNetCancelConnection2A(
     lpName: ?[*:0]const u8,
     dwFlags: u32,
     fForce: BOOL,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetCancelConnection2W(
+pub extern "mpr" fn WNetCancelConnection2W(
     lpName: ?[*:0]const u16,
     dwFlags: u32,
     fForce: BOOL,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetConnectionA(
+pub extern "mpr" fn WNetGetConnectionA(
     lpLocalName: ?[*:0]const u8,
     lpRemoteName: ?[*:0]u8,
     lpnLength: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetConnectionW(
+pub extern "mpr" fn WNetGetConnectionW(
     lpLocalName: ?[*:0]const u16,
     lpRemoteName: ?[*:0]u16,
     lpnLength: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetUseConnectionA(
+pub extern "mpr" fn WNetUseConnectionA(
     hwndOwner: ?HWND,
     lpNetResource: ?*NETRESOURCEA,
     lpPassword: ?[*:0]const u8,
@@ -769,7 +1018,7 @@ pub extern "MPR" fn WNetUseConnectionA(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetUseConnectionW(
+pub extern "mpr" fn WNetUseConnectionW(
     hwndOwner: ?HWND,
     lpNetResource: ?*NETRESOURCEW,
     lpPassword: ?[*:0]const u16,
@@ -780,7 +1029,7 @@ pub extern "MPR" fn WNetUseConnectionW(
     lpResult: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "MPR" fn WNetUseConnection4A(
+pub extern "mpr" fn WNetUseConnection4A(
     hwndOwner: ?HWND,
     lpNetResource: ?*NETRESOURCEA,
     // TODO: what to do with BytesParamIndex 3?
@@ -795,7 +1044,7 @@ pub extern "MPR" fn WNetUseConnection4A(
     lpResult: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "MPR" fn WNetUseConnection4W(
+pub extern "mpr" fn WNetUseConnection4W(
     hwndOwner: ?HWND,
     lpNetResource: ?*NETRESOURCEW,
     // TODO: what to do with BytesParamIndex 3?
@@ -811,39 +1060,39 @@ pub extern "MPR" fn WNetUseConnection4W(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetConnectionDialog(
+pub extern "mpr" fn WNetConnectionDialog(
     hwnd: ?HWND,
     dwType: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetDisconnectDialog(
+pub extern "mpr" fn WNetDisconnectDialog(
     hwnd: ?HWND,
     dwType: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetConnectionDialog1A(
+pub extern "mpr" fn WNetConnectionDialog1A(
     lpConnDlgStruct: ?*CONNECTDLGSTRUCTA,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetConnectionDialog1W(
+pub extern "mpr" fn WNetConnectionDialog1W(
     lpConnDlgStruct: ?*CONNECTDLGSTRUCTW,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetDisconnectDialog1A(
+pub extern "mpr" fn WNetDisconnectDialog1A(
     lpConnDlgStruct: ?*DISCDLGSTRUCTA,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetDisconnectDialog1W(
+pub extern "mpr" fn WNetDisconnectDialog1W(
     lpConnDlgStruct: ?*DISCDLGSTRUCTW,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetOpenEnumA(
+pub extern "mpr" fn WNetOpenEnumA(
     dwScope: NET_RESOURCE_SCOPE,
     dwType: NET_RESOURCE_TYPE,
     dwUsage: WNET_OPEN_ENUM_USAGE,
@@ -852,7 +1101,7 @@ pub extern "MPR" fn WNetOpenEnumA(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetOpenEnumW(
+pub extern "mpr" fn WNetOpenEnumW(
     dwScope: NET_RESOURCE_SCOPE,
     dwType: NET_RESOURCE_TYPE,
     dwUsage: WNET_OPEN_ENUM_USAGE,
@@ -861,7 +1110,7 @@ pub extern "MPR" fn WNetOpenEnumW(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetEnumResourceA(
+pub extern "mpr" fn WNetEnumResourceA(
     hEnum: ?HANDLE,
     lpcCount: ?*u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -870,7 +1119,7 @@ pub extern "MPR" fn WNetEnumResourceA(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetEnumResourceW(
+pub extern "mpr" fn WNetEnumResourceW(
     hEnum: ?HANDLE,
     lpcCount: ?*u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -879,12 +1128,12 @@ pub extern "MPR" fn WNetEnumResourceW(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetCloseEnum(
+pub extern "mpr" fn WNetCloseEnum(
     hEnum: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetResourceParentA(
+pub extern "mpr" fn WNetGetResourceParentA(
     lpNetResource: ?*NETRESOURCEA,
     // TODO: what to do with BytesParamIndex 2?
     lpBuffer: ?*anyopaque,
@@ -892,7 +1141,7 @@ pub extern "MPR" fn WNetGetResourceParentA(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetResourceParentW(
+pub extern "mpr" fn WNetGetResourceParentW(
     lpNetResource: ?*NETRESOURCEW,
     // TODO: what to do with BytesParamIndex 2?
     lpBuffer: ?*anyopaque,
@@ -900,7 +1149,7 @@ pub extern "MPR" fn WNetGetResourceParentW(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetResourceInformationA(
+pub extern "mpr" fn WNetGetResourceInformationA(
     lpNetResource: ?*NETRESOURCEA,
     // TODO: what to do with BytesParamIndex 2?
     lpBuffer: ?*anyopaque,
@@ -909,7 +1158,7 @@ pub extern "MPR" fn WNetGetResourceInformationA(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetResourceInformationW(
+pub extern "mpr" fn WNetGetResourceInformationW(
     lpNetResource: ?*NETRESOURCEW,
     // TODO: what to do with BytesParamIndex 2?
     lpBuffer: ?*anyopaque,
@@ -918,7 +1167,7 @@ pub extern "MPR" fn WNetGetResourceInformationW(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetUniversalNameA(
+pub extern "mpr" fn WNetGetUniversalNameA(
     lpLocalPath: ?[*:0]const u8,
     dwInfoLevel: UNC_INFO_LEVEL,
     // TODO: what to do with BytesParamIndex 3?
@@ -927,7 +1176,7 @@ pub extern "MPR" fn WNetGetUniversalNameA(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetUniversalNameW(
+pub extern "mpr" fn WNetGetUniversalNameW(
     lpLocalPath: ?[*:0]const u16,
     dwInfoLevel: UNC_INFO_LEVEL,
     // TODO: what to do with BytesParamIndex 3?
@@ -936,47 +1185,47 @@ pub extern "MPR" fn WNetGetUniversalNameW(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetUserA(
+pub extern "mpr" fn WNetGetUserA(
     lpName: ?[*:0]const u8,
     lpUserName: [*:0]u8,
     lpnLength: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetUserW(
+pub extern "mpr" fn WNetGetUserW(
     lpName: ?[*:0]const u16,
     lpUserName: [*:0]u16,
     lpnLength: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetProviderNameA(
+pub extern "mpr" fn WNetGetProviderNameA(
     dwNetType: u32,
     lpProviderName: [*:0]u8,
     lpBufferSize: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetProviderNameW(
+pub extern "mpr" fn WNetGetProviderNameW(
     dwNetType: u32,
     lpProviderName: [*:0]u16,
     lpBufferSize: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetNetworkInformationA(
+pub extern "mpr" fn WNetGetNetworkInformationA(
     lpProvider: ?[*:0]const u8,
     lpNetInfoStruct: ?*NETINFOSTRUCT,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetNetworkInformationW(
+pub extern "mpr" fn WNetGetNetworkInformationW(
     lpProvider: ?[*:0]const u16,
     lpNetInfoStruct: ?*NETINFOSTRUCT,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetLastErrorA(
+pub extern "mpr" fn WNetGetLastErrorA(
     lpError: ?*u32,
     lpErrorBuf: [*:0]u8,
     nErrorBufSize: u32,
@@ -985,7 +1234,7 @@ pub extern "MPR" fn WNetGetLastErrorA(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn WNetGetLastErrorW(
+pub extern "mpr" fn WNetGetLastErrorW(
     lpError: ?*u32,
     lpErrorBuf: [*:0]u16,
     nErrorBufSize: u32,
@@ -994,13 +1243,13 @@ pub extern "MPR" fn WNetGetLastErrorW(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn MultinetGetConnectionPerformanceA(
+pub extern "mpr" fn MultinetGetConnectionPerformanceA(
     lpNetResource: ?*NETRESOURCEA,
     lpNetConnectInfoStruct: ?*NETCONNECTINFOSTRUCT,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "MPR" fn MultinetGetConnectionPerformanceW(
+pub extern "mpr" fn MultinetGetConnectionPerformanceW(
     lpNetResource: ?*NETRESOURCEW,
     lpNetConnectInfoStruct: ?*NETCONNECTINFOSTRUCT,
 ) callconv(@import("std").os.windows.WINAPI) u32;
@@ -1021,7 +1270,7 @@ pub extern "davclnt" fn NPAddConnection3(
     dwFlags: NET_USE_CONNECT_FLAGS,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "NTLANMAN" fn NPAddConnection4(
+pub extern "ntlanman" fn NPAddConnection4(
     hwndOwner: ?HWND,
     lpNetResource: ?*NETRESOURCEW,
     // TODO: what to do with BytesParamIndex 3?
@@ -1039,7 +1288,7 @@ pub extern "davclnt" fn NPCancelConnection(
     fForce: BOOL,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "NTLANMAN" fn NPCancelConnection2(
+pub extern "ntlanman" fn NPCancelConnection2(
     lpName: ?PWSTR,
     fForce: BOOL,
     dwFlags: u32,
@@ -1053,7 +1302,7 @@ pub extern "davclnt" fn NPGetConnection(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "NTLANMAN" fn NPGetConnection3(
+pub extern "ntlanman" fn NPGetConnection3(
     lpLocalName: ?[*:0]const u16,
     dwLevel: u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -1071,7 +1320,7 @@ pub extern "davclnt" fn NPGetUniversalName(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "NTLANMAN" fn NPGetConnectionPerformance(
+pub extern "ntlanman" fn NPGetConnectionPerformance(
     lpRemoteName: ?[*:0]const u16,
     lpNetConnectInfo: ?*NETCONNECTINFOSTRUCT,
 ) callconv(@import("std").os.windows.WINAPI) u32;
@@ -1111,7 +1360,7 @@ pub extern "davclnt" fn NPGetUser(
     lpnBufferLen: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "NTLANMAN" fn NPGetPersistentUseOptionsForConnection(
+pub extern "ntlanman" fn NPGetPersistentUseOptionsForConnection(
     lpRemotePath: ?PWSTR,
     // TODO: what to do with BytesParamIndex 2?
     lpReadUseOptions: ?*u8,
@@ -1148,13 +1397,13 @@ pub extern "davclnt" fn NPFormatNetworkName(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "MPR" fn WNetSetLastErrorA(
+pub extern "mpr" fn WNetSetLastErrorA(
     err: u32,
     lpError: ?PSTR,
     lpProviders: ?PSTR,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
-pub extern "MPR" fn WNetSetLastErrorW(
+pub extern "mpr" fn WNetSetLastErrorW(
     err: u32,
     lpError: ?PWSTR,
     lpProviders: ?PWSTR,
@@ -1328,14 +1577,14 @@ test {
     if (@hasDecl(@This(), "PF_NPFMXGetPermHelp")) { _ = PF_NPFMXGetPermHelp; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

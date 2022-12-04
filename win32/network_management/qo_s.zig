@@ -792,13 +792,23 @@ pub const RSVP_MSG_OBJS = extern struct {
     pAdspec: ?*ADSPEC,
 };
 
-pub const PALLOCMEM = fn(
-    Size: u32,
-) callconv(@import("std").os.windows.WINAPI) ?*anyopaque;
+pub const PALLOCMEM = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        Size: u32,
+    ) callconv(@import("std").os.windows.WINAPI) ?*anyopaque,
+    else => *const fn(
+        Size: u32,
+    ) callconv(@import("std").os.windows.WINAPI) ?*anyopaque,
+} ;
 
-pub const PFREEMEM = fn(
-    pv: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const PFREEMEM = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pv: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        pv: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 pub const policy_decision = extern struct {
     lpvResult: u32,
@@ -806,22 +816,41 @@ pub const policy_decision = extern struct {
     wPolicyErrValue: u16,
 };
 
-pub const CBADMITRESULT = fn(
-    LpmHandle: LPM_HANDLE,
-    RequestHandle: RHANDLE,
-    ulPcmActionFlags: u32,
-    LpmError: i32,
-    PolicyDecisionsCount: i32,
-    pPolicyDecisions: ?*policy_decision,
-) callconv(@import("std").os.windows.WINAPI) ?*u32;
+pub const CBADMITRESULT = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        LpmHandle: LPM_HANDLE,
+        RequestHandle: RHANDLE,
+        ulPcmActionFlags: u32,
+        LpmError: i32,
+        PolicyDecisionsCount: i32,
+        pPolicyDecisions: ?*policy_decision,
+    ) callconv(@import("std").os.windows.WINAPI) ?*u32,
+    else => *const fn(
+        LpmHandle: LPM_HANDLE,
+        RequestHandle: RHANDLE,
+        ulPcmActionFlags: u32,
+        LpmError: i32,
+        PolicyDecisionsCount: i32,
+        pPolicyDecisions: ?*policy_decision,
+    ) callconv(@import("std").os.windows.WINAPI) ?*u32,
+} ;
 
-pub const CBGETRSVPOBJECTS = fn(
-    LpmHandle: LPM_HANDLE,
-    RequestHandle: RHANDLE,
-    LpmError: i32,
-    RsvpObjectsCount: i32,
-    ppRsvpObjects: ?*?*RsvpObjHdr,
-) callconv(@import("std").os.windows.WINAPI) ?*u32;
+pub const CBGETRSVPOBJECTS = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        LpmHandle: LPM_HANDLE,
+        RequestHandle: RHANDLE,
+        LpmError: i32,
+        RsvpObjectsCount: i32,
+        ppRsvpObjects: ?*?*RsvpObjHdr,
+    ) callconv(@import("std").os.windows.WINAPI) ?*u32,
+    else => *const fn(
+        LpmHandle: LPM_HANDLE,
+        RequestHandle: RHANDLE,
+        LpmError: i32,
+        RsvpObjectsCount: i32,
+        ppRsvpObjects: ?*?*RsvpObjHdr,
+    ) callconv(@import("std").os.windows.WINAPI) ?*u32,
+} ;
 
 pub const LPM_INIT_INFO = extern struct {
     PcmVersionNumber: u32,
@@ -964,30 +993,59 @@ pub const QOS_TCP_TRAFFIC = extern struct {
     ObjectHdr: QOS_OBJECT_HDR,
 };
 
-pub const TCI_NOTIFY_HANDLER = fn(
-    ClRegCtx: ?HANDLE,
-    ClIfcCtx: ?HANDLE,
-    Event: u32,
-    SubCode: ?HANDLE,
-    BufSize: u32,
-    // TODO: what to do with BytesParamIndex 4?
-    Buffer: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const TCI_NOTIFY_HANDLER = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        ClRegCtx: ?HANDLE,
+        ClIfcCtx: ?HANDLE,
+        Event: u32,
+        SubCode: ?HANDLE,
+        BufSize: u32,
+        // TODO: what to do with BytesParamIndex 4?
+        Buffer: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        ClRegCtx: ?HANDLE,
+        ClIfcCtx: ?HANDLE,
+        Event: u32,
+        SubCode: ?HANDLE,
+        BufSize: u32,
+        // TODO: what to do with BytesParamIndex 4?
+        Buffer: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const TCI_ADD_FLOW_COMPLETE_HANDLER = fn(
-    ClFlowCtx: ?HANDLE,
-    Status: u32,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const TCI_ADD_FLOW_COMPLETE_HANDLER = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        ClFlowCtx: ?HANDLE,
+        Status: u32,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        ClFlowCtx: ?HANDLE,
+        Status: u32,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const TCI_MOD_FLOW_COMPLETE_HANDLER = fn(
-    ClFlowCtx: ?HANDLE,
-    Status: u32,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const TCI_MOD_FLOW_COMPLETE_HANDLER = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        ClFlowCtx: ?HANDLE,
+        Status: u32,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        ClFlowCtx: ?HANDLE,
+        Status: u32,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const TCI_DEL_FLOW_COMPLETE_HANDLER = fn(
-    ClFlowCtx: ?HANDLE,
-    Status: u32,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const TCI_DEL_FLOW_COMPLETE_HANDLER = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        ClFlowCtx: ?HANDLE,
+        Status: u32,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        ClFlowCtx: ?HANDLE,
+        Status: u32,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 pub const TCI_CLIENT_FUNC_LIST = extern struct {
     ClNotifyHandler: ?TCI_NOTIFY_HANDLER,
@@ -1400,7 +1458,7 @@ pub extern "qwave" fn QOSCancel(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcRegisterClient(
+pub extern "traffic" fn TcRegisterClient(
     TciVersion: u32,
     ClRegCtx: ?HANDLE,
     ClientHandlerList: ?*TCI_CLIENT_FUNC_LIST,
@@ -1408,14 +1466,14 @@ pub extern "TRAFFIC" fn TcRegisterClient(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcEnumerateInterfaces(
+pub extern "traffic" fn TcEnumerateInterfaces(
     ClientHandle: ?HANDLE,
     pBufferSize: ?*u32,
     InterfaceBuffer: ?*TC_IFC_DESCRIPTOR,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcOpenInterfaceA(
+pub extern "traffic" fn TcOpenInterfaceA(
     pInterfaceName: ?PSTR,
     ClientHandle: ?HANDLE,
     ClIfcCtx: ?HANDLE,
@@ -1423,7 +1481,7 @@ pub extern "TRAFFIC" fn TcOpenInterfaceA(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcOpenInterfaceW(
+pub extern "traffic" fn TcOpenInterfaceW(
     pInterfaceName: ?PWSTR,
     ClientHandle: ?HANDLE,
     ClIfcCtx: ?HANDLE,
@@ -1431,12 +1489,12 @@ pub extern "TRAFFIC" fn TcOpenInterfaceW(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcCloseInterface(
+pub extern "traffic" fn TcCloseInterface(
     IfcHandle: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcQueryInterface(
+pub extern "traffic" fn TcQueryInterface(
     IfcHandle: ?HANDLE,
     pGuidParam: ?*Guid,
     NotifyChange: BOOLEAN,
@@ -1446,7 +1504,7 @@ pub extern "TRAFFIC" fn TcQueryInterface(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcSetInterface(
+pub extern "traffic" fn TcSetInterface(
     IfcHandle: ?HANDLE,
     pGuidParam: ?*Guid,
     BufferSize: u32,
@@ -1455,7 +1513,7 @@ pub extern "TRAFFIC" fn TcSetInterface(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcQueryFlowA(
+pub extern "traffic" fn TcQueryFlowA(
     pFlowName: ?PSTR,
     pGuidParam: ?*Guid,
     pBufferSize: ?*u32,
@@ -1464,7 +1522,7 @@ pub extern "TRAFFIC" fn TcQueryFlowA(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcQueryFlowW(
+pub extern "traffic" fn TcQueryFlowW(
     pFlowName: ?PWSTR,
     pGuidParam: ?*Guid,
     pBufferSize: ?*u32,
@@ -1473,7 +1531,7 @@ pub extern "TRAFFIC" fn TcQueryFlowW(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcSetFlowA(
+pub extern "traffic" fn TcSetFlowA(
     pFlowName: ?PSTR,
     pGuidParam: ?*Guid,
     BufferSize: u32,
@@ -1482,7 +1540,7 @@ pub extern "TRAFFIC" fn TcSetFlowA(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcSetFlowW(
+pub extern "traffic" fn TcSetFlowW(
     pFlowName: ?PWSTR,
     pGuidParam: ?*Guid,
     BufferSize: u32,
@@ -1491,7 +1549,7 @@ pub extern "TRAFFIC" fn TcSetFlowW(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcAddFlow(
+pub extern "traffic" fn TcAddFlow(
     IfcHandle: ?HANDLE,
     ClFlowCtx: ?HANDLE,
     Flags: u32,
@@ -1500,49 +1558,49 @@ pub extern "TRAFFIC" fn TcAddFlow(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcGetFlowNameA(
+pub extern "traffic" fn TcGetFlowNameA(
     FlowHandle: ?HANDLE,
     StrSize: u32,
     pFlowName: [*:0]u8,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcGetFlowNameW(
+pub extern "traffic" fn TcGetFlowNameW(
     FlowHandle: ?HANDLE,
     StrSize: u32,
     pFlowName: [*:0]u16,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcModifyFlow(
+pub extern "traffic" fn TcModifyFlow(
     FlowHandle: ?HANDLE,
     pGenericFlow: ?*TC_GEN_FLOW,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcAddFilter(
+pub extern "traffic" fn TcAddFilter(
     FlowHandle: ?HANDLE,
     pGenericFilter: ?*TC_GEN_FILTER,
     pFilterHandle: ?*?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcDeregisterClient(
+pub extern "traffic" fn TcDeregisterClient(
     ClientHandle: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcDeleteFlow(
+pub extern "traffic" fn TcDeleteFlow(
     FlowHandle: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcDeleteFilter(
+pub extern "traffic" fn TcDeleteFilter(
     FilterHandle: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "TRAFFIC" fn TcEnumerateFlows(
+pub extern "traffic" fn TcEnumerateFlows(
     IfcHandle: ?HANDLE,
     pEnumHandle: ?*?HANDLE,
     pFlowCount: ?*u32,
@@ -1608,14 +1666,14 @@ test {
     if (@hasDecl(@This(), "TCI_DEL_FLOW_COMPLETE_HANDLER")) { _ = TCI_DEL_FLOW_COMPLETE_HANDLER; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

@@ -6,16 +6,23 @@
 //--------------------------------------------------------------------------------
 // Section: Types (1)
 //--------------------------------------------------------------------------------
-const IID_IIsolatedEnvironmentInterop_Value = @import("../../zig.zig").Guid.initString("85713c2e-8e62-46c5-8de2-c647e1d54636");
+const IID_IIsolatedEnvironmentInterop_Value = Guid.initString("85713c2e-8e62-46c5-8de2-c647e1d54636");
 pub const IID_IIsolatedEnvironmentInterop = &IID_IIsolatedEnvironmentInterop_Value;
 pub const IIsolatedEnvironmentInterop = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetHostHwndInterop: fn(
-            self: *const IIsolatedEnvironmentInterop,
-            containerHwnd: ?HWND,
-            hostHwnd: ?*?HWND,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetHostHwndInterop: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IIsolatedEnvironmentInterop,
+                containerHwnd: ?HWND,
+                hostHwnd: ?*?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IIsolatedEnvironmentInterop,
+                containerHwnd: ?HWND,
+                hostHwnd: ?*?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -47,22 +54,23 @@ pub usingnamespace switch (@import("../../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (3)
+// Section: Imports (4)
 //--------------------------------------------------------------------------------
+const Guid = @import("../../zig.zig").Guid;
 const HRESULT = @import("../../foundation.zig").HRESULT;
 const HWND = @import("../../foundation.zig").HWND;
 const IUnknown = @import("../../system/com.zig").IUnknown;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

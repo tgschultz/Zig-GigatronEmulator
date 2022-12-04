@@ -6,16 +6,24 @@
 //--------------------------------------------------------------------------------
 // Section: Types (4)
 //--------------------------------------------------------------------------------
-const IID_IWindowsDevicesAllJoynBusAttachmentInterop_Value = @import("../../zig.zig").Guid.initString("fd89c65b-b50e-4a19-9d0c-b42b783281cd");
+const IID_IWindowsDevicesAllJoynBusAttachmentInterop_Value = Guid.initString("fd89c65b-b50e-4a19-9d0c-b42b783281cd");
 pub const IID_IWindowsDevicesAllJoynBusAttachmentInterop = &IID_IWindowsDevicesAllJoynBusAttachmentInterop_Value;
 pub const IWindowsDevicesAllJoynBusAttachmentInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Win32Handle: fn(
-            self: *const IWindowsDevicesAllJoynBusAttachmentInterop,
-            value: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Win32Handle: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWindowsDevicesAllJoynBusAttachmentInterop,
+                value: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWindowsDevicesAllJoynBusAttachmentInterop,
+                value: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -28,18 +36,27 @@ pub const IWindowsDevicesAllJoynBusAttachmentInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IWindowsDevicesAllJoynBusAttachmentFactoryInterop_Value = @import("../../zig.zig").Guid.initString("4b8f7505-b239-4e7b-88af-f6682575d861");
+const IID_IWindowsDevicesAllJoynBusAttachmentFactoryInterop_Value = Guid.initString("4b8f7505-b239-4e7b-88af-f6682575d861");
 pub const IID_IWindowsDevicesAllJoynBusAttachmentFactoryInterop = &IID_IWindowsDevicesAllJoynBusAttachmentFactoryInterop_Value;
 pub const IWindowsDevicesAllJoynBusAttachmentFactoryInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        CreateFromWin32Handle: fn(
-            self: *const IWindowsDevicesAllJoynBusAttachmentFactoryInterop,
-            win32handle: u64,
-            enableAboutData: u8,
-            riid: ?*const Guid,
-            ppv: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateFromWin32Handle: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWindowsDevicesAllJoynBusAttachmentFactoryInterop,
+                win32handle: u64,
+                enableAboutData: u8,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWindowsDevicesAllJoynBusAttachmentFactoryInterop,
+                win32handle: u64,
+                enableAboutData: u8,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -52,28 +69,52 @@ pub const IWindowsDevicesAllJoynBusAttachmentFactoryInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IWindowsDevicesAllJoynBusObjectInterop_Value = @import("../../zig.zig").Guid.initString("d78aa3d5-5054-428f-99f2-ec3a5de3c3bc");
+const IID_IWindowsDevicesAllJoynBusObjectInterop_Value = Guid.initString("d78aa3d5-5054-428f-99f2-ec3a5de3c3bc");
 pub const IID_IWindowsDevicesAllJoynBusObjectInterop = &IID_IWindowsDevicesAllJoynBusObjectInterop_Value;
 pub const IWindowsDevicesAllJoynBusObjectInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        AddPropertyGetHandler: fn(
-            self: *const IWindowsDevicesAllJoynBusObjectInterop,
-            context: ?*anyopaque,
-            interfaceName: ?HSTRING,
-            callback: isize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddPropertySetHandler: fn(
-            self: *const IWindowsDevicesAllJoynBusObjectInterop,
-            context: ?*anyopaque,
-            interfaceName: ?HSTRING,
-            callback: isize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddPropertyGetHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWindowsDevicesAllJoynBusObjectInterop,
+                context: ?*anyopaque,
+                interfaceName: ?HSTRING,
+                callback: isize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWindowsDevicesAllJoynBusObjectInterop,
+                context: ?*anyopaque,
+                interfaceName: ?HSTRING,
+                callback: isize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddPropertySetHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWindowsDevicesAllJoynBusObjectInterop,
+                context: ?*anyopaque,
+                interfaceName: ?HSTRING,
+                callback: isize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWindowsDevicesAllJoynBusObjectInterop,
+                context: ?*anyopaque,
+                interfaceName: ?HSTRING,
+                callback: isize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Win32Handle: fn(
-            self: *const IWindowsDevicesAllJoynBusObjectInterop,
-            value: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Win32Handle: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWindowsDevicesAllJoynBusObjectInterop,
+                value: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWindowsDevicesAllJoynBusObjectInterop,
+                value: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -94,17 +135,25 @@ pub const IWindowsDevicesAllJoynBusObjectInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IWindowsDevicesAllJoynBusObjectFactoryInterop_Value = @import("../../zig.zig").Guid.initString("6174e506-8b95-4e36-95c0-b88fed34938c");
+const IID_IWindowsDevicesAllJoynBusObjectFactoryInterop_Value = Guid.initString("6174e506-8b95-4e36-95c0-b88fed34938c");
 pub const IID_IWindowsDevicesAllJoynBusObjectFactoryInterop = &IID_IWindowsDevicesAllJoynBusObjectFactoryInterop_Value;
 pub const IWindowsDevicesAllJoynBusObjectFactoryInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        CreateFromWin32Handle: fn(
-            self: *const IWindowsDevicesAllJoynBusObjectFactoryInterop,
-            win32handle: u64,
-            riid: ?*const Guid,
-            ppv: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateFromWin32Handle: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWindowsDevicesAllJoynBusObjectFactoryInterop,
+                win32handle: u64,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWindowsDevicesAllJoynBusObjectFactoryInterop,
+                win32handle: u64,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -145,14 +194,14 @@ const IInspectable = @import("../../system/win_rt.zig").IInspectable;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

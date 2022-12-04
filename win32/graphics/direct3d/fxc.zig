@@ -50,38 +50,74 @@ pub const D3D_COMPRESS_SHADER_KEEP_ALL_PARTS = @as(u32, 1);
 //--------------------------------------------------------------------------------
 // Section: Types (6)
 //--------------------------------------------------------------------------------
-pub const pD3DCompile = fn(
-    pSrcData: ?*const anyopaque,
-    SrcDataSize: usize,
-    pFileName: ?[*:0]const u8,
-    pDefines: ?*const D3D_SHADER_MACRO,
-    pInclude: ?*ID3DInclude,
-    pEntrypoint: ?[*:0]const u8,
-    pTarget: ?[*:0]const u8,
-    Flags1: u32,
-    Flags2: u32,
-    ppCode: ?*?*ID3DBlob,
-    ppErrorMsgs: ?*?*ID3DBlob,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const pD3DCompile = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pSrcData: ?*const anyopaque,
+        SrcDataSize: usize,
+        pFileName: ?[*:0]const u8,
+        pDefines: ?*const D3D_SHADER_MACRO,
+        pInclude: ?*ID3DInclude,
+        pEntrypoint: ?[*:0]const u8,
+        pTarget: ?[*:0]const u8,
+        Flags1: u32,
+        Flags2: u32,
+        ppCode: ?*?*ID3DBlob,
+        ppErrorMsgs: ?*?*ID3DBlob,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pSrcData: ?*const anyopaque,
+        SrcDataSize: usize,
+        pFileName: ?[*:0]const u8,
+        pDefines: ?*const D3D_SHADER_MACRO,
+        pInclude: ?*ID3DInclude,
+        pEntrypoint: ?[*:0]const u8,
+        pTarget: ?[*:0]const u8,
+        Flags1: u32,
+        Flags2: u32,
+        ppCode: ?*?*ID3DBlob,
+        ppErrorMsgs: ?*?*ID3DBlob,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const pD3DPreprocess = fn(
-    pSrcData: ?*const anyopaque,
-    SrcDataSize: usize,
-    pFileName: ?[*:0]const u8,
-    pDefines: ?*const D3D_SHADER_MACRO,
-    pInclude: ?*ID3DInclude,
-    ppCodeText: ?*?*ID3DBlob,
-    ppErrorMsgs: ?*?*ID3DBlob,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const pD3DPreprocess = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pSrcData: ?*const anyopaque,
+        SrcDataSize: usize,
+        pFileName: ?[*:0]const u8,
+        pDefines: ?*const D3D_SHADER_MACRO,
+        pInclude: ?*ID3DInclude,
+        ppCodeText: ?*?*ID3DBlob,
+        ppErrorMsgs: ?*?*ID3DBlob,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pSrcData: ?*const anyopaque,
+        SrcDataSize: usize,
+        pFileName: ?[*:0]const u8,
+        pDefines: ?*const D3D_SHADER_MACRO,
+        pInclude: ?*ID3DInclude,
+        ppCodeText: ?*?*ID3DBlob,
+        ppErrorMsgs: ?*?*ID3DBlob,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const pD3DDisassemble = fn(
-    // TODO: what to do with BytesParamIndex 1?
-    pSrcData: ?*const anyopaque,
-    SrcDataSize: usize,
-    Flags: u32,
-    szComments: ?[*:0]const u8,
-    ppDisassembly: ?*?*ID3DBlob,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const pD3DDisassemble = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        // TODO: what to do with BytesParamIndex 1?
+        pSrcData: ?*const anyopaque,
+        SrcDataSize: usize,
+        Flags: u32,
+        szComments: ?[*:0]const u8,
+        ppDisassembly: ?*?*ID3DBlob,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        // TODO: what to do with BytesParamIndex 1?
+        pSrcData: ?*const anyopaque,
+        SrcDataSize: usize,
+        Flags: u32,
+        szComments: ?[*:0]const u8,
+        ppDisassembly: ?*?*ID3DBlob,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
 pub const D3DCOMPILER_STRIP_FLAGS = enum(i32) {
     REFLECTION_DATA = 1,
@@ -144,18 +180,18 @@ pub const D3D_SHADER_DATA = extern struct {
 //--------------------------------------------------------------------------------
 // Section: Functions (25)
 //--------------------------------------------------------------------------------
-pub extern "D3DCOMPILER_47" fn D3DReadFileToBlob(
+pub extern "d3dcompiler_47" fn D3DReadFileToBlob(
     pFileName: ?[*:0]const u16,
     ppContents: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DWriteBlobToFile(
+pub extern "d3dcompiler_47" fn D3DWriteBlobToFile(
     pBlob: ?*ID3DBlob,
     pFileName: ?[*:0]const u16,
     bOverwrite: BOOL,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DCompile(
+pub extern "d3dcompiler_47" fn D3DCompile(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
@@ -170,7 +206,7 @@ pub extern "D3DCOMPILER_47" fn D3DCompile(
     ppErrorMsgs: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DCompile2(
+pub extern "d3dcompiler_47" fn D3DCompile2(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
@@ -189,7 +225,7 @@ pub extern "D3DCOMPILER_47" fn D3DCompile2(
     ppErrorMsgs: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DCompileFromFile(
+pub extern "d3dcompiler_47" fn D3DCompileFromFile(
     pFileName: ?[*:0]const u16,
     pDefines: ?*const D3D_SHADER_MACRO,
     pInclude: ?*ID3DInclude,
@@ -201,7 +237,7 @@ pub extern "D3DCOMPILER_47" fn D3DCompileFromFile(
     ppErrorMsgs: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DPreprocess(
+pub extern "d3dcompiler_47" fn D3DPreprocess(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
@@ -212,14 +248,14 @@ pub extern "D3DCOMPILER_47" fn D3DPreprocess(
     ppErrorMsgs: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DGetDebugInfo(
+pub extern "d3dcompiler_47" fn D3DGetDebugInfo(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
     ppDebugInfo: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DReflect(
+pub extern "d3dcompiler_47" fn D3DReflect(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
@@ -227,7 +263,7 @@ pub extern "D3DCOMPILER_47" fn D3DReflect(
     ppReflector: ?*?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DReflectLibrary(
+pub extern "d3dcompiler_47" fn D3DReflectLibrary(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
@@ -235,7 +271,7 @@ pub extern "D3DCOMPILER_47" fn D3DReflectLibrary(
     ppReflector: ?*?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DDisassemble(
+pub extern "d3dcompiler_47" fn D3DDisassemble(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
@@ -244,7 +280,7 @@ pub extern "D3DCOMPILER_47" fn D3DDisassemble(
     ppDisassembly: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DDisassembleRegion(
+pub extern "d3dcompiler_47" fn D3DDisassembleRegion(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
@@ -256,22 +292,22 @@ pub extern "D3DCOMPILER_47" fn D3DDisassembleRegion(
     ppDisassembly: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DCreateLinker(
+pub extern "d3dcompiler_47" fn D3DCreateLinker(
     ppLinker: ?*?*ID3D11Linker,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DLoadModule(
+pub extern "d3dcompiler_47" fn D3DLoadModule(
     pSrcData: ?*const anyopaque,
     cbSrcDataSize: usize,
     ppModule: ?*?*ID3D11Module,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DCreateFunctionLinkingGraph(
+pub extern "d3dcompiler_47" fn D3DCreateFunctionLinkingGraph(
     uFlags: u32,
     ppFunctionLinkingGraph: ?*?*ID3D11FunctionLinkingGraph,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DGetTraceInstructionOffsets(
+pub extern "d3dcompiler_47" fn D3DGetTraceInstructionOffsets(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
@@ -282,28 +318,28 @@ pub extern "D3DCOMPILER_47" fn D3DGetTraceInstructionOffsets(
     pTotalInsts: ?*usize,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DGetInputSignatureBlob(
+pub extern "d3dcompiler_47" fn D3DGetInputSignatureBlob(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
     ppSignatureBlob: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DGetOutputSignatureBlob(
+pub extern "d3dcompiler_47" fn D3DGetOutputSignatureBlob(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
     ppSignatureBlob: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DGetInputAndOutputSignatureBlob(
+pub extern "d3dcompiler_47" fn D3DGetInputAndOutputSignatureBlob(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
     ppSignatureBlob: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DStripShader(
+pub extern "d3dcompiler_47" fn D3DStripShader(
     // TODO: what to do with BytesParamIndex 1?
     pShaderBytecode: ?*const anyopaque,
     BytecodeLength: usize,
@@ -311,7 +347,7 @@ pub extern "D3DCOMPILER_47" fn D3DStripShader(
     ppStrippedBlob: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DGetBlobPart(
+pub extern "d3dcompiler_47" fn D3DGetBlobPart(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
@@ -320,7 +356,7 @@ pub extern "D3DCOMPILER_47" fn D3DGetBlobPart(
     ppPart: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DSetBlobPart(
+pub extern "d3dcompiler_47" fn D3DSetBlobPart(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
@@ -332,19 +368,19 @@ pub extern "D3DCOMPILER_47" fn D3DSetBlobPart(
     ppNewShader: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DCreateBlob(
+pub extern "d3dcompiler_47" fn D3DCreateBlob(
     Size: usize,
     ppBlob: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DCompressShaders(
+pub extern "d3dcompiler_47" fn D3DCompressShaders(
     uNumShaders: u32,
     pShaderData: [*]D3D_SHADER_DATA,
     uFlags: u32,
     ppCompressedData: ?*?*ID3DBlob,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DDecompressShaders(
+pub extern "d3dcompiler_47" fn D3DDecompressShaders(
     // TODO: what to do with BytesParamIndex 1?
     pSrcData: ?*const anyopaque,
     SrcDataSize: usize,
@@ -356,7 +392,7 @@ pub extern "D3DCOMPILER_47" fn D3DDecompressShaders(
     pTotalShaders: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "D3DCOMPILER_47" fn D3DDisassemble10Effect(
+pub extern "d3dcompiler_47" fn D3DDisassemble10Effect(
     pEffect: ?*ID3D10Effect,
     Flags: u32,
     ppDisassembly: ?*?*ID3DBlob,
@@ -399,14 +435,14 @@ test {
     if (@hasDecl(@This(), "pD3DDisassemble")) { _ = pD3DDisassemble; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

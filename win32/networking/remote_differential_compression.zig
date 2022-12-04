@@ -30,52 +30,52 @@ pub const MSRDC_MAXIMUM_MATCHESREQUIRED = @as(u32, 16);
 //--------------------------------------------------------------------------------
 // Section: Types (48)
 //--------------------------------------------------------------------------------
-const CLSID_RdcLibrary_Value = @import("../zig.zig").Guid.initString("96236a85-9dbc-11da-9e3f-0011114ae311");
+const CLSID_RdcLibrary_Value = Guid.initString("96236a85-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_RdcLibrary = &CLSID_RdcLibrary_Value;
 
-const CLSID_RdcGeneratorParameters_Value = @import("../zig.zig").Guid.initString("96236a86-9dbc-11da-9e3f-0011114ae311");
+const CLSID_RdcGeneratorParameters_Value = Guid.initString("96236a86-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_RdcGeneratorParameters = &CLSID_RdcGeneratorParameters_Value;
 
-const CLSID_RdcGeneratorFilterMaxParameters_Value = @import("../zig.zig").Guid.initString("96236a87-9dbc-11da-9e3f-0011114ae311");
+const CLSID_RdcGeneratorFilterMaxParameters_Value = Guid.initString("96236a87-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_RdcGeneratorFilterMaxParameters = &CLSID_RdcGeneratorFilterMaxParameters_Value;
 
-const CLSID_RdcGenerator_Value = @import("../zig.zig").Guid.initString("96236a88-9dbc-11da-9e3f-0011114ae311");
+const CLSID_RdcGenerator_Value = Guid.initString("96236a88-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_RdcGenerator = &CLSID_RdcGenerator_Value;
 
-const CLSID_RdcFileReader_Value = @import("../zig.zig").Guid.initString("96236a89-9dbc-11da-9e3f-0011114ae311");
+const CLSID_RdcFileReader_Value = Guid.initString("96236a89-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_RdcFileReader = &CLSID_RdcFileReader_Value;
 
-const CLSID_RdcSignatureReader_Value = @import("../zig.zig").Guid.initString("96236a8a-9dbc-11da-9e3f-0011114ae311");
+const CLSID_RdcSignatureReader_Value = Guid.initString("96236a8a-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_RdcSignatureReader = &CLSID_RdcSignatureReader_Value;
 
-const CLSID_RdcComparator_Value = @import("../zig.zig").Guid.initString("96236a8b-9dbc-11da-9e3f-0011114ae311");
+const CLSID_RdcComparator_Value = Guid.initString("96236a8b-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_RdcComparator = &CLSID_RdcComparator_Value;
 
-const CLSID_SimilarityReportProgress_Value = @import("../zig.zig").Guid.initString("96236a8d-9dbc-11da-9e3f-0011114ae311");
+const CLSID_SimilarityReportProgress_Value = Guid.initString("96236a8d-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_SimilarityReportProgress = &CLSID_SimilarityReportProgress_Value;
 
-const CLSID_SimilarityTableDumpState_Value = @import("../zig.zig").Guid.initString("96236a8e-9dbc-11da-9e3f-0011114ae311");
+const CLSID_SimilarityTableDumpState_Value = Guid.initString("96236a8e-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_SimilarityTableDumpState = &CLSID_SimilarityTableDumpState_Value;
 
-const CLSID_SimilarityTraitsTable_Value = @import("../zig.zig").Guid.initString("96236a8f-9dbc-11da-9e3f-0011114ae311");
+const CLSID_SimilarityTraitsTable_Value = Guid.initString("96236a8f-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_SimilarityTraitsTable = &CLSID_SimilarityTraitsTable_Value;
 
-const CLSID_SimilarityFileIdTable_Value = @import("../zig.zig").Guid.initString("96236a90-9dbc-11da-9e3f-0011114ae311");
+const CLSID_SimilarityFileIdTable_Value = Guid.initString("96236a90-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_SimilarityFileIdTable = &CLSID_SimilarityFileIdTable_Value;
 
-const CLSID_Similarity_Value = @import("../zig.zig").Guid.initString("96236a91-9dbc-11da-9e3f-0011114ae311");
+const CLSID_Similarity_Value = Guid.initString("96236a91-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_Similarity = &CLSID_Similarity_Value;
 
-const CLSID_RdcSimilarityGenerator_Value = @import("../zig.zig").Guid.initString("96236a92-9dbc-11da-9e3f-0011114ae311");
+const CLSID_RdcSimilarityGenerator_Value = Guid.initString("96236a92-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_RdcSimilarityGenerator = &CLSID_RdcSimilarityGenerator_Value;
 
-const CLSID_FindSimilarResults_Value = @import("../zig.zig").Guid.initString("96236a93-9dbc-11da-9e3f-0011114ae311");
+const CLSID_FindSimilarResults_Value = Guid.initString("96236a93-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_FindSimilarResults = &CLSID_FindSimilarResults_Value;
 
-const CLSID_SimilarityTraitsMapping_Value = @import("../zig.zig").Guid.initString("96236a94-9dbc-11da-9e3f-0011114ae311");
+const CLSID_SimilarityTraitsMapping_Value = Guid.initString("96236a94-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_SimilarityTraitsMapping = &CLSID_SimilarityTraitsMapping_Value;
 
-const CLSID_SimilarityTraitsMappedView_Value = @import("../zig.zig").Guid.initString("96236a95-9dbc-11da-9e3f-0011114ae311");
+const CLSID_SimilarityTraitsMappedView_Value = Guid.initString("96236a95-9dbc-11da-9e3f-0011114ae311");
 pub const CLSID_SimilarityTraitsMappedView = &CLSID_SimilarityTraitsMappedView_Value;
 
 pub const RDC_ErrorCode = enum(i32) {
@@ -192,30 +192,57 @@ pub const SimilarityFileId = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IRdcGeneratorParameters_Value = @import("../zig.zig").Guid.initString("96236a71-9dbc-11da-9e3f-0011114ae311");
+const IID_IRdcGeneratorParameters_Value = Guid.initString("96236a71-9dbc-11da-9e3f-0011114ae311");
 pub const IID_IRdcGeneratorParameters = &IID_IRdcGeneratorParameters_Value;
 pub const IRdcGeneratorParameters = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetGeneratorParametersType: fn(
-            self: *const IRdcGeneratorParameters,
-            parametersType: ?*GeneratorParametersType,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetParametersVersion: fn(
-            self: *const IRdcGeneratorParameters,
-            currentVersion: ?*u32,
-            minimumCompatibleAppVersion: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSerializeSize: fn(
-            self: *const IRdcGeneratorParameters,
-            size: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Serialize: fn(
-            self: *const IRdcGeneratorParameters,
-            size: u32,
-            parametersBlob: ?*u8,
-            bytesWritten: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetGeneratorParametersType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcGeneratorParameters,
+                parametersType: ?*GeneratorParametersType,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcGeneratorParameters,
+                parametersType: ?*GeneratorParametersType,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetParametersVersion: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcGeneratorParameters,
+                currentVersion: ?*u32,
+                minimumCompatibleAppVersion: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcGeneratorParameters,
+                currentVersion: ?*u32,
+                minimumCompatibleAppVersion: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSerializeSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcGeneratorParameters,
+                size: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcGeneratorParameters,
+                size: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Serialize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcGeneratorParameters,
+                size: u32,
+                parametersBlob: ?*u8,
+                bytesWritten: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcGeneratorParameters,
+                size: u32,
+                parametersBlob: ?*u8,
+                bytesWritten: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -241,27 +268,51 @@ pub const IRdcGeneratorParameters = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IRdcGeneratorFilterMaxParameters_Value = @import("../zig.zig").Guid.initString("96236a72-9dbc-11da-9e3f-0011114ae311");
+const IID_IRdcGeneratorFilterMaxParameters_Value = Guid.initString("96236a72-9dbc-11da-9e3f-0011114ae311");
 pub const IID_IRdcGeneratorFilterMaxParameters = &IID_IRdcGeneratorFilterMaxParameters_Value;
 pub const IRdcGeneratorFilterMaxParameters = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetHorizonSize: fn(
-            self: *const IRdcGeneratorFilterMaxParameters,
-            horizonSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetHorizonSize: fn(
-            self: *const IRdcGeneratorFilterMaxParameters,
-            horizonSize: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHashWindowSize: fn(
-            self: *const IRdcGeneratorFilterMaxParameters,
-            hashWindowSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetHashWindowSize: fn(
-            self: *const IRdcGeneratorFilterMaxParameters,
-            hashWindowSize: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetHorizonSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcGeneratorFilterMaxParameters,
+                horizonSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcGeneratorFilterMaxParameters,
+                horizonSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetHorizonSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcGeneratorFilterMaxParameters,
+                horizonSize: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcGeneratorFilterMaxParameters,
+                horizonSize: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHashWindowSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcGeneratorFilterMaxParameters,
+                hashWindowSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcGeneratorFilterMaxParameters,
+                hashWindowSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetHashWindowSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcGeneratorFilterMaxParameters,
+                hashWindowSize: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcGeneratorFilterMaxParameters,
+                hashWindowSize: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -287,25 +338,43 @@ pub const IRdcGeneratorFilterMaxParameters = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IRdcGenerator_Value = @import("../zig.zig").Guid.initString("96236a73-9dbc-11da-9e3f-0011114ae311");
+const IID_IRdcGenerator_Value = Guid.initString("96236a73-9dbc-11da-9e3f-0011114ae311");
 pub const IID_IRdcGenerator = &IID_IRdcGenerator_Value;
 pub const IRdcGenerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetGeneratorParameters: fn(
-            self: *const IRdcGenerator,
-            level: u32,
-            iGeneratorParameters: ?*?*IRdcGeneratorParameters,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Process: fn(
-            self: *const IRdcGenerator,
-            endOfInput: BOOL,
-            endOfOutput: ?*BOOL,
-            inputBuffer: ?*RdcBufferPointer,
-            depth: u32,
-            outputBuffers: [*]?*RdcBufferPointer,
-            rdc_ErrorCode: ?*RDC_ErrorCode,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetGeneratorParameters: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcGenerator,
+                level: u32,
+                iGeneratorParameters: ?*?*IRdcGeneratorParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcGenerator,
+                level: u32,
+                iGeneratorParameters: ?*?*IRdcGeneratorParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Process: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcGenerator,
+                endOfInput: BOOL,
+                endOfOutput: ?*BOOL,
+                inputBuffer: ?*RdcBufferPointer,
+                depth: u32,
+                outputBuffers: [*]?*RdcBufferPointer,
+                rdc_ErrorCode: ?*RDC_ErrorCode,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcGenerator,
+                endOfInput: BOOL,
+                endOfOutput: ?*BOOL,
+                inputBuffer: ?*RdcBufferPointer,
+                depth: u32,
+                outputBuffers: [*]?*RdcBufferPointer,
+                rdc_ErrorCode: ?*RDC_ErrorCode,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -323,27 +392,49 @@ pub const IRdcGenerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IRdcFileReader_Value = @import("../zig.zig").Guid.initString("96236a74-9dbc-11da-9e3f-0011114ae311");
+const IID_IRdcFileReader_Value = Guid.initString("96236a74-9dbc-11da-9e3f-0011114ae311");
 pub const IID_IRdcFileReader = &IID_IRdcFileReader_Value;
 pub const IRdcFileReader = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetFileSize: fn(
-            self: *const IRdcFileReader,
-            fileSize: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Read: fn(
-            self: *const IRdcFileReader,
-            offsetFileStart: u64,
-            bytesToRead: u32,
-            bytesActuallyRead: ?*u32,
-            buffer: ?*u8,
-            eof: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFilePosition: fn(
-            self: *const IRdcFileReader,
-            offsetFromStart: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetFileSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcFileReader,
+                fileSize: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcFileReader,
+                fileSize: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Read: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcFileReader,
+                offsetFileStart: u64,
+                bytesToRead: u32,
+                bytesActuallyRead: ?*u32,
+                buffer: ?*u8,
+                eof: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcFileReader,
+                offsetFileStart: u64,
+                bytesToRead: u32,
+                bytesActuallyRead: ?*u32,
+                buffer: ?*u8,
+                eof: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFilePosition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcFileReader,
+                offsetFromStart: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcFileReader,
+                offsetFromStart: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -365,23 +456,41 @@ pub const IRdcFileReader = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IRdcFileWriter_Value = @import("../zig.zig").Guid.initString("96236a75-9dbc-11da-9e3f-0011114ae311");
+const IID_IRdcFileWriter_Value = Guid.initString("96236a75-9dbc-11da-9e3f-0011114ae311");
 pub const IID_IRdcFileWriter = &IID_IRdcFileWriter_Value;
 pub const IRdcFileWriter = extern struct {
     pub const VTable = extern struct {
         base: IRdcFileReader.VTable,
-        Write: fn(
-            self: *const IRdcFileWriter,
-            offsetFileStart: u64,
-            bytesToWrite: u32,
-            buffer: ?*u8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Truncate: fn(
-            self: *const IRdcFileWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DeleteOnClose: fn(
-            self: *const IRdcFileWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Write: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcFileWriter,
+                offsetFileStart: u64,
+                bytesToWrite: u32,
+                buffer: ?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcFileWriter,
+                offsetFileStart: u64,
+                bytesToWrite: u32,
+                buffer: ?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Truncate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcFileWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcFileWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DeleteOnClose: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcFileWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcFileWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -403,20 +512,33 @@ pub const IRdcFileWriter = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IRdcSignatureReader_Value = @import("../zig.zig").Guid.initString("96236a76-9dbc-11da-9e3f-0011114ae311");
+const IID_IRdcSignatureReader_Value = Guid.initString("96236a76-9dbc-11da-9e3f-0011114ae311");
 pub const IID_IRdcSignatureReader = &IID_IRdcSignatureReader_Value;
 pub const IRdcSignatureReader = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ReadHeader: fn(
-            self: *const IRdcSignatureReader,
-            rdc_ErrorCode: ?*RDC_ErrorCode,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ReadSignatures: fn(
-            self: *const IRdcSignatureReader,
-            rdcSignaturePointer: ?*RdcSignaturePointer,
-            endOfOutput: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ReadHeader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcSignatureReader,
+                rdc_ErrorCode: ?*RDC_ErrorCode,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcSignatureReader,
+                rdc_ErrorCode: ?*RDC_ErrorCode,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ReadSignatures: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcSignatureReader,
+                rdcSignaturePointer: ?*RdcSignaturePointer,
+                endOfOutput: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcSignatureReader,
+                rdcSignaturePointer: ?*RdcSignaturePointer,
+                endOfOutput: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -434,19 +556,29 @@ pub const IRdcSignatureReader = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IRdcComparator_Value = @import("../zig.zig").Guid.initString("96236a77-9dbc-11da-9e3f-0011114ae311");
+const IID_IRdcComparator_Value = Guid.initString("96236a77-9dbc-11da-9e3f-0011114ae311");
 pub const IID_IRdcComparator = &IID_IRdcComparator_Value;
 pub const IRdcComparator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Process: fn(
-            self: *const IRdcComparator,
-            endOfInput: BOOL,
-            endOfOutput: ?*BOOL,
-            inputBuffer: ?*RdcBufferPointer,
-            outputBuffer: ?*RdcNeedPointer,
-            rdc_ErrorCode: ?*RDC_ErrorCode,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Process: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcComparator,
+                endOfInput: BOOL,
+                endOfOutput: ?*BOOL,
+                inputBuffer: ?*RdcBufferPointer,
+                outputBuffer: ?*RdcNeedPointer,
+                rdc_ErrorCode: ?*RDC_ErrorCode,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcComparator,
+                endOfInput: BOOL,
+                endOfOutput: ?*BOOL,
+                inputBuffer: ?*RdcBufferPointer,
+                outputBuffer: ?*RdcNeedPointer,
+                rdc_ErrorCode: ?*RDC_ErrorCode,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -460,50 +592,103 @@ pub const IRdcComparator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IRdcLibrary_Value = @import("../zig.zig").Guid.initString("96236a78-9dbc-11da-9e3f-0011114ae311");
+const IID_IRdcLibrary_Value = Guid.initString("96236a78-9dbc-11da-9e3f-0011114ae311");
 pub const IID_IRdcLibrary = &IID_IRdcLibrary_Value;
 pub const IRdcLibrary = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ComputeDefaultRecursionDepth: fn(
-            self: *const IRdcLibrary,
-            fileSize: u64,
-            depth: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateGeneratorParameters: fn(
-            self: *const IRdcLibrary,
-            parametersType: GeneratorParametersType,
-            level: u32,
-            iGeneratorParameters: ?*?*IRdcGeneratorParameters,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OpenGeneratorParameters: fn(
-            self: *const IRdcLibrary,
-            size: u32,
-            parametersBlob: ?*const u8,
-            iGeneratorParameters: ?*?*IRdcGeneratorParameters,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateGenerator: fn(
-            self: *const IRdcLibrary,
-            depth: u32,
-            iGeneratorParametersArray: [*]?*IRdcGeneratorParameters,
-            iGenerator: ?*?*IRdcGenerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateComparator: fn(
-            self: *const IRdcLibrary,
-            iSeedSignaturesFile: ?*IRdcFileReader,
-            comparatorBufferSize: u32,
-            iComparator: ?*?*IRdcComparator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateSignatureReader: fn(
-            self: *const IRdcLibrary,
-            iFileReader: ?*IRdcFileReader,
-            iSignatureReader: ?*?*IRdcSignatureReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRDCVersion: fn(
-            self: *const IRdcLibrary,
-            currentVersion: ?*u32,
-            minimumCompatibleAppVersion: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ComputeDefaultRecursionDepth: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcLibrary,
+                fileSize: u64,
+                depth: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcLibrary,
+                fileSize: u64,
+                depth: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateGeneratorParameters: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcLibrary,
+                parametersType: GeneratorParametersType,
+                level: u32,
+                iGeneratorParameters: ?*?*IRdcGeneratorParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcLibrary,
+                parametersType: GeneratorParametersType,
+                level: u32,
+                iGeneratorParameters: ?*?*IRdcGeneratorParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OpenGeneratorParameters: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcLibrary,
+                size: u32,
+                parametersBlob: ?*const u8,
+                iGeneratorParameters: ?*?*IRdcGeneratorParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcLibrary,
+                size: u32,
+                parametersBlob: ?*const u8,
+                iGeneratorParameters: ?*?*IRdcGeneratorParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateGenerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcLibrary,
+                depth: u32,
+                iGeneratorParametersArray: [*]?*IRdcGeneratorParameters,
+                iGenerator: ?*?*IRdcGenerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcLibrary,
+                depth: u32,
+                iGeneratorParametersArray: [*]?*IRdcGeneratorParameters,
+                iGenerator: ?*?*IRdcGenerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateComparator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcLibrary,
+                iSeedSignaturesFile: ?*IRdcFileReader,
+                comparatorBufferSize: u32,
+                iComparator: ?*?*IRdcComparator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcLibrary,
+                iSeedSignaturesFile: ?*IRdcFileReader,
+                comparatorBufferSize: u32,
+                iComparator: ?*?*IRdcComparator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateSignatureReader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcLibrary,
+                iFileReader: ?*IRdcFileReader,
+                iSignatureReader: ?*?*IRdcSignatureReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcLibrary,
+                iFileReader: ?*IRdcFileReader,
+                iSignatureReader: ?*?*IRdcSignatureReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRDCVersion: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcLibrary,
+                currentVersion: ?*u32,
+                minimumCompatibleAppVersion: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcLibrary,
+                currentVersion: ?*u32,
+                minimumCompatibleAppVersion: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -541,15 +726,21 @@ pub const IRdcLibrary = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_ISimilarityReportProgress_Value = @import("../zig.zig").Guid.initString("96236a7a-9dbc-11da-9e3f-0011114ae311");
+const IID_ISimilarityReportProgress_Value = Guid.initString("96236a7a-9dbc-11da-9e3f-0011114ae311");
 pub const IID_ISimilarityReportProgress = &IID_ISimilarityReportProgress_Value;
 pub const ISimilarityReportProgress = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ReportProgress: fn(
-            self: *const ISimilarityReportProgress,
-            percentCompleted: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ReportProgress: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityReportProgress,
+                percentCompleted: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityReportProgress,
+                percentCompleted: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -563,18 +754,27 @@ pub const ISimilarityReportProgress = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_ISimilarityTableDumpState_Value = @import("../zig.zig").Guid.initString("96236a7b-9dbc-11da-9e3f-0011114ae311");
+const IID_ISimilarityTableDumpState_Value = Guid.initString("96236a7b-9dbc-11da-9e3f-0011114ae311");
 pub const IID_ISimilarityTableDumpState = &IID_ISimilarityTableDumpState_Value;
 pub const ISimilarityTableDumpState = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetNextData: fn(
-            self: *const ISimilarityTableDumpState,
-            resultsSize: u32,
-            resultsUsed: ?*u32,
-            eof: ?*BOOL,
-            results: ?*SimilarityDumpData,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetNextData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTableDumpState,
+                resultsSize: u32,
+                resultsUsed: ?*u32,
+                eof: ?*BOOL,
+                results: ?*SimilarityDumpData,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTableDumpState,
+                resultsSize: u32,
+                resultsUsed: ?*u32,
+                eof: ?*BOOL,
+                results: ?*SimilarityDumpData,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -588,29 +788,55 @@ pub const ISimilarityTableDumpState = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_ISimilarityTraitsMappedView_Value = @import("../zig.zig").Guid.initString("96236a7c-9dbc-11da-9e3f-0011114ae311");
+const IID_ISimilarityTraitsMappedView_Value = Guid.initString("96236a7c-9dbc-11da-9e3f-0011114ae311");
 pub const IID_ISimilarityTraitsMappedView = &IID_ISimilarityTraitsMappedView_Value;
 pub const ISimilarityTraitsMappedView = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Flush: fn(
-            self: *const ISimilarityTraitsMappedView,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Unmap: fn(
-            self: *const ISimilarityTraitsMappedView,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Get: fn(
-            self: *const ISimilarityTraitsMappedView,
-            index: u64,
-            dirty: BOOL,
-            numElements: u32,
-            viewInfo: ?*SimilarityMappedViewInfo,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetView: fn(
-            self: *const ISimilarityTraitsMappedView,
-            mappedPageBegin: ?*const ?*u8,
-            mappedPageEnd: ?*const ?*u8,
-        ) callconv(@import("std").os.windows.WINAPI) void,
+        Flush: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsMappedView,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsMappedView,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Unmap: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsMappedView,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsMappedView,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Get: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsMappedView,
+                index: u64,
+                dirty: BOOL,
+                numElements: u32,
+                viewInfo: ?*SimilarityMappedViewInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsMappedView,
+                index: u64,
+                dirty: BOOL,
+                numElements: u32,
+                viewInfo: ?*SimilarityMappedViewInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetView: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsMappedView,
+                mappedPageBegin: ?*const ?*u8,
+                mappedPageEnd: ?*const ?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+            else => *const fn(
+                self: *const ISimilarityTraitsMappedView,
+                mappedPageBegin: ?*const ?*u8,
+                mappedPageEnd: ?*const ?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -636,46 +862,95 @@ pub const ISimilarityTraitsMappedView = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_ISimilarityTraitsMapping_Value = @import("../zig.zig").Guid.initString("96236a7d-9dbc-11da-9e3f-0011114ae311");
+const IID_ISimilarityTraitsMapping_Value = Guid.initString("96236a7d-9dbc-11da-9e3f-0011114ae311");
 pub const IID_ISimilarityTraitsMapping = &IID_ISimilarityTraitsMapping_Value;
 pub const ISimilarityTraitsMapping = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CloseMapping: fn(
-            self: *const ISimilarityTraitsMapping,
-        ) callconv(@import("std").os.windows.WINAPI) void,
-        SetFileSize: fn(
-            self: *const ISimilarityTraitsMapping,
-            fileSize: u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFileSize: fn(
-            self: *const ISimilarityTraitsMapping,
-            fileSize: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OpenMapping: fn(
-            self: *const ISimilarityTraitsMapping,
-            accessMode: RdcMappingAccessMode,
-            begin: u64,
-            end: u64,
-            actualEnd: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ResizeMapping: fn(
-            self: *const ISimilarityTraitsMapping,
-            accessMode: RdcMappingAccessMode,
-            begin: u64,
-            end: u64,
-            actualEnd: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPageSize: fn(
-            self: *const ISimilarityTraitsMapping,
-            pageSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) void,
-        CreateView: fn(
-            self: *const ISimilarityTraitsMapping,
-            minimumMappedPages: u32,
-            accessMode: RdcMappingAccessMode,
-            mappedView: ?*?*ISimilarityTraitsMappedView,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CloseMapping: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsMapping,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+            else => *const fn(
+                self: *const ISimilarityTraitsMapping,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+        },
+        SetFileSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsMapping,
+                fileSize: u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsMapping,
+                fileSize: u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFileSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsMapping,
+                fileSize: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsMapping,
+                fileSize: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OpenMapping: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsMapping,
+                accessMode: RdcMappingAccessMode,
+                begin: u64,
+                end: u64,
+                actualEnd: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsMapping,
+                accessMode: RdcMappingAccessMode,
+                begin: u64,
+                end: u64,
+                actualEnd: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ResizeMapping: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsMapping,
+                accessMode: RdcMappingAccessMode,
+                begin: u64,
+                end: u64,
+                actualEnd: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsMapping,
+                accessMode: RdcMappingAccessMode,
+                begin: u64,
+                end: u64,
+                actualEnd: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPageSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsMapping,
+                pageSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+            else => *const fn(
+                self: *const ISimilarityTraitsMapping,
+                pageSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+        },
+        CreateView: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsMapping,
+                minimumMappedPages: u32,
+                accessMode: RdcMappingAccessMode,
+                mappedView: ?*?*ISimilarityTraitsMappedView,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsMapping,
+                minimumMappedPages: u32,
+                accessMode: RdcMappingAccessMode,
+                mappedView: ?*?*ISimilarityTraitsMappedView,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -713,49 +988,101 @@ pub const ISimilarityTraitsMapping = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_ISimilarityTraitsTable_Value = @import("../zig.zig").Guid.initString("96236a7e-9dbc-11da-9e3f-0011114ae311");
+const IID_ISimilarityTraitsTable_Value = Guid.initString("96236a7e-9dbc-11da-9e3f-0011114ae311");
 pub const IID_ISimilarityTraitsTable = &IID_ISimilarityTraitsTable_Value;
 pub const ISimilarityTraitsTable = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateTable: fn(
-            self: *const ISimilarityTraitsTable,
-            path: ?PWSTR,
-            truncate: BOOL,
-            securityDescriptor: ?*u8,
-            isNew: ?*RdcCreatedTables,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateTableIndirect: fn(
-            self: *const ISimilarityTraitsTable,
-            mapping: ?*ISimilarityTraitsMapping,
-            truncate: BOOL,
-            isNew: ?*RdcCreatedTables,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CloseTable: fn(
-            self: *const ISimilarityTraitsTable,
-            isValid: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Append: fn(
-            self: *const ISimilarityTraitsTable,
-            data: ?*SimilarityData,
-            fileIndex: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        FindSimilarFileIndex: fn(
-            self: *const ISimilarityTraitsTable,
-            similarityData: ?*SimilarityData,
-            numberOfMatchesRequired: u16,
-            findSimilarFileIndexResults: ?*FindSimilarFileIndexResults,
-            resultsSize: u32,
-            resultsUsed: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        BeginDump: fn(
-            self: *const ISimilarityTraitsTable,
-            similarityTableDumpState: ?*?*ISimilarityTableDumpState,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetLastIndex: fn(
-            self: *const ISimilarityTraitsTable,
-            fileIndex: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateTable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsTable,
+                path: ?PWSTR,
+                truncate: BOOL,
+                securityDescriptor: ?*u8,
+                isNew: ?*RdcCreatedTables,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsTable,
+                path: ?PWSTR,
+                truncate: BOOL,
+                securityDescriptor: ?*u8,
+                isNew: ?*RdcCreatedTables,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateTableIndirect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsTable,
+                mapping: ?*ISimilarityTraitsMapping,
+                truncate: BOOL,
+                isNew: ?*RdcCreatedTables,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsTable,
+                mapping: ?*ISimilarityTraitsMapping,
+                truncate: BOOL,
+                isNew: ?*RdcCreatedTables,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CloseTable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsTable,
+                isValid: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsTable,
+                isValid: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Append: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsTable,
+                data: ?*SimilarityData,
+                fileIndex: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsTable,
+                data: ?*SimilarityData,
+                fileIndex: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        FindSimilarFileIndex: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsTable,
+                similarityData: ?*SimilarityData,
+                numberOfMatchesRequired: u16,
+                findSimilarFileIndexResults: ?*FindSimilarFileIndexResults,
+                resultsSize: u32,
+                resultsUsed: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsTable,
+                similarityData: ?*SimilarityData,
+                numberOfMatchesRequired: u16,
+                findSimilarFileIndexResults: ?*FindSimilarFileIndexResults,
+                resultsSize: u32,
+                resultsUsed: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        BeginDump: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsTable,
+                similarityTableDumpState: ?*?*ISimilarityTableDumpState,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsTable,
+                similarityTableDumpState: ?*?*ISimilarityTableDumpState,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetLastIndex: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityTraitsTable,
+                fileIndex: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityTraitsTable,
+                fileIndex: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -793,48 +1120,99 @@ pub const ISimilarityTraitsTable = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_ISimilarityFileIdTable_Value = @import("../zig.zig").Guid.initString("96236a7f-9dbc-11da-9e3f-0011114ae311");
+const IID_ISimilarityFileIdTable_Value = Guid.initString("96236a7f-9dbc-11da-9e3f-0011114ae311");
 pub const IID_ISimilarityFileIdTable = &IID_ISimilarityFileIdTable_Value;
 pub const ISimilarityFileIdTable = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateTable: fn(
-            self: *const ISimilarityFileIdTable,
-            path: ?PWSTR,
-            truncate: BOOL,
-            securityDescriptor: ?*u8,
-            recordSize: u32,
-            isNew: ?*RdcCreatedTables,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateTableIndirect: fn(
-            self: *const ISimilarityFileIdTable,
-            fileIdFile: ?*IRdcFileWriter,
-            truncate: BOOL,
-            recordSize: u32,
-            isNew: ?*RdcCreatedTables,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CloseTable: fn(
-            self: *const ISimilarityFileIdTable,
-            isValid: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Append: fn(
-            self: *const ISimilarityFileIdTable,
-            similarityFileId: ?*SimilarityFileId,
-            similarityFileIndex: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Lookup: fn(
-            self: *const ISimilarityFileIdTable,
-            similarityFileIndex: u32,
-            similarityFileId: ?*SimilarityFileId,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Invalidate: fn(
-            self: *const ISimilarityFileIdTable,
-            similarityFileIndex: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRecordCount: fn(
-            self: *const ISimilarityFileIdTable,
-            recordCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateTable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityFileIdTable,
+                path: ?PWSTR,
+                truncate: BOOL,
+                securityDescriptor: ?*u8,
+                recordSize: u32,
+                isNew: ?*RdcCreatedTables,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityFileIdTable,
+                path: ?PWSTR,
+                truncate: BOOL,
+                securityDescriptor: ?*u8,
+                recordSize: u32,
+                isNew: ?*RdcCreatedTables,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateTableIndirect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityFileIdTable,
+                fileIdFile: ?*IRdcFileWriter,
+                truncate: BOOL,
+                recordSize: u32,
+                isNew: ?*RdcCreatedTables,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityFileIdTable,
+                fileIdFile: ?*IRdcFileWriter,
+                truncate: BOOL,
+                recordSize: u32,
+                isNew: ?*RdcCreatedTables,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CloseTable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityFileIdTable,
+                isValid: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityFileIdTable,
+                isValid: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Append: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityFileIdTable,
+                similarityFileId: ?*SimilarityFileId,
+                similarityFileIndex: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityFileIdTable,
+                similarityFileId: ?*SimilarityFileId,
+                similarityFileIndex: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Lookup: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityFileIdTable,
+                similarityFileIndex: u32,
+                similarityFileId: ?*SimilarityFileId,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityFileIdTable,
+                similarityFileIndex: u32,
+                similarityFileId: ?*SimilarityFileId,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Invalidate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityFileIdTable,
+                similarityFileIndex: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityFileIdTable,
+                similarityFileIndex: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRecordCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarityFileIdTable,
+                recordCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarityFileIdTable,
+                recordCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -872,18 +1250,29 @@ pub const ISimilarityFileIdTable = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IRdcSimilarityGenerator_Value = @import("../zig.zig").Guid.initString("96236a80-9dbc-11da-9e3f-0011114ae311");
+const IID_IRdcSimilarityGenerator_Value = Guid.initString("96236a80-9dbc-11da-9e3f-0011114ae311");
 pub const IID_IRdcSimilarityGenerator = &IID_IRdcSimilarityGenerator_Value;
 pub const IRdcSimilarityGenerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        EnableSimilarity: fn(
-            self: *const IRdcSimilarityGenerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Results: fn(
-            self: *const IRdcSimilarityGenerator,
-            similarityData: ?*SimilarityData,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        EnableSimilarity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcSimilarityGenerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcSimilarityGenerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Results: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRdcSimilarityGenerator,
+                similarityData: ?*SimilarityData,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRdcSimilarityGenerator,
+                similarityData: ?*SimilarityData,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -901,20 +1290,33 @@ pub const IRdcSimilarityGenerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IFindSimilarResults_Value = @import("../zig.zig").Guid.initString("96236a81-9dbc-11da-9e3f-0011114ae311");
+const IID_IFindSimilarResults_Value = Guid.initString("96236a81-9dbc-11da-9e3f-0011114ae311");
 pub const IID_IFindSimilarResults = &IID_IFindSimilarResults_Value;
 pub const IFindSimilarResults = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetSize: fn(
-            self: *const IFindSimilarResults,
-            size: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNextFileId: fn(
-            self: *const IFindSimilarResults,
-            numTraitsMatched: ?*u32,
-            similarityFileId: ?*SimilarityFileId,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFindSimilarResults,
+                size: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFindSimilarResults,
+                size: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNextFileId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFindSimilarResults,
+                numTraitsMatched: ?*u32,
+                similarityFileId: ?*SimilarityFileId,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFindSimilarResults,
+                numTraitsMatched: ?*u32,
+                similarityFileId: ?*SimilarityFileId,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -932,52 +1334,107 @@ pub const IFindSimilarResults = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_ISimilarity_Value = @import("../zig.zig").Guid.initString("96236a83-9dbc-11da-9e3f-0011114ae311");
+const IID_ISimilarity_Value = Guid.initString("96236a83-9dbc-11da-9e3f-0011114ae311");
 pub const IID_ISimilarity = &IID_ISimilarity_Value;
 pub const ISimilarity = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateTable: fn(
-            self: *const ISimilarity,
-            path: ?PWSTR,
-            truncate: BOOL,
-            securityDescriptor: ?*u8,
-            recordSize: u32,
-            isNew: ?*RdcCreatedTables,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateTableIndirect: fn(
-            self: *const ISimilarity,
-            mapping: ?*ISimilarityTraitsMapping,
-            fileIdFile: ?*IRdcFileWriter,
-            truncate: BOOL,
-            recordSize: u32,
-            isNew: ?*RdcCreatedTables,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CloseTable: fn(
-            self: *const ISimilarity,
-            isValid: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Append: fn(
-            self: *const ISimilarity,
-            similarityFileId: ?*SimilarityFileId,
-            similarityData: ?*SimilarityData,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        FindSimilarFileId: fn(
-            self: *const ISimilarity,
-            similarityData: ?*SimilarityData,
-            numberOfMatchesRequired: u16,
-            resultsSize: u32,
-            findSimilarResults: ?*?*IFindSimilarResults,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CopyAndSwap: fn(
-            self: *const ISimilarity,
-            newSimilarityTables: ?*ISimilarity,
-            reportProgress: ?*ISimilarityReportProgress,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRecordCount: fn(
-            self: *const ISimilarity,
-            recordCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateTable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarity,
+                path: ?PWSTR,
+                truncate: BOOL,
+                securityDescriptor: ?*u8,
+                recordSize: u32,
+                isNew: ?*RdcCreatedTables,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarity,
+                path: ?PWSTR,
+                truncate: BOOL,
+                securityDescriptor: ?*u8,
+                recordSize: u32,
+                isNew: ?*RdcCreatedTables,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateTableIndirect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarity,
+                mapping: ?*ISimilarityTraitsMapping,
+                fileIdFile: ?*IRdcFileWriter,
+                truncate: BOOL,
+                recordSize: u32,
+                isNew: ?*RdcCreatedTables,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarity,
+                mapping: ?*ISimilarityTraitsMapping,
+                fileIdFile: ?*IRdcFileWriter,
+                truncate: BOOL,
+                recordSize: u32,
+                isNew: ?*RdcCreatedTables,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CloseTable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarity,
+                isValid: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarity,
+                isValid: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Append: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarity,
+                similarityFileId: ?*SimilarityFileId,
+                similarityData: ?*SimilarityData,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarity,
+                similarityFileId: ?*SimilarityFileId,
+                similarityData: ?*SimilarityData,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        FindSimilarFileId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarity,
+                similarityData: ?*SimilarityData,
+                numberOfMatchesRequired: u16,
+                resultsSize: u32,
+                findSimilarResults: ?*?*IFindSimilarResults,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarity,
+                similarityData: ?*SimilarityData,
+                numberOfMatchesRequired: u16,
+                resultsSize: u32,
+                findSimilarResults: ?*?*IFindSimilarResults,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CopyAndSwap: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarity,
+                newSimilarityTables: ?*ISimilarity,
+                reportProgress: ?*ISimilarityReportProgress,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarity,
+                newSimilarityTables: ?*ISimilarity,
+                reportProgress: ?*ISimilarityReportProgress,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRecordCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISimilarity,
+                recordCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISimilarity,
+                recordCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1033,8 +1490,9 @@ pub usingnamespace switch (@import("../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (4)
+// Section: Imports (5)
 //--------------------------------------------------------------------------------
+const Guid = @import("../zig.zig").Guid;
 const BOOL = @import("../foundation.zig").BOOL;
 const HRESULT = @import("../foundation.zig").HRESULT;
 const IUnknown = @import("../system/com.zig").IUnknown;
@@ -1042,14 +1500,14 @@ const PWSTR = @import("../foundation.zig").PWSTR;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

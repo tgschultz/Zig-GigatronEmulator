@@ -8,16 +8,23 @@ pub const CLSID_VideoFrameNativeFactory = Guid.initString("d194386a-04e3-4814-81
 //--------------------------------------------------------------------------------
 // Section: Types (4)
 //--------------------------------------------------------------------------------
-const IID_IAudioFrameNative_Value = @import("../../zig.zig").Guid.initString("20be1e2e-930f-4746-9335-3c332f255093");
+const IID_IAudioFrameNative_Value = Guid.initString("20be1e2e-930f-4746-9335-3c332f255093");
 pub const IID_IAudioFrameNative = &IID_IAudioFrameNative_Value;
 pub const IAudioFrameNative = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        GetData: fn(
-            self: *const IAudioFrameNative,
-            riid: ?*const Guid,
-            ppv: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAudioFrameNative,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAudioFrameNative,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -30,21 +37,35 @@ pub const IAudioFrameNative = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IVideoFrameNative_Value = @import("../../zig.zig").Guid.initString("26ba702b-314a-4620-aaf6-7a51aa58fa18");
+const IID_IVideoFrameNative_Value = Guid.initString("26ba702b-314a-4620-aaf6-7a51aa58fa18");
 pub const IID_IVideoFrameNative = &IID_IVideoFrameNative_Value;
 pub const IVideoFrameNative = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        GetData: fn(
-            self: *const IVideoFrameNative,
-            riid: ?*const Guid,
-            ppv: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDevice: fn(
-            self: *const IVideoFrameNative,
-            riid: ?*const Guid,
-            ppv: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IVideoFrameNative,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IVideoFrameNative,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDevice: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IVideoFrameNative,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IVideoFrameNative,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -61,18 +82,27 @@ pub const IVideoFrameNative = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAudioFrameNativeFactory_Value = @import("../../zig.zig").Guid.initString("7bd67cf8-bf7d-43e6-af8d-b170ee0c0110");
+const IID_IAudioFrameNativeFactory_Value = Guid.initString("7bd67cf8-bf7d-43e6-af8d-b170ee0c0110");
 pub const IID_IAudioFrameNativeFactory = &IID_IAudioFrameNativeFactory_Value;
 pub const IAudioFrameNativeFactory = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        CreateFromMFSample: fn(
-            self: *const IAudioFrameNativeFactory,
-            data: ?*IMFSample,
-            forceReadOnly: BOOL,
-            riid: ?*const Guid,
-            ppv: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateFromMFSample: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAudioFrameNativeFactory,
+                data: ?*IMFSample,
+                forceReadOnly: BOOL,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAudioFrameNativeFactory,
+                data: ?*IMFSample,
+                forceReadOnly: BOOL,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -85,23 +115,37 @@ pub const IAudioFrameNativeFactory = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IVideoFrameNativeFactory_Value = @import("../../zig.zig").Guid.initString("69e3693e-8e1e-4e63-ac4c-7fdc21d9731d");
+const IID_IVideoFrameNativeFactory_Value = Guid.initString("69e3693e-8e1e-4e63-ac4c-7fdc21d9731d");
 pub const IID_IVideoFrameNativeFactory = &IID_IVideoFrameNativeFactory_Value;
 pub const IVideoFrameNativeFactory = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        CreateFromMFSample: fn(
-            self: *const IVideoFrameNativeFactory,
-            data: ?*IMFSample,
-            subtype: ?*const Guid,
-            width: u32,
-            height: u32,
-            forceReadOnly: BOOL,
-            minDisplayAperture: ?*const MFVideoArea,
-            device: ?*IMFDXGIDeviceManager,
-            riid: ?*const Guid,
-            ppv: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateFromMFSample: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IVideoFrameNativeFactory,
+                data: ?*IMFSample,
+                subtype: ?*const Guid,
+                width: u32,
+                height: u32,
+                forceReadOnly: BOOL,
+                minDisplayAperture: ?*const MFVideoArea,
+                device: ?*IMFDXGIDeviceManager,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IVideoFrameNativeFactory,
+                data: ?*IMFSample,
+                subtype: ?*const Guid,
+                width: u32,
+                height: u32,
+                forceReadOnly: BOOL,
+                minDisplayAperture: ?*const MFVideoArea,
+                device: ?*IMFDXGIDeviceManager,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -145,14 +189,14 @@ const MFVideoArea = @import("../../media/media_foundation.zig").MFVideoArea;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

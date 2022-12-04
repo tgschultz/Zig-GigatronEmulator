@@ -721,23 +721,39 @@ pub const REGULAR_FONTTYPE = CHOOSEFONT_FONT_TYPE.REGULAR_FONTTYPE;
 pub const SCREEN_FONTTYPE = CHOOSEFONT_FONT_TYPE.SCREEN_FONTTYPE;
 pub const SIMULATED_FONTTYPE = CHOOSEFONT_FONT_TYPE.SIMULATED_FONTTYPE;
 
-pub const LPOFNHOOKPROC = fn(
-    param0: ?HWND,
-    param1: u32,
-    param2: WPARAM,
-    param3: LPARAM,
-) callconv(@import("std").os.windows.WINAPI) usize;
+pub const LPOFNHOOKPROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+    else => *const fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+} ;
 
 
 
 
 
-pub const LPCCHOOKPROC = fn(
-    param0: ?HWND,
-    param1: u32,
-    param2: WPARAM,
-    param3: LPARAM,
-) callconv(@import("std").os.windows.WINAPI) usize;
+pub const LPCCHOOKPROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+    else => *const fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+} ;
 
 
 
@@ -745,60 +761,112 @@ pub const LPCCHOOKPROC = fn(
 
 
 
-pub const LPFRHOOKPROC = fn(
-    param0: ?HWND,
-    param1: u32,
-    param2: WPARAM,
-    param3: LPARAM,
-) callconv(@import("std").os.windows.WINAPI) usize;
+pub const LPFRHOOKPROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+    else => *const fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+} ;
 
 
 
-pub const LPCFHOOKPROC = fn(
-    param0: ?HWND,
-    param1: u32,
-    param2: WPARAM,
-    param3: LPARAM,
-) callconv(@import("std").os.windows.WINAPI) usize;
+pub const LPCFHOOKPROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+    else => *const fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+} ;
 
 
 
-pub const LPPRINTHOOKPROC = fn(
-    param0: ?HWND,
-    param1: u32,
-    param2: WPARAM,
-    param3: LPARAM,
-) callconv(@import("std").os.windows.WINAPI) usize;
+pub const LPPRINTHOOKPROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+    else => *const fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+} ;
 
-pub const LPSETUPHOOKPROC = fn(
-    param0: ?HWND,
-    param1: u32,
-    param2: WPARAM,
-    param3: LPARAM,
-) callconv(@import("std").os.windows.WINAPI) usize;
+pub const LPSETUPHOOKPROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+    else => *const fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+} ;
 
 
 
 // TODO: this type is limited to platform 'windows5.0'
-const IID_IPrintDialogCallback_Value = @import("../../zig.zig").Guid.initString("5852a2c3-6530-11d1-b6a3-0000f8757bf9");
+const IID_IPrintDialogCallback_Value = Guid.initString("5852a2c3-6530-11d1-b6a3-0000f8757bf9");
 pub const IID_IPrintDialogCallback = &IID_IPrintDialogCallback_Value;
 pub const IPrintDialogCallback = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        InitDone: fn(
-            self: *const IPrintDialogCallback,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SelectionChange: fn(
-            self: *const IPrintDialogCallback,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        HandleMessage: fn(
-            self: *const IPrintDialogCallback,
-            hDlg: ?HWND,
-            uMsg: u32,
-            wParam: WPARAM,
-            lParam: LPARAM,
-            pResult: ?*LRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        InitDone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintDialogCallback,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintDialogCallback,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SelectionChange: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintDialogCallback,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintDialogCallback,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        HandleMessage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintDialogCallback,
+                hDlg: ?HWND,
+                uMsg: u32,
+                wParam: WPARAM,
+                lParam: LPARAM,
+                pResult: ?*LRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintDialogCallback,
+                hDlg: ?HWND,
+                uMsg: u32,
+                wParam: WPARAM,
+                lParam: LPARAM,
+                pResult: ?*LRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -820,26 +888,47 @@ pub const IPrintDialogCallback = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows5.0'
-const IID_IPrintDialogServices_Value = @import("../../zig.zig").Guid.initString("509aaeda-5639-11d1-b6a1-0000f8757bf9");
+const IID_IPrintDialogServices_Value = Guid.initString("509aaeda-5639-11d1-b6a1-0000f8757bf9");
 pub const IID_IPrintDialogServices = &IID_IPrintDialogServices_Value;
 pub const IPrintDialogServices = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrentDevMode: fn(
-            self: *const IPrintDialogServices,
-            pDevMode: ?*DEVMODEA,
-            pcbSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrentPrinterName: fn(
-            self: *const IPrintDialogServices,
-            pPrinterName: ?[*:0]u16,
-            pcchSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrentPortName: fn(
-            self: *const IPrintDialogServices,
-            pPortName: ?[*:0]u16,
-            pcchSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrentDevMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintDialogServices,
+                pDevMode: ?*DEVMODEA,
+                pcbSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintDialogServices,
+                pDevMode: ?*DEVMODEA,
+                pcbSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrentPrinterName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintDialogServices,
+                pPrinterName: ?[*:0]u16,
+                pcchSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintDialogServices,
+                pPrinterName: ?[*:0]u16,
+                pcchSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrentPortName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintDialogServices,
+                pPortName: ?[*:0]u16,
+                pcchSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintDialogServices,
+                pPortName: ?[*:0]u16,
+                pcchSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -864,19 +953,35 @@ pub const IPrintDialogServices = extern struct {
 
 
 
-pub const LPPAGEPAINTHOOK = fn(
-    param0: ?HWND,
-    param1: u32,
-    param2: WPARAM,
-    param3: LPARAM,
-) callconv(@import("std").os.windows.WINAPI) usize;
+pub const LPPAGEPAINTHOOK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+    else => *const fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+} ;
 
-pub const LPPAGESETUPHOOK = fn(
-    param0: ?HWND,
-    param1: u32,
-    param2: WPARAM,
-    param3: LPARAM,
-) callconv(@import("std").os.windows.WINAPI) usize;
+pub const LPPAGESETUPHOOK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+    else => *const fn(
+        param0: ?HWND,
+        param1: u32,
+        param2: WPARAM,
+        param3: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) usize,
+} ;
 
 
 
@@ -1611,100 +1716,100 @@ pub const PAGESETUPDLGW = switch(@import("../../zig.zig").arch) {
 // Section: Functions (21)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "COMDLG32" fn GetOpenFileNameA(
+pub extern "comdlg32" fn GetOpenFileNameA(
     param0: ?*OPENFILENAMEA,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "COMDLG32" fn GetOpenFileNameW(
+pub extern "comdlg32" fn GetOpenFileNameW(
     param0: ?*OPENFILENAMEW,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "COMDLG32" fn GetSaveFileNameA(
+pub extern "comdlg32" fn GetSaveFileNameA(
     param0: ?*OPENFILENAMEA,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "COMDLG32" fn GetSaveFileNameW(
+pub extern "comdlg32" fn GetSaveFileNameW(
     param0: ?*OPENFILENAMEW,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "COMDLG32" fn GetFileTitleA(
+pub extern "comdlg32" fn GetFileTitleA(
     param0: ?[*:0]const u8,
     Buf: [*:0]u8,
     cchSize: u16,
 ) callconv(@import("std").os.windows.WINAPI) i16;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "COMDLG32" fn GetFileTitleW(
+pub extern "comdlg32" fn GetFileTitleW(
     param0: ?[*:0]const u16,
     Buf: [*:0]u16,
     cchSize: u16,
 ) callconv(@import("std").os.windows.WINAPI) i16;
 
-pub extern "COMDLG32" fn ChooseColorA(
+pub extern "comdlg32" fn ChooseColorA(
     param0: ?*CHOOSECOLORA,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "COMDLG32" fn ChooseColorW(
+pub extern "comdlg32" fn ChooseColorW(
     param0: ?*CHOOSECOLORW,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "COMDLG32" fn FindTextA(
+pub extern "comdlg32" fn FindTextA(
     param0: ?*FINDREPLACEA,
 ) callconv(@import("std").os.windows.WINAPI) ?HWND;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "COMDLG32" fn FindTextW(
+pub extern "comdlg32" fn FindTextW(
     param0: ?*FINDREPLACEW,
 ) callconv(@import("std").os.windows.WINAPI) ?HWND;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "COMDLG32" fn ReplaceTextA(
+pub extern "comdlg32" fn ReplaceTextA(
     param0: ?*FINDREPLACEA,
 ) callconv(@import("std").os.windows.WINAPI) ?HWND;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "COMDLG32" fn ReplaceTextW(
+pub extern "comdlg32" fn ReplaceTextW(
     param0: ?*FINDREPLACEW,
 ) callconv(@import("std").os.windows.WINAPI) ?HWND;
 
-pub extern "COMDLG32" fn ChooseFontA(
+pub extern "comdlg32" fn ChooseFontA(
     param0: ?*CHOOSEFONTA,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "COMDLG32" fn ChooseFontW(
+pub extern "comdlg32" fn ChooseFontW(
     param0: ?*CHOOSEFONTW,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "COMDLG32" fn PrintDlgA(
+pub extern "comdlg32" fn PrintDlgA(
     pPD: ?*PRINTDLGA,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "COMDLG32" fn PrintDlgW(
+pub extern "comdlg32" fn PrintDlgW(
     pPD: ?*PRINTDLGW,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "COMDLG32" fn PrintDlgExA(
+pub extern "comdlg32" fn PrintDlgExA(
     pPD: ?*PRINTDLGEXA,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "COMDLG32" fn PrintDlgExW(
+pub extern "comdlg32" fn PrintDlgExW(
     pPD: ?*PRINTDLGEXW,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "COMDLG32" fn CommDlgExtendedError(
+pub extern "comdlg32" fn CommDlgExtendedError(
 ) callconv(@import("std").os.windows.WINAPI) COMMON_DLG_ERRORS;
 
-pub extern "COMDLG32" fn PageSetupDlgA(
+pub extern "comdlg32" fn PageSetupDlgA(
     param0: ?*PAGESETUPDLGA,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "COMDLG32" fn PageSetupDlgW(
+pub extern "comdlg32" fn PageSetupDlgW(
     param0: ?*PAGESETUPDLGW,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
@@ -1803,8 +1908,9 @@ pub usingnamespace switch (@import("../../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (18)
+// Section: Imports (19)
 //--------------------------------------------------------------------------------
+const Guid = @import("../../zig.zig").Guid;
 const BOOL = @import("../../foundation.zig").BOOL;
 const DEVMODEA = @import("../../graphics/gdi.zig").DEVMODEA;
 const HDC = @import("../../graphics/gdi.zig").HDC;
@@ -1836,14 +1942,14 @@ test {
     if (@hasDecl(@This(), "LPPAGESETUPHOOK")) { _ = LPPAGESETUPHOOK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

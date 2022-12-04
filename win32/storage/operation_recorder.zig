@@ -49,12 +49,12 @@ pub const OPERATION_END_PARAMETERS = extern struct {
 // Section: Functions (2)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "ADVAPI32" fn OperationStart(
+pub extern "advapi32" fn OperationStart(
     OperationStartParams: ?*OPERATION_START_PARAMETERS,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "ADVAPI32" fn OperationEnd(
+pub extern "advapi32" fn OperationEnd(
     OperationEndParams: ?*OPERATION_END_PARAMETERS,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
@@ -79,14 +79,14 @@ const BOOL = @import("../foundation.zig").BOOL;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

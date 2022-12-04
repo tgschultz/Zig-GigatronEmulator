@@ -6,7 +6,7 @@
 //--------------------------------------------------------------------------------
 // Section: Types (6)
 //--------------------------------------------------------------------------------
-const CLSID_WaaSAssessor_Value = @import("../zig.zig").Guid.initString("098ef871-fa9f-46af-8958-c083515d7c9c");
+const CLSID_WaaSAssessor_Value = Guid.initString("098ef871-fa9f-46af-8958-c083515d7c9c");
 pub const CLSID_WaaSAssessor = &CLSID_WaaSAssessor_Value;
 
 pub const UpdateImpactLevel = enum(i32) {
@@ -67,15 +67,21 @@ pub const OSUpdateAssessment = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-const IID_IWaaSAssessor_Value = @import("../zig.zig").Guid.initString("2347bbef-1a3b-45a4-902d-3e09c269b45e");
+const IID_IWaaSAssessor_Value = Guid.initString("2347bbef-1a3b-45a4-902d-3e09c269b45e");
 pub const IID_IWaaSAssessor = &IID_IWaaSAssessor_Value;
 pub const IWaaSAssessor = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetOSUpdateAssessment: fn(
-            self: *const IWaaSAssessor,
-            result: ?*OSUpdateAssessment,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetOSUpdateAssessment: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWaaSAssessor,
+                result: ?*OSUpdateAssessment,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWaaSAssessor,
+                result: ?*OSUpdateAssessment,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -107,8 +113,9 @@ pub usingnamespace switch (@import("../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (5)
+// Section: Imports (6)
 //--------------------------------------------------------------------------------
+const Guid = @import("../zig.zig").Guid;
 const BOOL = @import("../foundation.zig").BOOL;
 const FILETIME = @import("../foundation.zig").FILETIME;
 const HRESULT = @import("../foundation.zig").HRESULT;
@@ -117,14 +124,14 @@ const PWSTR = @import("../foundation.zig").PWSTR;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

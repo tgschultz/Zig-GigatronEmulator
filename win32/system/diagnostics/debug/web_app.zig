@@ -7,22 +7,37 @@
 // Section: Types (9)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IWebApplicationScriptEvents_Value = @import("../../../zig.zig").Guid.initString("7c3f6998-1567-4bba-b52b-48d32141d613");
+const IID_IWebApplicationScriptEvents_Value = Guid.initString("7c3f6998-1567-4bba-b52b-48d32141d613");
 pub const IID_IWebApplicationScriptEvents = &IID_IWebApplicationScriptEvents_Value;
 pub const IWebApplicationScriptEvents = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        BeforeScriptExecute: fn(
-            self: *const IWebApplicationScriptEvents,
-            htmlWindow: ?*IHTMLWindow2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ScriptError: fn(
-            self: *const IWebApplicationScriptEvents,
-            htmlWindow: ?*IHTMLWindow2,
-            scriptError: ?*IActiveScriptError,
-            url: ?[*:0]const u16,
-            errorHandled: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        BeforeScriptExecute: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationScriptEvents,
+                htmlWindow: ?*IHTMLWindow2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationScriptEvents,
+                htmlWindow: ?*IHTMLWindow2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ScriptError: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationScriptEvents,
+                htmlWindow: ?*IHTMLWindow2,
+                scriptError: ?*IActiveScriptError,
+                url: ?[*:0]const u16,
+                errorHandled: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationScriptEvents,
+                htmlWindow: ?*IHTMLWindow2,
+                scriptError: ?*IActiveScriptError,
+                url: ?[*:0]const u16,
+                errorHandled: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -40,41 +55,83 @@ pub const IWebApplicationScriptEvents = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IWebApplicationNavigationEvents_Value = @import("../../../zig.zig").Guid.initString("c22615d2-d318-4da2-8422-1fcaf77b10e4");
+const IID_IWebApplicationNavigationEvents_Value = Guid.initString("c22615d2-d318-4da2-8422-1fcaf77b10e4");
 pub const IID_IWebApplicationNavigationEvents = &IID_IWebApplicationNavigationEvents_Value;
 pub const IWebApplicationNavigationEvents = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        BeforeNavigate: fn(
-            self: *const IWebApplicationNavigationEvents,
-            htmlWindow: ?*IHTMLWindow2,
-            url: ?[*:0]const u16,
-            navigationFlags: u32,
-            targetFrameName: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        NavigateComplete: fn(
-            self: *const IWebApplicationNavigationEvents,
-            htmlWindow: ?*IHTMLWindow2,
-            url: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        NavigateError: fn(
-            self: *const IWebApplicationNavigationEvents,
-            htmlWindow: ?*IHTMLWindow2,
-            url: ?[*:0]const u16,
-            targetFrameName: ?[*:0]const u16,
-            statusCode: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DocumentComplete: fn(
-            self: *const IWebApplicationNavigationEvents,
-            htmlWindow: ?*IHTMLWindow2,
-            url: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DownloadBegin: fn(
-            self: *const IWebApplicationNavigationEvents,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DownloadComplete: fn(
-            self: *const IWebApplicationNavigationEvents,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        BeforeNavigate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationNavigationEvents,
+                htmlWindow: ?*IHTMLWindow2,
+                url: ?[*:0]const u16,
+                navigationFlags: u32,
+                targetFrameName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationNavigationEvents,
+                htmlWindow: ?*IHTMLWindow2,
+                url: ?[*:0]const u16,
+                navigationFlags: u32,
+                targetFrameName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        NavigateComplete: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationNavigationEvents,
+                htmlWindow: ?*IHTMLWindow2,
+                url: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationNavigationEvents,
+                htmlWindow: ?*IHTMLWindow2,
+                url: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        NavigateError: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationNavigationEvents,
+                htmlWindow: ?*IHTMLWindow2,
+                url: ?[*:0]const u16,
+                targetFrameName: ?[*:0]const u16,
+                statusCode: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationNavigationEvents,
+                htmlWindow: ?*IHTMLWindow2,
+                url: ?[*:0]const u16,
+                targetFrameName: ?[*:0]const u16,
+                statusCode: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DocumentComplete: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationNavigationEvents,
+                htmlWindow: ?*IHTMLWindow2,
+                url: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationNavigationEvents,
+                htmlWindow: ?*IHTMLWindow2,
+                url: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DownloadBegin: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationNavigationEvents,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationNavigationEvents,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DownloadComplete: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationNavigationEvents,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationNavigationEvents,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -108,16 +165,23 @@ pub const IWebApplicationNavigationEvents = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IWebApplicationUIEvents_Value = @import("../../../zig.zig").Guid.initString("5b2b3f99-328c-41d5-a6f7-7483ed8e71dd");
+const IID_IWebApplicationUIEvents_Value = Guid.initString("5b2b3f99-328c-41d5-a6f7-7483ed8e71dd");
 pub const IID_IWebApplicationUIEvents = &IID_IWebApplicationUIEvents_Value;
 pub const IWebApplicationUIEvents = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SecurityProblem: fn(
-            self: *const IWebApplicationUIEvents,
-            securityProblem: u32,
-            result: ?*HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SecurityProblem: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationUIEvents,
+                securityProblem: u32,
+                result: ?*HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationUIEvents,
+                securityProblem: u32,
+                result: ?*HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -131,17 +195,27 @@ pub const IWebApplicationUIEvents = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IWebApplicationUpdateEvents_Value = @import("../../../zig.zig").Guid.initString("3e59e6b7-c652-4daf-ad5e-16feb350cde3");
+const IID_IWebApplicationUpdateEvents_Value = Guid.initString("3e59e6b7-c652-4daf-ad5e-16feb350cde3");
 pub const IID_IWebApplicationUpdateEvents = &IID_IWebApplicationUpdateEvents_Value;
 pub const IWebApplicationUpdateEvents = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnPaint: fn(
-            self: *const IWebApplicationUpdateEvents,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnCssChanged: fn(
-            self: *const IWebApplicationUpdateEvents,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnPaint: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationUpdateEvents,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationUpdateEvents,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnCssChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationUpdateEvents,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationUpdateEvents,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -159,34 +233,69 @@ pub const IWebApplicationUpdateEvents = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IWebApplicationHost_Value = @import("../../../zig.zig").Guid.initString("cecbd2c3-a3a5-4749-9681-20e9161c6794");
+const IID_IWebApplicationHost_Value = Guid.initString("cecbd2c3-a3a5-4749-9681-20e9161c6794");
 pub const IID_IWebApplicationHost = &IID_IWebApplicationHost_Value;
 pub const IWebApplicationHost = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_HWND: fn(
-            self: *const IWebApplicationHost,
-            hwnd: ?*?HWND,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_HWND: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWebApplicationHost,
+                hwnd: ?*?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWebApplicationHost,
+                hwnd: ?*?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Document: fn(
-            self: *const IWebApplicationHost,
-            htmlDocument: ?*?*IHTMLDocument2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Refresh: fn(
-            self: *const IWebApplicationHost,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Advise: fn(
-            self: *const IWebApplicationHost,
-            interfaceId: ?*const Guid,
-            callback: ?*IUnknown,
-            cookie: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Unadvise: fn(
-            self: *const IWebApplicationHost,
-            cookie: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Document: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWebApplicationHost,
+                htmlDocument: ?*?*IHTMLDocument2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWebApplicationHost,
+                htmlDocument: ?*?*IHTMLDocument2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Refresh: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationHost,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationHost,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Advise: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationHost,
+                interfaceId: ?*const Guid,
+                callback: ?*IUnknown,
+                cookie: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationHost,
+                interfaceId: ?*const Guid,
+                callback: ?*IUnknown,
+                cookie: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Unadvise: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationHost,
+                cookie: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationHost,
+                cookie: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -216,14 +325,19 @@ pub const IWebApplicationHost = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IWebApplicationActivation_Value = @import("../../../zig.zig").Guid.initString("bcdcd0de-330e-481b-b843-4898a6a8ebac");
+const IID_IWebApplicationActivation_Value = Guid.initString("bcdcd0de-330e-481b-b843-4898a6a8ebac");
 pub const IID_IWebApplicationActivation = &IID_IWebApplicationActivation_Value;
 pub const IWebApplicationActivation = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CancelPendingActivation: fn(
-            self: *const IWebApplicationActivation,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CancelPendingActivation: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebApplicationActivation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebApplicationActivation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -237,16 +351,24 @@ pub const IWebApplicationActivation = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IWebApplicationAuthoringMode_Value = @import("../../../zig.zig").Guid.initString("720aea93-1964-4db0-b005-29eb9e2b18a9");
+const IID_IWebApplicationAuthoringMode_Value = Guid.initString("720aea93-1964-4db0-b005-29eb9e2b18a9");
 pub const IID_IWebApplicationAuthoringMode = &IID_IWebApplicationAuthoringMode_Value;
 pub const IWebApplicationAuthoringMode = extern struct {
     pub const VTable = extern struct {
         base: IServiceProvider.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_AuthoringClientBinary: fn(
-            self: *const IWebApplicationAuthoringMode,
-            designModeDllPath: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_AuthoringClientBinary: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWebApplicationAuthoringMode,
+                designModeDllPath: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWebApplicationAuthoringMode,
+                designModeDllPath: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -259,14 +381,25 @@ pub const IWebApplicationAuthoringMode = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-pub const RegisterAuthoringClientFunctionType = fn(
-    authoringModeObject: ?*IWebApplicationAuthoringMode,
-    host: ?*IWebApplicationHost,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const RegisterAuthoringClientFunctionType = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        authoringModeObject: ?*IWebApplicationAuthoringMode,
+        host: ?*IWebApplicationHost,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        authoringModeObject: ?*IWebApplicationAuthoringMode,
+        host: ?*IWebApplicationHost,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const UnregisterAuthoringClientFunctionType = fn(
-    host: ?*IWebApplicationHost,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const UnregisterAuthoringClientFunctionType = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        host: ?*IWebApplicationHost,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        host: ?*IWebApplicationHost,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
 
 //--------------------------------------------------------------------------------
@@ -307,14 +440,14 @@ test {
     if (@hasDecl(@This(), "UnregisterAuthoringClientFunctionType")) { _ = UnregisterAuthoringClientFunctionType; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

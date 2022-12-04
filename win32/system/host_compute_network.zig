@@ -39,12 +39,20 @@ pub const HcnNotificationGuestNetworkServiceInterfaceStateChanged = HCN_NOTIFICA
 pub const HcnNotificationServiceDisconnect = HCN_NOTIFICATIONS.ServiceDisconnect;
 pub const HcnNotificationFlagsReserved = HCN_NOTIFICATIONS.FlagsReserved;
 
-pub const HCN_NOTIFICATION_CALLBACK = fn(
-    NotificationType: u32,
-    Context: ?*anyopaque,
-    NotificationStatus: HRESULT,
-    NotificationData: ?[*:0]const u16,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const HCN_NOTIFICATION_CALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        NotificationType: u32,
+        Context: ?*anyopaque,
+        NotificationStatus: HRESULT,
+        NotificationData: ?[*:0]const u16,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        NotificationType: u32,
+        Context: ?*anyopaque,
+        NotificationStatus: HRESULT,
+        NotificationData: ?[*:0]const u16,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 pub const HCN_PORT_PROTOCOL = enum(i32) {
     TCP = 1,
@@ -346,14 +354,14 @@ test {
     if (@hasDecl(@This(), "HCN_NOTIFICATION_CALLBACK")) { _ = HCN_NOTIFICATION_CALLBACK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

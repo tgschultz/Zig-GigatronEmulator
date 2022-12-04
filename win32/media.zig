@@ -152,55 +152,103 @@ pub const MMTIME = packed struct {
     },
 };
 
-pub const LPDRVCALLBACK = fn(
-    hdrvr: ?HDRVR,
-    uMsg: u32,
-    dwUser: usize,
-    dw1: usize,
-    dw2: usize,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const LPDRVCALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        hdrvr: ?HDRVR,
+        uMsg: u32,
+        dwUser: usize,
+        dw1: usize,
+        dw2: usize,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        hdrvr: ?HDRVR,
+        uMsg: u32,
+        dwUser: usize,
+        dw1: usize,
+        dw2: usize,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 pub const TIMECAPS = extern struct {
     wPeriodMin: u32,
     wPeriodMax: u32,
 };
 
-pub const LPTIMECALLBACK = fn(
-    uTimerID: u32,
-    uMsg: u32,
-    dwUser: usize,
-    dw1: usize,
-    dw2: usize,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const LPTIMECALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        uTimerID: u32,
+        uMsg: u32,
+        dwUser: usize,
+        dw1: usize,
+        dw2: usize,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        uTimerID: u32,
+        uMsg: u32,
+        dwUser: usize,
+        dw1: usize,
+        dw2: usize,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 // TODO: this type is limited to platform 'windows5.0'
-const IID_IReferenceClock_Value = @import("zig.zig").Guid.initString("56a86897-0ad4-11ce-b03a-0020af0ba770");
+const IID_IReferenceClock_Value = Guid.initString("56a86897-0ad4-11ce-b03a-0020af0ba770");
 pub const IID_IReferenceClock = &IID_IReferenceClock_Value;
 pub const IReferenceClock = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetTime: fn(
-            self: *const IReferenceClock,
-            pTime: ?*i64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AdviseTime: fn(
-            self: *const IReferenceClock,
-            baseTime: i64,
-            streamTime: i64,
-            hEvent: ?HANDLE,
-            pdwAdviseCookie: ?*usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AdvisePeriodic: fn(
-            self: *const IReferenceClock,
-            startTime: i64,
-            periodTime: i64,
-            hSemaphore: ?HANDLE,
-            pdwAdviseCookie: ?*usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Unadvise: fn(
-            self: *const IReferenceClock,
-            dwAdviseCookie: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IReferenceClock,
+                pTime: ?*i64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IReferenceClock,
+                pTime: ?*i64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AdviseTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IReferenceClock,
+                baseTime: i64,
+                streamTime: i64,
+                hEvent: ?HANDLE,
+                pdwAdviseCookie: ?*usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IReferenceClock,
+                baseTime: i64,
+                streamTime: i64,
+                hEvent: ?HANDLE,
+                pdwAdviseCookie: ?*usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AdvisePeriodic: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IReferenceClock,
+                startTime: i64,
+                periodTime: i64,
+                hSemaphore: ?HANDLE,
+                pdwAdviseCookie: ?*usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IReferenceClock,
+                startTime: i64,
+                periodTime: i64,
+                hSemaphore: ?HANDLE,
+                pdwAdviseCookie: ?*usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Unadvise: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IReferenceClock,
+                dwAdviseCookie: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IReferenceClock,
+                dwAdviseCookie: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -226,19 +274,31 @@ pub const IReferenceClock = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IReferenceClockTimerControl_Value = @import("zig.zig").Guid.initString("ebec459c-2eca-4d42-a8af-30df557614b8");
+const IID_IReferenceClockTimerControl_Value = Guid.initString("ebec459c-2eca-4d42-a8af-30df557614b8");
 pub const IID_IReferenceClockTimerControl = &IID_IReferenceClockTimerControl_Value;
 pub const IReferenceClockTimerControl = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetDefaultTimerResolution: fn(
-            self: *const IReferenceClockTimerControl,
-            timerResolution: i64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDefaultTimerResolution: fn(
-            self: *const IReferenceClockTimerControl,
-            pTimerResolution: ?*i64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetDefaultTimerResolution: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IReferenceClockTimerControl,
+                timerResolution: i64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IReferenceClockTimerControl,
+                timerResolution: i64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDefaultTimerResolution: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IReferenceClockTimerControl,
+                pTimerResolution: ?*i64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IReferenceClockTimerControl,
+                pTimerResolution: ?*i64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -255,7 +315,7 @@ pub const IReferenceClockTimerControl = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IReferenceClock2_Value = @import("zig.zig").Guid.initString("36b73885-c2c8-11cf-8b46-00805f6cef60");
+const IID_IReferenceClock2_Value = Guid.initString("36b73885-c2c8-11cf-8b46-00805f6cef60");
 pub const IID_IReferenceClock2 = &IID_IReferenceClock2_Value;
 pub const IReferenceClock2 = extern struct {
     pub const VTable = extern struct {
@@ -289,34 +349,34 @@ pub const TIMECODE_SAMPLE = extern struct {
 // Section: Functions (7)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "WINMM" fn timeGetSystemTime(
+pub extern "winmm" fn timeGetSystemTime(
     // TODO: what to do with BytesParamIndex 1?
     pmmt: ?*MMTIME,
     cbmmt: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "WINMM" fn timeGetTime(
+pub extern "winmm" fn timeGetTime(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "WINMM" fn timeGetDevCaps(
+pub extern "winmm" fn timeGetDevCaps(
     // TODO: what to do with BytesParamIndex 1?
     ptc: ?*TIMECAPS,
     cbtc: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "WINMM" fn timeBeginPeriod(
+pub extern "winmm" fn timeBeginPeriod(
     uPeriod: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "WINMM" fn timeEndPeriod(
+pub extern "winmm" fn timeEndPeriod(
     uPeriod: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINMM" fn timeSetEvent(
+pub extern "winmm" fn timeSetEvent(
     uDelay: u32,
     uResolution: u32,
     fptc: ?LPTIMECALLBACK,
@@ -324,7 +384,7 @@ pub extern "WINMM" fn timeSetEvent(
     fuEvent: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINMM" fn timeKillEvent(
+pub extern "winmm" fn timeKillEvent(
     uTimerID: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
@@ -343,8 +403,9 @@ pub usingnamespace switch (@import("zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (4)
+// Section: Imports (5)
 //--------------------------------------------------------------------------------
+const Guid = @import("zig.zig").Guid;
 const HANDLE = @import("foundation.zig").HANDLE;
 const HDRVR = @import("media/multimedia.zig").HDRVR;
 const HRESULT = @import("foundation.zig").HRESULT;
@@ -356,14 +417,14 @@ test {
     if (@hasDecl(@This(), "LPTIMECALLBACK")) { _ = LPTIMECALLBACK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

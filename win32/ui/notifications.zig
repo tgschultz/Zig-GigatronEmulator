@@ -12,18 +12,27 @@ pub const NOTIFICATION_USER_INPUT_DATA = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_INotificationActivationCallback_Value = @import("../zig.zig").Guid.initString("53e31837-6600-4a81-9395-75cffe746f94");
+const IID_INotificationActivationCallback_Value = Guid.initString("53e31837-6600-4a81-9395-75cffe746f94");
 pub const IID_INotificationActivationCallback = &IID_INotificationActivationCallback_Value;
 pub const INotificationActivationCallback = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Activate: fn(
-            self: *const INotificationActivationCallback,
-            appUserModelId: ?[*:0]const u16,
-            invokedArgs: ?[*:0]const u16,
-            data: [*]const NOTIFICATION_USER_INPUT_DATA,
-            count: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Activate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INotificationActivationCallback,
+                appUserModelId: ?[*:0]const u16,
+                invokedArgs: ?[*:0]const u16,
+                data: [*]const NOTIFICATION_USER_INPUT_DATA,
+                count: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INotificationActivationCallback,
+                appUserModelId: ?[*:0]const u16,
+                invokedArgs: ?[*:0]const u16,
+                data: [*]const NOTIFICATION_USER_INPUT_DATA,
+                count: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -55,22 +64,23 @@ pub usingnamespace switch (@import("../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (3)
+// Section: Imports (4)
 //--------------------------------------------------------------------------------
+const Guid = @import("../zig.zig").Guid;
 const HRESULT = @import("../foundation.zig").HRESULT;
 const IUnknown = @import("../system/com.zig").IUnknown;
 const PWSTR = @import("../foundation.zig").PWSTR;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

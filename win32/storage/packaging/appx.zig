@@ -28,19 +28,19 @@ pub const PACKAGE_DEPENDENCY_RANK_DEFAULT = @as(u32, 0);
 //--------------------------------------------------------------------------------
 // Section: Types (125)
 //--------------------------------------------------------------------------------
-const CLSID_AppxFactory_Value = @import("../../zig.zig").Guid.initString("5842a140-ff9f-4166-8f5c-62f5b7b0c781");
+const CLSID_AppxFactory_Value = Guid.initString("5842a140-ff9f-4166-8f5c-62f5b7b0c781");
 pub const CLSID_AppxFactory = &CLSID_AppxFactory_Value;
 
-const CLSID_AppxBundleFactory_Value = @import("../../zig.zig").Guid.initString("378e0446-5384-43b7-8877-e7dbdd883446");
+const CLSID_AppxBundleFactory_Value = Guid.initString("378e0446-5384-43b7-8877-e7dbdd883446");
 pub const CLSID_AppxBundleFactory = &CLSID_AppxBundleFactory_Value;
 
-const CLSID_AppxPackagingDiagnosticEventSinkManager_Value = @import("../../zig.zig").Guid.initString("50ca0a46-1588-4161-8ed2-ef9e469ced5d");
+const CLSID_AppxPackagingDiagnosticEventSinkManager_Value = Guid.initString("50ca0a46-1588-4161-8ed2-ef9e469ced5d");
 pub const CLSID_AppxPackagingDiagnosticEventSinkManager = &CLSID_AppxPackagingDiagnosticEventSinkManager_Value;
 
-const CLSID_AppxEncryptionFactory_Value = @import("../../zig.zig").Guid.initString("dc664fdd-d868-46ee-8780-8d196cb739f7");
+const CLSID_AppxEncryptionFactory_Value = Guid.initString("dc664fdd-d868-46ee-8780-8d196cb739f7");
 pub const CLSID_AppxEncryptionFactory = &CLSID_AppxEncryptionFactory_Value;
 
-const CLSID_AppxPackageEditor_Value = @import("../../zig.zig").Guid.initString("f004f2ca-aebc-4b0d-bf58-e516d5bcc0ab");
+const CLSID_AppxPackageEditor_Value = Guid.initString("f004f2ca-aebc-4b0d-bf58-e516d5bcc0ab");
 pub const CLSID_AppxPackageEditor = &CLSID_AppxPackageEditor_Value;
 
 pub const APPX_PACKAGE_SETTINGS = extern struct {
@@ -226,38 +226,75 @@ pub const APPX_PACKAGING_CONTEXT_CHANGE_TYPE_DETAILS = APPX_PACKAGING_CONTEXT_CH
 pub const APPX_PACKAGING_CONTEXT_CHANGE_TYPE_END = APPX_PACKAGING_CONTEXT_CHANGE_TYPE.END;
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxFactory_Value = @import("../../zig.zig").Guid.initString("beb94909-e451-438b-b5a7-d79e767b75d8");
+const IID_IAppxFactory_Value = Guid.initString("beb94909-e451-438b-b5a7-d79e767b75d8");
 pub const IID_IAppxFactory = &IID_IAppxFactory_Value;
 pub const IAppxFactory = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreatePackageWriter: fn(
-            self: *const IAppxFactory,
-            outputStream: ?*IStream,
-            settings: ?*APPX_PACKAGE_SETTINGS,
-            packageWriter: ?*?*IAppxPackageWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreatePackageReader: fn(
-            self: *const IAppxFactory,
-            inputStream: ?*IStream,
-            packageReader: ?*?*IAppxPackageReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateManifestReader: fn(
-            self: *const IAppxFactory,
-            inputStream: ?*IStream,
-            manifestReader: ?*?*IAppxManifestReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateBlockMapReader: fn(
-            self: *const IAppxFactory,
-            inputStream: ?*IStream,
-            blockMapReader: ?*?*IAppxBlockMapReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateValidatedBlockMapReader: fn(
-            self: *const IAppxFactory,
-            blockMapStream: ?*IStream,
-            signatureFileName: ?[*:0]const u16,
-            blockMapReader: ?*?*IAppxBlockMapReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreatePackageWriter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFactory,
+                outputStream: ?*IStream,
+                settings: ?*APPX_PACKAGE_SETTINGS,
+                packageWriter: ?*?*IAppxPackageWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFactory,
+                outputStream: ?*IStream,
+                settings: ?*APPX_PACKAGE_SETTINGS,
+                packageWriter: ?*?*IAppxPackageWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreatePackageReader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFactory,
+                inputStream: ?*IStream,
+                packageReader: ?*?*IAppxPackageReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFactory,
+                inputStream: ?*IStream,
+                packageReader: ?*?*IAppxPackageReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateManifestReader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFactory,
+                inputStream: ?*IStream,
+                manifestReader: ?*?*IAppxManifestReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFactory,
+                inputStream: ?*IStream,
+                manifestReader: ?*?*IAppxManifestReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateBlockMapReader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFactory,
+                inputStream: ?*IStream,
+                blockMapReader: ?*?*IAppxBlockMapReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFactory,
+                inputStream: ?*IStream,
+                blockMapReader: ?*?*IAppxBlockMapReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateValidatedBlockMapReader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFactory,
+                blockMapStream: ?*IStream,
+                signatureFileName: ?[*:0]const u16,
+                blockMapReader: ?*?*IAppxBlockMapReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFactory,
+                blockMapStream: ?*IStream,
+                signatureFileName: ?[*:0]const u16,
+                blockMapReader: ?*?*IAppxBlockMapReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -287,26 +324,47 @@ pub const IAppxFactory = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxFactory2_Value = @import("../../zig.zig").Guid.initString("f1346df2-c282-4e22-b918-743a929a8d55");
+const IID_IAppxFactory2_Value = Guid.initString("f1346df2-c282-4e22-b918-743a929a8d55");
 pub const IID_IAppxFactory2 = &IID_IAppxFactory2_Value;
 pub const IAppxFactory2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateContentGroupMapReader: fn(
-            self: *const IAppxFactory2,
-            inputStream: ?*IStream,
-            contentGroupMapReader: ?*?*IAppxContentGroupMapReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateSourceContentGroupMapReader: fn(
-            self: *const IAppxFactory2,
-            inputStream: ?*IStream,
-            reader: ?*?*IAppxSourceContentGroupMapReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateContentGroupMapWriter: fn(
-            self: *const IAppxFactory2,
-            stream: ?*IStream,
-            contentGroupMapWriter: ?*?*IAppxContentGroupMapWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateContentGroupMapReader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFactory2,
+                inputStream: ?*IStream,
+                contentGroupMapReader: ?*?*IAppxContentGroupMapReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFactory2,
+                inputStream: ?*IStream,
+                contentGroupMapReader: ?*?*IAppxContentGroupMapReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateSourceContentGroupMapReader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFactory2,
+                inputStream: ?*IStream,
+                reader: ?*?*IAppxSourceContentGroupMapReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFactory2,
+                inputStream: ?*IStream,
+                reader: ?*?*IAppxSourceContentGroupMapReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateContentGroupMapWriter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFactory2,
+                stream: ?*IStream,
+                contentGroupMapWriter: ?*?*IAppxContentGroupMapWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFactory2,
+                stream: ?*IStream,
+                contentGroupMapWriter: ?*?*IAppxContentGroupMapWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -328,33 +386,65 @@ pub const IAppxFactory2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxPackageReader_Value = @import("../../zig.zig").Guid.initString("b5c49650-99bc-481c-9a34-3d53a4106708");
+const IID_IAppxPackageReader_Value = Guid.initString("b5c49650-99bc-481c-9a34-3d53a4106708");
 pub const IID_IAppxPackageReader = &IID_IAppxPackageReader_Value;
 pub const IAppxPackageReader = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetBlockMap: fn(
-            self: *const IAppxPackageReader,
-            blockMapReader: ?*?*IAppxBlockMapReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFootprintFile: fn(
-            self: *const IAppxPackageReader,
-            type: APPX_FOOTPRINT_FILE_TYPE,
-            file: ?*?*IAppxFile,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPayloadFile: fn(
-            self: *const IAppxPackageReader,
-            fileName: ?[*:0]const u16,
-            file: ?*?*IAppxFile,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPayloadFiles: fn(
-            self: *const IAppxPackageReader,
-            filesEnumerator: ?*?*IAppxFilesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetManifest: fn(
-            self: *const IAppxPackageReader,
-            manifestReader: ?*?*IAppxManifestReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetBlockMap: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageReader,
+                blockMapReader: ?*?*IAppxBlockMapReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageReader,
+                blockMapReader: ?*?*IAppxBlockMapReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFootprintFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageReader,
+                type: APPX_FOOTPRINT_FILE_TYPE,
+                file: ?*?*IAppxFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageReader,
+                type: APPX_FOOTPRINT_FILE_TYPE,
+                file: ?*?*IAppxFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPayloadFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageReader,
+                fileName: ?[*:0]const u16,
+                file: ?*?*IAppxFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageReader,
+                fileName: ?[*:0]const u16,
+                file: ?*?*IAppxFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPayloadFiles: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageReader,
+                filesEnumerator: ?*?*IAppxFilesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageReader,
+                filesEnumerator: ?*?*IAppxFilesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetManifest: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageReader,
+                manifestReader: ?*?*IAppxManifestReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageReader,
+                manifestReader: ?*?*IAppxManifestReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -384,22 +474,37 @@ pub const IAppxPackageReader = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxPackageWriter_Value = @import("../../zig.zig").Guid.initString("9099e33b-246f-41e4-881a-008eb613f858");
+const IID_IAppxPackageWriter_Value = Guid.initString("9099e33b-246f-41e4-881a-008eb613f858");
 pub const IID_IAppxPackageWriter = &IID_IAppxPackageWriter_Value;
 pub const IAppxPackageWriter = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddPayloadFile: fn(
-            self: *const IAppxPackageWriter,
-            fileName: ?[*:0]const u16,
-            contentType: ?[*:0]const u16,
-            compressionOption: APPX_COMPRESSION_OPTION,
-            inputStream: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Close: fn(
-            self: *const IAppxPackageWriter,
-            manifest: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddPayloadFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageWriter,
+                fileName: ?[*:0]const u16,
+                contentType: ?[*:0]const u16,
+                compressionOption: APPX_COMPRESSION_OPTION,
+                inputStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageWriter,
+                fileName: ?[*:0]const u16,
+                contentType: ?[*:0]const u16,
+                compressionOption: APPX_COMPRESSION_OPTION,
+                inputStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Close: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageWriter,
+                manifest: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageWriter,
+                manifest: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -417,16 +522,23 @@ pub const IAppxPackageWriter = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxPackageWriter2_Value = @import("../../zig.zig").Guid.initString("2cf5c4fd-e54c-4ea5-ba4e-f8c4b105a8c8");
+const IID_IAppxPackageWriter2_Value = Guid.initString("2cf5c4fd-e54c-4ea5-ba4e-f8c4b105a8c8");
 pub const IID_IAppxPackageWriter2 = &IID_IAppxPackageWriter2_Value;
 pub const IAppxPackageWriter2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Close: fn(
-            self: *const IAppxPackageWriter2,
-            manifest: ?*IStream,
-            contentGroupMap: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Close: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageWriter2,
+                manifest: ?*IStream,
+                contentGroupMap: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageWriter2,
+                manifest: ?*IStream,
+                contentGroupMap: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -440,17 +552,25 @@ pub const IAppxPackageWriter2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxPackageWriter3_Value = @import("../../zig.zig").Guid.initString("a83aacd3-41c0-4501-b8a3-74164f50b2fd");
+const IID_IAppxPackageWriter3_Value = Guid.initString("a83aacd3-41c0-4501-b8a3-74164f50b2fd");
 pub const IID_IAppxPackageWriter3 = &IID_IAppxPackageWriter3_Value;
 pub const IAppxPackageWriter3 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddPayloadFiles: fn(
-            self: *const IAppxPackageWriter3,
-            fileCount: u32,
-            payloadFiles: [*]APPX_PACKAGE_WRITER_PAYLOAD_STREAM,
-            memoryLimit: u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddPayloadFiles: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageWriter3,
+                fileCount: u32,
+                payloadFiles: [*]APPX_PACKAGE_WRITER_PAYLOAD_STREAM,
+                memoryLimit: u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageWriter3,
+                fileCount: u32,
+                payloadFiles: [*]APPX_PACKAGE_WRITER_PAYLOAD_STREAM,
+                memoryLimit: u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -464,31 +584,61 @@ pub const IAppxPackageWriter3 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxFile_Value = @import("../../zig.zig").Guid.initString("91df827b-94fd-468f-827b-57f41b2f6f2e");
+const IID_IAppxFile_Value = Guid.initString("91df827b-94fd-468f-827b-57f41b2f6f2e");
 pub const IID_IAppxFile = &IID_IAppxFile_Value;
 pub const IAppxFile = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCompressionOption: fn(
-            self: *const IAppxFile,
-            compressionOption: ?*APPX_COMPRESSION_OPTION,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetContentType: fn(
-            self: *const IAppxFile,
-            contentType: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetName: fn(
-            self: *const IAppxFile,
-            fileName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSize: fn(
-            self: *const IAppxFile,
-            size: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStream: fn(
-            self: *const IAppxFile,
-            stream: ?*?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCompressionOption: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFile,
+                compressionOption: ?*APPX_COMPRESSION_OPTION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFile,
+                compressionOption: ?*APPX_COMPRESSION_OPTION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetContentType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFile,
+                contentType: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFile,
+                contentType: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFile,
+                fileName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFile,
+                fileName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFile,
+                size: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFile,
+                size: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFile,
+                stream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFile,
+                stream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -518,23 +668,41 @@ pub const IAppxFile = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxFilesEnumerator_Value = @import("../../zig.zig").Guid.initString("f007eeaf-9831-411c-9847-917cdc62d1fe");
+const IID_IAppxFilesEnumerator_Value = Guid.initString("f007eeaf-9831-411c-9847-917cdc62d1fe");
 pub const IID_IAppxFilesEnumerator = &IID_IAppxFilesEnumerator_Value;
 pub const IAppxFilesEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxFilesEnumerator,
-            file: ?*?*IAppxFile,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxFilesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxFilesEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFilesEnumerator,
+                file: ?*?*IAppxFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFilesEnumerator,
+                file: ?*?*IAppxFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFilesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFilesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxFilesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxFilesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -556,28 +724,53 @@ pub const IAppxFilesEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxBlockMapReader_Value = @import("../../zig.zig").Guid.initString("5efec991-bca3-42d1-9ec2-e92d609ec22a");
+const IID_IAppxBlockMapReader_Value = Guid.initString("5efec991-bca3-42d1-9ec2-e92d609ec22a");
 pub const IID_IAppxBlockMapReader = &IID_IAppxBlockMapReader_Value;
 pub const IAppxBlockMapReader = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetFile: fn(
-            self: *const IAppxBlockMapReader,
-            filename: ?[*:0]const u16,
-            file: ?*?*IAppxBlockMapFile,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFiles: fn(
-            self: *const IAppxBlockMapReader,
-            enumerator: ?*?*IAppxBlockMapFilesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHashMethod: fn(
-            self: *const IAppxBlockMapReader,
-            hashMethod: ?*?*IUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStream: fn(
-            self: *const IAppxBlockMapReader,
-            blockMapStream: ?*?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapReader,
+                filename: ?[*:0]const u16,
+                file: ?*?*IAppxBlockMapFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapReader,
+                filename: ?[*:0]const u16,
+                file: ?*?*IAppxBlockMapFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFiles: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapReader,
+                enumerator: ?*?*IAppxBlockMapFilesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapReader,
+                enumerator: ?*?*IAppxBlockMapFilesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHashMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapReader,
+                hashMethod: ?*?*IUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapReader,
+                hashMethod: ?*?*IUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapReader,
+                blockMapStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapReader,
+                blockMapStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -603,32 +796,63 @@ pub const IAppxBlockMapReader = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxBlockMapFile_Value = @import("../../zig.zig").Guid.initString("277672ac-4f63-42c1-8abc-beae3600eb59");
+const IID_IAppxBlockMapFile_Value = Guid.initString("277672ac-4f63-42c1-8abc-beae3600eb59");
 pub const IID_IAppxBlockMapFile = &IID_IAppxBlockMapFile_Value;
 pub const IAppxBlockMapFile = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetBlocks: fn(
-            self: *const IAppxBlockMapFile,
-            blocks: ?*?*IAppxBlockMapBlocksEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetLocalFileHeaderSize: fn(
-            self: *const IAppxBlockMapFile,
-            lfhSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetName: fn(
-            self: *const IAppxBlockMapFile,
-            name: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetUncompressedSize: fn(
-            self: *const IAppxBlockMapFile,
-            size: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ValidateFileHash: fn(
-            self: *const IAppxBlockMapFile,
-            fileStream: ?*IStream,
-            isValid: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetBlocks: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapFile,
+                blocks: ?*?*IAppxBlockMapBlocksEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapFile,
+                blocks: ?*?*IAppxBlockMapBlocksEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetLocalFileHeaderSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapFile,
+                lfhSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapFile,
+                lfhSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapFile,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapFile,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetUncompressedSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapFile,
+                size: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapFile,
+                size: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ValidateFileHash: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapFile,
+                fileStream: ?*IStream,
+                isValid: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapFile,
+                fileStream: ?*IStream,
+                isValid: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -658,23 +882,41 @@ pub const IAppxBlockMapFile = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxBlockMapFilesEnumerator_Value = @import("../../zig.zig").Guid.initString("02b856a2-4262-4070-bacb-1a8cbbc42305");
+const IID_IAppxBlockMapFilesEnumerator_Value = Guid.initString("02b856a2-4262-4070-bacb-1a8cbbc42305");
 pub const IID_IAppxBlockMapFilesEnumerator = &IID_IAppxBlockMapFilesEnumerator_Value;
 pub const IAppxBlockMapFilesEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxBlockMapFilesEnumerator,
-            file: ?*?*IAppxBlockMapFile,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxBlockMapFilesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxBlockMapFilesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapFilesEnumerator,
+                file: ?*?*IAppxBlockMapFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapFilesEnumerator,
+                file: ?*?*IAppxBlockMapFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapFilesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapFilesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapFilesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapFilesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -696,20 +938,33 @@ pub const IAppxBlockMapFilesEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxBlockMapBlock_Value = @import("../../zig.zig").Guid.initString("75cf3930-3244-4fe0-a8c8-e0bcb270b889");
+const IID_IAppxBlockMapBlock_Value = Guid.initString("75cf3930-3244-4fe0-a8c8-e0bcb270b889");
 pub const IID_IAppxBlockMapBlock = &IID_IAppxBlockMapBlock_Value;
 pub const IAppxBlockMapBlock = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetHash: fn(
-            self: *const IAppxBlockMapBlock,
-            bufferSize: ?*u32,
-            buffer: ?*?*u8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCompressedSize: fn(
-            self: *const IAppxBlockMapBlock,
-            size: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetHash: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapBlock,
+                bufferSize: ?*u32,
+                buffer: ?*?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapBlock,
+                bufferSize: ?*u32,
+                buffer: ?*?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCompressedSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapBlock,
+                size: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapBlock,
+                size: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -727,23 +982,41 @@ pub const IAppxBlockMapBlock = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxBlockMapBlocksEnumerator_Value = @import("../../zig.zig").Guid.initString("6b429b5b-36ef-479e-b9eb-0c1482b49e16");
+const IID_IAppxBlockMapBlocksEnumerator_Value = Guid.initString("6b429b5b-36ef-479e-b9eb-0c1482b49e16");
 pub const IID_IAppxBlockMapBlocksEnumerator = &IID_IAppxBlockMapBlocksEnumerator_Value;
 pub const IAppxBlockMapBlocksEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxBlockMapBlocksEnumerator,
-            block: ?*?*IAppxBlockMapBlock,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxBlockMapBlocksEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxBlockMapBlocksEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapBlocksEnumerator,
+                block: ?*?*IAppxBlockMapBlock,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapBlocksEnumerator,
+                block: ?*?*IAppxBlockMapBlock,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapBlocksEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapBlocksEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBlockMapBlocksEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBlockMapBlocksEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -765,48 +1038,103 @@ pub const IAppxBlockMapBlocksEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxManifestReader_Value = @import("../../zig.zig").Guid.initString("4e1bd148-55a0-4480-a3d1-15544710637c");
+const IID_IAppxManifestReader_Value = Guid.initString("4e1bd148-55a0-4480-a3d1-15544710637c");
 pub const IID_IAppxManifestReader = &IID_IAppxManifestReader_Value;
 pub const IAppxManifestReader = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetPackageId: fn(
-            self: *const IAppxManifestReader,
-            packageId: ?*?*IAppxManifestPackageId,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetProperties: fn(
-            self: *const IAppxManifestReader,
-            packageProperties: ?*?*IAppxManifestProperties,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPackageDependencies: fn(
-            self: *const IAppxManifestReader,
-            dependencies: ?*?*IAppxManifestPackageDependenciesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCapabilities: fn(
-            self: *const IAppxManifestReader,
-            capabilities: ?*APPX_CAPABILITIES,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetResources: fn(
-            self: *const IAppxManifestReader,
-            resources: ?*?*IAppxManifestResourcesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDeviceCapabilities: fn(
-            self: *const IAppxManifestReader,
-            deviceCapabilities: ?*?*IAppxManifestDeviceCapabilitiesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPrerequisite: fn(
-            self: *const IAppxManifestReader,
-            name: ?[*:0]const u16,
-            value: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetApplications: fn(
-            self: *const IAppxManifestReader,
-            applications: ?*?*IAppxManifestApplicationsEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStream: fn(
-            self: *const IAppxManifestReader,
-            manifestStream: ?*?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetPackageId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader,
+                packageId: ?*?*IAppxManifestPackageId,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader,
+                packageId: ?*?*IAppxManifestPackageId,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetProperties: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader,
+                packageProperties: ?*?*IAppxManifestProperties,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader,
+                packageProperties: ?*?*IAppxManifestProperties,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPackageDependencies: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader,
+                dependencies: ?*?*IAppxManifestPackageDependenciesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader,
+                dependencies: ?*?*IAppxManifestPackageDependenciesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCapabilities: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader,
+                capabilities: ?*APPX_CAPABILITIES,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader,
+                capabilities: ?*APPX_CAPABILITIES,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetResources: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader,
+                resources: ?*?*IAppxManifestResourcesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader,
+                resources: ?*?*IAppxManifestResourcesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDeviceCapabilities: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader,
+                deviceCapabilities: ?*?*IAppxManifestDeviceCapabilitiesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader,
+                deviceCapabilities: ?*?*IAppxManifestDeviceCapabilitiesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPrerequisite: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader,
+                name: ?[*:0]const u16,
+                value: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader,
+                name: ?[*:0]const u16,
+                value: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetApplications: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader,
+                applications: ?*?*IAppxManifestApplicationsEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader,
+                applications: ?*?*IAppxManifestApplicationsEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader,
+                manifestStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader,
+                manifestStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -852,15 +1180,21 @@ pub const IAppxManifestReader = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.1'
-const IID_IAppxManifestReader2_Value = @import("../../zig.zig").Guid.initString("d06f67bc-b31d-4eba-a8af-638e73e77b4d");
+const IID_IAppxManifestReader2_Value = Guid.initString("d06f67bc-b31d-4eba-a8af-638e73e77b4d");
 pub const IID_IAppxManifestReader2 = &IID_IAppxManifestReader2_Value;
 pub const IAppxManifestReader2 = extern struct {
     pub const VTable = extern struct {
         base: IAppxManifestReader.VTable,
-        GetQualifiedResources: fn(
-            self: *const IAppxManifestReader2,
-            resources: ?*?*IAppxManifestQualifiedResourcesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetQualifiedResources: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader2,
+                resources: ?*?*IAppxManifestQualifiedResourcesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader2,
+                resources: ?*?*IAppxManifestQualifiedResourcesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -873,20 +1207,33 @@ pub const IAppxManifestReader2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestReader3_Value = @import("../../zig.zig").Guid.initString("c43825ab-69b7-400a-9709-cc37f5a72d24");
+const IID_IAppxManifestReader3_Value = Guid.initString("c43825ab-69b7-400a-9709-cc37f5a72d24");
 pub const IID_IAppxManifestReader3 = &IID_IAppxManifestReader3_Value;
 pub const IAppxManifestReader3 = extern struct {
     pub const VTable = extern struct {
         base: IAppxManifestReader2.VTable,
-        GetCapabilitiesByCapabilityClass: fn(
-            self: *const IAppxManifestReader3,
-            capabilityClass: APPX_CAPABILITY_CLASS_TYPE,
-            capabilities: ?*?*IAppxManifestCapabilitiesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTargetDeviceFamilies: fn(
-            self: *const IAppxManifestReader3,
-            targetDeviceFamilies: ?*?*IAppxManifestTargetDeviceFamiliesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCapabilitiesByCapabilityClass: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader3,
+                capabilityClass: APPX_CAPABILITY_CLASS_TYPE,
+                capabilities: ?*?*IAppxManifestCapabilitiesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader3,
+                capabilityClass: APPX_CAPABILITY_CLASS_TYPE,
+                capabilities: ?*?*IAppxManifestCapabilitiesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTargetDeviceFamilies: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader3,
+                targetDeviceFamilies: ?*?*IAppxManifestTargetDeviceFamiliesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader3,
+                targetDeviceFamilies: ?*?*IAppxManifestTargetDeviceFamiliesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -903,15 +1250,21 @@ pub const IAppxManifestReader3 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestReader4_Value = @import("../../zig.zig").Guid.initString("4579bb7c-741d-4161-b5a1-47bd3b78ad9b");
+const IID_IAppxManifestReader4_Value = Guid.initString("4579bb7c-741d-4161-b5a1-47bd3b78ad9b");
 pub const IID_IAppxManifestReader4 = &IID_IAppxManifestReader4_Value;
 pub const IAppxManifestReader4 = extern struct {
     pub const VTable = extern struct {
         base: IAppxManifestReader3.VTable,
-        GetOptionalPackageInfo: fn(
-            self: *const IAppxManifestReader4,
-            optionalPackageInfo: ?*?*IAppxManifestOptionalPackageInfo,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetOptionalPackageInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader4,
+                optionalPackageInfo: ?*?*IAppxManifestOptionalPackageInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader4,
+                optionalPackageInfo: ?*?*IAppxManifestOptionalPackageInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -925,15 +1278,21 @@ pub const IAppxManifestReader4 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxManifestReader5_Value = @import("../../zig.zig").Guid.initString("8d7ae132-a690-4c00-b75a-6aae1feaac80");
+const IID_IAppxManifestReader5_Value = Guid.initString("8d7ae132-a690-4c00-b75a-6aae1feaac80");
 pub const IID_IAppxManifestReader5 = &IID_IAppxManifestReader5_Value;
 pub const IAppxManifestReader5 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetMainPackageDependencies: fn(
-            self: *const IAppxManifestReader5,
-            mainPackageDependencies: ?*?*IAppxManifestMainPackageDependenciesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetMainPackageDependencies: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader5,
+                mainPackageDependencies: ?*?*IAppxManifestMainPackageDependenciesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader5,
+                mainPackageDependencies: ?*?*IAppxManifestMainPackageDependenciesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -947,15 +1306,21 @@ pub const IAppxManifestReader5 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxManifestReader6_Value = @import("../../zig.zig").Guid.initString("34deaca4-d3c0-4e3e-b312-e42625e3807e");
+const IID_IAppxManifestReader6_Value = Guid.initString("34deaca4-d3c0-4e3e-b312-e42625e3807e");
 pub const IID_IAppxManifestReader6 = &IID_IAppxManifestReader6_Value;
 pub const IAppxManifestReader6 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetIsNonQualifiedResourcePackage: fn(
-            self: *const IAppxManifestReader6,
-            isNonQualifiedResourcePackage: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetIsNonQualifiedResourcePackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader6,
+                isNonQualifiedResourcePackage: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader6,
+                isNonQualifiedResourcePackage: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -968,23 +1333,41 @@ pub const IAppxManifestReader6 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestReader7_Value = @import("../../zig.zig").Guid.initString("8efe6f27-0ce0-4988-b32d-738eb63db3b7");
+const IID_IAppxManifestReader7_Value = Guid.initString("8efe6f27-0ce0-4988-b32d-738eb63db3b7");
 pub const IID_IAppxManifestReader7 = &IID_IAppxManifestReader7_Value;
 pub const IAppxManifestReader7 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetDriverDependencies: fn(
-            self: *const IAppxManifestReader7,
-            driverDependencies: ?*?*IAppxManifestDriverDependenciesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetOSPackageDependencies: fn(
-            self: *const IAppxManifestReader7,
-            osPackageDependencies: ?*?*IAppxManifestOSPackageDependenciesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHostRuntimeDependencies: fn(
-            self: *const IAppxManifestReader7,
-            hostRuntimeDependencies: ?*?*IAppxManifestHostRuntimeDependenciesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetDriverDependencies: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader7,
+                driverDependencies: ?*?*IAppxManifestDriverDependenciesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader7,
+                driverDependencies: ?*?*IAppxManifestDriverDependenciesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetOSPackageDependencies: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader7,
+                osPackageDependencies: ?*?*IAppxManifestOSPackageDependenciesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader7,
+                osPackageDependencies: ?*?*IAppxManifestOSPackageDependenciesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHostRuntimeDependencies: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestReader7,
+                hostRuntimeDependencies: ?*?*IAppxManifestHostRuntimeDependenciesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestReader7,
+                hostRuntimeDependencies: ?*?*IAppxManifestHostRuntimeDependenciesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1005,23 +1388,41 @@ pub const IAppxManifestReader7 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestDriverDependenciesEnumerator_Value = @import("../../zig.zig").Guid.initString("fe039db2-467f-4755-8404-8f5eb6865b33");
+const IID_IAppxManifestDriverDependenciesEnumerator_Value = Guid.initString("fe039db2-467f-4755-8404-8f5eb6865b33");
 pub const IID_IAppxManifestDriverDependenciesEnumerator = &IID_IAppxManifestDriverDependenciesEnumerator_Value;
 pub const IAppxManifestDriverDependenciesEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxManifestDriverDependenciesEnumerator,
-            driverDependency: ?*?*IAppxManifestDriverDependency,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxManifestDriverDependenciesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxManifestDriverDependenciesEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestDriverDependenciesEnumerator,
+                driverDependency: ?*?*IAppxManifestDriverDependency,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestDriverDependenciesEnumerator,
+                driverDependency: ?*?*IAppxManifestDriverDependency,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestDriverDependenciesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestDriverDependenciesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestDriverDependenciesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestDriverDependenciesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1042,15 +1443,21 @@ pub const IAppxManifestDriverDependenciesEnumerator = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestDriverDependency_Value = @import("../../zig.zig").Guid.initString("1210cb94-5a92-4602-be24-79f318af4af9");
+const IID_IAppxManifestDriverDependency_Value = Guid.initString("1210cb94-5a92-4602-be24-79f318af4af9");
 pub const IID_IAppxManifestDriverDependency = &IID_IAppxManifestDriverDependency_Value;
 pub const IAppxManifestDriverDependency = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetDriverConstraints: fn(
-            self: *const IAppxManifestDriverDependency,
-            driverConstraints: ?*?*IAppxManifestDriverConstraintsEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetDriverConstraints: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestDriverDependency,
+                driverConstraints: ?*?*IAppxManifestDriverConstraintsEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestDriverDependency,
+                driverConstraints: ?*?*IAppxManifestDriverConstraintsEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1063,23 +1470,41 @@ pub const IAppxManifestDriverDependency = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestDriverConstraintsEnumerator_Value = @import("../../zig.zig").Guid.initString("d402b2d1-f600-49e0-95e6-975d8da13d89");
+const IID_IAppxManifestDriverConstraintsEnumerator_Value = Guid.initString("d402b2d1-f600-49e0-95e6-975d8da13d89");
 pub const IID_IAppxManifestDriverConstraintsEnumerator = &IID_IAppxManifestDriverConstraintsEnumerator_Value;
 pub const IAppxManifestDriverConstraintsEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxManifestDriverConstraintsEnumerator,
-            driverConstraint: ?*?*IAppxManifestDriverConstraint,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxManifestDriverConstraintsEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxManifestDriverConstraintsEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestDriverConstraintsEnumerator,
+                driverConstraint: ?*?*IAppxManifestDriverConstraint,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestDriverConstraintsEnumerator,
+                driverConstraint: ?*?*IAppxManifestDriverConstraint,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestDriverConstraintsEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestDriverConstraintsEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestDriverConstraintsEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestDriverConstraintsEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1100,23 +1525,41 @@ pub const IAppxManifestDriverConstraintsEnumerator = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestDriverConstraint_Value = @import("../../zig.zig").Guid.initString("c031bee4-bbcc-48ea-a237-c34045c80a07");
+const IID_IAppxManifestDriverConstraint_Value = Guid.initString("c031bee4-bbcc-48ea-a237-c34045c80a07");
 pub const IID_IAppxManifestDriverConstraint = &IID_IAppxManifestDriverConstraint_Value;
 pub const IAppxManifestDriverConstraint = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetName: fn(
-            self: *const IAppxManifestDriverConstraint,
-            name: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetMinVersion: fn(
-            self: *const IAppxManifestDriverConstraint,
-            minVersion: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetMinDate: fn(
-            self: *const IAppxManifestDriverConstraint,
-            minDate: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestDriverConstraint,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestDriverConstraint,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetMinVersion: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestDriverConstraint,
+                minVersion: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestDriverConstraint,
+                minVersion: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetMinDate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestDriverConstraint,
+                minDate: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestDriverConstraint,
+                minDate: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1137,23 +1580,41 @@ pub const IAppxManifestDriverConstraint = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestOSPackageDependenciesEnumerator_Value = @import("../../zig.zig").Guid.initString("b84e2fc3-f8ec-4bc1-8ae2-156346f5ffea");
+const IID_IAppxManifestOSPackageDependenciesEnumerator_Value = Guid.initString("b84e2fc3-f8ec-4bc1-8ae2-156346f5ffea");
 pub const IID_IAppxManifestOSPackageDependenciesEnumerator = &IID_IAppxManifestOSPackageDependenciesEnumerator_Value;
 pub const IAppxManifestOSPackageDependenciesEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxManifestOSPackageDependenciesEnumerator,
-            osPackageDependency: ?*?*IAppxManifestOSPackageDependency,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxManifestOSPackageDependenciesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxManifestOSPackageDependenciesEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestOSPackageDependenciesEnumerator,
+                osPackageDependency: ?*?*IAppxManifestOSPackageDependency,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestOSPackageDependenciesEnumerator,
+                osPackageDependency: ?*?*IAppxManifestOSPackageDependency,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestOSPackageDependenciesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestOSPackageDependenciesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestOSPackageDependenciesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestOSPackageDependenciesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1174,19 +1635,31 @@ pub const IAppxManifestOSPackageDependenciesEnumerator = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestOSPackageDependency_Value = @import("../../zig.zig").Guid.initString("154995ee-54a6-4f14-ac97-d8cf0519644b");
+const IID_IAppxManifestOSPackageDependency_Value = Guid.initString("154995ee-54a6-4f14-ac97-d8cf0519644b");
 pub const IID_IAppxManifestOSPackageDependency = &IID_IAppxManifestOSPackageDependency_Value;
 pub const IAppxManifestOSPackageDependency = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetName: fn(
-            self: *const IAppxManifestOSPackageDependency,
-            name: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVersion: fn(
-            self: *const IAppxManifestOSPackageDependency,
-            version: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestOSPackageDependency,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestOSPackageDependency,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVersion: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestOSPackageDependency,
+                version: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestOSPackageDependency,
+                version: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1203,23 +1676,41 @@ pub const IAppxManifestOSPackageDependency = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestHostRuntimeDependenciesEnumerator_Value = @import("../../zig.zig").Guid.initString("6427a646-7f49-433e-b1a6-0da309f6885a");
+const IID_IAppxManifestHostRuntimeDependenciesEnumerator_Value = Guid.initString("6427a646-7f49-433e-b1a6-0da309f6885a");
 pub const IID_IAppxManifestHostRuntimeDependenciesEnumerator = &IID_IAppxManifestHostRuntimeDependenciesEnumerator_Value;
 pub const IAppxManifestHostRuntimeDependenciesEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxManifestHostRuntimeDependenciesEnumerator,
-            hostRuntimeDependency: ?*?*IAppxManifestHostRuntimeDependency,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxManifestHostRuntimeDependenciesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxManifestHostRuntimeDependenciesEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestHostRuntimeDependenciesEnumerator,
+                hostRuntimeDependency: ?*?*IAppxManifestHostRuntimeDependency,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestHostRuntimeDependenciesEnumerator,
+                hostRuntimeDependency: ?*?*IAppxManifestHostRuntimeDependency,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestHostRuntimeDependenciesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestHostRuntimeDependenciesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestHostRuntimeDependenciesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestHostRuntimeDependenciesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1240,23 +1731,41 @@ pub const IAppxManifestHostRuntimeDependenciesEnumerator = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestHostRuntimeDependency_Value = @import("../../zig.zig").Guid.initString("3455d234-8414-410d-95c7-7b35255b8391");
+const IID_IAppxManifestHostRuntimeDependency_Value = Guid.initString("3455d234-8414-410d-95c7-7b35255b8391");
 pub const IID_IAppxManifestHostRuntimeDependency = &IID_IAppxManifestHostRuntimeDependency_Value;
 pub const IAppxManifestHostRuntimeDependency = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetName: fn(
-            self: *const IAppxManifestHostRuntimeDependency,
-            name: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPublisher: fn(
-            self: *const IAppxManifestHostRuntimeDependency,
-            publisher: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetMinVersion: fn(
-            self: *const IAppxManifestHostRuntimeDependency,
-            minVersion: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestHostRuntimeDependency,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestHostRuntimeDependency,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPublisher: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestHostRuntimeDependency,
+                publisher: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestHostRuntimeDependency,
+                publisher: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetMinVersion: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestHostRuntimeDependency,
+                minVersion: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestHostRuntimeDependency,
+                minVersion: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1277,15 +1786,21 @@ pub const IAppxManifestHostRuntimeDependency = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestHostRuntimeDependency2_Value = @import("../../zig.zig").Guid.initString("c26f23a8-ee10-4ad6-b898-2b4d7aebfe6a");
+const IID_IAppxManifestHostRuntimeDependency2_Value = Guid.initString("c26f23a8-ee10-4ad6-b898-2b4d7aebfe6a");
 pub const IID_IAppxManifestHostRuntimeDependency2 = &IID_IAppxManifestHostRuntimeDependency2_Value;
 pub const IAppxManifestHostRuntimeDependency2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetPackageFamilyName: fn(
-            self: *const IAppxManifestHostRuntimeDependency2,
-            packageFamilyName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetPackageFamilyName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestHostRuntimeDependency2,
+                packageFamilyName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestHostRuntimeDependency2,
+                packageFamilyName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1299,19 +1814,31 @@ pub const IAppxManifestHostRuntimeDependency2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxManifestOptionalPackageInfo_Value = @import("../../zig.zig").Guid.initString("2634847d-5b5d-4fe5-a243-002ff95edc7e");
+const IID_IAppxManifestOptionalPackageInfo_Value = Guid.initString("2634847d-5b5d-4fe5-a243-002ff95edc7e");
 pub const IID_IAppxManifestOptionalPackageInfo = &IID_IAppxManifestOptionalPackageInfo_Value;
 pub const IAppxManifestOptionalPackageInfo = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetIsOptionalPackage: fn(
-            self: *const IAppxManifestOptionalPackageInfo,
-            isOptionalPackage: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetMainPackageName: fn(
-            self: *const IAppxManifestOptionalPackageInfo,
-            mainPackageName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetIsOptionalPackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestOptionalPackageInfo,
+                isOptionalPackage: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestOptionalPackageInfo,
+                isOptionalPackage: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetMainPackageName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestOptionalPackageInfo,
+                mainPackageName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestOptionalPackageInfo,
+                mainPackageName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1329,23 +1856,41 @@ pub const IAppxManifestOptionalPackageInfo = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxManifestMainPackageDependenciesEnumerator_Value = @import("../../zig.zig").Guid.initString("a99c4f00-51d2-4f0f-ba46-7ed5255ebdff");
+const IID_IAppxManifestMainPackageDependenciesEnumerator_Value = Guid.initString("a99c4f00-51d2-4f0f-ba46-7ed5255ebdff");
 pub const IID_IAppxManifestMainPackageDependenciesEnumerator = &IID_IAppxManifestMainPackageDependenciesEnumerator_Value;
 pub const IAppxManifestMainPackageDependenciesEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxManifestMainPackageDependenciesEnumerator,
-            mainPackageDependency: ?*?*IAppxManifestMainPackageDependency,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxManifestMainPackageDependenciesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxManifestMainPackageDependenciesEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestMainPackageDependenciesEnumerator,
+                mainPackageDependency: ?*?*IAppxManifestMainPackageDependency,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestMainPackageDependenciesEnumerator,
+                mainPackageDependency: ?*?*IAppxManifestMainPackageDependency,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestMainPackageDependenciesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestMainPackageDependenciesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestMainPackageDependenciesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestMainPackageDependenciesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1367,23 +1912,41 @@ pub const IAppxManifestMainPackageDependenciesEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxManifestMainPackageDependency_Value = @import("../../zig.zig").Guid.initString("05d0611c-bc29-46d5-97e2-84b9c79bd8ae");
+const IID_IAppxManifestMainPackageDependency_Value = Guid.initString("05d0611c-bc29-46d5-97e2-84b9c79bd8ae");
 pub const IID_IAppxManifestMainPackageDependency = &IID_IAppxManifestMainPackageDependency_Value;
 pub const IAppxManifestMainPackageDependency = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetName: fn(
-            self: *const IAppxManifestMainPackageDependency,
-            name: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPublisher: fn(
-            self: *const IAppxManifestMainPackageDependency,
-            publisher: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPackageFamilyName: fn(
-            self: *const IAppxManifestMainPackageDependency,
-            packageFamilyName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestMainPackageDependency,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestMainPackageDependency,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPublisher: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestMainPackageDependency,
+                publisher: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestMainPackageDependency,
+                publisher: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPackageFamilyName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestMainPackageDependency,
+                packageFamilyName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestMainPackageDependency,
+                packageFamilyName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1405,44 +1968,93 @@ pub const IAppxManifestMainPackageDependency = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxManifestPackageId_Value = @import("../../zig.zig").Guid.initString("283ce2d7-7153-4a91-9649-7a0f7240945f");
+const IID_IAppxManifestPackageId_Value = Guid.initString("283ce2d7-7153-4a91-9649-7a0f7240945f");
 pub const IID_IAppxManifestPackageId = &IID_IAppxManifestPackageId_Value;
 pub const IAppxManifestPackageId = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetName: fn(
-            self: *const IAppxManifestPackageId,
-            name: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetArchitecture: fn(
-            self: *const IAppxManifestPackageId,
-            architecture: ?*APPX_PACKAGE_ARCHITECTURE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPublisher: fn(
-            self: *const IAppxManifestPackageId,
-            publisher: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVersion: fn(
-            self: *const IAppxManifestPackageId,
-            packageVersion: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetResourceId: fn(
-            self: *const IAppxManifestPackageId,
-            resourceId: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ComparePublisher: fn(
-            self: *const IAppxManifestPackageId,
-            other: ?[*:0]const u16,
-            isSame: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPackageFullName: fn(
-            self: *const IAppxManifestPackageId,
-            packageFullName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPackageFamilyName: fn(
-            self: *const IAppxManifestPackageId,
-            packageFamilyName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageId,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageId,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetArchitecture: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageId,
+                architecture: ?*APPX_PACKAGE_ARCHITECTURE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageId,
+                architecture: ?*APPX_PACKAGE_ARCHITECTURE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPublisher: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageId,
+                publisher: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageId,
+                publisher: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVersion: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageId,
+                packageVersion: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageId,
+                packageVersion: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetResourceId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageId,
+                resourceId: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageId,
+                resourceId: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ComparePublisher: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageId,
+                other: ?[*:0]const u16,
+                isSame: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageId,
+                other: ?[*:0]const u16,
+                isSame: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPackageFullName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageId,
+                packageFullName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageId,
+                packageFullName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPackageFamilyName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageId,
+                packageFamilyName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageId,
+                packageFamilyName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1484,15 +2096,21 @@ pub const IAppxManifestPackageId = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxManifestPackageId2_Value = @import("../../zig.zig").Guid.initString("2256999d-d617-42f1-880e-0ba4542319d5");
+const IID_IAppxManifestPackageId2_Value = Guid.initString("2256999d-d617-42f1-880e-0ba4542319d5");
 pub const IID_IAppxManifestPackageId2 = &IID_IAppxManifestPackageId2_Value;
 pub const IAppxManifestPackageId2 = extern struct {
     pub const VTable = extern struct {
         base: IAppxManifestPackageId.VTable,
-        GetArchitecture2: fn(
-            self: *const IAppxManifestPackageId2,
-            architecture: ?*APPX_PACKAGE_ARCHITECTURE2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetArchitecture2: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageId2,
+                architecture: ?*APPX_PACKAGE_ARCHITECTURE2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageId2,
+                architecture: ?*APPX_PACKAGE_ARCHITECTURE2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1506,21 +2124,35 @@ pub const IAppxManifestPackageId2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxManifestProperties_Value = @import("../../zig.zig").Guid.initString("03faf64d-f26f-4b2c-aaf7-8fe7789b8bca");
+const IID_IAppxManifestProperties_Value = Guid.initString("03faf64d-f26f-4b2c-aaf7-8fe7789b8bca");
 pub const IID_IAppxManifestProperties = &IID_IAppxManifestProperties_Value;
 pub const IAppxManifestProperties = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetBoolValue: fn(
-            self: *const IAppxManifestProperties,
-            name: ?[*:0]const u16,
-            value: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStringValue: fn(
-            self: *const IAppxManifestProperties,
-            name: ?[*:0]const u16,
-            value: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetBoolValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestProperties,
+                name: ?[*:0]const u16,
+                value: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestProperties,
+                name: ?[*:0]const u16,
+                value: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStringValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestProperties,
+                name: ?[*:0]const u16,
+                value: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestProperties,
+                name: ?[*:0]const u16,
+                value: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1537,23 +2169,41 @@ pub const IAppxManifestProperties = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestTargetDeviceFamiliesEnumerator_Value = @import("../../zig.zig").Guid.initString("36537f36-27a4-4788-88c0-733819575017");
+const IID_IAppxManifestTargetDeviceFamiliesEnumerator_Value = Guid.initString("36537f36-27a4-4788-88c0-733819575017");
 pub const IID_IAppxManifestTargetDeviceFamiliesEnumerator = &IID_IAppxManifestTargetDeviceFamiliesEnumerator_Value;
 pub const IAppxManifestTargetDeviceFamiliesEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxManifestTargetDeviceFamiliesEnumerator,
-            targetDeviceFamily: ?*?*IAppxManifestTargetDeviceFamily,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxManifestTargetDeviceFamiliesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxManifestTargetDeviceFamiliesEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestTargetDeviceFamiliesEnumerator,
+                targetDeviceFamily: ?*?*IAppxManifestTargetDeviceFamily,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestTargetDeviceFamiliesEnumerator,
+                targetDeviceFamily: ?*?*IAppxManifestTargetDeviceFamily,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestTargetDeviceFamiliesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestTargetDeviceFamiliesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestTargetDeviceFamiliesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestTargetDeviceFamiliesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1575,23 +2225,41 @@ pub const IAppxManifestTargetDeviceFamiliesEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxManifestTargetDeviceFamily_Value = @import("../../zig.zig").Guid.initString("9091b09b-c8d5-4f31-8687-a338259faefb");
+const IID_IAppxManifestTargetDeviceFamily_Value = Guid.initString("9091b09b-c8d5-4f31-8687-a338259faefb");
 pub const IID_IAppxManifestTargetDeviceFamily = &IID_IAppxManifestTargetDeviceFamily_Value;
 pub const IAppxManifestTargetDeviceFamily = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetName: fn(
-            self: *const IAppxManifestTargetDeviceFamily,
-            name: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetMinVersion: fn(
-            self: *const IAppxManifestTargetDeviceFamily,
-            minVersion: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetMaxVersionTested: fn(
-            self: *const IAppxManifestTargetDeviceFamily,
-            maxVersionTested: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestTargetDeviceFamily,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestTargetDeviceFamily,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetMinVersion: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestTargetDeviceFamily,
+                minVersion: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestTargetDeviceFamily,
+                minVersion: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetMaxVersionTested: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestTargetDeviceFamily,
+                maxVersionTested: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestTargetDeviceFamily,
+                maxVersionTested: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1613,23 +2281,41 @@ pub const IAppxManifestTargetDeviceFamily = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxManifestPackageDependenciesEnumerator_Value = @import("../../zig.zig").Guid.initString("b43bbcf9-65a6-42dd-bac0-8c6741e7f5a4");
+const IID_IAppxManifestPackageDependenciesEnumerator_Value = Guid.initString("b43bbcf9-65a6-42dd-bac0-8c6741e7f5a4");
 pub const IID_IAppxManifestPackageDependenciesEnumerator = &IID_IAppxManifestPackageDependenciesEnumerator_Value;
 pub const IAppxManifestPackageDependenciesEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxManifestPackageDependenciesEnumerator,
-            dependency: ?*?*IAppxManifestPackageDependency,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxManifestPackageDependenciesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxManifestPackageDependenciesEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageDependenciesEnumerator,
+                dependency: ?*?*IAppxManifestPackageDependency,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageDependenciesEnumerator,
+                dependency: ?*?*IAppxManifestPackageDependency,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageDependenciesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageDependenciesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageDependenciesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageDependenciesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1651,23 +2337,41 @@ pub const IAppxManifestPackageDependenciesEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxManifestPackageDependency_Value = @import("../../zig.zig").Guid.initString("e4946b59-733e-43f0-a724-3bde4c1285a0");
+const IID_IAppxManifestPackageDependency_Value = Guid.initString("e4946b59-733e-43f0-a724-3bde4c1285a0");
 pub const IID_IAppxManifestPackageDependency = &IID_IAppxManifestPackageDependency_Value;
 pub const IAppxManifestPackageDependency = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetName: fn(
-            self: *const IAppxManifestPackageDependency,
-            name: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPublisher: fn(
-            self: *const IAppxManifestPackageDependency,
-            publisher: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetMinVersion: fn(
-            self: *const IAppxManifestPackageDependency,
-            minVersion: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageDependency,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageDependency,
+                name: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPublisher: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageDependency,
+                publisher: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageDependency,
+                publisher: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetMinVersion: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageDependency,
+                minVersion: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageDependency,
+                minVersion: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1689,15 +2393,21 @@ pub const IAppxManifestPackageDependency = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxManifestPackageDependency2_Value = @import("../../zig.zig").Guid.initString("dda0b713-f3ff-49d3-898a-2786780c5d98");
+const IID_IAppxManifestPackageDependency2_Value = Guid.initString("dda0b713-f3ff-49d3-898a-2786780c5d98");
 pub const IID_IAppxManifestPackageDependency2 = &IID_IAppxManifestPackageDependency2_Value;
 pub const IAppxManifestPackageDependency2 = extern struct {
     pub const VTable = extern struct {
         base: IAppxManifestPackageDependency.VTable,
-        GetMaxMajorVersionTested: fn(
-            self: *const IAppxManifestPackageDependency2,
-            maxMajorVersionTested: ?*u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetMaxMajorVersionTested: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageDependency2,
+                maxMajorVersionTested: ?*u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageDependency2,
+                maxMajorVersionTested: ?*u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1710,15 +2420,21 @@ pub const IAppxManifestPackageDependency2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestPackageDependency3_Value = @import("../../zig.zig").Guid.initString("1ac56374-6198-4d6b-92e4-749d5ab8a895");
+const IID_IAppxManifestPackageDependency3_Value = Guid.initString("1ac56374-6198-4d6b-92e4-749d5ab8a895");
 pub const IID_IAppxManifestPackageDependency3 = &IID_IAppxManifestPackageDependency3_Value;
 pub const IAppxManifestPackageDependency3 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetIsOptional: fn(
-            self: *const IAppxManifestPackageDependency3,
-            isOptional: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetIsOptional: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestPackageDependency3,
+                isOptional: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestPackageDependency3,
+                isOptional: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1732,23 +2448,41 @@ pub const IAppxManifestPackageDependency3 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxManifestResourcesEnumerator_Value = @import("../../zig.zig").Guid.initString("de4dfbbd-881a-48bb-858c-d6f2baeae6ed");
+const IID_IAppxManifestResourcesEnumerator_Value = Guid.initString("de4dfbbd-881a-48bb-858c-d6f2baeae6ed");
 pub const IID_IAppxManifestResourcesEnumerator = &IID_IAppxManifestResourcesEnumerator_Value;
 pub const IAppxManifestResourcesEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxManifestResourcesEnumerator,
-            resource: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxManifestResourcesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxManifestResourcesEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestResourcesEnumerator,
+                resource: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestResourcesEnumerator,
+                resource: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestResourcesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestResourcesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestResourcesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestResourcesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1770,23 +2504,41 @@ pub const IAppxManifestResourcesEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxManifestDeviceCapabilitiesEnumerator_Value = @import("../../zig.zig").Guid.initString("30204541-427b-4a1c-bacf-655bf463a540");
+const IID_IAppxManifestDeviceCapabilitiesEnumerator_Value = Guid.initString("30204541-427b-4a1c-bacf-655bf463a540");
 pub const IID_IAppxManifestDeviceCapabilitiesEnumerator = &IID_IAppxManifestDeviceCapabilitiesEnumerator_Value;
 pub const IAppxManifestDeviceCapabilitiesEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxManifestDeviceCapabilitiesEnumerator,
-            deviceCapability: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxManifestDeviceCapabilitiesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxManifestDeviceCapabilitiesEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestDeviceCapabilitiesEnumerator,
+                deviceCapability: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestDeviceCapabilitiesEnumerator,
+                deviceCapability: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestDeviceCapabilitiesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestDeviceCapabilitiesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestDeviceCapabilitiesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestDeviceCapabilitiesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1807,23 +2559,41 @@ pub const IAppxManifestDeviceCapabilitiesEnumerator = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestCapabilitiesEnumerator_Value = @import("../../zig.zig").Guid.initString("11d22258-f470-42c1-b291-8361c5437e41");
+const IID_IAppxManifestCapabilitiesEnumerator_Value = Guid.initString("11d22258-f470-42c1-b291-8361c5437e41");
 pub const IID_IAppxManifestCapabilitiesEnumerator = &IID_IAppxManifestCapabilitiesEnumerator_Value;
 pub const IAppxManifestCapabilitiesEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxManifestCapabilitiesEnumerator,
-            capability: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxManifestCapabilitiesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxManifestCapabilitiesEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestCapabilitiesEnumerator,
+                capability: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestCapabilitiesEnumerator,
+                capability: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestCapabilitiesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestCapabilitiesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestCapabilitiesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestCapabilitiesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1845,23 +2615,41 @@ pub const IAppxManifestCapabilitiesEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxManifestApplicationsEnumerator_Value = @import("../../zig.zig").Guid.initString("9eb8a55a-f04b-4d0d-808d-686185d4847a");
+const IID_IAppxManifestApplicationsEnumerator_Value = Guid.initString("9eb8a55a-f04b-4d0d-808d-686185d4847a");
 pub const IID_IAppxManifestApplicationsEnumerator = &IID_IAppxManifestApplicationsEnumerator_Value;
 pub const IAppxManifestApplicationsEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxManifestApplicationsEnumerator,
-            application: ?*?*IAppxManifestApplication,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxManifestApplicationsEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxManifestApplicationsEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestApplicationsEnumerator,
+                application: ?*?*IAppxManifestApplication,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestApplicationsEnumerator,
+                application: ?*?*IAppxManifestApplication,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestApplicationsEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestApplicationsEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestApplicationsEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestApplicationsEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1883,20 +2671,33 @@ pub const IAppxManifestApplicationsEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IAppxManifestApplication_Value = @import("../../zig.zig").Guid.initString("5da89bf4-3773-46be-b650-7e744863b7e8");
+const IID_IAppxManifestApplication_Value = Guid.initString("5da89bf4-3773-46be-b650-7e744863b7e8");
 pub const IID_IAppxManifestApplication = &IID_IAppxManifestApplication_Value;
 pub const IAppxManifestApplication = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetStringValue: fn(
-            self: *const IAppxManifestApplication,
-            name: ?[*:0]const u16,
-            value: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAppUserModelId: fn(
-            self: *const IAppxManifestApplication,
-            appUserModelId: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetStringValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestApplication,
+                name: ?[*:0]const u16,
+                value: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestApplication,
+                name: ?[*:0]const u16,
+                value: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAppUserModelId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestApplication,
+                appUserModelId: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestApplication,
+                appUserModelId: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1913,23 +2714,41 @@ pub const IAppxManifestApplication = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestQualifiedResourcesEnumerator_Value = @import("../../zig.zig").Guid.initString("8ef6adfe-3762-4a8f-9373-2fc5d444c8d2");
+const IID_IAppxManifestQualifiedResourcesEnumerator_Value = Guid.initString("8ef6adfe-3762-4a8f-9373-2fc5d444c8d2");
 pub const IID_IAppxManifestQualifiedResourcesEnumerator = &IID_IAppxManifestQualifiedResourcesEnumerator_Value;
 pub const IAppxManifestQualifiedResourcesEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxManifestQualifiedResourcesEnumerator,
-            resource: ?*?*IAppxManifestQualifiedResource,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxManifestQualifiedResourcesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxManifestQualifiedResourcesEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestQualifiedResourcesEnumerator,
+                resource: ?*?*IAppxManifestQualifiedResource,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestQualifiedResourcesEnumerator,
+                resource: ?*?*IAppxManifestQualifiedResource,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestQualifiedResourcesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestQualifiedResourcesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestQualifiedResourcesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestQualifiedResourcesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1950,23 +2769,41 @@ pub const IAppxManifestQualifiedResourcesEnumerator = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxManifestQualifiedResource_Value = @import("../../zig.zig").Guid.initString("3b53a497-3c5c-48d1-9ea3-bb7eac8cd7d4");
+const IID_IAppxManifestQualifiedResource_Value = Guid.initString("3b53a497-3c5c-48d1-9ea3-bb7eac8cd7d4");
 pub const IID_IAppxManifestQualifiedResource = &IID_IAppxManifestQualifiedResource_Value;
 pub const IAppxManifestQualifiedResource = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetLanguage: fn(
-            self: *const IAppxManifestQualifiedResource,
-            language: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetScale: fn(
-            self: *const IAppxManifestQualifiedResource,
-            scale: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDXFeatureLevel: fn(
-            self: *const IAppxManifestQualifiedResource,
-            dxFeatureLevel: ?*DX_FEATURE_LEVEL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetLanguage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestQualifiedResource,
+                language: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestQualifiedResource,
+                language: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetScale: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestQualifiedResource,
+                scale: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestQualifiedResource,
+                scale: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDXFeatureLevel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxManifestQualifiedResource,
+                dxFeatureLevel: ?*DX_FEATURE_LEVEL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxManifestQualifiedResource,
+                dxFeatureLevel: ?*DX_FEATURE_LEVEL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1988,27 +2825,49 @@ pub const IAppxManifestQualifiedResource = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.1'
-const IID_IAppxBundleFactory_Value = @import("../../zig.zig").Guid.initString("bba65864-965f-4a5f-855f-f074bdbf3a7b");
+const IID_IAppxBundleFactory_Value = Guid.initString("bba65864-965f-4a5f-855f-f074bdbf3a7b");
 pub const IID_IAppxBundleFactory = &IID_IAppxBundleFactory_Value;
 pub const IAppxBundleFactory = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateBundleWriter: fn(
-            self: *const IAppxBundleFactory,
-            outputStream: ?*IStream,
-            bundleVersion: u64,
-            bundleWriter: ?*?*IAppxBundleWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateBundleReader: fn(
-            self: *const IAppxBundleFactory,
-            inputStream: ?*IStream,
-            bundleReader: ?*?*IAppxBundleReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateBundleManifestReader: fn(
-            self: *const IAppxBundleFactory,
-            inputStream: ?*IStream,
-            manifestReader: ?*?*IAppxBundleManifestReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateBundleWriter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleFactory,
+                outputStream: ?*IStream,
+                bundleVersion: u64,
+                bundleWriter: ?*?*IAppxBundleWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleFactory,
+                outputStream: ?*IStream,
+                bundleVersion: u64,
+                bundleWriter: ?*?*IAppxBundleWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateBundleReader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleFactory,
+                inputStream: ?*IStream,
+                bundleReader: ?*?*IAppxBundleReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleFactory,
+                inputStream: ?*IStream,
+                bundleReader: ?*?*IAppxBundleReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateBundleManifestReader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleFactory,
+                inputStream: ?*IStream,
+                manifestReader: ?*?*IAppxBundleManifestReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleFactory,
+                inputStream: ?*IStream,
+                manifestReader: ?*?*IAppxBundleManifestReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2030,19 +2889,31 @@ pub const IAppxBundleFactory = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.1'
-const IID_IAppxBundleWriter_Value = @import("../../zig.zig").Guid.initString("ec446fe8-bfec-4c64-ab4f-49f038f0c6d2");
+const IID_IAppxBundleWriter_Value = Guid.initString("ec446fe8-bfec-4c64-ab4f-49f038f0c6d2");
 pub const IID_IAppxBundleWriter = &IID_IAppxBundleWriter_Value;
 pub const IAppxBundleWriter = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddPayloadPackage: fn(
-            self: *const IAppxBundleWriter,
-            fileName: ?[*:0]const u16,
-            packageStream: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Close: fn(
-            self: *const IAppxBundleWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddPayloadPackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleWriter,
+                fileName: ?[*:0]const u16,
+                packageStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleWriter,
+                fileName: ?[*:0]const u16,
+                packageStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Close: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2060,16 +2931,23 @@ pub const IAppxBundleWriter = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxBundleWriter2_Value = @import("../../zig.zig").Guid.initString("6d8fe971-01cc-49a0-b685-233851279962");
+const IID_IAppxBundleWriter2_Value = Guid.initString("6d8fe971-01cc-49a0-b685-233851279962");
 pub const IID_IAppxBundleWriter2 = &IID_IAppxBundleWriter2_Value;
 pub const IAppxBundleWriter2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddExternalPackageReference: fn(
-            self: *const IAppxBundleWriter2,
-            fileName: ?[*:0]const u16,
-            inputStream: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddExternalPackageReference: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleWriter2,
+                fileName: ?[*:0]const u16,
+                inputStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleWriter2,
+                fileName: ?[*:0]const u16,
+                inputStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2083,20 +2961,33 @@ pub const IAppxBundleWriter2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxBundleWriter3_Value = @import("../../zig.zig").Guid.initString("ad711152-f969-4193-82d5-9ddf2786d21a");
+const IID_IAppxBundleWriter3_Value = Guid.initString("ad711152-f969-4193-82d5-9ddf2786d21a");
 pub const IID_IAppxBundleWriter3 = &IID_IAppxBundleWriter3_Value;
 pub const IAppxBundleWriter3 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddPackageReference: fn(
-            self: *const IAppxBundleWriter3,
-            fileName: ?[*:0]const u16,
-            inputStream: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Close: fn(
-            self: *const IAppxBundleWriter3,
-            hashMethodString: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddPackageReference: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleWriter3,
+                fileName: ?[*:0]const u16,
+                inputStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleWriter3,
+                fileName: ?[*:0]const u16,
+                inputStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Close: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleWriter3,
+                hashMethodString: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleWriter3,
+                hashMethodString: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2114,29 +3005,53 @@ pub const IAppxBundleWriter3 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxBundleWriter4_Value = @import("../../zig.zig").Guid.initString("9cd9d523-5009-4c01-9882-dc029fbd47a3");
+const IID_IAppxBundleWriter4_Value = Guid.initString("9cd9d523-5009-4c01-9882-dc029fbd47a3");
 pub const IID_IAppxBundleWriter4 = &IID_IAppxBundleWriter4_Value;
 pub const IAppxBundleWriter4 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddPayloadPackage: fn(
-            self: *const IAppxBundleWriter4,
-            fileName: ?[*:0]const u16,
-            packageStream: ?*IStream,
-            isDefaultApplicablePackage: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddPackageReference: fn(
-            self: *const IAppxBundleWriter4,
-            fileName: ?[*:0]const u16,
-            inputStream: ?*IStream,
-            isDefaultApplicablePackage: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddExternalPackageReference: fn(
-            self: *const IAppxBundleWriter4,
-            fileName: ?[*:0]const u16,
-            inputStream: ?*IStream,
-            isDefaultApplicablePackage: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddPayloadPackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleWriter4,
+                fileName: ?[*:0]const u16,
+                packageStream: ?*IStream,
+                isDefaultApplicablePackage: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleWriter4,
+                fileName: ?[*:0]const u16,
+                packageStream: ?*IStream,
+                isDefaultApplicablePackage: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddPackageReference: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleWriter4,
+                fileName: ?[*:0]const u16,
+                inputStream: ?*IStream,
+                isDefaultApplicablePackage: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleWriter4,
+                fileName: ?[*:0]const u16,
+                inputStream: ?*IStream,
+                isDefaultApplicablePackage: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddExternalPackageReference: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleWriter4,
+                fileName: ?[*:0]const u16,
+                inputStream: ?*IStream,
+                isDefaultApplicablePackage: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleWriter4,
+                fileName: ?[*:0]const u16,
+                inputStream: ?*IStream,
+                isDefaultApplicablePackage: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2158,33 +3073,65 @@ pub const IAppxBundleWriter4 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.1'
-const IID_IAppxBundleReader_Value = @import("../../zig.zig").Guid.initString("dd75b8c0-ba76-43b0-ae0f-68656a1dc5c8");
+const IID_IAppxBundleReader_Value = Guid.initString("dd75b8c0-ba76-43b0-ae0f-68656a1dc5c8");
 pub const IID_IAppxBundleReader = &IID_IAppxBundleReader_Value;
 pub const IAppxBundleReader = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetFootprintFile: fn(
-            self: *const IAppxBundleReader,
-            fileType: APPX_BUNDLE_FOOTPRINT_FILE_TYPE,
-            footprintFile: ?*?*IAppxFile,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetBlockMap: fn(
-            self: *const IAppxBundleReader,
-            blockMapReader: ?*?*IAppxBlockMapReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetManifest: fn(
-            self: *const IAppxBundleReader,
-            manifestReader: ?*?*IAppxBundleManifestReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPayloadPackages: fn(
-            self: *const IAppxBundleReader,
-            payloadPackages: ?*?*IAppxFilesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPayloadPackage: fn(
-            self: *const IAppxBundleReader,
-            fileName: ?[*:0]const u16,
-            payloadPackage: ?*?*IAppxFile,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetFootprintFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleReader,
+                fileType: APPX_BUNDLE_FOOTPRINT_FILE_TYPE,
+                footprintFile: ?*?*IAppxFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleReader,
+                fileType: APPX_BUNDLE_FOOTPRINT_FILE_TYPE,
+                footprintFile: ?*?*IAppxFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetBlockMap: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleReader,
+                blockMapReader: ?*?*IAppxBlockMapReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleReader,
+                blockMapReader: ?*?*IAppxBlockMapReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetManifest: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleReader,
+                manifestReader: ?*?*IAppxBundleManifestReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleReader,
+                manifestReader: ?*?*IAppxBundleManifestReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPayloadPackages: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleReader,
+                payloadPackages: ?*?*IAppxFilesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleReader,
+                payloadPackages: ?*?*IAppxFilesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPayloadPackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleReader,
+                fileName: ?[*:0]const u16,
+                payloadPackage: ?*?*IAppxFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleReader,
+                fileName: ?[*:0]const u16,
+                payloadPackage: ?*?*IAppxFile,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2214,23 +3161,41 @@ pub const IAppxBundleReader = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.1'
-const IID_IAppxBundleManifestReader_Value = @import("../../zig.zig").Guid.initString("cf0ebbc1-cc99-4106-91eb-e67462e04fb0");
+const IID_IAppxBundleManifestReader_Value = Guid.initString("cf0ebbc1-cc99-4106-91eb-e67462e04fb0");
 pub const IID_IAppxBundleManifestReader = &IID_IAppxBundleManifestReader_Value;
 pub const IAppxBundleManifestReader = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetPackageId: fn(
-            self: *const IAppxBundleManifestReader,
-            packageId: ?*?*IAppxManifestPackageId,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPackageInfoItems: fn(
-            self: *const IAppxBundleManifestReader,
-            packageInfoItems: ?*?*IAppxBundleManifestPackageInfoEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStream: fn(
-            self: *const IAppxBundleManifestReader,
-            manifestStream: ?*?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetPackageId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestReader,
+                packageId: ?*?*IAppxManifestPackageId,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestReader,
+                packageId: ?*?*IAppxManifestPackageId,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPackageInfoItems: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestReader,
+                packageInfoItems: ?*?*IAppxBundleManifestPackageInfoEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestReader,
+                packageInfoItems: ?*?*IAppxBundleManifestPackageInfoEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestReader,
+                manifestStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestReader,
+                manifestStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2252,15 +3217,21 @@ pub const IAppxBundleManifestReader = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxBundleManifestReader2_Value = @import("../../zig.zig").Guid.initString("5517df70-033f-4af2-8213-87d766805c02");
+const IID_IAppxBundleManifestReader2_Value = Guid.initString("5517df70-033f-4af2-8213-87d766805c02");
 pub const IID_IAppxBundleManifestReader2 = &IID_IAppxBundleManifestReader2_Value;
 pub const IAppxBundleManifestReader2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetOptionalBundles: fn(
-            self: *const IAppxBundleManifestReader2,
-            optionalBundles: ?*?*IAppxBundleManifestOptionalBundleInfoEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetOptionalBundles: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestReader2,
+                optionalBundles: ?*?*IAppxBundleManifestOptionalBundleInfoEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestReader2,
+                optionalBundles: ?*?*IAppxBundleManifestOptionalBundleInfoEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2274,23 +3245,41 @@ pub const IAppxBundleManifestReader2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.1'
-const IID_IAppxBundleManifestPackageInfoEnumerator_Value = @import("../../zig.zig").Guid.initString("f9b856ee-49a6-4e19-b2b0-6a2406d63a32");
+const IID_IAppxBundleManifestPackageInfoEnumerator_Value = Guid.initString("f9b856ee-49a6-4e19-b2b0-6a2406d63a32");
 pub const IID_IAppxBundleManifestPackageInfoEnumerator = &IID_IAppxBundleManifestPackageInfoEnumerator_Value;
 pub const IAppxBundleManifestPackageInfoEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxBundleManifestPackageInfoEnumerator,
-            packageInfo: ?*?*IAppxBundleManifestPackageInfo,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxBundleManifestPackageInfoEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxBundleManifestPackageInfoEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfoEnumerator,
+                packageInfo: ?*?*IAppxBundleManifestPackageInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfoEnumerator,
+                packageInfo: ?*?*IAppxBundleManifestPackageInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfoEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfoEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfoEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfoEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2312,35 +3301,71 @@ pub const IAppxBundleManifestPackageInfoEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.1'
-const IID_IAppxBundleManifestPackageInfo_Value = @import("../../zig.zig").Guid.initString("54cd06c1-268f-40bb-8ed2-757a9ebaec8d");
+const IID_IAppxBundleManifestPackageInfo_Value = Guid.initString("54cd06c1-268f-40bb-8ed2-757a9ebaec8d");
 pub const IID_IAppxBundleManifestPackageInfo = &IID_IAppxBundleManifestPackageInfo_Value;
 pub const IAppxBundleManifestPackageInfo = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetPackageType: fn(
-            self: *const IAppxBundleManifestPackageInfo,
-            packageType: ?*APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPackageId: fn(
-            self: *const IAppxBundleManifestPackageInfo,
-            packageId: ?*?*IAppxManifestPackageId,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFileName: fn(
-            self: *const IAppxBundleManifestPackageInfo,
-            fileName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetOffset: fn(
-            self: *const IAppxBundleManifestPackageInfo,
-            offset: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSize: fn(
-            self: *const IAppxBundleManifestPackageInfo,
-            size: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetResources: fn(
-            self: *const IAppxBundleManifestPackageInfo,
-            resources: ?*?*IAppxManifestQualifiedResourcesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetPackageType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfo,
+                packageType: ?*APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfo,
+                packageType: ?*APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPackageId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfo,
+                packageId: ?*?*IAppxManifestPackageId,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfo,
+                packageId: ?*?*IAppxManifestPackageId,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFileName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfo,
+                fileName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfo,
+                fileName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetOffset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfo,
+                offset: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfo,
+                offset: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfo,
+                size: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfo,
+                size: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetResources: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfo,
+                resources: ?*?*IAppxManifestQualifiedResourcesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfo,
+                resources: ?*?*IAppxManifestQualifiedResourcesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2374,23 +3399,41 @@ pub const IAppxBundleManifestPackageInfo = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxBundleManifestPackageInfo2_Value = @import("../../zig.zig").Guid.initString("44c2acbc-b2cf-4ccb-bbdb-9c6da8c3bc9e");
+const IID_IAppxBundleManifestPackageInfo2_Value = Guid.initString("44c2acbc-b2cf-4ccb-bbdb-9c6da8c3bc9e");
 pub const IID_IAppxBundleManifestPackageInfo2 = &IID_IAppxBundleManifestPackageInfo2_Value;
 pub const IAppxBundleManifestPackageInfo2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetIsPackageReference: fn(
-            self: *const IAppxBundleManifestPackageInfo2,
-            isPackageReference: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetIsNonQualifiedResourcePackage: fn(
-            self: *const IAppxBundleManifestPackageInfo2,
-            isNonQualifiedResourcePackage: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetIsDefaultApplicablePackage: fn(
-            self: *const IAppxBundleManifestPackageInfo2,
-            isDefaultApplicablePackage: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetIsPackageReference: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfo2,
+                isPackageReference: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfo2,
+                isPackageReference: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetIsNonQualifiedResourcePackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfo2,
+                isNonQualifiedResourcePackage: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfo2,
+                isNonQualifiedResourcePackage: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetIsDefaultApplicablePackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfo2,
+                isDefaultApplicablePackage: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfo2,
+                isDefaultApplicablePackage: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2411,15 +3454,21 @@ pub const IAppxBundleManifestPackageInfo2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxBundleManifestPackageInfo3_Value = @import("../../zig.zig").Guid.initString("6ba74b98-bb74-4296-80d0-5f4256a99675");
+const IID_IAppxBundleManifestPackageInfo3_Value = Guid.initString("6ba74b98-bb74-4296-80d0-5f4256a99675");
 pub const IID_IAppxBundleManifestPackageInfo3 = &IID_IAppxBundleManifestPackageInfo3_Value;
 pub const IAppxBundleManifestPackageInfo3 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetTargetDeviceFamilies: fn(
-            self: *const IAppxBundleManifestPackageInfo3,
-            targetDeviceFamilies: ?*?*IAppxManifestTargetDeviceFamiliesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetTargetDeviceFamilies: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfo3,
+                targetDeviceFamilies: ?*?*IAppxManifestTargetDeviceFamiliesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfo3,
+                targetDeviceFamilies: ?*?*IAppxManifestTargetDeviceFamiliesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2432,15 +3481,21 @@ pub const IAppxBundleManifestPackageInfo3 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxBundleManifestPackageInfo4_Value = @import("../../zig.zig").Guid.initString("5da6f13d-a8a7-4532-857c-1393d659371d");
+const IID_IAppxBundleManifestPackageInfo4_Value = Guid.initString("5da6f13d-a8a7-4532-857c-1393d659371d");
 pub const IID_IAppxBundleManifestPackageInfo4 = &IID_IAppxBundleManifestPackageInfo4_Value;
 pub const IAppxBundleManifestPackageInfo4 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetIsStub: fn(
-            self: *const IAppxBundleManifestPackageInfo4,
-            isStub: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetIsStub: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestPackageInfo4,
+                isStub: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestPackageInfo4,
+                isStub: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2454,23 +3509,41 @@ pub const IAppxBundleManifestPackageInfo4 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxBundleManifestOptionalBundleInfoEnumerator_Value = @import("../../zig.zig").Guid.initString("9a178793-f97e-46ac-aaca-dd5ba4c177c8");
+const IID_IAppxBundleManifestOptionalBundleInfoEnumerator_Value = Guid.initString("9a178793-f97e-46ac-aaca-dd5ba4c177c8");
 pub const IID_IAppxBundleManifestOptionalBundleInfoEnumerator = &IID_IAppxBundleManifestOptionalBundleInfoEnumerator_Value;
 pub const IAppxBundleManifestOptionalBundleInfoEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxBundleManifestOptionalBundleInfoEnumerator,
-            optionalBundle: ?*?*IAppxBundleManifestOptionalBundleInfo,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxBundleManifestOptionalBundleInfoEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxBundleManifestOptionalBundleInfoEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestOptionalBundleInfoEnumerator,
+                optionalBundle: ?*?*IAppxBundleManifestOptionalBundleInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestOptionalBundleInfoEnumerator,
+                optionalBundle: ?*?*IAppxBundleManifestOptionalBundleInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestOptionalBundleInfoEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestOptionalBundleInfoEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestOptionalBundleInfoEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestOptionalBundleInfoEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2492,23 +3565,41 @@ pub const IAppxBundleManifestOptionalBundleInfoEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxBundleManifestOptionalBundleInfo_Value = @import("../../zig.zig").Guid.initString("515bf2e8-bcb0-4d69-8c48-e383147b6e12");
+const IID_IAppxBundleManifestOptionalBundleInfo_Value = Guid.initString("515bf2e8-bcb0-4d69-8c48-e383147b6e12");
 pub const IID_IAppxBundleManifestOptionalBundleInfo = &IID_IAppxBundleManifestOptionalBundleInfo_Value;
 pub const IAppxBundleManifestOptionalBundleInfo = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetPackageId: fn(
-            self: *const IAppxBundleManifestOptionalBundleInfo,
-            packageId: ?*?*IAppxManifestPackageId,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFileName: fn(
-            self: *const IAppxBundleManifestOptionalBundleInfo,
-            fileName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPackageInfoItems: fn(
-            self: *const IAppxBundleManifestOptionalBundleInfo,
-            packageInfoItems: ?*?*IAppxBundleManifestPackageInfoEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetPackageId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestOptionalBundleInfo,
+                packageId: ?*?*IAppxManifestPackageId,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestOptionalBundleInfo,
+                packageId: ?*?*IAppxManifestPackageId,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFileName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestOptionalBundleInfo,
+                fileName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestOptionalBundleInfo,
+                fileName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPackageInfoItems: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxBundleManifestOptionalBundleInfo,
+                packageInfoItems: ?*?*IAppxBundleManifestPackageInfoEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxBundleManifestOptionalBundleInfo,
+                packageInfoItems: ?*?*IAppxBundleManifestPackageInfoEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2530,23 +3621,41 @@ pub const IAppxBundleManifestOptionalBundleInfo = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxContentGroupFilesEnumerator_Value = @import("../../zig.zig").Guid.initString("1a09a2fd-7440-44eb-8c84-848205a6a1cc");
+const IID_IAppxContentGroupFilesEnumerator_Value = Guid.initString("1a09a2fd-7440-44eb-8c84-848205a6a1cc");
 pub const IID_IAppxContentGroupFilesEnumerator = &IID_IAppxContentGroupFilesEnumerator_Value;
 pub const IAppxContentGroupFilesEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxContentGroupFilesEnumerator,
-            file: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxContentGroupFilesEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxContentGroupFilesEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxContentGroupFilesEnumerator,
+                file: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxContentGroupFilesEnumerator,
+                file: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxContentGroupFilesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxContentGroupFilesEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxContentGroupFilesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxContentGroupFilesEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2568,19 +3677,31 @@ pub const IAppxContentGroupFilesEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxContentGroup_Value = @import("../../zig.zig").Guid.initString("328f6468-c04f-4e3c-b6fa-6b8d27f3003a");
+const IID_IAppxContentGroup_Value = Guid.initString("328f6468-c04f-4e3c-b6fa-6b8d27f3003a");
 pub const IID_IAppxContentGroup = &IID_IAppxContentGroup_Value;
 pub const IAppxContentGroup = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetName: fn(
-            self: *const IAppxContentGroup,
-            groupName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFiles: fn(
-            self: *const IAppxContentGroup,
-            enumerator: ?*?*IAppxContentGroupFilesEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxContentGroup,
+                groupName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxContentGroup,
+                groupName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFiles: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxContentGroup,
+                enumerator: ?*?*IAppxContentGroupFilesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxContentGroup,
+                enumerator: ?*?*IAppxContentGroupFilesEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2598,23 +3719,41 @@ pub const IAppxContentGroup = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxContentGroupsEnumerator_Value = @import("../../zig.zig").Guid.initString("3264e477-16d1-4d63-823e-7d2984696634");
+const IID_IAppxContentGroupsEnumerator_Value = Guid.initString("3264e477-16d1-4d63-823e-7d2984696634");
 pub const IID_IAppxContentGroupsEnumerator = &IID_IAppxContentGroupsEnumerator_Value;
 pub const IAppxContentGroupsEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCurrent: fn(
-            self: *const IAppxContentGroupsEnumerator,
-            stream: ?*?*IAppxContentGroup,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHasCurrent: fn(
-            self: *const IAppxContentGroupsEnumerator,
-            hasCurrent: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveNext: fn(
-            self: *const IAppxContentGroupsEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxContentGroupsEnumerator,
+                stream: ?*?*IAppxContentGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxContentGroupsEnumerator,
+                stream: ?*?*IAppxContentGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHasCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxContentGroupsEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxContentGroupsEnumerator,
+                hasCurrent: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxContentGroupsEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxContentGroupsEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2636,19 +3775,31 @@ pub const IAppxContentGroupsEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxContentGroupMapReader_Value = @import("../../zig.zig").Guid.initString("418726d8-dd99-4f5d-9886-157add20de01");
+const IID_IAppxContentGroupMapReader_Value = Guid.initString("418726d8-dd99-4f5d-9886-157add20de01");
 pub const IID_IAppxContentGroupMapReader = &IID_IAppxContentGroupMapReader_Value;
 pub const IAppxContentGroupMapReader = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetRequiredGroup: fn(
-            self: *const IAppxContentGroupMapReader,
-            requiredGroup: ?*?*IAppxContentGroup,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAutomaticGroups: fn(
-            self: *const IAppxContentGroupMapReader,
-            automaticGroupsEnumerator: ?*?*IAppxContentGroupsEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetRequiredGroup: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxContentGroupMapReader,
+                requiredGroup: ?*?*IAppxContentGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxContentGroupMapReader,
+                requiredGroup: ?*?*IAppxContentGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAutomaticGroups: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxContentGroupMapReader,
+                automaticGroupsEnumerator: ?*?*IAppxContentGroupsEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxContentGroupMapReader,
+                automaticGroupsEnumerator: ?*?*IAppxContentGroupsEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2666,19 +3817,31 @@ pub const IAppxContentGroupMapReader = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxSourceContentGroupMapReader_Value = @import("../../zig.zig").Guid.initString("f329791d-540b-4a9f-bc75-3282b7d73193");
+const IID_IAppxSourceContentGroupMapReader_Value = Guid.initString("f329791d-540b-4a9f-bc75-3282b7d73193");
 pub const IID_IAppxSourceContentGroupMapReader = &IID_IAppxSourceContentGroupMapReader_Value;
 pub const IAppxSourceContentGroupMapReader = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetRequiredGroup: fn(
-            self: *const IAppxSourceContentGroupMapReader,
-            requiredGroup: ?*?*IAppxContentGroup,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAutomaticGroups: fn(
-            self: *const IAppxSourceContentGroupMapReader,
-            automaticGroupsEnumerator: ?*?*IAppxContentGroupsEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetRequiredGroup: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxSourceContentGroupMapReader,
+                requiredGroup: ?*?*IAppxContentGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxSourceContentGroupMapReader,
+                requiredGroup: ?*?*IAppxContentGroup,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAutomaticGroups: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxSourceContentGroupMapReader,
+                automaticGroupsEnumerator: ?*?*IAppxContentGroupsEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxSourceContentGroupMapReader,
+                automaticGroupsEnumerator: ?*?*IAppxContentGroupsEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2696,22 +3859,39 @@ pub const IAppxSourceContentGroupMapReader = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxContentGroupMapWriter_Value = @import("../../zig.zig").Guid.initString("d07ab776-a9de-4798-8c14-3db31e687c78");
+const IID_IAppxContentGroupMapWriter_Value = Guid.initString("d07ab776-a9de-4798-8c14-3db31e687c78");
 pub const IID_IAppxContentGroupMapWriter = &IID_IAppxContentGroupMapWriter_Value;
 pub const IAppxContentGroupMapWriter = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddAutomaticGroup: fn(
-            self: *const IAppxContentGroupMapWriter,
-            groupName: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddAutomaticFile: fn(
-            self: *const IAppxContentGroupMapWriter,
-            fileName: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Close: fn(
-            self: *const IAppxContentGroupMapWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddAutomaticGroup: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxContentGroupMapWriter,
+                groupName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxContentGroupMapWriter,
+                groupName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddAutomaticFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxContentGroupMapWriter,
+                fileName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxContentGroupMapWriter,
+                fileName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Close: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxContentGroupMapWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxContentGroupMapWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2732,23 +3912,39 @@ pub const IAppxContentGroupMapWriter = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxPackagingDiagnosticEventSink_Value = @import("../../zig.zig").Guid.initString("17239d47-6adb-45d2-80f6-f9cbc3bf059d");
+const IID_IAppxPackagingDiagnosticEventSink_Value = Guid.initString("17239d47-6adb-45d2-80f6-f9cbc3bf059d");
 pub const IID_IAppxPackagingDiagnosticEventSink = &IID_IAppxPackagingDiagnosticEventSink_Value;
 pub const IAppxPackagingDiagnosticEventSink = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ReportContextChange: fn(
-            self: *const IAppxPackagingDiagnosticEventSink,
-            changeType: APPX_PACKAGING_CONTEXT_CHANGE_TYPE,
-            contextId: i32,
-            contextName: ?[*:0]const u8,
-            contextMessage: ?[*:0]const u16,
-            detailsMessage: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ReportError: fn(
-            self: *const IAppxPackagingDiagnosticEventSink,
-            errorMessage: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ReportContextChange: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackagingDiagnosticEventSink,
+                changeType: APPX_PACKAGING_CONTEXT_CHANGE_TYPE,
+                contextId: i32,
+                contextName: ?[*:0]const u8,
+                contextMessage: ?[*:0]const u16,
+                detailsMessage: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackagingDiagnosticEventSink,
+                changeType: APPX_PACKAGING_CONTEXT_CHANGE_TYPE,
+                contextId: i32,
+                contextName: ?[*:0]const u8,
+                contextMessage: ?[*:0]const u16,
+                detailsMessage: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ReportError: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackagingDiagnosticEventSink,
+                errorMessage: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackagingDiagnosticEventSink,
+                errorMessage: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2765,15 +3961,21 @@ pub const IAppxPackagingDiagnosticEventSink = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppxPackagingDiagnosticEventSinkManager_Value = @import("../../zig.zig").Guid.initString("369648fa-a7eb-4909-a15d-6954a078f18a");
+const IID_IAppxPackagingDiagnosticEventSinkManager_Value = Guid.initString("369648fa-a7eb-4909-a15d-6954a078f18a");
 pub const IID_IAppxPackagingDiagnosticEventSinkManager = &IID_IAppxPackagingDiagnosticEventSinkManager_Value;
 pub const IAppxPackagingDiagnosticEventSinkManager = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetSinkForProcess: fn(
-            self: *const IAppxPackagingDiagnosticEventSinkManager,
-            sink: ?*IAppxPackagingDiagnosticEventSink,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetSinkForProcess: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackagingDiagnosticEventSinkManager,
+                sink: ?*IAppxPackagingDiagnosticEventSink,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackagingDiagnosticEventSinkManager,
+                sink: ?*IAppxPackagingDiagnosticEventSink,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2834,69 +4036,143 @@ pub const APPX_ENCRYPTED_EXEMPTIONS = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.14393'
-const IID_IAppxEncryptionFactory_Value = @import("../../zig.zig").Guid.initString("80e8e04d-8c88-44ae-a011-7cadf6fb2e72");
+const IID_IAppxEncryptionFactory_Value = Guid.initString("80e8e04d-8c88-44ae-a011-7cadf6fb2e72");
 pub const IID_IAppxEncryptionFactory = &IID_IAppxEncryptionFactory_Value;
 pub const IAppxEncryptionFactory = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        EncryptPackage: fn(
-            self: *const IAppxEncryptionFactory,
-            inputStream: ?*IStream,
-            outputStream: ?*IStream,
-            settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
-            keyInfo: ?*const APPX_KEY_INFO,
-            exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DecryptPackage: fn(
-            self: *const IAppxEncryptionFactory,
-            inputStream: ?*IStream,
-            outputStream: ?*IStream,
-            keyInfo: ?*const APPX_KEY_INFO,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateEncryptedPackageWriter: fn(
-            self: *const IAppxEncryptionFactory,
-            outputStream: ?*IStream,
-            manifestStream: ?*IStream,
-            settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
-            keyInfo: ?*const APPX_KEY_INFO,
-            exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
-            packageWriter: ?*?*IAppxEncryptedPackageWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateEncryptedPackageReader: fn(
-            self: *const IAppxEncryptionFactory,
-            inputStream: ?*IStream,
-            keyInfo: ?*const APPX_KEY_INFO,
-            packageReader: ?*?*IAppxPackageReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EncryptBundle: fn(
-            self: *const IAppxEncryptionFactory,
-            inputStream: ?*IStream,
-            outputStream: ?*IStream,
-            settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
-            keyInfo: ?*const APPX_KEY_INFO,
-            exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DecryptBundle: fn(
-            self: *const IAppxEncryptionFactory,
-            inputStream: ?*IStream,
-            outputStream: ?*IStream,
-            keyInfo: ?*const APPX_KEY_INFO,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateEncryptedBundleWriter: fn(
-            self: *const IAppxEncryptionFactory,
-            outputStream: ?*IStream,
-            bundleVersion: u64,
-            settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
-            keyInfo: ?*const APPX_KEY_INFO,
-            exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
-            bundleWriter: ?*?*IAppxEncryptedBundleWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateEncryptedBundleReader: fn(
-            self: *const IAppxEncryptionFactory,
-            inputStream: ?*IStream,
-            keyInfo: ?*const APPX_KEY_INFO,
-            bundleReader: ?*?*IAppxBundleReader,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        EncryptPackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DecryptPackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                keyInfo: ?*const APPX_KEY_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                keyInfo: ?*const APPX_KEY_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateEncryptedPackageWriter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory,
+                outputStream: ?*IStream,
+                manifestStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+                packageWriter: ?*?*IAppxEncryptedPackageWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory,
+                outputStream: ?*IStream,
+                manifestStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+                packageWriter: ?*?*IAppxEncryptedPackageWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateEncryptedPackageReader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory,
+                inputStream: ?*IStream,
+                keyInfo: ?*const APPX_KEY_INFO,
+                packageReader: ?*?*IAppxPackageReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory,
+                inputStream: ?*IStream,
+                keyInfo: ?*const APPX_KEY_INFO,
+                packageReader: ?*?*IAppxPackageReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EncryptBundle: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DecryptBundle: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                keyInfo: ?*const APPX_KEY_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                keyInfo: ?*const APPX_KEY_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateEncryptedBundleWriter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory,
+                outputStream: ?*IStream,
+                bundleVersion: u64,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+                bundleWriter: ?*?*IAppxEncryptedBundleWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory,
+                outputStream: ?*IStream,
+                bundleVersion: u64,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+                bundleWriter: ?*?*IAppxEncryptedBundleWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateEncryptedBundleReader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory,
+                inputStream: ?*IStream,
+                keyInfo: ?*const APPX_KEY_INFO,
+                bundleReader: ?*?*IAppxBundleReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory,
+                inputStream: ?*IStream,
+                keyInfo: ?*const APPX_KEY_INFO,
+                bundleReader: ?*?*IAppxBundleReader,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2938,21 +4214,33 @@ pub const IAppxEncryptionFactory = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxEncryptionFactory2_Value = @import("../../zig.zig").Guid.initString("c1b11eee-c4ba-4ab2-a55d-d015fe8ff64f");
+const IID_IAppxEncryptionFactory2_Value = Guid.initString("c1b11eee-c4ba-4ab2-a55d-d015fe8ff64f");
 pub const IID_IAppxEncryptionFactory2 = &IID_IAppxEncryptionFactory2_Value;
 pub const IAppxEncryptionFactory2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateEncryptedPackageWriter: fn(
-            self: *const IAppxEncryptionFactory2,
-            outputStream: ?*IStream,
-            manifestStream: ?*IStream,
-            contentGroupMapStream: ?*IStream,
-            settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
-            keyInfo: ?*const APPX_KEY_INFO,
-            exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
-            packageWriter: ?*?*IAppxEncryptedPackageWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateEncryptedPackageWriter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory2,
+                outputStream: ?*IStream,
+                manifestStream: ?*IStream,
+                contentGroupMapStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+                packageWriter: ?*?*IAppxEncryptedPackageWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory2,
+                outputStream: ?*IStream,
+                manifestStream: ?*IStream,
+                contentGroupMapStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+                packageWriter: ?*?*IAppxEncryptedPackageWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2966,46 +4254,89 @@ pub const IAppxEncryptionFactory2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxEncryptionFactory3_Value = @import("../../zig.zig").Guid.initString("09edca37-cd64-47d6-b7e8-1cb11d4f7e05");
+const IID_IAppxEncryptionFactory3_Value = Guid.initString("09edca37-cd64-47d6-b7e8-1cb11d4f7e05");
 pub const IID_IAppxEncryptionFactory3 = &IID_IAppxEncryptionFactory3_Value;
 pub const IAppxEncryptionFactory3 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        EncryptPackage: fn(
-            self: *const IAppxEncryptionFactory3,
-            inputStream: ?*IStream,
-            outputStream: ?*IStream,
-            settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
-            keyInfo: ?*const APPX_KEY_INFO,
-            exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateEncryptedPackageWriter: fn(
-            self: *const IAppxEncryptionFactory3,
-            outputStream: ?*IStream,
-            manifestStream: ?*IStream,
-            contentGroupMapStream: ?*IStream,
-            settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
-            keyInfo: ?*const APPX_KEY_INFO,
-            exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
-            packageWriter: ?*?*IAppxEncryptedPackageWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EncryptBundle: fn(
-            self: *const IAppxEncryptionFactory3,
-            inputStream: ?*IStream,
-            outputStream: ?*IStream,
-            settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
-            keyInfo: ?*const APPX_KEY_INFO,
-            exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateEncryptedBundleWriter: fn(
-            self: *const IAppxEncryptionFactory3,
-            outputStream: ?*IStream,
-            bundleVersion: u64,
-            settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
-            keyInfo: ?*const APPX_KEY_INFO,
-            exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
-            bundleWriter: ?*?*IAppxEncryptedBundleWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        EncryptPackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory3,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory3,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateEncryptedPackageWriter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory3,
+                outputStream: ?*IStream,
+                manifestStream: ?*IStream,
+                contentGroupMapStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+                packageWriter: ?*?*IAppxEncryptedPackageWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory3,
+                outputStream: ?*IStream,
+                manifestStream: ?*IStream,
+                contentGroupMapStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+                packageWriter: ?*?*IAppxEncryptedPackageWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EncryptBundle: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory3,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory3,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateEncryptedBundleWriter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory3,
+                outputStream: ?*IStream,
+                bundleVersion: u64,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+                bundleWriter: ?*?*IAppxEncryptedBundleWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory3,
+                outputStream: ?*IStream,
+                bundleVersion: u64,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+                bundleWriter: ?*?*IAppxEncryptedBundleWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3031,20 +4362,31 @@ pub const IAppxEncryptionFactory3 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxEncryptionFactory4_Value = @import("../../zig.zig").Guid.initString("a879611f-12fd-41fe-85d5-06ae779bbaf5");
+const IID_IAppxEncryptionFactory4_Value = Guid.initString("a879611f-12fd-41fe-85d5-06ae779bbaf5");
 pub const IID_IAppxEncryptionFactory4 = &IID_IAppxEncryptionFactory4_Value;
 pub const IAppxEncryptionFactory4 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        EncryptPackage: fn(
-            self: *const IAppxEncryptionFactory4,
-            inputStream: ?*IStream,
-            outputStream: ?*IStream,
-            settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
-            keyInfo: ?*const APPX_KEY_INFO,
-            exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
-            memoryLimit: u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        EncryptPackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptionFactory4,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+                memoryLimit: u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptionFactory4,
+                inputStream: ?*IStream,
+                outputStream: ?*IStream,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
+                keyInfo: ?*const APPX_KEY_INFO,
+                exemptedFiles: ?*const APPX_ENCRYPTED_EXEMPTIONS,
+                memoryLimit: u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3058,20 +4400,33 @@ pub const IAppxEncryptionFactory4 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.14393'
-const IID_IAppxEncryptedPackageWriter_Value = @import("../../zig.zig").Guid.initString("f43d0b0b-1379-40e2-9b29-682ea2bf42af");
+const IID_IAppxEncryptedPackageWriter_Value = Guid.initString("f43d0b0b-1379-40e2-9b29-682ea2bf42af");
 pub const IID_IAppxEncryptedPackageWriter = &IID_IAppxEncryptedPackageWriter_Value;
 pub const IAppxEncryptedPackageWriter = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddPayloadFileEncrypted: fn(
-            self: *const IAppxEncryptedPackageWriter,
-            fileName: ?[*:0]const u16,
-            compressionOption: APPX_COMPRESSION_OPTION,
-            inputStream: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Close: fn(
-            self: *const IAppxEncryptedPackageWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddPayloadFileEncrypted: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptedPackageWriter,
+                fileName: ?[*:0]const u16,
+                compressionOption: APPX_COMPRESSION_OPTION,
+                inputStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptedPackageWriter,
+                fileName: ?[*:0]const u16,
+                compressionOption: APPX_COMPRESSION_OPTION,
+                inputStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Close: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptedPackageWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptedPackageWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3089,17 +4444,25 @@ pub const IAppxEncryptedPackageWriter = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.14393'
-const IID_IAppxEncryptedPackageWriter2_Value = @import("../../zig.zig").Guid.initString("3e475447-3a25-40b5-8ad2-f953ae50c92d");
+const IID_IAppxEncryptedPackageWriter2_Value = Guid.initString("3e475447-3a25-40b5-8ad2-f953ae50c92d");
 pub const IID_IAppxEncryptedPackageWriter2 = &IID_IAppxEncryptedPackageWriter2_Value;
 pub const IAppxEncryptedPackageWriter2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddPayloadFilesEncrypted: fn(
-            self: *const IAppxEncryptedPackageWriter2,
-            fileCount: u32,
-            payloadFiles: [*]APPX_PACKAGE_WRITER_PAYLOAD_STREAM,
-            memoryLimit: u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddPayloadFilesEncrypted: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptedPackageWriter2,
+                fileCount: u32,
+                payloadFiles: [*]APPX_PACKAGE_WRITER_PAYLOAD_STREAM,
+                memoryLimit: u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptedPackageWriter2,
+                fileCount: u32,
+                payloadFiles: [*]APPX_PACKAGE_WRITER_PAYLOAD_STREAM,
+                memoryLimit: u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3113,19 +4476,31 @@ pub const IAppxEncryptedPackageWriter2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.14393'
-const IID_IAppxEncryptedBundleWriter_Value = @import("../../zig.zig").Guid.initString("80b0902f-7bf0-4117-b8c6-4279ef81ee77");
+const IID_IAppxEncryptedBundleWriter_Value = Guid.initString("80b0902f-7bf0-4117-b8c6-4279ef81ee77");
 pub const IID_IAppxEncryptedBundleWriter = &IID_IAppxEncryptedBundleWriter_Value;
 pub const IAppxEncryptedBundleWriter = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddPayloadPackageEncrypted: fn(
-            self: *const IAppxEncryptedBundleWriter,
-            fileName: ?[*:0]const u16,
-            packageStream: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Close: fn(
-            self: *const IAppxEncryptedBundleWriter,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddPayloadPackageEncrypted: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptedBundleWriter,
+                fileName: ?[*:0]const u16,
+                packageStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptedBundleWriter,
+                fileName: ?[*:0]const u16,
+                packageStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Close: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptedBundleWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptedBundleWriter,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3143,16 +4518,23 @@ pub const IAppxEncryptedBundleWriter = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxEncryptedBundleWriter2_Value = @import("../../zig.zig").Guid.initString("e644be82-f0fa-42b8-a956-8d1cb48ee379");
+const IID_IAppxEncryptedBundleWriter2_Value = Guid.initString("e644be82-f0fa-42b8-a956-8d1cb48ee379");
 pub const IID_IAppxEncryptedBundleWriter2 = &IID_IAppxEncryptedBundleWriter2_Value;
 pub const IAppxEncryptedBundleWriter2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddExternalPackageReference: fn(
-            self: *const IAppxEncryptedBundleWriter2,
-            fileName: ?[*:0]const u16,
-            inputStream: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddExternalPackageReference: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptedBundleWriter2,
+                fileName: ?[*:0]const u16,
+                inputStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptedBundleWriter2,
+                fileName: ?[*:0]const u16,
+                inputStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3192,23 +4574,39 @@ pub const APPX_PACKAGE_EDITOR_UPDATE_PACKAGE_MANIFEST_OPTION_SKIP_VALIDATION = A
 pub const APPX_PACKAGE_EDITOR_UPDATE_PACKAGE_MANIFEST_OPTION_LOCALIZED = APPX_PACKAGE_EDITOR_UPDATE_PACKAGE_MANIFEST_OPTIONS.LOCALIZED;
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxEncryptedBundleWriter3_Value = @import("../../zig.zig").Guid.initString("0d34deb3-5cae-4dd3-977c-504932a51d31");
+const IID_IAppxEncryptedBundleWriter3_Value = Guid.initString("0d34deb3-5cae-4dd3-977c-504932a51d31");
 pub const IID_IAppxEncryptedBundleWriter3 = &IID_IAppxEncryptedBundleWriter3_Value;
 pub const IAppxEncryptedBundleWriter3 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddPayloadPackageEncrypted: fn(
-            self: *const IAppxEncryptedBundleWriter3,
-            fileName: ?[*:0]const u16,
-            packageStream: ?*IStream,
-            isDefaultApplicablePackage: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddExternalPackageReference: fn(
-            self: *const IAppxEncryptedBundleWriter3,
-            fileName: ?[*:0]const u16,
-            inputStream: ?*IStream,
-            isDefaultApplicablePackage: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddPayloadPackageEncrypted: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptedBundleWriter3,
+                fileName: ?[*:0]const u16,
+                packageStream: ?*IStream,
+                isDefaultApplicablePackage: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptedBundleWriter3,
+                fileName: ?[*:0]const u16,
+                packageStream: ?*IStream,
+                isDefaultApplicablePackage: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddExternalPackageReference: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxEncryptedBundleWriter3,
+                fileName: ?[*:0]const u16,
+                inputStream: ?*IStream,
+                isDefaultApplicablePackage: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxEncryptedBundleWriter3,
+                fileName: ?[*:0]const u16,
+                inputStream: ?*IStream,
+                isDefaultApplicablePackage: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3226,49 +4624,99 @@ pub const IAppxEncryptedBundleWriter3 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-const IID_IAppxPackageEditor_Value = @import("../../zig.zig").Guid.initString("e2adb6dc-5e71-4416-86b6-86e5f5291a6b");
+const IID_IAppxPackageEditor_Value = Guid.initString("e2adb6dc-5e71-4416-86b6-86e5f5291a6b");
 pub const IID_IAppxPackageEditor = &IID_IAppxPackageEditor_Value;
 pub const IAppxPackageEditor = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetWorkingDirectory: fn(
-            self: *const IAppxPackageEditor,
-            workingDirectory: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateDeltaPackage: fn(
-            self: *const IAppxPackageEditor,
-            updatedPackageStream: ?*IStream,
-            baselinePackageStream: ?*IStream,
-            deltaPackageStream: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateDeltaPackageUsingBaselineBlockMap: fn(
-            self: *const IAppxPackageEditor,
-            updatedPackageStream: ?*IStream,
-            baselineBlockMapStream: ?*IStream,
-            baselinePackageFullName: ?[*:0]const u16,
-            deltaPackageStream: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UpdatePackage: fn(
-            self: *const IAppxPackageEditor,
-            baselinePackageStream: ?*IStream,
-            deltaPackageStream: ?*IStream,
-            updateOption: APPX_PACKAGE_EDITOR_UPDATE_PACKAGE_OPTION,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UpdateEncryptedPackage: fn(
-            self: *const IAppxPackageEditor,
-            baselineEncryptedPackageStream: ?*IStream,
-            deltaPackageStream: ?*IStream,
-            updateOption: APPX_PACKAGE_EDITOR_UPDATE_PACKAGE_OPTION,
-            settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
-            keyInfo: ?*const APPX_KEY_INFO,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UpdatePackageManifest: fn(
-            self: *const IAppxPackageEditor,
-            packageStream: ?*IStream,
-            updatedManifestStream: ?*IStream,
-            isPackageEncrypted: BOOL,
-            options: APPX_PACKAGE_EDITOR_UPDATE_PACKAGE_MANIFEST_OPTIONS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetWorkingDirectory: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageEditor,
+                workingDirectory: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageEditor,
+                workingDirectory: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateDeltaPackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageEditor,
+                updatedPackageStream: ?*IStream,
+                baselinePackageStream: ?*IStream,
+                deltaPackageStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageEditor,
+                updatedPackageStream: ?*IStream,
+                baselinePackageStream: ?*IStream,
+                deltaPackageStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateDeltaPackageUsingBaselineBlockMap: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageEditor,
+                updatedPackageStream: ?*IStream,
+                baselineBlockMapStream: ?*IStream,
+                baselinePackageFullName: ?[*:0]const u16,
+                deltaPackageStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageEditor,
+                updatedPackageStream: ?*IStream,
+                baselineBlockMapStream: ?*IStream,
+                baselinePackageFullName: ?[*:0]const u16,
+                deltaPackageStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UpdatePackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageEditor,
+                baselinePackageStream: ?*IStream,
+                deltaPackageStream: ?*IStream,
+                updateOption: APPX_PACKAGE_EDITOR_UPDATE_PACKAGE_OPTION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageEditor,
+                baselinePackageStream: ?*IStream,
+                deltaPackageStream: ?*IStream,
+                updateOption: APPX_PACKAGE_EDITOR_UPDATE_PACKAGE_OPTION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UpdateEncryptedPackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageEditor,
+                baselineEncryptedPackageStream: ?*IStream,
+                deltaPackageStream: ?*IStream,
+                updateOption: APPX_PACKAGE_EDITOR_UPDATE_PACKAGE_OPTION,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
+                keyInfo: ?*const APPX_KEY_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageEditor,
+                baselineEncryptedPackageStream: ?*IStream,
+                deltaPackageStream: ?*IStream,
+                updateOption: APPX_PACKAGE_EDITOR_UPDATE_PACKAGE_OPTION,
+                settings: ?*const APPX_ENCRYPTED_PACKAGE_SETTINGS2,
+                keyInfo: ?*const APPX_KEY_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UpdatePackageManifest: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppxPackageEditor,
+                packageStream: ?*IStream,
+                updatedManifestStream: ?*IStream,
+                isPackageEncrypted: BOOL,
+                options: APPX_PACKAGE_EDITOR_UPDATE_PACKAGE_MANIFEST_OPTIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppxPackageEditor,
+                packageStream: ?*IStream,
+                updatedManifestStream: ?*IStream,
+                isPackageEncrypted: BOOL,
+                options: APPX_PACKAGE_EDITOR_UPDATE_PACKAGE_MANIFEST_OPTIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3490,32 +4938,32 @@ pub const PACKAGE_VIRTUALIZATION_CONTEXT_HANDLE__ = extern struct {
 // Section: Functions (63)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn GetCurrentPackageId(
+pub extern "kernel32" fn GetCurrentPackageId(
     bufferLength: ?*u32,
     // TODO: what to do with BytesParamIndex 0?
     buffer: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn GetCurrentPackageFullName(
+pub extern "kernel32" fn GetCurrentPackageFullName(
     packageFullNameLength: ?*u32,
     packageFullName: ?[*:0]u16,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn GetCurrentPackageFamilyName(
+pub extern "kernel32" fn GetCurrentPackageFamilyName(
     packageFamilyNameLength: ?*u32,
     packageFamilyName: ?[*:0]u16,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn GetCurrentPackagePath(
+pub extern "kernel32" fn GetCurrentPackagePath(
     pathLength: ?*u32,
     path: ?[*:0]u16,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn GetPackageId(
+pub extern "kernel32" fn GetPackageId(
     hProcess: ?HANDLE,
     bufferLength: ?*u32,
     // TODO: what to do with BytesParamIndex 1?
@@ -3523,7 +4971,7 @@ pub extern "KERNEL32" fn GetPackageId(
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn GetPackageFullName(
+pub extern "kernel32" fn GetPackageFullName(
     hProcess: ?HANDLE,
     packageFullNameLength: ?*u32,
     packageFullName: ?[*:0]u16,
@@ -3537,7 +4985,7 @@ pub extern "api-ms-win-appmodel-runtime-l1-1-1" fn GetPackageFullNameFromToken(
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn GetPackageFamilyName(
+pub extern "kernel32" fn GetPackageFamilyName(
     hProcess: ?HANDLE,
     packageFamilyNameLength: ?*u32,
     packageFamilyName: ?[*:0]u16,
@@ -3551,7 +4999,7 @@ pub extern "api-ms-win-appmodel-runtime-l1-1-1" fn GetPackageFamilyNameFromToken
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn GetPackagePath(
+pub extern "kernel32" fn GetPackagePath(
     packageId: ?*const PACKAGE_ID,
     reserved: u32,
     pathLength: ?*u32,
@@ -3559,14 +5007,14 @@ pub extern "KERNEL32" fn GetPackagePath(
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.1'
-pub extern "KERNEL32" fn GetPackagePathByFullName(
+pub extern "kernel32" fn GetPackagePathByFullName(
     packageFullName: ?[*:0]const u16,
     pathLength: ?*u32,
     path: ?[*:0]u16,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.1'
-pub extern "KERNEL32" fn GetStagedPackagePathByFullName(
+pub extern "kernel32" fn GetStagedPackagePathByFullName(
     packageFullName: ?[*:0]const u16,
     pathLength: ?*u32,
     path: ?[*:0]u16,
@@ -3605,12 +5053,12 @@ pub extern "api-ms-win-appmodel-runtime-l1-1-3" fn GetCurrentPackagePath2(
     path: ?[*:0]u16,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "KERNEL32" fn GetCurrentApplicationUserModelId(
+pub extern "kernel32" fn GetCurrentApplicationUserModelId(
     applicationUserModelIdLength: ?*u32,
     applicationUserModelId: ?[*:0]u16,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "KERNEL32" fn GetApplicationUserModelId(
+pub extern "kernel32" fn GetApplicationUserModelId(
     hProcess: ?HANDLE,
     applicationUserModelIdLength: ?*u32,
     applicationUserModelId: ?[*:0]u16,
@@ -3643,7 +5091,7 @@ pub extern "api-ms-win-appmodel-runtime-l1-1-1" fn VerifyPackageRelativeApplicat
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn PackageIdFromFullName(
+pub extern "kernel32" fn PackageIdFromFullName(
     packageFullName: ?[*:0]const u16,
     flags: u32,
     bufferLength: ?*u32,
@@ -3652,28 +5100,28 @@ pub extern "KERNEL32" fn PackageIdFromFullName(
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn PackageFullNameFromId(
+pub extern "kernel32" fn PackageFullNameFromId(
     packageId: ?*const PACKAGE_ID,
     packageFullNameLength: ?*u32,
     packageFullName: ?[*:0]u16,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn PackageFamilyNameFromId(
+pub extern "kernel32" fn PackageFamilyNameFromId(
     packageId: ?*const PACKAGE_ID,
     packageFamilyNameLength: ?*u32,
     packageFamilyName: ?[*:0]u16,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn PackageFamilyNameFromFullName(
+pub extern "kernel32" fn PackageFamilyNameFromFullName(
     packageFullName: ?[*:0]const u16,
     packageFamilyNameLength: ?*u32,
     packageFamilyName: ?[*:0]u16,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn PackageNameAndPublisherIdFromFamilyName(
+pub extern "kernel32" fn PackageNameAndPublisherIdFromFamilyName(
     packageFamilyName: ?[*:0]const u16,
     packageNameLength: ?*u32,
     packageName: ?[*:0]u16,
@@ -3682,7 +5130,7 @@ pub extern "KERNEL32" fn PackageNameAndPublisherIdFromFamilyName(
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.1'
-pub extern "KERNEL32" fn FormatApplicationUserModelId(
+pub extern "kernel32" fn FormatApplicationUserModelId(
     packageFamilyName: ?[*:0]const u16,
     packageRelativeApplicationId: ?[*:0]const u16,
     applicationUserModelIdLength: ?*u32,
@@ -3690,7 +5138,7 @@ pub extern "KERNEL32" fn FormatApplicationUserModelId(
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.1'
-pub extern "KERNEL32" fn ParseApplicationUserModelId(
+pub extern "kernel32" fn ParseApplicationUserModelId(
     applicationUserModelId: ?[*:0]const u16,
     packageFamilyNameLength: ?*u32,
     packageFamilyName: ?[*:0]u16,
@@ -3699,7 +5147,7 @@ pub extern "KERNEL32" fn ParseApplicationUserModelId(
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn GetPackagesByPackageFamily(
+pub extern "kernel32" fn GetPackagesByPackageFamily(
     packageFamilyName: ?[*:0]const u16,
     count: ?*u32,
     packageFullNames: ?[*]?PWSTR,
@@ -3708,7 +5156,7 @@ pub extern "KERNEL32" fn GetPackagesByPackageFamily(
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.1'
-pub extern "KERNEL32" fn FindPackagesByPackageFamily(
+pub extern "kernel32" fn FindPackagesByPackageFamily(
     packageFamilyName: ?[*:0]const u16,
     packageFilters: u32,
     count: ?*u32,
@@ -3725,7 +5173,7 @@ pub extern "api-ms-win-appmodel-runtime-l1-1-1" fn GetStagedPackageOrigin(
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn GetCurrentPackageInfo(
+pub extern "kernel32" fn GetCurrentPackageInfo(
     flags: u32,
     bufferLength: ?*u32,
     // TODO: what to do with BytesParamIndex 1?
@@ -3734,7 +5182,7 @@ pub extern "KERNEL32" fn GetCurrentPackageInfo(
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn OpenPackageInfoByFullName(
+pub extern "kernel32" fn OpenPackageInfoByFullName(
     packageFullName: ?[*:0]const u16,
     reserved: u32,
     packageInfoReference: ?*?*_PACKAGE_INFO_REFERENCE,
@@ -3748,12 +5196,12 @@ pub extern "api-ms-win-appmodel-runtime-l1-1-1" fn OpenPackageInfoByFullNameForU
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn ClosePackageInfo(
+pub extern "kernel32" fn ClosePackageInfo(
     packageInfoReference: ?*_PACKAGE_INFO_REFERENCE,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn GetPackageInfo(
+pub extern "kernel32" fn GetPackageInfo(
     packageInfoReference: ?*_PACKAGE_INFO_REFERENCE,
     flags: u32,
     bufferLength: ?*u32,
@@ -3763,7 +5211,7 @@ pub extern "KERNEL32" fn GetPackageInfo(
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows8.1'
-pub extern "KERNEL32" fn GetPackageApplicationIds(
+pub extern "kernel32" fn GetPackageApplicationIds(
     packageInfoReference: ?*_PACKAGE_INFO_REFERENCE,
     bufferLength: ?*u32,
     // TODO: what to do with BytesParamIndex 1?
@@ -3782,12 +5230,12 @@ pub extern "api-ms-win-appmodel-runtime-l1-1-3" fn GetPackageInfo2(
     count: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "KERNEL32" fn CheckIsMSIXPackage(
+pub extern "kernel32" fn CheckIsMSIXPackage(
     packageFullName: ?[*:0]const u16,
     isMSIXPackage: ?*BOOL,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "KERNEL32" fn TryCreatePackageDependency(
+pub extern "kernel32" fn TryCreatePackageDependency(
     user: ?PSID,
     packageFamilyName: ?[*:0]const u16,
     minVersion: PACKAGE_VERSION,
@@ -3798,11 +5246,11 @@ pub extern "KERNEL32" fn TryCreatePackageDependency(
     packageDependencyId: ?*?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "KERNEL32" fn DeletePackageDependency(
+pub extern "kernel32" fn DeletePackageDependency(
     packageDependencyId: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "KERNEL32" fn AddPackageDependency(
+pub extern "kernel32" fn AddPackageDependency(
     packageDependencyId: ?[*:0]const u16,
     rank: i32,
     options: AddPackageDependencyOptions,
@@ -3810,87 +5258,87 @@ pub extern "KERNEL32" fn AddPackageDependency(
     packageFullName: ?*?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "KERNEL32" fn RemovePackageDependency(
+pub extern "kernel32" fn RemovePackageDependency(
     packageDependencyContext: ?*PACKAGEDEPENDENCY_CONTEXT__,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "KERNEL32" fn GetResolvedPackageFullNameForPackageDependency(
+pub extern "kernel32" fn GetResolvedPackageFullNameForPackageDependency(
     packageDependencyId: ?[*:0]const u16,
     packageFullName: ?*?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "KERNEL32" fn GetIdForPackageDependencyContext(
+pub extern "kernel32" fn GetIdForPackageDependencyContext(
     packageDependencyContext: ?*PACKAGEDEPENDENCY_CONTEXT__,
     packageDependencyId: ?*?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "KERNEL32" fn AppPolicyGetLifecycleManagement(
+pub extern "kernel32" fn AppPolicyGetLifecycleManagement(
     processToken: ?HANDLE,
     policy: ?*AppPolicyLifecycleManagement,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "KERNEL32" fn AppPolicyGetWindowingModel(
+pub extern "kernel32" fn AppPolicyGetWindowingModel(
     processToken: ?HANDLE,
     policy: ?*AppPolicyWindowingModel,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "KERNEL32" fn AppPolicyGetMediaFoundationCodecLoading(
+pub extern "kernel32" fn AppPolicyGetMediaFoundationCodecLoading(
     processToken: ?HANDLE,
     policy: ?*AppPolicyMediaFoundationCodecLoading,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "KERNEL32" fn AppPolicyGetClrCompat(
+pub extern "kernel32" fn AppPolicyGetClrCompat(
     processToken: ?HANDLE,
     policy: ?*AppPolicyClrCompat,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "KERNEL32" fn AppPolicyGetThreadInitializationType(
+pub extern "kernel32" fn AppPolicyGetThreadInitializationType(
     processToken: ?HANDLE,
     policy: ?*AppPolicyThreadInitializationType,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "KERNEL32" fn AppPolicyGetShowDeveloperDiagnostic(
+pub extern "kernel32" fn AppPolicyGetShowDeveloperDiagnostic(
     processToken: ?HANDLE,
     policy: ?*AppPolicyShowDeveloperDiagnostic,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "KERNEL32" fn AppPolicyGetProcessTerminationMethod(
+pub extern "kernel32" fn AppPolicyGetProcessTerminationMethod(
     processToken: ?HANDLE,
     policy: ?*AppPolicyProcessTerminationMethod,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "KERNEL32" fn AppPolicyGetCreateFileAccess(
+pub extern "kernel32" fn AppPolicyGetCreateFileAccess(
     processToken: ?HANDLE,
     policy: ?*AppPolicyCreateFileAccess,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "KERNEL32" fn CreatePackageVirtualizationContext(
+pub extern "kernel32" fn CreatePackageVirtualizationContext(
     packageFamilyName: ?[*:0]const u16,
     context: ?*?*PACKAGE_VIRTUALIZATION_CONTEXT_HANDLE__,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "KERNEL32" fn ActivatePackageVirtualizationContext(
+pub extern "kernel32" fn ActivatePackageVirtualizationContext(
     context: ?*PACKAGE_VIRTUALIZATION_CONTEXT_HANDLE__,
     cookie: ?*usize,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "KERNEL32" fn ReleasePackageVirtualizationContext(
+pub extern "kernel32" fn ReleasePackageVirtualizationContext(
     context: ?*PACKAGE_VIRTUALIZATION_CONTEXT_HANDLE__,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
-pub extern "KERNEL32" fn DeactivatePackageVirtualizationContext(
+pub extern "kernel32" fn DeactivatePackageVirtualizationContext(
     cookie: usize,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
-pub extern "KERNEL32" fn DuplicatePackageVirtualizationContext(
+pub extern "kernel32" fn DuplicatePackageVirtualizationContext(
     sourceContext: ?*PACKAGE_VIRTUALIZATION_CONTEXT_HANDLE__,
     destContext: ?*?*PACKAGE_VIRTUALIZATION_CONTEXT_HANDLE__,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "KERNEL32" fn GetCurrentPackageVirtualizationContext(
+pub extern "kernel32" fn GetCurrentPackageVirtualizationContext(
 ) callconv(@import("std").os.windows.WINAPI) ?*PACKAGE_VIRTUALIZATION_CONTEXT_HANDLE__;
 
-pub extern "KERNEL32" fn GetProcessesInVirtualizationContext(
+pub extern "kernel32" fn GetProcessesInVirtualizationContext(
     packageFamilyName: ?[*:0]const u16,
     count: ?*u32,
     processes: ?*?*?HANDLE,
@@ -3911,8 +5359,9 @@ pub usingnamespace switch (@import("../../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (9)
+// Section: Imports (10)
 //--------------------------------------------------------------------------------
+const Guid = @import("../../zig.zig").Guid;
 const BOOL = @import("../../foundation.zig").BOOL;
 const HANDLE = @import("../../foundation.zig").HANDLE;
 const HRESULT = @import("../../foundation.zig").HRESULT;
@@ -3925,14 +5374,14 @@ const PWSTR = @import("../../foundation.zig").PWSTR;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

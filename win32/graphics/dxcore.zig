@@ -104,73 +104,156 @@ pub const DXCoreAdapterMemoryBudget = extern struct {
     currentReservation: u64,
 };
 
-pub const PFN_DXCORE_NOTIFICATION_CALLBACK = fn(
-    notificationType: DXCoreNotificationType,
-    object: ?*IUnknown,
-    context: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const PFN_DXCORE_NOTIFICATION_CALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        notificationType: DXCoreNotificationType,
+        object: ?*IUnknown,
+        context: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        notificationType: DXCoreNotificationType,
+        object: ?*IUnknown,
+        context: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-const IID_IDXCoreAdapter_Value = @import("../zig.zig").Guid.initString("f0db4c7f-fe5a-42a2-bd62-f2a6cf6fc83e");
+const IID_IDXCoreAdapter_Value = Guid.initString("f0db4c7f-fe5a-42a2-bd62-f2a6cf6fc83e");
 pub const IID_IDXCoreAdapter = &IID_IDXCoreAdapter_Value;
 pub const IDXCoreAdapter = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        IsValid: fn(
-            self: *const IDXCoreAdapter,
-        ) callconv(@import("std").os.windows.WINAPI) bool,
-        IsAttributeSupported: fn(
-            self: *const IDXCoreAdapter,
-            attributeGUID: ?*const Guid,
-        ) callconv(@import("std").os.windows.WINAPI) bool,
-        IsPropertySupported: fn(
-            self: *const IDXCoreAdapter,
-            property: DXCoreAdapterProperty,
-        ) callconv(@import("std").os.windows.WINAPI) bool,
-        GetProperty: fn(
-            self: *const IDXCoreAdapter,
-            property: DXCoreAdapterProperty,
-            bufferSize: usize,
-            // TODO: what to do with BytesParamIndex 1?
-            propertyData: ?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPropertySize: fn(
-            self: *const IDXCoreAdapter,
-            property: DXCoreAdapterProperty,
-            bufferSize: ?*usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsQueryStateSupported: fn(
-            self: *const IDXCoreAdapter,
-            property: DXCoreAdapterState,
-        ) callconv(@import("std").os.windows.WINAPI) bool,
-        QueryState: fn(
-            self: *const IDXCoreAdapter,
-            state: DXCoreAdapterState,
-            inputStateDetailsSize: usize,
-            // TODO: what to do with BytesParamIndex 1?
-            inputStateDetails: ?*const anyopaque,
-            outputBufferSize: usize,
-            // TODO: what to do with BytesParamIndex 3?
-            outputBuffer: ?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsSetStateSupported: fn(
-            self: *const IDXCoreAdapter,
-            property: DXCoreAdapterState,
-        ) callconv(@import("std").os.windows.WINAPI) bool,
-        SetState: fn(
-            self: *const IDXCoreAdapter,
-            state: DXCoreAdapterState,
-            inputStateDetailsSize: usize,
-            // TODO: what to do with BytesParamIndex 1?
-            inputStateDetails: ?*const anyopaque,
-            inputDataSize: usize,
-            // TODO: what to do with BytesParamIndex 3?
-            inputData: ?*const anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFactory: fn(
-            self: *const IDXCoreAdapter,
-            riid: ?*const Guid,
-            ppvFactory: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        IsValid: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapter,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+            else => *const fn(
+                self: *const IDXCoreAdapter,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+        },
+        IsAttributeSupported: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapter,
+                attributeGUID: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+            else => *const fn(
+                self: *const IDXCoreAdapter,
+                attributeGUID: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+        },
+        IsPropertySupported: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapter,
+                property: DXCoreAdapterProperty,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+            else => *const fn(
+                self: *const IDXCoreAdapter,
+                property: DXCoreAdapterProperty,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+        },
+        GetProperty: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapter,
+                property: DXCoreAdapterProperty,
+                bufferSize: usize,
+                // TODO: what to do with BytesParamIndex 1?
+                propertyData: ?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDXCoreAdapter,
+                property: DXCoreAdapterProperty,
+                bufferSize: usize,
+                // TODO: what to do with BytesParamIndex 1?
+                propertyData: ?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPropertySize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapter,
+                property: DXCoreAdapterProperty,
+                bufferSize: ?*usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDXCoreAdapter,
+                property: DXCoreAdapterProperty,
+                bufferSize: ?*usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsQueryStateSupported: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapter,
+                property: DXCoreAdapterState,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+            else => *const fn(
+                self: *const IDXCoreAdapter,
+                property: DXCoreAdapterState,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+        },
+        QueryState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapter,
+                state: DXCoreAdapterState,
+                inputStateDetailsSize: usize,
+                // TODO: what to do with BytesParamIndex 1?
+                inputStateDetails: ?*const anyopaque,
+                outputBufferSize: usize,
+                // TODO: what to do with BytesParamIndex 3?
+                outputBuffer: ?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDXCoreAdapter,
+                state: DXCoreAdapterState,
+                inputStateDetailsSize: usize,
+                // TODO: what to do with BytesParamIndex 1?
+                inputStateDetails: ?*const anyopaque,
+                outputBufferSize: usize,
+                // TODO: what to do with BytesParamIndex 3?
+                outputBuffer: ?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsSetStateSupported: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapter,
+                property: DXCoreAdapterState,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+            else => *const fn(
+                self: *const IDXCoreAdapter,
+                property: DXCoreAdapterState,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+        },
+        SetState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapter,
+                state: DXCoreAdapterState,
+                inputStateDetailsSize: usize,
+                // TODO: what to do with BytesParamIndex 1?
+                inputStateDetails: ?*const anyopaque,
+                inputDataSize: usize,
+                // TODO: what to do with BytesParamIndex 3?
+                inputData: ?*const anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDXCoreAdapter,
+                state: DXCoreAdapterState,
+                inputStateDetailsSize: usize,
+                // TODO: what to do with BytesParamIndex 1?
+                inputStateDetails: ?*const anyopaque,
+                inputDataSize: usize,
+                // TODO: what to do with BytesParamIndex 3?
+                inputData: ?*const anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFactory: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapter,
+                riid: ?*const Guid,
+                ppvFactory: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDXCoreAdapter,
+                riid: ?*const Guid,
+                ppvFactory: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -219,37 +302,75 @@ pub const IDXCoreAdapter = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDXCoreAdapterList_Value = @import("../zig.zig").Guid.initString("526c7776-40e9-459b-b711-f32ad76dfc28");
+const IID_IDXCoreAdapterList_Value = Guid.initString("526c7776-40e9-459b-b711-f32ad76dfc28");
 pub const IID_IDXCoreAdapterList = &IID_IDXCoreAdapterList_Value;
 pub const IDXCoreAdapterList = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetAdapter: fn(
-            self: *const IDXCoreAdapterList,
-            index: u32,
-            riid: ?*const Guid,
-            ppvAdapter: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAdapterCount: fn(
-            self: *const IDXCoreAdapterList,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        IsStale: fn(
-            self: *const IDXCoreAdapterList,
-        ) callconv(@import("std").os.windows.WINAPI) bool,
-        GetFactory: fn(
-            self: *const IDXCoreAdapterList,
-            riid: ?*const Guid,
-            ppvFactory: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Sort: fn(
-            self: *const IDXCoreAdapterList,
-            numPreferences: u32,
-            preferences: [*]const DXCoreAdapterPreference,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsAdapterPreferenceSupported: fn(
-            self: *const IDXCoreAdapterList,
-            preference: DXCoreAdapterPreference,
-        ) callconv(@import("std").os.windows.WINAPI) bool,
+        GetAdapter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapterList,
+                index: u32,
+                riid: ?*const Guid,
+                ppvAdapter: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDXCoreAdapterList,
+                index: u32,
+                riid: ?*const Guid,
+                ppvAdapter: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAdapterCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapterList,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDXCoreAdapterList,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        IsStale: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapterList,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+            else => *const fn(
+                self: *const IDXCoreAdapterList,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+        },
+        GetFactory: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapterList,
+                riid: ?*const Guid,
+                ppvFactory: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDXCoreAdapterList,
+                riid: ?*const Guid,
+                ppvFactory: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Sort: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapterList,
+                numPreferences: u32,
+                preferences: [*]const DXCoreAdapterPreference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDXCoreAdapterList,
+                numPreferences: u32,
+                preferences: [*]const DXCoreAdapterPreference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsAdapterPreferenceSupported: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapterList,
+                preference: DXCoreAdapterPreference,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+            else => *const fn(
+                self: *const IDXCoreAdapterList,
+                preference: DXCoreAdapterPreference,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -282,40 +403,79 @@ pub const IDXCoreAdapterList = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDXCoreAdapterFactory_Value = @import("../zig.zig").Guid.initString("78ee5945-c36e-4b13-a669-005dd11c0f06");
+const IID_IDXCoreAdapterFactory_Value = Guid.initString("78ee5945-c36e-4b13-a669-005dd11c0f06");
 pub const IID_IDXCoreAdapterFactory = &IID_IDXCoreAdapterFactory_Value;
 pub const IDXCoreAdapterFactory = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateAdapterList: fn(
-            self: *const IDXCoreAdapterFactory,
-            numAttributes: u32,
-            filterAttributes: [*]const Guid,
-            riid: ?*const Guid,
-            ppvAdapterList: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAdapterByLuid: fn(
-            self: *const IDXCoreAdapterFactory,
-            adapterLUID: ?*const LUID,
-            riid: ?*const Guid,
-            ppvAdapter: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsNotificationTypeSupported: fn(
-            self: *const IDXCoreAdapterFactory,
-            notificationType: DXCoreNotificationType,
-        ) callconv(@import("std").os.windows.WINAPI) bool,
-        RegisterEventNotification: fn(
-            self: *const IDXCoreAdapterFactory,
-            dxCoreObject: ?*IUnknown,
-            notificationType: DXCoreNotificationType,
-            callbackFunction: ?PFN_DXCORE_NOTIFICATION_CALLBACK,
-            callbackContext: ?*anyopaque,
-            eventCookie: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UnregisterEventNotification: fn(
-            self: *const IDXCoreAdapterFactory,
-            eventCookie: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateAdapterList: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapterFactory,
+                numAttributes: u32,
+                filterAttributes: [*]const Guid,
+                riid: ?*const Guid,
+                ppvAdapterList: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDXCoreAdapterFactory,
+                numAttributes: u32,
+                filterAttributes: [*]const Guid,
+                riid: ?*const Guid,
+                ppvAdapterList: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAdapterByLuid: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapterFactory,
+                adapterLUID: ?*const LUID,
+                riid: ?*const Guid,
+                ppvAdapter: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDXCoreAdapterFactory,
+                adapterLUID: ?*const LUID,
+                riid: ?*const Guid,
+                ppvAdapter: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsNotificationTypeSupported: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapterFactory,
+                notificationType: DXCoreNotificationType,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+            else => *const fn(
+                self: *const IDXCoreAdapterFactory,
+                notificationType: DXCoreNotificationType,
+            ) callconv(@import("std").os.windows.WINAPI) bool,
+        },
+        RegisterEventNotification: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapterFactory,
+                dxCoreObject: ?*IUnknown,
+                notificationType: DXCoreNotificationType,
+                callbackFunction: ?PFN_DXCORE_NOTIFICATION_CALLBACK,
+                callbackContext: ?*anyopaque,
+                eventCookie: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDXCoreAdapterFactory,
+                dxCoreObject: ?*IUnknown,
+                notificationType: DXCoreNotificationType,
+                callbackFunction: ?PFN_DXCORE_NOTIFICATION_CALLBACK,
+                callbackContext: ?*anyopaque,
+                eventCookie: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UnregisterEventNotification: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDXCoreAdapterFactory,
+                eventCookie: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDXCoreAdapterFactory,
+                eventCookie: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -348,7 +508,7 @@ pub const IDXCoreAdapterFactory = extern struct {
 //--------------------------------------------------------------------------------
 // Section: Functions (1)
 //--------------------------------------------------------------------------------
-pub extern "DXCORE" fn DXCoreCreateAdapterFactory(
+pub extern "dxcore" fn DXCoreCreateAdapterFactory(
     riid: ?*const Guid,
     ppvFactory: ?*?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
@@ -380,14 +540,14 @@ test {
     if (@hasDecl(@This(), "PFN_DXCORE_NOTIFICATION_CALLBACK")) { _ = PFN_DXCORE_NOTIFICATION_CALLBACK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

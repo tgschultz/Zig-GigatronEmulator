@@ -198,12 +198,20 @@ pub const DRM_DISTRIBUTION_POINT_LICENSE_ACQUISITION = DRM_DISTRIBUTION_POINT_IN
 pub const DRM_DISTRIBUTION_POINT_PUBLISHING = DRM_DISTRIBUTION_POINT_INFO.PUBLISHING;
 pub const DRM_DISTRIBUTION_POINT_REFERRAL_INFO = DRM_DISTRIBUTION_POINT_INFO.REFERRAL_INFO;
 
-pub const DRMCALLBACK = fn(
-    param0: DRM_STATUS_MSG,
-    param1: HRESULT,
-    param2: ?*anyopaque,
-    param3: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const DRMCALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: DRM_STATUS_MSG,
+        param1: HRESULT,
+        param2: ?*anyopaque,
+        param3: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        param0: DRM_STATUS_MSG,
+        param1: HRESULT,
+        param2: ?*anyopaque,
+        param3: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
 
 //--------------------------------------------------------------------------------
@@ -886,14 +894,14 @@ test {
     if (@hasDecl(@This(), "DRMCALLBACK")) { _ = DRMCALLBACK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

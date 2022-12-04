@@ -167,12 +167,20 @@ pub const OBJECTID = extern struct {
     Uniquifier: u32,
 };
 
-pub const EXCEPTION_ROUTINE = fn(
-    ExceptionRecord: ?*EXCEPTION_RECORD,
-    EstablisherFrame: ?*anyopaque,
-    ContextRecord: ?*CONTEXT,
-    DispatcherContext: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) EXCEPTION_DISPOSITION;
+pub const EXCEPTION_ROUTINE = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        ExceptionRecord: ?*EXCEPTION_RECORD,
+        EstablisherFrame: ?*anyopaque,
+        ContextRecord: ?*CONTEXT,
+        DispatcherContext: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) EXCEPTION_DISPOSITION,
+    else => *const fn(
+        ExceptionRecord: ?*EXCEPTION_RECORD,
+        EstablisherFrame: ?*anyopaque,
+        ContextRecord: ?*CONTEXT,
+        DispatcherContext: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) EXCEPTION_DISPOSITION,
+} ;
 
 pub const NT_PRODUCT_TYPE = enum(i32) {
     WinNt = 1,
@@ -376,14 +384,14 @@ test {
     if (@hasDecl(@This(), "EXCEPTION_ROUTINE")) { _ = EXCEPTION_ROUTINE; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

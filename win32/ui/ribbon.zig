@@ -9,10 +9,10 @@ pub const LIBID_UIRibbon = Guid.initString("942f35c2-e83b-45ef-b085-ac295dd63d5b
 //--------------------------------------------------------------------------------
 // Section: Types (33)
 //--------------------------------------------------------------------------------
-const CLSID_UIRibbonFramework_Value = @import("../zig.zig").Guid.initString("926749fa-2615-4987-8845-c33e65f2b957");
+const CLSID_UIRibbonFramework_Value = Guid.initString("926749fa-2615-4987-8845-c33e65f2b957");
 pub const CLSID_UIRibbonFramework = &CLSID_UIRibbonFramework_Value;
 
-const CLSID_UIRibbonImageFromBitmapFactory_Value = @import("../zig.zig").Guid.initString("0f7434b6-59b6-4250-999e-d168d6ae4293");
+const CLSID_UIRibbonImageFromBitmapFactory_Value = Guid.initString("0f7434b6-59b6-4250-999e-d168d6ae4293");
 pub const CLSID_UIRibbonImageFromBitmapFactory = &CLSID_UIRibbonImageFromBitmapFactory_Value;
 
 pub const UI_CONTEXTAVAILABILITY = enum(i32) {
@@ -114,16 +114,23 @@ pub const UI_EVENTLOCATION_ApplicationMenu = UI_EVENTLOCATION.ApplicationMenu;
 pub const UI_EVENTLOCATION_ContextPopup = UI_EVENTLOCATION.ContextPopup;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUISimplePropertySet_Value = @import("../zig.zig").Guid.initString("c205bb48-5b1c-4219-a106-15bd0a5f24e2");
+const IID_IUISimplePropertySet_Value = Guid.initString("c205bb48-5b1c-4219-a106-15bd0a5f24e2");
 pub const IID_IUISimplePropertySet = &IID_IUISimplePropertySet_Value;
 pub const IUISimplePropertySet = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetValue: fn(
-            self: *const IUISimplePropertySet,
-            key: ?*const PROPERTYKEY,
-            value: ?*PROPVARIANT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUISimplePropertySet,
+                key: ?*const PROPERTYKEY,
+                value: ?*PROPVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUISimplePropertySet,
+                key: ?*const PROPERTYKEY,
+                value: ?*PROPVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -137,23 +144,41 @@ pub const IUISimplePropertySet = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIRibbon_Value = @import("../zig.zig").Guid.initString("803982ab-370a-4f7e-a9e7-8784036a6e26");
+const IID_IUIRibbon_Value = Guid.initString("803982ab-370a-4f7e-a9e7-8784036a6e26");
 pub const IID_IUIRibbon = &IID_IUIRibbon_Value;
 pub const IUIRibbon = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetHeight: fn(
-            self: *const IUIRibbon,
-            cy: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        LoadSettingsFromStream: fn(
-            self: *const IUIRibbon,
-            pStream: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SaveSettingsToStream: fn(
-            self: *const IUIRibbon,
-            pStream: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetHeight: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIRibbon,
+                cy: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIRibbon,
+                cy: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        LoadSettingsFromStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIRibbon,
+                pStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIRibbon,
+                pStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SaveSettingsToStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIRibbon,
+                pStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIRibbon,
+                pStream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -186,55 +211,117 @@ pub const UI_INVALIDATIONS_PROPERTY = UI_INVALIDATIONS.PROPERTY;
 pub const UI_INVALIDATIONS_ALLPROPERTIES = UI_INVALIDATIONS.ALLPROPERTIES;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIFramework_Value = @import("../zig.zig").Guid.initString("f4f0385d-6872-43a8-ad09-4c339cb3f5c5");
+const IID_IUIFramework_Value = Guid.initString("f4f0385d-6872-43a8-ad09-4c339cb3f5c5");
 pub const IID_IUIFramework = &IID_IUIFramework_Value;
 pub const IUIFramework = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Initialize: fn(
-            self: *const IUIFramework,
-            frameWnd: ?HWND,
-            application: ?*IUIApplication,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Destroy: fn(
-            self: *const IUIFramework,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        LoadUI: fn(
-            self: *const IUIFramework,
-            instance: ?HINSTANCE,
-            resourceName: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetView: fn(
-            self: *const IUIFramework,
-            viewId: u32,
-            riid: ?*const Guid,
-            ppv: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetUICommandProperty: fn(
-            self: *const IUIFramework,
-            commandId: u32,
-            key: ?*const PROPERTYKEY,
-            value: ?*PROPVARIANT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetUICommandProperty: fn(
-            self: *const IUIFramework,
-            commandId: u32,
-            key: ?*const PROPERTYKEY,
-            value: ?*const PROPVARIANT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        InvalidateUICommand: fn(
-            self: *const IUIFramework,
-            commandId: u32,
-            flags: UI_INVALIDATIONS,
-            key: ?*const PROPERTYKEY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        FlushPendingInvalidations: fn(
-            self: *const IUIFramework,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetModes: fn(
-            self: *const IUIFramework,
-            iModes: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Initialize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIFramework,
+                frameWnd: ?HWND,
+                application: ?*IUIApplication,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIFramework,
+                frameWnd: ?HWND,
+                application: ?*IUIApplication,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Destroy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIFramework,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIFramework,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        LoadUI: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIFramework,
+                instance: ?HINSTANCE,
+                resourceName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIFramework,
+                instance: ?HINSTANCE,
+                resourceName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetView: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIFramework,
+                viewId: u32,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIFramework,
+                viewId: u32,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetUICommandProperty: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIFramework,
+                commandId: u32,
+                key: ?*const PROPERTYKEY,
+                value: ?*PROPVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIFramework,
+                commandId: u32,
+                key: ?*const PROPERTYKEY,
+                value: ?*PROPVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetUICommandProperty: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIFramework,
+                commandId: u32,
+                key: ?*const PROPERTYKEY,
+                value: ?*const PROPVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIFramework,
+                commandId: u32,
+                key: ?*const PROPERTYKEY,
+                value: ?*const PROPVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        InvalidateUICommand: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIFramework,
+                commandId: u32,
+                flags: UI_INVALIDATIONS,
+                key: ?*const PROPERTYKEY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIFramework,
+                commandId: u32,
+                flags: UI_INVALIDATIONS,
+                key: ?*const PROPERTYKEY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        FlushPendingInvalidations: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIFramework,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIFramework,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetModes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIFramework,
+                iModes: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIFramework,
+                iModes: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -297,15 +384,21 @@ pub const UI_EVENTPARAMS = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIEventLogger_Value = @import("../zig.zig").Guid.initString("ec3e1034-dbf4-41a1-95d5-03e0f1026e05");
+const IID_IUIEventLogger_Value = Guid.initString("ec3e1034-dbf4-41a1-95d5-03e0f1026e05");
 pub const IID_IUIEventLogger = &IID_IUIEventLogger_Value;
 pub const IUIEventLogger = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnUIEvent: fn(
-            self: *const IUIEventLogger,
-            pEventParams: ?*UI_EVENTPARAMS,
-        ) callconv(@import("std").os.windows.WINAPI) void,
+        OnUIEvent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIEventLogger,
+                pEventParams: ?*UI_EVENTPARAMS,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+            else => *const fn(
+                self: *const IUIEventLogger,
+                pEventParams: ?*UI_EVENTPARAMS,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -319,15 +412,21 @@ pub const IUIEventLogger = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIEventingManager_Value = @import("../zig.zig").Guid.initString("3be6ea7f-9a9b-4198-9368-9b0f923bd534");
+const IID_IUIEventingManager_Value = Guid.initString("3be6ea7f-9a9b-4198-9368-9b0f923bd534");
 pub const IID_IUIEventingManager = &IID_IUIEventingManager_Value;
 pub const IUIEventingManager = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetEventLogger: fn(
-            self: *const IUIEventingManager,
-            eventLogger: ?*IUIEventLogger,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetEventLogger: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIEventingManager,
+                eventLogger: ?*IUIEventLogger,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIEventingManager,
+                eventLogger: ?*IUIEventLogger,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -341,16 +440,23 @@ pub const IUIEventingManager = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIContextualUI_Value = @import("../zig.zig").Guid.initString("eea11f37-7c46-437c-8e55-b52122b29293");
+const IID_IUIContextualUI_Value = Guid.initString("eea11f37-7c46-437c-8e55-b52122b29293");
 pub const IID_IUIContextualUI = &IID_IUIContextualUI_Value;
 pub const IUIContextualUI = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ShowAtLocation: fn(
-            self: *const IUIContextualUI,
-            x: i32,
-            y: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ShowAtLocation: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIContextualUI,
+                x: i32,
+                y: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIContextualUI,
+                x: i32,
+                y: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -364,41 +470,85 @@ pub const IUIContextualUI = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUICollection_Value = @import("../zig.zig").Guid.initString("df4f45bf-6f9d-4dd7-9d68-d8f9cd18c4db");
+const IID_IUICollection_Value = Guid.initString("df4f45bf-6f9d-4dd7-9d68-d8f9cd18c4db");
 pub const IID_IUICollection = &IID_IUICollection_Value;
 pub const IUICollection = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCount: fn(
-            self: *const IUICollection,
-            count: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetItem: fn(
-            self: *const IUICollection,
-            index: u32,
-            item: ?*?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Add: fn(
-            self: *const IUICollection,
-            item: ?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Insert: fn(
-            self: *const IUICollection,
-            index: u32,
-            item: ?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RemoveAt: fn(
-            self: *const IUICollection,
-            index: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Replace: fn(
-            self: *const IUICollection,
-            indexReplaced: u32,
-            itemReplaceWith: ?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clear: fn(
-            self: *const IUICollection,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUICollection,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUICollection,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetItem: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUICollection,
+                index: u32,
+                item: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUICollection,
+                index: u32,
+                item: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Add: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUICollection,
+                item: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUICollection,
+                item: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Insert: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUICollection,
+                index: u32,
+                item: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUICollection,
+                index: u32,
+                item: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RemoveAt: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUICollection,
+                index: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUICollection,
+                index: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Replace: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUICollection,
+                indexReplaced: u32,
+                itemReplaceWith: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUICollection,
+                indexReplaced: u32,
+                itemReplaceWith: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clear: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUICollection,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUICollection,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -447,19 +597,29 @@ pub const UI_COLLECTIONCHANGE_REPLACE = UI_COLLECTIONCHANGE.REPLACE;
 pub const UI_COLLECTIONCHANGE_RESET = UI_COLLECTIONCHANGE.RESET;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUICollectionChangedEvent_Value = @import("../zig.zig").Guid.initString("6502ae91-a14d-44b5-bbd0-62aacc581d52");
+const IID_IUICollectionChangedEvent_Value = Guid.initString("6502ae91-a14d-44b5-bbd0-62aacc581d52");
 pub const IID_IUICollectionChangedEvent = &IID_IUICollectionChangedEvent_Value;
 pub const IUICollectionChangedEvent = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnChanged: fn(
-            self: *const IUICollectionChangedEvent,
-            action: UI_COLLECTIONCHANGE,
-            oldIndex: u32,
-            oldItem: ?*IUnknown,
-            newIndex: u32,
-            newItem: ?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUICollectionChangedEvent,
+                action: UI_COLLECTIONCHANGE,
+                oldIndex: u32,
+                oldItem: ?*IUnknown,
+                newIndex: u32,
+                newItem: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUICollectionChangedEvent,
+                action: UI_COLLECTIONCHANGE,
+                oldIndex: u32,
+                oldItem: ?*IUnknown,
+                newIndex: u32,
+                newItem: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -482,26 +642,45 @@ pub const UI_EXECUTIONVERB_PREVIEW = UI_EXECUTIONVERB.PREVIEW;
 pub const UI_EXECUTIONVERB_CANCELPREVIEW = UI_EXECUTIONVERB.CANCELPREVIEW;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUICommandHandler_Value = @import("../zig.zig").Guid.initString("75ae0a2d-dc03-4c9f-8883-069660d0beb6");
+const IID_IUICommandHandler_Value = Guid.initString("75ae0a2d-dc03-4c9f-8883-069660d0beb6");
 pub const IID_IUICommandHandler = &IID_IUICommandHandler_Value;
 pub const IUICommandHandler = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Execute: fn(
-            self: *const IUICommandHandler,
-            commandId: u32,
-            verb: UI_EXECUTIONVERB,
-            key: ?*const PROPERTYKEY,
-            currentValue: ?*const PROPVARIANT,
-            commandExecutionProperties: ?*IUISimplePropertySet,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UpdateProperty: fn(
-            self: *const IUICommandHandler,
-            commandId: u32,
-            key: ?*const PROPERTYKEY,
-            currentValue: ?*const PROPVARIANT,
-            newValue: ?*PROPVARIANT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Execute: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUICommandHandler,
+                commandId: u32,
+                verb: UI_EXECUTIONVERB,
+                key: ?*const PROPERTYKEY,
+                currentValue: ?*const PROPVARIANT,
+                commandExecutionProperties: ?*IUISimplePropertySet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUICommandHandler,
+                commandId: u32,
+                verb: UI_EXECUTIONVERB,
+                key: ?*const PROPERTYKEY,
+                currentValue: ?*const PROPVARIANT,
+                commandExecutionProperties: ?*IUISimplePropertySet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UpdateProperty: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUICommandHandler,
+                commandId: u32,
+                key: ?*const PROPERTYKEY,
+                currentValue: ?*const PROPVARIANT,
+                newValue: ?*PROPVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUICommandHandler,
+                commandId: u32,
+                key: ?*const PROPERTYKEY,
+                currentValue: ?*const PROPVARIANT,
+                newValue: ?*PROPVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -564,31 +743,57 @@ pub const UI_VIEWVERB_SIZE = UI_VIEWVERB.SIZE;
 pub const UI_VIEWVERB_ERROR = UI_VIEWVERB.ERROR;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIApplication_Value = @import("../zig.zig").Guid.initString("d428903c-729a-491d-910d-682a08ff2522");
+const IID_IUIApplication_Value = Guid.initString("d428903c-729a-491d-910d-682a08ff2522");
 pub const IID_IUIApplication = &IID_IUIApplication_Value;
 pub const IUIApplication = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnViewChanged: fn(
-            self: *const IUIApplication,
-            viewId: u32,
-            typeID: UI_VIEWTYPE,
-            view: ?*IUnknown,
-            verb: UI_VIEWVERB,
-            uReasonCode: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnCreateUICommand: fn(
-            self: *const IUIApplication,
-            commandId: u32,
-            typeID: UI_COMMANDTYPE,
-            commandHandler: ?*?*IUICommandHandler,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnDestroyUICommand: fn(
-            self: *const IUIApplication,
-            commandId: u32,
-            typeID: UI_COMMANDTYPE,
-            commandHandler: ?*IUICommandHandler,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnViewChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIApplication,
+                viewId: u32,
+                typeID: UI_VIEWTYPE,
+                view: ?*IUnknown,
+                verb: UI_VIEWVERB,
+                uReasonCode: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIApplication,
+                viewId: u32,
+                typeID: UI_VIEWTYPE,
+                view: ?*IUnknown,
+                verb: UI_VIEWVERB,
+                uReasonCode: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnCreateUICommand: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIApplication,
+                commandId: u32,
+                typeID: UI_COMMANDTYPE,
+                commandHandler: ?*?*IUICommandHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIApplication,
+                commandId: u32,
+                typeID: UI_COMMANDTYPE,
+                commandHandler: ?*?*IUICommandHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnDestroyUICommand: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIApplication,
+                commandId: u32,
+                typeID: UI_COMMANDTYPE,
+                commandHandler: ?*IUICommandHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIApplication,
+                commandId: u32,
+                typeID: UI_COMMANDTYPE,
+                commandHandler: ?*IUICommandHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -610,15 +815,21 @@ pub const IUIApplication = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIImage_Value = @import("../zig.zig").Guid.initString("23c8c838-4de6-436b-ab01-5554bb7c30dd");
+const IID_IUIImage_Value = Guid.initString("23c8c838-4de6-436b-ab01-5554bb7c30dd");
 pub const IID_IUIImage = &IID_IUIImage_Value;
 pub const IUIImage = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetBitmap: fn(
-            self: *const IUIImage,
-            bitmap: ?*?HBITMAP,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetBitmap: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIImage,
+                bitmap: ?*?HBITMAP,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIImage,
+                bitmap: ?*?HBITMAP,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -639,17 +850,25 @@ pub const UI_OWNERSHIP_TRANSFER = UI_OWNERSHIP.TRANSFER;
 pub const UI_OWNERSHIP_COPY = UI_OWNERSHIP.COPY;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIImageFromBitmap_Value = @import("../zig.zig").Guid.initString("18aba7f3-4c1c-4ba2-bf6c-f5c3326fa816");
+const IID_IUIImageFromBitmap_Value = Guid.initString("18aba7f3-4c1c-4ba2-bf6c-f5c3326fa816");
 pub const IID_IUIImageFromBitmap = &IID_IUIImageFromBitmap_Value;
 pub const IUIImageFromBitmap = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateImage: fn(
-            self: *const IUIImageFromBitmap,
-            bitmap: ?HBITMAP,
-            options: UI_OWNERSHIP,
-            image: ?*?*IUIImage,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateImage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIImageFromBitmap,
+                bitmap: ?HBITMAP,
+                options: UI_OWNERSHIP,
+                image: ?*?*IUIImage,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIImageFromBitmap,
+                bitmap: ?HBITMAP,
+                options: UI_OWNERSHIP,
+                image: ?*?*IUIImage,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -696,14 +915,14 @@ const PWSTR = @import("../foundation.zig").PWSTR;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

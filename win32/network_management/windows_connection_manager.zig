@@ -126,9 +126,14 @@ pub const WCM_DATAPLAN_STATUS = extern struct {
     Reserved: u32,
 };
 
-pub const ONDEMAND_NOTIFICATION_CALLBACK = fn(
-    param0: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const ONDEMAND_NOTIFICATION_CALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        param0: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 pub const NET_INTERFACE_CONTEXT = extern struct {
     InterfaceIndex: u32,
@@ -185,25 +190,25 @@ pub extern "wcmapi" fn WcmFreeMemory(
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows8.1'
-pub extern "OnDemandConnRouteHelper" fn OnDemandGetRoutingHint(
+pub extern "ondemandconnroutehelper" fn OnDemandGetRoutingHint(
     destinationHostName: ?[*:0]const u16,
     interfaceIndex: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows8.1'
-pub extern "OnDemandConnRouteHelper" fn OnDemandRegisterNotification(
+pub extern "ondemandconnroutehelper" fn OnDemandRegisterNotification(
     callback: ?ONDEMAND_NOTIFICATION_CALLBACK,
     callbackContext: ?*anyopaque,
     registrationHandle: ?*?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows8.1'
-pub extern "OnDemandConnRouteHelper" fn OnDemandUnRegisterNotification(
+pub extern "ondemandconnroutehelper" fn OnDemandUnRegisterNotification(
     registrationHandle: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-pub extern "OnDemandConnRouteHelper" fn GetInterfaceContextTableForHostName(
+pub extern "ondemandconnroutehelper" fn GetInterfaceContextTableForHostName(
     HostName: ?[*:0]const u16,
     ProxyName: ?[*:0]const u16,
     Flags: u32,
@@ -214,7 +219,7 @@ pub extern "OnDemandConnRouteHelper" fn GetInterfaceContextTableForHostName(
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-pub extern "OnDemandConnRouteHelper" fn FreeInterfaceContextTable(
+pub extern "ondemandconnroutehelper" fn FreeInterfaceContextTable(
     InterfaceContextTable: ?*NET_INTERFACE_CONTEXT_TABLE,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
@@ -247,14 +252,14 @@ test {
     if (@hasDecl(@This(), "ONDEMAND_NOTIFICATION_CALLBACK")) { _ = ONDEMAND_NOTIFICATION_CALLBACK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

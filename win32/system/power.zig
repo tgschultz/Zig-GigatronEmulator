@@ -2,7 +2,7 @@
 //--------------------------------------------------------------------------------
 // Section: Constants (134)
 //--------------------------------------------------------------------------------
-pub const PROCESSOR_NUMBER_PKEY = PROPERTYKEY { .fmtid = @import("../zig.zig").Guid.initString("5724c81d-d5af-4c1f-a103-a06e28f204c6"), .pid = 1 };
+pub const PROCESSOR_NUMBER_PKEY = PROPERTYKEY { .fmtid = Guid.initString("5724c81d-d5af-4c1f-a103-a06e28f204c6"), .pid = 1 };
 pub const GUID_DEVICE_BATTERY = Guid.initString("72631e54-78a4-11d0-bcf7-00aa00b7b32a");
 pub const GUID_DEVICE_APPLICATIONLAUNCH_BUTTON = Guid.initString("629758ee-986e-4d9e-8e47-de27f8ab054d");
 pub const GUID_DEVICE_SYS_BUTTON = Guid.initString("4afa3d53-74a7-11d0-be5e-00a0c9062857");
@@ -238,10 +238,16 @@ pub const EffectivePowerModeGameMode = EFFECTIVE_POWER_MODE.GameMode;
 pub const EffectivePowerModeMixedReality = EFFECTIVE_POWER_MODE.MixedReality;
 
 // TODO: this type is limited to platform 'windows10.0.17763'
-pub const EFFECTIVE_POWER_MODE_CALLBACK = fn(
-    Mode: EFFECTIVE_POWER_MODE,
-    Context: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const EFFECTIVE_POWER_MODE_CALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        Mode: EFFECTIVE_POWER_MODE,
+        Context: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        Mode: EFFECTIVE_POWER_MODE,
+        Context: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 pub const GLOBAL_MACHINE_POWER_POLICY = extern struct {
     Revision: u32,
@@ -320,29 +326,55 @@ pub const POWER_POLICY = extern struct {
     mach: MACHINE_POWER_POLICY,
 };
 
-pub const PWRSCHEMESENUMPROC_V1 = fn(
-    Index: u32,
-    NameSize: u32,
-    // TODO: what to do with BytesParamIndex 1?
-    Name: ?*i8,
-    DescriptionSize: u32,
-    // TODO: what to do with BytesParamIndex 3?
-    Description: ?*i8,
-    Policy: ?*POWER_POLICY,
-    Context: LPARAM,
-) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
+pub const PWRSCHEMESENUMPROC_V1 = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        Index: u32,
+        NameSize: u32,
+        // TODO: what to do with BytesParamIndex 1?
+        Name: ?*i8,
+        DescriptionSize: u32,
+        // TODO: what to do with BytesParamIndex 3?
+        Description: ?*i8,
+        Policy: ?*POWER_POLICY,
+        Context: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) BOOLEAN,
+    else => *const fn(
+        Index: u32,
+        NameSize: u32,
+        // TODO: what to do with BytesParamIndex 1?
+        Name: ?*i8,
+        DescriptionSize: u32,
+        // TODO: what to do with BytesParamIndex 3?
+        Description: ?*i8,
+        Policy: ?*POWER_POLICY,
+        Context: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) BOOLEAN,
+} ;
 
-pub const PWRSCHEMESENUMPROC = fn(
-    Index: u32,
-    NameSize: u32,
-    // TODO: what to do with BytesParamIndex 1?
-    Name: ?PWSTR,
-    DescriptionSize: u32,
-    // TODO: what to do with BytesParamIndex 3?
-    Description: ?PWSTR,
-    Policy: ?*POWER_POLICY,
-    Context: LPARAM,
-) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
+pub const PWRSCHEMESENUMPROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        Index: u32,
+        NameSize: u32,
+        // TODO: what to do with BytesParamIndex 1?
+        Name: ?PWSTR,
+        DescriptionSize: u32,
+        // TODO: what to do with BytesParamIndex 3?
+        Description: ?PWSTR,
+        Policy: ?*POWER_POLICY,
+        Context: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) BOOLEAN,
+    else => *const fn(
+        Index: u32,
+        NameSize: u32,
+        // TODO: what to do with BytesParamIndex 1?
+        Name: ?PWSTR,
+        DescriptionSize: u32,
+        // TODO: what to do with BytesParamIndex 3?
+        Description: ?PWSTR,
+        Policy: ?*POWER_POLICY,
+        Context: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) BOOLEAN,
+} ;
 
 pub const POWER_DATA_ACCESSOR = enum(i32) {
     AC_POWER_SETTING_INDEX = 0,
@@ -403,11 +435,18 @@ pub const ACCESS_PROFILE = POWER_DATA_ACCESSOR.PROFILE;
 pub const ACCESS_OVERLAY_SCHEME = POWER_DATA_ACCESSOR.OVERLAY_SCHEME;
 pub const ACCESS_ACTIVE_OVERLAY_SCHEME = POWER_DATA_ACCESSOR.ACTIVE_OVERLAY_SCHEME;
 
-pub const PDEVICE_NOTIFY_CALLBACK_ROUTINE = fn(
-    Context: ?*anyopaque,
-    Type: u32,
-    Setting: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PDEVICE_NOTIFY_CALLBACK_ROUTINE = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        Context: ?*anyopaque,
+        Type: u32,
+        Setting: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        Context: ?*anyopaque,
+        Type: u32,
+        Setting: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
 pub const DEVICE_NOTIFY_SUBSCRIBE_PARAMETERS = extern struct {
     Callback: ?PDEVICE_NOTIFY_CALLBACK_ROUTINE,
@@ -1134,7 +1173,7 @@ pub const SYSTEM_POWER_STATUS = extern struct {
 // Section: Functions (97)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn CallNtPowerInformation(
+pub extern "powrprof" fn CallNtPowerInformation(
     InformationLevel: POWER_INFORMATION_LEVEL,
     // TODO: what to do with BytesParamIndex 2?
     InputBuffer: ?*anyopaque,
@@ -1145,29 +1184,29 @@ pub extern "POWRPROF" fn CallNtPowerInformation(
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn GetPwrCapabilities(
+pub extern "powrprof" fn GetPwrCapabilities(
     lpspc: ?*SYSTEM_POWER_CAPABILITIES,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "POWRPROF" fn PowerDeterminePlatformRoleEx(
+pub extern "powrprof" fn PowerDeterminePlatformRoleEx(
     Version: POWER_PLATFORM_ROLE_VERSION,
 ) callconv(@import("std").os.windows.WINAPI) POWER_PLATFORM_ROLE;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "POWRPROF" fn PowerRegisterSuspendResumeNotification(
+pub extern "powrprof" fn PowerRegisterSuspendResumeNotification(
     Flags: u32,
     Recipient: ?HANDLE,
     RegistrationHandle: ?*?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "POWRPROF" fn PowerUnregisterSuspendResumeNotification(
+pub extern "powrprof" fn PowerUnregisterSuspendResumeNotification(
     RegistrationHandle: ?HPOWERNOTIFY,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadACValue(
+pub extern "powrprof" fn PowerReadACValue(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1179,7 +1218,7 @@ pub extern "POWRPROF" fn PowerReadACValue(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadDCValue(
+pub extern "powrprof" fn PowerReadDCValue(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1191,7 +1230,7 @@ pub extern "POWRPROF" fn PowerReadDCValue(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWriteACValueIndex(
+pub extern "powrprof" fn PowerWriteACValueIndex(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1200,7 +1239,7 @@ pub extern "POWRPROF" fn PowerWriteACValueIndex(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWriteDCValueIndex(
+pub extern "powrprof" fn PowerWriteDCValueIndex(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1209,19 +1248,19 @@ pub extern "POWRPROF" fn PowerWriteDCValueIndex(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerGetActiveScheme(
+pub extern "powrprof" fn PowerGetActiveScheme(
     UserRootPowerKey: ?HKEY,
     ActivePolicyGuid: ?*?*Guid,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerSetActiveScheme(
+pub extern "powrprof" fn PowerSetActiveScheme(
     UserRootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "POWRPROF" fn PowerSettingRegisterNotification(
+pub extern "powrprof" fn PowerSettingRegisterNotification(
     SettingGuid: ?*const Guid,
     Flags: POWER_SETTING_REGISTER_NOTIFICATION_FLAGS,
     Recipient: ?HANDLE,
@@ -1229,12 +1268,12 @@ pub extern "POWRPROF" fn PowerSettingRegisterNotification(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "POWRPROF" fn PowerSettingUnregisterNotification(
+pub extern "powrprof" fn PowerSettingUnregisterNotification(
     RegistrationHandle: ?HPOWERNOTIFY,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows10.0.17763'
-pub extern "POWRPROF" fn PowerRegisterForEffectivePowerModeNotifications(
+pub extern "powrprof" fn PowerRegisterForEffectivePowerModeNotifications(
     Version: u32,
     Callback: ?EFFECTIVE_POWER_MODE_CALLBACK,
     Context: ?*anyopaque,
@@ -1242,35 +1281,35 @@ pub extern "POWRPROF" fn PowerRegisterForEffectivePowerModeNotifications(
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows10.0.17763'
-pub extern "POWRPROF" fn PowerUnregisterFromEffectivePowerModeNotifications(
+pub extern "powrprof" fn PowerUnregisterFromEffectivePowerModeNotifications(
     RegistrationHandle: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn GetPwrDiskSpindownRange(
+pub extern "powrprof" fn GetPwrDiskSpindownRange(
     puiMax: ?*u32,
     puiMin: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn EnumPwrSchemes(
+pub extern "powrprof" fn EnumPwrSchemes(
     lpfn: ?PWRSCHEMESENUMPROC,
     lParam: LPARAM,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn ReadGlobalPwrPolicy(
+pub extern "powrprof" fn ReadGlobalPwrPolicy(
     pGlobalPowerPolicy: ?*GLOBAL_POWER_POLICY,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn ReadPwrScheme(
+pub extern "powrprof" fn ReadPwrScheme(
     uiID: u32,
     pPowerPolicy: ?*POWER_POLICY,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn WritePwrScheme(
+pub extern "powrprof" fn WritePwrScheme(
     puiID: ?*u32,
     lpszSchemeName: ?[*:0]const u16,
     lpszDescription: ?[*:0]const u16,
@@ -1278,98 +1317,98 @@ pub extern "POWRPROF" fn WritePwrScheme(
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn WriteGlobalPwrPolicy(
+pub extern "powrprof" fn WriteGlobalPwrPolicy(
     pGlobalPowerPolicy: ?*GLOBAL_POWER_POLICY,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn DeletePwrScheme(
+pub extern "powrprof" fn DeletePwrScheme(
     uiID: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn GetActivePwrScheme(
+pub extern "powrprof" fn GetActivePwrScheme(
     puiID: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn SetActivePwrScheme(
+pub extern "powrprof" fn SetActivePwrScheme(
     uiID: u32,
     pGlobalPowerPolicy: ?*GLOBAL_POWER_POLICY,
     pPowerPolicy: ?*POWER_POLICY,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn IsPwrSuspendAllowed(
+pub extern "powrprof" fn IsPwrSuspendAllowed(
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn IsPwrHibernateAllowed(
+pub extern "powrprof" fn IsPwrHibernateAllowed(
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn IsPwrShutdownAllowed(
+pub extern "powrprof" fn IsPwrShutdownAllowed(
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
-pub extern "POWRPROF" fn IsAdminOverrideActive(
+pub extern "powrprof" fn IsAdminOverrideActive(
     papp: ?*ADMINISTRATOR_POWER_POLICY,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn SetSuspendState(
+pub extern "powrprof" fn SetSuspendState(
     bHibernate: BOOLEAN,
     bForce: BOOLEAN,
     bWakeupEventsDisabled: BOOLEAN,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn GetCurrentPowerPolicies(
+pub extern "powrprof" fn GetCurrentPowerPolicies(
     pGlobalPowerPolicy: ?*GLOBAL_POWER_POLICY,
     pPowerPolicy: ?*POWER_POLICY,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn CanUserWritePwrScheme(
+pub extern "powrprof" fn CanUserWritePwrScheme(
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn ReadProcessorPwrScheme(
+pub extern "powrprof" fn ReadProcessorPwrScheme(
     uiID: u32,
     pMachineProcessorPowerPolicy: ?*MACHINE_PROCESSOR_POWER_POLICY,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "POWRPROF" fn WriteProcessorPwrScheme(
+pub extern "powrprof" fn WriteProcessorPwrScheme(
     uiID: u32,
     pMachineProcessorPowerPolicy: ?*MACHINE_PROCESSOR_POWER_POLICY,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
-pub extern "POWRPROF" fn ValidatePowerPolicies(
+pub extern "powrprof" fn ValidatePowerPolicies(
     pGlobalPowerPolicy: ?*GLOBAL_POWER_POLICY,
     pPowerPolicy: ?*POWER_POLICY,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "POWRPROF" fn PowerIsSettingRangeDefined(
+pub extern "powrprof" fn PowerIsSettingRangeDefined(
     SubKeyGuid: ?*const Guid,
     SettingGuid: ?*const Guid,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "POWRPROF" fn PowerSettingAccessCheckEx(
+pub extern "powrprof" fn PowerSettingAccessCheckEx(
     AccessFlags: POWER_DATA_ACCESSOR,
     PowerGuid: ?*const Guid,
     AccessType: REG_SAM_FLAGS,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerSettingAccessCheck(
+pub extern "powrprof" fn PowerSettingAccessCheck(
     AccessFlags: POWER_DATA_ACCESSOR,
     PowerGuid: ?*const Guid,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadACValueIndex(
+pub extern "powrprof" fn PowerReadACValueIndex(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1378,7 +1417,7 @@ pub extern "POWRPROF" fn PowerReadACValueIndex(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadDCValueIndex(
+pub extern "powrprof" fn PowerReadDCValueIndex(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1387,7 +1426,7 @@ pub extern "POWRPROF" fn PowerReadDCValueIndex(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadFriendlyName(
+pub extern "powrprof" fn PowerReadFriendlyName(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1398,7 +1437,7 @@ pub extern "POWRPROF" fn PowerReadFriendlyName(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadDescription(
+pub extern "powrprof" fn PowerReadDescription(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1409,7 +1448,7 @@ pub extern "POWRPROF" fn PowerReadDescription(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadPossibleValue(
+pub extern "powrprof" fn PowerReadPossibleValue(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1421,7 +1460,7 @@ pub extern "POWRPROF" fn PowerReadPossibleValue(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadPossibleFriendlyName(
+pub extern "powrprof" fn PowerReadPossibleFriendlyName(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1432,7 +1471,7 @@ pub extern "POWRPROF" fn PowerReadPossibleFriendlyName(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadPossibleDescription(
+pub extern "powrprof" fn PowerReadPossibleDescription(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1443,7 +1482,7 @@ pub extern "POWRPROF" fn PowerReadPossibleDescription(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadValueMin(
+pub extern "powrprof" fn PowerReadValueMin(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1451,7 +1490,7 @@ pub extern "POWRPROF" fn PowerReadValueMin(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadValueMax(
+pub extern "powrprof" fn PowerReadValueMax(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1459,7 +1498,7 @@ pub extern "POWRPROF" fn PowerReadValueMax(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadValueIncrement(
+pub extern "powrprof" fn PowerReadValueIncrement(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1467,7 +1506,7 @@ pub extern "POWRPROF" fn PowerReadValueIncrement(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadValueUnitsSpecifier(
+pub extern "powrprof" fn PowerReadValueUnitsSpecifier(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1477,7 +1516,7 @@ pub extern "POWRPROF" fn PowerReadValueUnitsSpecifier(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadACDefaultIndex(
+pub extern "powrprof" fn PowerReadACDefaultIndex(
     RootPowerKey: ?HKEY,
     SchemePersonalityGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1486,7 +1525,7 @@ pub extern "POWRPROF" fn PowerReadACDefaultIndex(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadDCDefaultIndex(
+pub extern "powrprof" fn PowerReadDCDefaultIndex(
     RootPowerKey: ?HKEY,
     SchemePersonalityGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1495,7 +1534,7 @@ pub extern "POWRPROF" fn PowerReadDCDefaultIndex(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadIconResourceSpecifier(
+pub extern "powrprof" fn PowerReadIconResourceSpecifier(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1506,13 +1545,13 @@ pub extern "POWRPROF" fn PowerReadIconResourceSpecifier(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReadSettingAttributes(
+pub extern "powrprof" fn PowerReadSettingAttributes(
     SubGroupGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWriteFriendlyName(
+pub extern "powrprof" fn PowerWriteFriendlyName(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1523,7 +1562,7 @@ pub extern "POWRPROF" fn PowerWriteFriendlyName(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWriteDescription(
+pub extern "powrprof" fn PowerWriteDescription(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1534,7 +1573,7 @@ pub extern "POWRPROF" fn PowerWriteDescription(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWritePossibleValue(
+pub extern "powrprof" fn PowerWritePossibleValue(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1546,7 +1585,7 @@ pub extern "POWRPROF" fn PowerWritePossibleValue(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWritePossibleFriendlyName(
+pub extern "powrprof" fn PowerWritePossibleFriendlyName(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1557,7 +1596,7 @@ pub extern "POWRPROF" fn PowerWritePossibleFriendlyName(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWritePossibleDescription(
+pub extern "powrprof" fn PowerWritePossibleDescription(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1568,7 +1607,7 @@ pub extern "POWRPROF" fn PowerWritePossibleDescription(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWriteValueMin(
+pub extern "powrprof" fn PowerWriteValueMin(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1576,7 +1615,7 @@ pub extern "POWRPROF" fn PowerWriteValueMin(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWriteValueMax(
+pub extern "powrprof" fn PowerWriteValueMax(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1584,7 +1623,7 @@ pub extern "POWRPROF" fn PowerWriteValueMax(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWriteValueIncrement(
+pub extern "powrprof" fn PowerWriteValueIncrement(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1592,7 +1631,7 @@ pub extern "POWRPROF" fn PowerWriteValueIncrement(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWriteValueUnitsSpecifier(
+pub extern "powrprof" fn PowerWriteValueUnitsSpecifier(
     RootPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1602,7 +1641,7 @@ pub extern "POWRPROF" fn PowerWriteValueUnitsSpecifier(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWriteACDefaultIndex(
+pub extern "powrprof" fn PowerWriteACDefaultIndex(
     RootSystemPowerKey: ?HKEY,
     SchemePersonalityGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1611,7 +1650,7 @@ pub extern "POWRPROF" fn PowerWriteACDefaultIndex(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWriteDCDefaultIndex(
+pub extern "powrprof" fn PowerWriteDCDefaultIndex(
     RootSystemPowerKey: ?HKEY,
     SchemePersonalityGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1620,7 +1659,7 @@ pub extern "POWRPROF" fn PowerWriteDCDefaultIndex(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWriteIconResourceSpecifier(
+pub extern "powrprof" fn PowerWriteIconResourceSpecifier(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1631,47 +1670,47 @@ pub extern "POWRPROF" fn PowerWriteIconResourceSpecifier(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerWriteSettingAttributes(
+pub extern "powrprof" fn PowerWriteSettingAttributes(
     SubGroupGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
     Attributes: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerDuplicateScheme(
+pub extern "powrprof" fn PowerDuplicateScheme(
     RootPowerKey: ?HKEY,
     SourceSchemeGuid: ?*const Guid,
     DestinationSchemeGuid: ?*?*Guid,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerImportPowerScheme(
+pub extern "powrprof" fn PowerImportPowerScheme(
     RootPowerKey: ?HKEY,
     ImportFileNamePath: ?[*:0]const u16,
     DestinationSchemeGuid: ?*?*Guid,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerDeleteScheme(
+pub extern "powrprof" fn PowerDeleteScheme(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerRemovePowerSetting(
+pub extern "powrprof" fn PowerRemovePowerSetting(
     PowerSettingSubKeyGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerCreateSetting(
+pub extern "powrprof" fn PowerCreateSetting(
     RootSystemPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerCreatePossibleSetting(
+pub extern "powrprof" fn PowerCreatePossibleSetting(
     RootSystemPowerKey: ?HKEY,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
     PowerSettingGuid: ?*const Guid,
@@ -1679,7 +1718,7 @@ pub extern "POWRPROF" fn PowerCreatePossibleSetting(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerEnumerate(
+pub extern "powrprof" fn PowerEnumerate(
     RootPowerKey: ?HKEY,
     SchemeGuid: ?*const Guid,
     SubGroupOfPowerSettingsGuid: ?*const Guid,
@@ -1690,42 +1729,42 @@ pub extern "POWRPROF" fn PowerEnumerate(
     BufferSize: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "POWRPROF" fn PowerOpenUserPowerKey(
+pub extern "powrprof" fn PowerOpenUserPowerKey(
     phUserPowerKey: ?*?HKEY,
     Access: u32,
     OpenExisting: BOOL,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "POWRPROF" fn PowerOpenSystemPowerKey(
+pub extern "powrprof" fn PowerOpenSystemPowerKey(
     phSystemPowerKey: ?*?HKEY,
     Access: u32,
     OpenExisting: BOOL,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerCanRestoreIndividualDefaultPowerScheme(
+pub extern "powrprof" fn PowerCanRestoreIndividualDefaultPowerScheme(
     SchemeGuid: ?*const Guid,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerRestoreIndividualDefaultPowerScheme(
+pub extern "powrprof" fn PowerRestoreIndividualDefaultPowerScheme(
     SchemeGuid: ?*const Guid,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerRestoreDefaultPowerSchemes(
+pub extern "powrprof" fn PowerRestoreDefaultPowerSchemes(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerReplaceDefaultPowerSchemes(
+pub extern "powrprof" fn PowerReplaceDefaultPowerSchemes(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn PowerDeterminePlatformRole(
+pub extern "powrprof" fn PowerDeterminePlatformRole(
 ) callconv(@import("std").os.windows.WINAPI) POWER_PLATFORM_ROLE;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn DevicePowerEnumDevices(
+pub extern "powrprof" fn DevicePowerEnumDevices(
     QueryIndex: u32,
     QueryInterpretationFlags: u32,
     QueryFlags: u32,
@@ -1735,94 +1774,94 @@ pub extern "POWRPROF" fn DevicePowerEnumDevices(
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn DevicePowerSetDeviceState(
+pub extern "powrprof" fn DevicePowerSetDeviceState(
     DeviceDescription: ?[*:0]const u16,
     SetFlags: u32,
     SetData: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn DevicePowerOpen(
+pub extern "powrprof" fn DevicePowerOpen(
     DebugMask: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "POWRPROF" fn DevicePowerClose(
+pub extern "powrprof" fn DevicePowerClose(
 ) callconv(@import("std").os.windows.WINAPI) BOOLEAN;
 
 // TODO: this type is limited to platform 'windows8.1'
-pub extern "POWRPROF" fn PowerReportThermalEvent(
+pub extern "powrprof" fn PowerReportThermalEvent(
     Event: ?*THERMAL_EVENT,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "USER32" fn RegisterPowerSettingNotification(
+pub extern "user32" fn RegisterPowerSettingNotification(
     hRecipient: ?HANDLE,
     PowerSettingGuid: ?*const Guid,
     Flags: u32,
 ) callconv(@import("std").os.windows.WINAPI) ?HPOWERNOTIFY;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "USER32" fn UnregisterPowerSettingNotification(
+pub extern "user32" fn UnregisterPowerSettingNotification(
     Handle: ?HPOWERNOTIFY,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "USER32" fn RegisterSuspendResumeNotification(
+pub extern "user32" fn RegisterSuspendResumeNotification(
     hRecipient: ?HANDLE,
     Flags: u32,
 ) callconv(@import("std").os.windows.WINAPI) ?HPOWERNOTIFY;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "USER32" fn UnregisterSuspendResumeNotification(
+pub extern "user32" fn UnregisterSuspendResumeNotification(
     Handle: ?HPOWERNOTIFY,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "KERNEL32" fn RequestWakeupLatency(
+pub extern "kernel32" fn RequestWakeupLatency(
     latency: LATENCY_TIME,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "KERNEL32" fn IsSystemResumeAutomatic(
+pub extern "kernel32" fn IsSystemResumeAutomatic(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "KERNEL32" fn SetThreadExecutionState(
+pub extern "kernel32" fn SetThreadExecutionState(
     esFlags: EXECUTION_STATE,
 ) callconv(@import("std").os.windows.WINAPI) EXECUTION_STATE;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "KERNEL32" fn PowerCreateRequest(
+pub extern "kernel32" fn PowerCreateRequest(
     Context: ?*REASON_CONTEXT,
 ) callconv(@import("std").os.windows.WINAPI) ?HANDLE;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "KERNEL32" fn PowerSetRequest(
+pub extern "kernel32" fn PowerSetRequest(
     PowerRequest: ?HANDLE,
     RequestType: POWER_REQUEST_TYPE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "KERNEL32" fn PowerClearRequest(
+pub extern "kernel32" fn PowerClearRequest(
     PowerRequest: ?HANDLE,
     RequestType: POWER_REQUEST_TYPE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "KERNEL32" fn GetDevicePowerState(
+pub extern "kernel32" fn GetDevicePowerState(
     hDevice: ?HANDLE,
     pfOn: ?*BOOL,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "KERNEL32" fn SetSystemPowerState(
+pub extern "kernel32" fn SetSystemPowerState(
     fSuspend: BOOL,
     fForce: BOOL,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "KERNEL32" fn GetSystemPowerStatus(
+pub extern "kernel32" fn GetSystemPowerStatus(
     lpSystemPowerStatus: ?*SYSTEM_POWER_STATUS,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
@@ -1863,14 +1902,14 @@ test {
     if (@hasDecl(@This(), "PDEVICE_NOTIFY_CALLBACK_ROUTINE")) { _ = PDEVICE_NOTIFY_CALLBACK_ROUTINE; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

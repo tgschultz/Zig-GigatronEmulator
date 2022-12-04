@@ -2335,101 +2335,219 @@ pub const D3DCAPS9 = extern struct {
     MaxPixelShader30InstructionSlots: u32,
 };
 
-const IID_IDirect3D9_Value = @import("../zig.zig").Guid.initString("81bdcbca-64d4-426d-ae8d-ad0147f4275c");
+const IID_IDirect3D9_Value = Guid.initString("81bdcbca-64d4-426d-ae8d-ad0147f4275c");
 pub const IID_IDirect3D9 = &IID_IDirect3D9_Value;
 pub const IDirect3D9 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        RegisterSoftwareDevice: fn(
-            self: *const IDirect3D9,
-            pInitializeFunction: ?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAdapterCount: fn(
-            self: *const IDirect3D9,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        GetAdapterIdentifier: fn(
-            self: *const IDirect3D9,
-            Adapter: u32,
-            Flags: u32,
-            pIdentifier: ?*D3DADAPTER_IDENTIFIER9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAdapterModeCount: fn(
-            self: *const IDirect3D9,
-            Adapter: u32,
-            Format: D3DFORMAT,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        EnumAdapterModes: fn(
-            self: *const IDirect3D9,
-            Adapter: u32,
-            Format: D3DFORMAT,
-            Mode: u32,
-            pMode: ?*D3DDISPLAYMODE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAdapterDisplayMode: fn(
-            self: *const IDirect3D9,
-            Adapter: u32,
-            pMode: ?*D3DDISPLAYMODE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CheckDeviceType: fn(
-            self: *const IDirect3D9,
-            Adapter: u32,
-            DevType: D3DDEVTYPE,
-            AdapterFormat: D3DFORMAT,
-            BackBufferFormat: D3DFORMAT,
-            bWindowed: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CheckDeviceFormat: fn(
-            self: *const IDirect3D9,
-            Adapter: u32,
-            DeviceType: D3DDEVTYPE,
-            AdapterFormat: D3DFORMAT,
-            Usage: u32,
-            RType: D3DRESOURCETYPE,
-            CheckFormat: D3DFORMAT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CheckDeviceMultiSampleType: fn(
-            self: *const IDirect3D9,
-            Adapter: u32,
-            DeviceType: D3DDEVTYPE,
-            SurfaceFormat: D3DFORMAT,
-            Windowed: BOOL,
-            MultiSampleType: D3DMULTISAMPLE_TYPE,
-            pQualityLevels: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CheckDepthStencilMatch: fn(
-            self: *const IDirect3D9,
-            Adapter: u32,
-            DeviceType: D3DDEVTYPE,
-            AdapterFormat: D3DFORMAT,
-            RenderTargetFormat: D3DFORMAT,
-            DepthStencilFormat: D3DFORMAT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CheckDeviceFormatConversion: fn(
-            self: *const IDirect3D9,
-            Adapter: u32,
-            DeviceType: D3DDEVTYPE,
-            SourceFormat: D3DFORMAT,
-            TargetFormat: D3DFORMAT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDeviceCaps: fn(
-            self: *const IDirect3D9,
-            Adapter: u32,
-            DeviceType: D3DDEVTYPE,
-            pCaps: ?*D3DCAPS9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAdapterMonitor: fn(
-            self: *const IDirect3D9,
-            Adapter: u32,
-        ) callconv(@import("std").os.windows.WINAPI) ?HMONITOR,
-        CreateDevice: fn(
-            self: *const IDirect3D9,
-            Adapter: u32,
-            DeviceType: D3DDEVTYPE,
-            hFocusWindow: ?HWND,
-            BehaviorFlags: u32,
-            pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
-            ppReturnedDeviceInterface: ?*?*IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        RegisterSoftwareDevice: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+                pInitializeFunction: ?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9,
+                pInitializeFunction: ?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAdapterCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDirect3D9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        GetAdapterIdentifier: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                Flags: u32,
+                pIdentifier: ?*D3DADAPTER_IDENTIFIER9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                Flags: u32,
+                pIdentifier: ?*D3DADAPTER_IDENTIFIER9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAdapterModeCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                Format: D3DFORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                Format: D3DFORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        EnumAdapterModes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                Format: D3DFORMAT,
+                Mode: u32,
+                pMode: ?*D3DDISPLAYMODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                Format: D3DFORMAT,
+                Mode: u32,
+                pMode: ?*D3DDISPLAYMODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAdapterDisplayMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                pMode: ?*D3DDISPLAYMODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                pMode: ?*D3DDISPLAYMODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CheckDeviceType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DevType: D3DDEVTYPE,
+                AdapterFormat: D3DFORMAT,
+                BackBufferFormat: D3DFORMAT,
+                bWindowed: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DevType: D3DDEVTYPE,
+                AdapterFormat: D3DFORMAT,
+                BackBufferFormat: D3DFORMAT,
+                bWindowed: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CheckDeviceFormat: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                AdapterFormat: D3DFORMAT,
+                Usage: u32,
+                RType: D3DRESOURCETYPE,
+                CheckFormat: D3DFORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                AdapterFormat: D3DFORMAT,
+                Usage: u32,
+                RType: D3DRESOURCETYPE,
+                CheckFormat: D3DFORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CheckDeviceMultiSampleType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                SurfaceFormat: D3DFORMAT,
+                Windowed: BOOL,
+                MultiSampleType: D3DMULTISAMPLE_TYPE,
+                pQualityLevels: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                SurfaceFormat: D3DFORMAT,
+                Windowed: BOOL,
+                MultiSampleType: D3DMULTISAMPLE_TYPE,
+                pQualityLevels: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CheckDepthStencilMatch: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                AdapterFormat: D3DFORMAT,
+                RenderTargetFormat: D3DFORMAT,
+                DepthStencilFormat: D3DFORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                AdapterFormat: D3DFORMAT,
+                RenderTargetFormat: D3DFORMAT,
+                DepthStencilFormat: D3DFORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CheckDeviceFormatConversion: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                SourceFormat: D3DFORMAT,
+                TargetFormat: D3DFORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                SourceFormat: D3DFORMAT,
+                TargetFormat: D3DFORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDeviceCaps: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                pCaps: ?*D3DCAPS9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                pCaps: ?*D3DCAPS9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAdapterMonitor: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+            ) callconv(@import("std").os.windows.WINAPI) ?HMONITOR,
+            else => *const fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+            ) callconv(@import("std").os.windows.WINAPI) ?HMONITOR,
+        },
+        CreateDevice: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                hFocusWindow: ?HWND,
+                BehaviorFlags: u32,
+                pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
+                ppReturnedDeviceInterface: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                hFocusWindow: ?HWND,
+                BehaviorFlags: u32,
+                pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
+                ppReturnedDeviceInterface: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2494,638 +2612,1497 @@ pub const IDirect3D9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DDevice9_Value = @import("../zig.zig").Guid.initString("d0223b96-bf7a-43fd-92bd-a43b0d82b9eb");
+const IID_IDirect3DDevice9_Value = Guid.initString("d0223b96-bf7a-43fd-92bd-a43b0d82b9eb");
 pub const IID_IDirect3DDevice9 = &IID_IDirect3DDevice9_Value;
 pub const IDirect3DDevice9 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        TestCooperativeLevel: fn(
-            self: *const IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAvailableTextureMem: fn(
-            self: *const IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        EvictManagedResources: fn(
-            self: *const IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDirect3D: fn(
-            self: *const IDirect3DDevice9,
-            ppD3D9: ?*?*IDirect3D9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDeviceCaps: fn(
-            self: *const IDirect3DDevice9,
-            pCaps: ?*D3DCAPS9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDisplayMode: fn(
-            self: *const IDirect3DDevice9,
-            iSwapChain: u32,
-            pMode: ?*D3DDISPLAYMODE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCreationParameters: fn(
-            self: *const IDirect3DDevice9,
-            pParameters: ?*D3DDEVICE_CREATION_PARAMETERS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetCursorProperties: fn(
-            self: *const IDirect3DDevice9,
-            XHotSpot: u32,
-            YHotSpot: u32,
-            pCursorBitmap: ?*IDirect3DSurface9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetCursorPosition: fn(
-            self: *const IDirect3DDevice9,
-            X: i32,
-            Y: i32,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) void,
-        ShowCursor: fn(
-            self: *const IDirect3DDevice9,
-            bShow: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) BOOL,
-        CreateAdditionalSwapChain: fn(
-            self: *const IDirect3DDevice9,
-            pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
-            pSwapChain: ?*?*IDirect3DSwapChain9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSwapChain: fn(
-            self: *const IDirect3DDevice9,
-            iSwapChain: u32,
-            pSwapChain: ?*?*IDirect3DSwapChain9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNumberOfSwapChains: fn(
-            self: *const IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        Reset: fn(
-            self: *const IDirect3DDevice9,
-            pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Present: fn(
-            self: *const IDirect3DDevice9,
-            pSourceRect: ?*const RECT,
-            pDestRect: ?*const RECT,
-            hDestWindowOverride: ?HWND,
-            pDirtyRegion: ?*const RGNDATA,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetBackBuffer: fn(
-            self: *const IDirect3DDevice9,
-            iSwapChain: u32,
-            iBackBuffer: u32,
-            Type: D3DBACKBUFFER_TYPE,
-            ppBackBuffer: ?*?*IDirect3DSurface9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRasterStatus: fn(
-            self: *const IDirect3DDevice9,
-            iSwapChain: u32,
-            pRasterStatus: ?*D3DRASTER_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDialogBoxMode: fn(
-            self: *const IDirect3DDevice9,
-            bEnableDialogs: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetGammaRamp: fn(
-            self: *const IDirect3DDevice9,
-            iSwapChain: u32,
-            Flags: u32,
-            pRamp: ?*const D3DGAMMARAMP,
-        ) callconv(@import("std").os.windows.WINAPI) void,
-        GetGammaRamp: fn(
-            self: *const IDirect3DDevice9,
-            iSwapChain: u32,
-            pRamp: ?*D3DGAMMARAMP,
-        ) callconv(@import("std").os.windows.WINAPI) void,
-        CreateTexture: fn(
-            self: *const IDirect3DDevice9,
-            Width: u32,
-            Height: u32,
-            Levels: u32,
-            Usage: u32,
-            Format: D3DFORMAT,
-            Pool: D3DPOOL,
-            ppTexture: ?*?*IDirect3DTexture9,
-            pSharedHandle: ?*?HANDLE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateVolumeTexture: fn(
-            self: *const IDirect3DDevice9,
-            Width: u32,
-            Height: u32,
-            Depth: u32,
-            Levels: u32,
-            Usage: u32,
-            Format: D3DFORMAT,
-            Pool: D3DPOOL,
-            ppVolumeTexture: ?*?*IDirect3DVolumeTexture9,
-            pSharedHandle: ?*?HANDLE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateCubeTexture: fn(
-            self: *const IDirect3DDevice9,
-            EdgeLength: u32,
-            Levels: u32,
-            Usage: u32,
-            Format: D3DFORMAT,
-            Pool: D3DPOOL,
-            ppCubeTexture: ?*?*IDirect3DCubeTexture9,
-            pSharedHandle: ?*?HANDLE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateVertexBuffer: fn(
-            self: *const IDirect3DDevice9,
-            Length: u32,
-            Usage: u32,
-            FVF: u32,
-            Pool: D3DPOOL,
-            ppVertexBuffer: ?*?*IDirect3DVertexBuffer9,
-            pSharedHandle: ?*?HANDLE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateIndexBuffer: fn(
-            self: *const IDirect3DDevice9,
-            Length: u32,
-            Usage: u32,
-            Format: D3DFORMAT,
-            Pool: D3DPOOL,
-            ppIndexBuffer: ?*?*IDirect3DIndexBuffer9,
-            pSharedHandle: ?*?HANDLE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateRenderTarget: fn(
-            self: *const IDirect3DDevice9,
-            Width: u32,
-            Height: u32,
-            Format: D3DFORMAT,
-            MultiSample: D3DMULTISAMPLE_TYPE,
-            MultisampleQuality: u32,
-            Lockable: BOOL,
-            ppSurface: ?*?*IDirect3DSurface9,
-            pSharedHandle: ?*?HANDLE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateDepthStencilSurface: fn(
-            self: *const IDirect3DDevice9,
-            Width: u32,
-            Height: u32,
-            Format: D3DFORMAT,
-            MultiSample: D3DMULTISAMPLE_TYPE,
-            MultisampleQuality: u32,
-            Discard: BOOL,
-            ppSurface: ?*?*IDirect3DSurface9,
-            pSharedHandle: ?*?HANDLE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UpdateSurface: fn(
-            self: *const IDirect3DDevice9,
-            pSourceSurface: ?*IDirect3DSurface9,
-            pSourceRect: ?*const RECT,
-            pDestinationSurface: ?*IDirect3DSurface9,
-            pDestPoint: ?*const POINT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UpdateTexture: fn(
-            self: *const IDirect3DDevice9,
-            pSourceTexture: ?*IDirect3DBaseTexture9,
-            pDestinationTexture: ?*IDirect3DBaseTexture9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRenderTargetData: fn(
-            self: *const IDirect3DDevice9,
-            pRenderTarget: ?*IDirect3DSurface9,
-            pDestSurface: ?*IDirect3DSurface9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFrontBufferData: fn(
-            self: *const IDirect3DDevice9,
-            iSwapChain: u32,
-            pDestSurface: ?*IDirect3DSurface9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        StretchRect: fn(
-            self: *const IDirect3DDevice9,
-            pSourceSurface: ?*IDirect3DSurface9,
-            pSourceRect: ?*const RECT,
-            pDestSurface: ?*IDirect3DSurface9,
-            pDestRect: ?*const RECT,
-            Filter: D3DTEXTUREFILTERTYPE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ColorFill: fn(
-            self: *const IDirect3DDevice9,
-            pSurface: ?*IDirect3DSurface9,
-            pRect: ?*const RECT,
-            color: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateOffscreenPlainSurface: fn(
-            self: *const IDirect3DDevice9,
-            Width: u32,
-            Height: u32,
-            Format: D3DFORMAT,
-            Pool: D3DPOOL,
-            ppSurface: ?*?*IDirect3DSurface9,
-            pSharedHandle: ?*?HANDLE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetRenderTarget: fn(
-            self: *const IDirect3DDevice9,
-            RenderTargetIndex: u32,
-            pRenderTarget: ?*IDirect3DSurface9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRenderTarget: fn(
-            self: *const IDirect3DDevice9,
-            RenderTargetIndex: u32,
-            ppRenderTarget: ?*?*IDirect3DSurface9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDepthStencilSurface: fn(
-            self: *const IDirect3DDevice9,
-            pNewZStencil: ?*IDirect3DSurface9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDepthStencilSurface: fn(
-            self: *const IDirect3DDevice9,
-            ppZStencilSurface: ?*?*IDirect3DSurface9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        BeginScene: fn(
-            self: *const IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EndScene: fn(
-            self: *const IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clear: fn(
-            self: *const IDirect3DDevice9,
-            Count: u32,
-            pRects: ?*const D3DRECT,
-            Flags: u32,
-            Color: u32,
-            Z: f32,
-            Stencil: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetTransform: fn(
-            self: *const IDirect3DDevice9,
-            State: D3DTRANSFORMSTATETYPE,
-            pMatrix: ?*const D3DMATRIX,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTransform: fn(
-            self: *const IDirect3DDevice9,
-            State: D3DTRANSFORMSTATETYPE,
-            pMatrix: ?*D3DMATRIX,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MultiplyTransform: fn(
-            self: *const IDirect3DDevice9,
-            param0: D3DTRANSFORMSTATETYPE,
-            param1: ?*const D3DMATRIX,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetViewport: fn(
-            self: *const IDirect3DDevice9,
-            pViewport: ?*const D3DVIEWPORT9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetViewport: fn(
-            self: *const IDirect3DDevice9,
-            pViewport: ?*D3DVIEWPORT9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetMaterial: fn(
-            self: *const IDirect3DDevice9,
-            pMaterial: ?*const D3DMATERIAL9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetMaterial: fn(
-            self: *const IDirect3DDevice9,
-            pMaterial: ?*D3DMATERIAL9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetLight: fn(
-            self: *const IDirect3DDevice9,
-            Index: u32,
-            param1: ?*const D3DLIGHT9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetLight: fn(
-            self: *const IDirect3DDevice9,
-            Index: u32,
-            param1: ?*D3DLIGHT9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        LightEnable: fn(
-            self: *const IDirect3DDevice9,
-            Index: u32,
-            Enable: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetLightEnable: fn(
-            self: *const IDirect3DDevice9,
-            Index: u32,
-            pEnable: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetClipPlane: fn(
-            self: *const IDirect3DDevice9,
-            Index: u32,
-            pPlane: ?*const f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetClipPlane: fn(
-            self: *const IDirect3DDevice9,
-            Index: u32,
-            pPlane: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetRenderState: fn(
-            self: *const IDirect3DDevice9,
-            State: D3DRENDERSTATETYPE,
-            Value: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRenderState: fn(
-            self: *const IDirect3DDevice9,
-            State: D3DRENDERSTATETYPE,
-            pValue: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateStateBlock: fn(
-            self: *const IDirect3DDevice9,
-            Type: D3DSTATEBLOCKTYPE,
-            ppSB: ?*?*IDirect3DStateBlock9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        BeginStateBlock: fn(
-            self: *const IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EndStateBlock: fn(
-            self: *const IDirect3DDevice9,
-            ppSB: ?*?*IDirect3DStateBlock9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetClipStatus: fn(
-            self: *const IDirect3DDevice9,
-            pClipStatus: ?*const D3DCLIPSTATUS9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetClipStatus: fn(
-            self: *const IDirect3DDevice9,
-            pClipStatus: ?*D3DCLIPSTATUS9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTexture: fn(
-            self: *const IDirect3DDevice9,
-            Stage: u32,
-            ppTexture: ?*?*IDirect3DBaseTexture9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetTexture: fn(
-            self: *const IDirect3DDevice9,
-            Stage: u32,
-            pTexture: ?*IDirect3DBaseTexture9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTextureStageState: fn(
-            self: *const IDirect3DDevice9,
-            Stage: u32,
-            Type: D3DTEXTURESTAGESTATETYPE,
-            pValue: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetTextureStageState: fn(
-            self: *const IDirect3DDevice9,
-            Stage: u32,
-            Type: D3DTEXTURESTAGESTATETYPE,
-            Value: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSamplerState: fn(
-            self: *const IDirect3DDevice9,
-            Sampler: u32,
-            Type: D3DSAMPLERSTATETYPE,
-            pValue: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetSamplerState: fn(
-            self: *const IDirect3DDevice9,
-            Sampler: u32,
-            Type: D3DSAMPLERSTATETYPE,
-            Value: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ValidateDevice: fn(
-            self: *const IDirect3DDevice9,
-            pNumPasses: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetPaletteEntries: fn(
-            self: *const IDirect3DDevice9,
-            PaletteNumber: u32,
-            pEntries: ?*const PALETTEENTRY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPaletteEntries: fn(
-            self: *const IDirect3DDevice9,
-            PaletteNumber: u32,
-            pEntries: ?*PALETTEENTRY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetCurrentTexturePalette: fn(
-            self: *const IDirect3DDevice9,
-            PaletteNumber: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrentTexturePalette: fn(
-            self: *const IDirect3DDevice9,
-            PaletteNumber: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetScissorRect: fn(
-            self: *const IDirect3DDevice9,
-            pRect: ?*const RECT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetScissorRect: fn(
-            self: *const IDirect3DDevice9,
-            pRect: ?*RECT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetSoftwareVertexProcessing: fn(
-            self: *const IDirect3DDevice9,
-            bSoftware: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSoftwareVertexProcessing: fn(
-            self: *const IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) BOOL,
-        SetNPatchMode: fn(
-            self: *const IDirect3DDevice9,
-            nSegments: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNPatchMode: fn(
-            self: *const IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) f32,
-        DrawPrimitive: fn(
-            self: *const IDirect3DDevice9,
-            PrimitiveType: D3DPRIMITIVETYPE,
-            StartVertex: u32,
-            PrimitiveCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DrawIndexedPrimitive: fn(
-            self: *const IDirect3DDevice9,
-            param0: D3DPRIMITIVETYPE,
-            BaseVertexIndex: i32,
-            MinVertexIndex: u32,
-            NumVertices: u32,
-            startIndex: u32,
-            primCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DrawPrimitiveUP: fn(
-            self: *const IDirect3DDevice9,
-            PrimitiveType: D3DPRIMITIVETYPE,
-            PrimitiveCount: u32,
-            pVertexStreamZeroData: ?*const anyopaque,
-            VertexStreamZeroStride: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DrawIndexedPrimitiveUP: fn(
-            self: *const IDirect3DDevice9,
-            PrimitiveType: D3DPRIMITIVETYPE,
-            MinVertexIndex: u32,
-            NumVertices: u32,
-            PrimitiveCount: u32,
-            pIndexData: ?*const anyopaque,
-            IndexDataFormat: D3DFORMAT,
-            pVertexStreamZeroData: ?*const anyopaque,
-            VertexStreamZeroStride: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProcessVertices: fn(
-            self: *const IDirect3DDevice9,
-            SrcStartIndex: u32,
-            DestIndex: u32,
-            VertexCount: u32,
-            pDestBuffer: ?*IDirect3DVertexBuffer9,
-            pVertexDecl: ?*IDirect3DVertexDeclaration9,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateVertexDeclaration: fn(
-            self: *const IDirect3DDevice9,
-            pVertexElements: ?*const D3DVERTEXELEMENT9,
-            ppDecl: ?*?*IDirect3DVertexDeclaration9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetVertexDeclaration: fn(
-            self: *const IDirect3DDevice9,
-            pDecl: ?*IDirect3DVertexDeclaration9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVertexDeclaration: fn(
-            self: *const IDirect3DDevice9,
-            ppDecl: ?*?*IDirect3DVertexDeclaration9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetFVF: fn(
-            self: *const IDirect3DDevice9,
-            FVF: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFVF: fn(
-            self: *const IDirect3DDevice9,
-            pFVF: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateVertexShader: fn(
-            self: *const IDirect3DDevice9,
-            pFunction: ?*const u32,
-            ppShader: ?*?*IDirect3DVertexShader9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetVertexShader: fn(
-            self: *const IDirect3DDevice9,
-            pShader: ?*IDirect3DVertexShader9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVertexShader: fn(
-            self: *const IDirect3DDevice9,
-            ppShader: ?*?*IDirect3DVertexShader9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetVertexShaderConstantF: fn(
-            self: *const IDirect3DDevice9,
-            StartRegister: u32,
-            pConstantData: ?*const f32,
-            Vector4fCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVertexShaderConstantF: fn(
-            self: *const IDirect3DDevice9,
-            StartRegister: u32,
-            pConstantData: ?*f32,
-            Vector4fCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetVertexShaderConstantI: fn(
-            self: *const IDirect3DDevice9,
-            StartRegister: u32,
-            pConstantData: ?*const i32,
-            Vector4iCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVertexShaderConstantI: fn(
-            self: *const IDirect3DDevice9,
-            StartRegister: u32,
-            pConstantData: ?*i32,
-            Vector4iCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetVertexShaderConstantB: fn(
-            self: *const IDirect3DDevice9,
-            StartRegister: u32,
-            pConstantData: ?*const BOOL,
-            BoolCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVertexShaderConstantB: fn(
-            self: *const IDirect3DDevice9,
-            StartRegister: u32,
-            pConstantData: ?*BOOL,
-            BoolCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetStreamSource: fn(
-            self: *const IDirect3DDevice9,
-            StreamNumber: u32,
-            pStreamData: ?*IDirect3DVertexBuffer9,
-            OffsetInBytes: u32,
-            Stride: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStreamSource: fn(
-            self: *const IDirect3DDevice9,
-            StreamNumber: u32,
-            ppStreamData: ?*?*IDirect3DVertexBuffer9,
-            pOffsetInBytes: ?*u32,
-            pStride: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetStreamSourceFreq: fn(
-            self: *const IDirect3DDevice9,
-            StreamNumber: u32,
-            Setting: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStreamSourceFreq: fn(
-            self: *const IDirect3DDevice9,
-            StreamNumber: u32,
-            pSetting: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetIndices: fn(
-            self: *const IDirect3DDevice9,
-            pIndexData: ?*IDirect3DIndexBuffer9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetIndices: fn(
-            self: *const IDirect3DDevice9,
-            ppIndexData: ?*?*IDirect3DIndexBuffer9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreatePixelShader: fn(
-            self: *const IDirect3DDevice9,
-            pFunction: ?*const u32,
-            ppShader: ?*?*IDirect3DPixelShader9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetPixelShader: fn(
-            self: *const IDirect3DDevice9,
-            pShader: ?*IDirect3DPixelShader9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPixelShader: fn(
-            self: *const IDirect3DDevice9,
-            ppShader: ?*?*IDirect3DPixelShader9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetPixelShaderConstantF: fn(
-            self: *const IDirect3DDevice9,
-            StartRegister: u32,
-            pConstantData: ?*const f32,
-            Vector4fCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPixelShaderConstantF: fn(
-            self: *const IDirect3DDevice9,
-            StartRegister: u32,
-            pConstantData: ?*f32,
-            Vector4fCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetPixelShaderConstantI: fn(
-            self: *const IDirect3DDevice9,
-            StartRegister: u32,
-            pConstantData: ?*const i32,
-            Vector4iCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPixelShaderConstantI: fn(
-            self: *const IDirect3DDevice9,
-            StartRegister: u32,
-            pConstantData: ?*i32,
-            Vector4iCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetPixelShaderConstantB: fn(
-            self: *const IDirect3DDevice9,
-            StartRegister: u32,
-            pConstantData: ?*const BOOL,
-            BoolCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPixelShaderConstantB: fn(
-            self: *const IDirect3DDevice9,
-            StartRegister: u32,
-            pConstantData: ?*BOOL,
-            BoolCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DrawRectPatch: fn(
-            self: *const IDirect3DDevice9,
-            Handle: u32,
-            pNumSegs: ?*const f32,
-            pRectPatchInfo: ?*const D3DRECTPATCH_INFO,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DrawTriPatch: fn(
-            self: *const IDirect3DDevice9,
-            Handle: u32,
-            pNumSegs: ?*const f32,
-            pTriPatchInfo: ?*const D3DTRIPATCH_INFO,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DeletePatch: fn(
-            self: *const IDirect3DDevice9,
-            Handle: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateQuery: fn(
-            self: *const IDirect3DDevice9,
-            Type: D3DQUERYTYPE,
-            ppQuery: ?*?*IDirect3DQuery9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        TestCooperativeLevel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAvailableTextureMem: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        EvictManagedResources: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDirect3D: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                ppD3D9: ?*?*IDirect3D9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                ppD3D9: ?*?*IDirect3D9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDeviceCaps: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pCaps: ?*D3DCAPS9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pCaps: ?*D3DCAPS9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDisplayMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                pMode: ?*D3DDISPLAYMODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                pMode: ?*D3DDISPLAYMODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCreationParameters: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pParameters: ?*D3DDEVICE_CREATION_PARAMETERS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pParameters: ?*D3DDEVICE_CREATION_PARAMETERS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetCursorProperties: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                XHotSpot: u32,
+                YHotSpot: u32,
+                pCursorBitmap: ?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                XHotSpot: u32,
+                YHotSpot: u32,
+                pCursorBitmap: ?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetCursorPosition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                X: i32,
+                Y: i32,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                X: i32,
+                Y: i32,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+        },
+        ShowCursor: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                bShow: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) BOOL,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                bShow: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) BOOL,
+        },
+        CreateAdditionalSwapChain: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
+                pSwapChain: ?*?*IDirect3DSwapChain9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
+                pSwapChain: ?*?*IDirect3DSwapChain9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSwapChain: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                pSwapChain: ?*?*IDirect3DSwapChain9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                pSwapChain: ?*?*IDirect3DSwapChain9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNumberOfSwapChains: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        Reset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Present: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pSourceRect: ?*const RECT,
+                pDestRect: ?*const RECT,
+                hDestWindowOverride: ?HWND,
+                pDirtyRegion: ?*const RGNDATA,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pSourceRect: ?*const RECT,
+                pDestRect: ?*const RECT,
+                hDestWindowOverride: ?HWND,
+                pDirtyRegion: ?*const RGNDATA,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetBackBuffer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                iBackBuffer: u32,
+                Type: D3DBACKBUFFER_TYPE,
+                ppBackBuffer: ?*?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                iBackBuffer: u32,
+                Type: D3DBACKBUFFER_TYPE,
+                ppBackBuffer: ?*?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRasterStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                pRasterStatus: ?*D3DRASTER_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                pRasterStatus: ?*D3DRASTER_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDialogBoxMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                bEnableDialogs: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                bEnableDialogs: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetGammaRamp: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                Flags: u32,
+                pRamp: ?*const D3DGAMMARAMP,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                Flags: u32,
+                pRamp: ?*const D3DGAMMARAMP,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+        },
+        GetGammaRamp: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                pRamp: ?*D3DGAMMARAMP,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                pRamp: ?*D3DGAMMARAMP,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+        },
+        CreateTexture: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Width: u32,
+                Height: u32,
+                Levels: u32,
+                Usage: u32,
+                Format: D3DFORMAT,
+                Pool: D3DPOOL,
+                ppTexture: ?*?*IDirect3DTexture9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Width: u32,
+                Height: u32,
+                Levels: u32,
+                Usage: u32,
+                Format: D3DFORMAT,
+                Pool: D3DPOOL,
+                ppTexture: ?*?*IDirect3DTexture9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateVolumeTexture: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Width: u32,
+                Height: u32,
+                Depth: u32,
+                Levels: u32,
+                Usage: u32,
+                Format: D3DFORMAT,
+                Pool: D3DPOOL,
+                ppVolumeTexture: ?*?*IDirect3DVolumeTexture9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Width: u32,
+                Height: u32,
+                Depth: u32,
+                Levels: u32,
+                Usage: u32,
+                Format: D3DFORMAT,
+                Pool: D3DPOOL,
+                ppVolumeTexture: ?*?*IDirect3DVolumeTexture9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateCubeTexture: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                EdgeLength: u32,
+                Levels: u32,
+                Usage: u32,
+                Format: D3DFORMAT,
+                Pool: D3DPOOL,
+                ppCubeTexture: ?*?*IDirect3DCubeTexture9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                EdgeLength: u32,
+                Levels: u32,
+                Usage: u32,
+                Format: D3DFORMAT,
+                Pool: D3DPOOL,
+                ppCubeTexture: ?*?*IDirect3DCubeTexture9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateVertexBuffer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Length: u32,
+                Usage: u32,
+                FVF: u32,
+                Pool: D3DPOOL,
+                ppVertexBuffer: ?*?*IDirect3DVertexBuffer9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Length: u32,
+                Usage: u32,
+                FVF: u32,
+                Pool: D3DPOOL,
+                ppVertexBuffer: ?*?*IDirect3DVertexBuffer9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateIndexBuffer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Length: u32,
+                Usage: u32,
+                Format: D3DFORMAT,
+                Pool: D3DPOOL,
+                ppIndexBuffer: ?*?*IDirect3DIndexBuffer9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Length: u32,
+                Usage: u32,
+                Format: D3DFORMAT,
+                Pool: D3DPOOL,
+                ppIndexBuffer: ?*?*IDirect3DIndexBuffer9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateRenderTarget: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Width: u32,
+                Height: u32,
+                Format: D3DFORMAT,
+                MultiSample: D3DMULTISAMPLE_TYPE,
+                MultisampleQuality: u32,
+                Lockable: BOOL,
+                ppSurface: ?*?*IDirect3DSurface9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Width: u32,
+                Height: u32,
+                Format: D3DFORMAT,
+                MultiSample: D3DMULTISAMPLE_TYPE,
+                MultisampleQuality: u32,
+                Lockable: BOOL,
+                ppSurface: ?*?*IDirect3DSurface9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateDepthStencilSurface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Width: u32,
+                Height: u32,
+                Format: D3DFORMAT,
+                MultiSample: D3DMULTISAMPLE_TYPE,
+                MultisampleQuality: u32,
+                Discard: BOOL,
+                ppSurface: ?*?*IDirect3DSurface9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Width: u32,
+                Height: u32,
+                Format: D3DFORMAT,
+                MultiSample: D3DMULTISAMPLE_TYPE,
+                MultisampleQuality: u32,
+                Discard: BOOL,
+                ppSurface: ?*?*IDirect3DSurface9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UpdateSurface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pSourceSurface: ?*IDirect3DSurface9,
+                pSourceRect: ?*const RECT,
+                pDestinationSurface: ?*IDirect3DSurface9,
+                pDestPoint: ?*const POINT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pSourceSurface: ?*IDirect3DSurface9,
+                pSourceRect: ?*const RECT,
+                pDestinationSurface: ?*IDirect3DSurface9,
+                pDestPoint: ?*const POINT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UpdateTexture: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pSourceTexture: ?*IDirect3DBaseTexture9,
+                pDestinationTexture: ?*IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pSourceTexture: ?*IDirect3DBaseTexture9,
+                pDestinationTexture: ?*IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRenderTargetData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pRenderTarget: ?*IDirect3DSurface9,
+                pDestSurface: ?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pRenderTarget: ?*IDirect3DSurface9,
+                pDestSurface: ?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFrontBufferData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                pDestSurface: ?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                iSwapChain: u32,
+                pDestSurface: ?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        StretchRect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pSourceSurface: ?*IDirect3DSurface9,
+                pSourceRect: ?*const RECT,
+                pDestSurface: ?*IDirect3DSurface9,
+                pDestRect: ?*const RECT,
+                Filter: D3DTEXTUREFILTERTYPE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pSourceSurface: ?*IDirect3DSurface9,
+                pSourceRect: ?*const RECT,
+                pDestSurface: ?*IDirect3DSurface9,
+                pDestRect: ?*const RECT,
+                Filter: D3DTEXTUREFILTERTYPE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ColorFill: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pSurface: ?*IDirect3DSurface9,
+                pRect: ?*const RECT,
+                color: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pSurface: ?*IDirect3DSurface9,
+                pRect: ?*const RECT,
+                color: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateOffscreenPlainSurface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Width: u32,
+                Height: u32,
+                Format: D3DFORMAT,
+                Pool: D3DPOOL,
+                ppSurface: ?*?*IDirect3DSurface9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Width: u32,
+                Height: u32,
+                Format: D3DFORMAT,
+                Pool: D3DPOOL,
+                ppSurface: ?*?*IDirect3DSurface9,
+                pSharedHandle: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetRenderTarget: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                RenderTargetIndex: u32,
+                pRenderTarget: ?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                RenderTargetIndex: u32,
+                pRenderTarget: ?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRenderTarget: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                RenderTargetIndex: u32,
+                ppRenderTarget: ?*?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                RenderTargetIndex: u32,
+                ppRenderTarget: ?*?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDepthStencilSurface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pNewZStencil: ?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pNewZStencil: ?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDepthStencilSurface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                ppZStencilSurface: ?*?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                ppZStencilSurface: ?*?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        BeginScene: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EndScene: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clear: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Count: u32,
+                pRects: ?*const D3DRECT,
+                Flags: u32,
+                Color: u32,
+                Z: f32,
+                Stencil: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Count: u32,
+                pRects: ?*const D3DRECT,
+                Flags: u32,
+                Color: u32,
+                Z: f32,
+                Stencil: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetTransform: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                State: D3DTRANSFORMSTATETYPE,
+                pMatrix: ?*const D3DMATRIX,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                State: D3DTRANSFORMSTATETYPE,
+                pMatrix: ?*const D3DMATRIX,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTransform: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                State: D3DTRANSFORMSTATETYPE,
+                pMatrix: ?*D3DMATRIX,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                State: D3DTRANSFORMSTATETYPE,
+                pMatrix: ?*D3DMATRIX,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MultiplyTransform: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                param0: D3DTRANSFORMSTATETYPE,
+                param1: ?*const D3DMATRIX,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                param0: D3DTRANSFORMSTATETYPE,
+                param1: ?*const D3DMATRIX,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetViewport: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pViewport: ?*const D3DVIEWPORT9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pViewport: ?*const D3DVIEWPORT9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetViewport: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pViewport: ?*D3DVIEWPORT9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pViewport: ?*D3DVIEWPORT9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetMaterial: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pMaterial: ?*const D3DMATERIAL9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pMaterial: ?*const D3DMATERIAL9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetMaterial: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pMaterial: ?*D3DMATERIAL9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pMaterial: ?*D3DMATERIAL9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetLight: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Index: u32,
+                param1: ?*const D3DLIGHT9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Index: u32,
+                param1: ?*const D3DLIGHT9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetLight: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Index: u32,
+                param1: ?*D3DLIGHT9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Index: u32,
+                param1: ?*D3DLIGHT9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        LightEnable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Index: u32,
+                Enable: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Index: u32,
+                Enable: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetLightEnable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Index: u32,
+                pEnable: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Index: u32,
+                pEnable: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetClipPlane: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Index: u32,
+                pPlane: ?*const f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Index: u32,
+                pPlane: ?*const f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetClipPlane: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Index: u32,
+                pPlane: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Index: u32,
+                pPlane: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetRenderState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                State: D3DRENDERSTATETYPE,
+                Value: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                State: D3DRENDERSTATETYPE,
+                Value: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRenderState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                State: D3DRENDERSTATETYPE,
+                pValue: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                State: D3DRENDERSTATETYPE,
+                pValue: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateStateBlock: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Type: D3DSTATEBLOCKTYPE,
+                ppSB: ?*?*IDirect3DStateBlock9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Type: D3DSTATEBLOCKTYPE,
+                ppSB: ?*?*IDirect3DStateBlock9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        BeginStateBlock: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EndStateBlock: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                ppSB: ?*?*IDirect3DStateBlock9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                ppSB: ?*?*IDirect3DStateBlock9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetClipStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pClipStatus: ?*const D3DCLIPSTATUS9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pClipStatus: ?*const D3DCLIPSTATUS9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetClipStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pClipStatus: ?*D3DCLIPSTATUS9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pClipStatus: ?*D3DCLIPSTATUS9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTexture: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Stage: u32,
+                ppTexture: ?*?*IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Stage: u32,
+                ppTexture: ?*?*IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetTexture: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Stage: u32,
+                pTexture: ?*IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Stage: u32,
+                pTexture: ?*IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTextureStageState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Stage: u32,
+                Type: D3DTEXTURESTAGESTATETYPE,
+                pValue: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Stage: u32,
+                Type: D3DTEXTURESTAGESTATETYPE,
+                pValue: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetTextureStageState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Stage: u32,
+                Type: D3DTEXTURESTAGESTATETYPE,
+                Value: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Stage: u32,
+                Type: D3DTEXTURESTAGESTATETYPE,
+                Value: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSamplerState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Sampler: u32,
+                Type: D3DSAMPLERSTATETYPE,
+                pValue: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Sampler: u32,
+                Type: D3DSAMPLERSTATETYPE,
+                pValue: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetSamplerState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Sampler: u32,
+                Type: D3DSAMPLERSTATETYPE,
+                Value: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Sampler: u32,
+                Type: D3DSAMPLERSTATETYPE,
+                Value: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ValidateDevice: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pNumPasses: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pNumPasses: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetPaletteEntries: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                PaletteNumber: u32,
+                pEntries: ?*const PALETTEENTRY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                PaletteNumber: u32,
+                pEntries: ?*const PALETTEENTRY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPaletteEntries: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                PaletteNumber: u32,
+                pEntries: ?*PALETTEENTRY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                PaletteNumber: u32,
+                pEntries: ?*PALETTEENTRY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetCurrentTexturePalette: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                PaletteNumber: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                PaletteNumber: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrentTexturePalette: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                PaletteNumber: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                PaletteNumber: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetScissorRect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pRect: ?*const RECT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pRect: ?*const RECT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetScissorRect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pRect: ?*RECT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pRect: ?*RECT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetSoftwareVertexProcessing: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                bSoftware: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                bSoftware: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSoftwareVertexProcessing: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) BOOL,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) BOOL,
+        },
+        SetNPatchMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                nSegments: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                nSegments: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNPatchMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) f32,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) f32,
+        },
+        DrawPrimitive: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                PrimitiveType: D3DPRIMITIVETYPE,
+                StartVertex: u32,
+                PrimitiveCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                PrimitiveType: D3DPRIMITIVETYPE,
+                StartVertex: u32,
+                PrimitiveCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DrawIndexedPrimitive: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                param0: D3DPRIMITIVETYPE,
+                BaseVertexIndex: i32,
+                MinVertexIndex: u32,
+                NumVertices: u32,
+                startIndex: u32,
+                primCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                param0: D3DPRIMITIVETYPE,
+                BaseVertexIndex: i32,
+                MinVertexIndex: u32,
+                NumVertices: u32,
+                startIndex: u32,
+                primCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DrawPrimitiveUP: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                PrimitiveType: D3DPRIMITIVETYPE,
+                PrimitiveCount: u32,
+                pVertexStreamZeroData: ?*const anyopaque,
+                VertexStreamZeroStride: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                PrimitiveType: D3DPRIMITIVETYPE,
+                PrimitiveCount: u32,
+                pVertexStreamZeroData: ?*const anyopaque,
+                VertexStreamZeroStride: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DrawIndexedPrimitiveUP: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                PrimitiveType: D3DPRIMITIVETYPE,
+                MinVertexIndex: u32,
+                NumVertices: u32,
+                PrimitiveCount: u32,
+                pIndexData: ?*const anyopaque,
+                IndexDataFormat: D3DFORMAT,
+                pVertexStreamZeroData: ?*const anyopaque,
+                VertexStreamZeroStride: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                PrimitiveType: D3DPRIMITIVETYPE,
+                MinVertexIndex: u32,
+                NumVertices: u32,
+                PrimitiveCount: u32,
+                pIndexData: ?*const anyopaque,
+                IndexDataFormat: D3DFORMAT,
+                pVertexStreamZeroData: ?*const anyopaque,
+                VertexStreamZeroStride: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProcessVertices: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                SrcStartIndex: u32,
+                DestIndex: u32,
+                VertexCount: u32,
+                pDestBuffer: ?*IDirect3DVertexBuffer9,
+                pVertexDecl: ?*IDirect3DVertexDeclaration9,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                SrcStartIndex: u32,
+                DestIndex: u32,
+                VertexCount: u32,
+                pDestBuffer: ?*IDirect3DVertexBuffer9,
+                pVertexDecl: ?*IDirect3DVertexDeclaration9,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateVertexDeclaration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pVertexElements: ?*const D3DVERTEXELEMENT9,
+                ppDecl: ?*?*IDirect3DVertexDeclaration9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pVertexElements: ?*const D3DVERTEXELEMENT9,
+                ppDecl: ?*?*IDirect3DVertexDeclaration9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetVertexDeclaration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pDecl: ?*IDirect3DVertexDeclaration9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pDecl: ?*IDirect3DVertexDeclaration9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVertexDeclaration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                ppDecl: ?*?*IDirect3DVertexDeclaration9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                ppDecl: ?*?*IDirect3DVertexDeclaration9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetFVF: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                FVF: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                FVF: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFVF: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pFVF: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pFVF: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateVertexShader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pFunction: ?*const u32,
+                ppShader: ?*?*IDirect3DVertexShader9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pFunction: ?*const u32,
+                ppShader: ?*?*IDirect3DVertexShader9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetVertexShader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pShader: ?*IDirect3DVertexShader9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pShader: ?*IDirect3DVertexShader9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVertexShader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                ppShader: ?*?*IDirect3DVertexShader9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                ppShader: ?*?*IDirect3DVertexShader9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetVertexShaderConstantF: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*const f32,
+                Vector4fCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*const f32,
+                Vector4fCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVertexShaderConstantF: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*f32,
+                Vector4fCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*f32,
+                Vector4fCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetVertexShaderConstantI: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*const i32,
+                Vector4iCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*const i32,
+                Vector4iCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVertexShaderConstantI: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*i32,
+                Vector4iCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*i32,
+                Vector4iCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetVertexShaderConstantB: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*const BOOL,
+                BoolCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*const BOOL,
+                BoolCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVertexShaderConstantB: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*BOOL,
+                BoolCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*BOOL,
+                BoolCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetStreamSource: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StreamNumber: u32,
+                pStreamData: ?*IDirect3DVertexBuffer9,
+                OffsetInBytes: u32,
+                Stride: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StreamNumber: u32,
+                pStreamData: ?*IDirect3DVertexBuffer9,
+                OffsetInBytes: u32,
+                Stride: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStreamSource: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StreamNumber: u32,
+                ppStreamData: ?*?*IDirect3DVertexBuffer9,
+                pOffsetInBytes: ?*u32,
+                pStride: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StreamNumber: u32,
+                ppStreamData: ?*?*IDirect3DVertexBuffer9,
+                pOffsetInBytes: ?*u32,
+                pStride: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetStreamSourceFreq: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StreamNumber: u32,
+                Setting: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StreamNumber: u32,
+                Setting: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStreamSourceFreq: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StreamNumber: u32,
+                pSetting: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StreamNumber: u32,
+                pSetting: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetIndices: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pIndexData: ?*IDirect3DIndexBuffer9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pIndexData: ?*IDirect3DIndexBuffer9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetIndices: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                ppIndexData: ?*?*IDirect3DIndexBuffer9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                ppIndexData: ?*?*IDirect3DIndexBuffer9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreatePixelShader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pFunction: ?*const u32,
+                ppShader: ?*?*IDirect3DPixelShader9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pFunction: ?*const u32,
+                ppShader: ?*?*IDirect3DPixelShader9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetPixelShader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                pShader: ?*IDirect3DPixelShader9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                pShader: ?*IDirect3DPixelShader9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPixelShader: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                ppShader: ?*?*IDirect3DPixelShader9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                ppShader: ?*?*IDirect3DPixelShader9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetPixelShaderConstantF: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*const f32,
+                Vector4fCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*const f32,
+                Vector4fCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPixelShaderConstantF: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*f32,
+                Vector4fCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*f32,
+                Vector4fCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetPixelShaderConstantI: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*const i32,
+                Vector4iCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*const i32,
+                Vector4iCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPixelShaderConstantI: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*i32,
+                Vector4iCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*i32,
+                Vector4iCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetPixelShaderConstantB: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*const BOOL,
+                BoolCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*const BOOL,
+                BoolCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPixelShaderConstantB: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*BOOL,
+                BoolCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                StartRegister: u32,
+                pConstantData: ?*BOOL,
+                BoolCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DrawRectPatch: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Handle: u32,
+                pNumSegs: ?*const f32,
+                pRectPatchInfo: ?*const D3DRECTPATCH_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Handle: u32,
+                pNumSegs: ?*const f32,
+                pRectPatchInfo: ?*const D3DRECTPATCH_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DrawTriPatch: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Handle: u32,
+                pNumSegs: ?*const f32,
+                pTriPatchInfo: ?*const D3DTRIPATCH_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Handle: u32,
+                pNumSegs: ?*const f32,
+                pTriPatchInfo: ?*const D3DTRIPATCH_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DeletePatch: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Handle: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Handle: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateQuery: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9,
+                Type: D3DQUERYTYPE,
+                ppQuery: ?*?*IDirect3DQuery9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9,
+                Type: D3DQUERYTYPE,
+                ppQuery: ?*?*IDirect3DQuery9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3598,21 +4575,37 @@ pub const IDirect3DDevice9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DStateBlock9_Value = @import("../zig.zig").Guid.initString("b07c4fe5-310d-4ba8-a23c-4f0f206f218b");
+const IID_IDirect3DStateBlock9_Value = Guid.initString("b07c4fe5-310d-4ba8-a23c-4f0f206f218b");
 pub const IID_IDirect3DStateBlock9 = &IID_IDirect3DStateBlock9_Value;
 pub const IDirect3DStateBlock9 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetDevice: fn(
-            self: *const IDirect3DStateBlock9,
-            ppDevice: ?*?*IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Capture: fn(
-            self: *const IDirect3DStateBlock9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Apply: fn(
-            self: *const IDirect3DStateBlock9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetDevice: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DStateBlock9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DStateBlock9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Capture: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DStateBlock9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DStateBlock9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Apply: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DStateBlock9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DStateBlock9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3633,45 +4626,93 @@ pub const IDirect3DStateBlock9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DSwapChain9_Value = @import("../zig.zig").Guid.initString("794950f2-adfc-458a-905e-10a10b0b503b");
+const IID_IDirect3DSwapChain9_Value = Guid.initString("794950f2-adfc-458a-905e-10a10b0b503b");
 pub const IID_IDirect3DSwapChain9 = &IID_IDirect3DSwapChain9_Value;
 pub const IDirect3DSwapChain9 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Present: fn(
-            self: *const IDirect3DSwapChain9,
-            pSourceRect: ?*const RECT,
-            pDestRect: ?*const RECT,
-            hDestWindowOverride: ?HWND,
-            pDirtyRegion: ?*const RGNDATA,
-            dwFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFrontBufferData: fn(
-            self: *const IDirect3DSwapChain9,
-            pDestSurface: ?*IDirect3DSurface9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetBackBuffer: fn(
-            self: *const IDirect3DSwapChain9,
-            iBackBuffer: u32,
-            Type: D3DBACKBUFFER_TYPE,
-            ppBackBuffer: ?*?*IDirect3DSurface9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRasterStatus: fn(
-            self: *const IDirect3DSwapChain9,
-            pRasterStatus: ?*D3DRASTER_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDisplayMode: fn(
-            self: *const IDirect3DSwapChain9,
-            pMode: ?*D3DDISPLAYMODE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDevice: fn(
-            self: *const IDirect3DSwapChain9,
-            ppDevice: ?*?*IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPresentParameters: fn(
-            self: *const IDirect3DSwapChain9,
-            pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Present: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSwapChain9,
+                pSourceRect: ?*const RECT,
+                pDestRect: ?*const RECT,
+                hDestWindowOverride: ?HWND,
+                pDirtyRegion: ?*const RGNDATA,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSwapChain9,
+                pSourceRect: ?*const RECT,
+                pDestRect: ?*const RECT,
+                hDestWindowOverride: ?HWND,
+                pDirtyRegion: ?*const RGNDATA,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFrontBufferData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSwapChain9,
+                pDestSurface: ?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSwapChain9,
+                pDestSurface: ?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetBackBuffer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSwapChain9,
+                iBackBuffer: u32,
+                Type: D3DBACKBUFFER_TYPE,
+                ppBackBuffer: ?*?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSwapChain9,
+                iBackBuffer: u32,
+                Type: D3DBACKBUFFER_TYPE,
+                ppBackBuffer: ?*?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRasterStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSwapChain9,
+                pRasterStatus: ?*D3DRASTER_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSwapChain9,
+                pRasterStatus: ?*D3DRASTER_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDisplayMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSwapChain9,
+                pMode: ?*D3DDISPLAYMODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSwapChain9,
+                pMode: ?*D3DDISPLAYMODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDevice: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSwapChain9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSwapChain9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPresentParameters: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSwapChain9,
+                pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSwapChain9,
+                pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3708,45 +4749,95 @@ pub const IDirect3DSwapChain9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DResource9_Value = @import("../zig.zig").Guid.initString("05eec05d-8f7d-4362-b999-d1baf357c704");
+const IID_IDirect3DResource9_Value = Guid.initString("05eec05d-8f7d-4362-b999-d1baf357c704");
 pub const IID_IDirect3DResource9 = &IID_IDirect3DResource9_Value;
 pub const IDirect3DResource9 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetDevice: fn(
-            self: *const IDirect3DResource9,
-            ppDevice: ?*?*IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetPrivateData: fn(
-            self: *const IDirect3DResource9,
-            refguid: ?*const Guid,
-            pData: ?*const anyopaque,
-            SizeOfData: u32,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPrivateData: fn(
-            self: *const IDirect3DResource9,
-            refguid: ?*const Guid,
-            pData: ?*anyopaque,
-            pSizeOfData: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        FreePrivateData: fn(
-            self: *const IDirect3DResource9,
-            refguid: ?*const Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetPriority: fn(
-            self: *const IDirect3DResource9,
-            PriorityNew: u32,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        GetPriority: fn(
-            self: *const IDirect3DResource9,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        PreLoad: fn(
-            self: *const IDirect3DResource9,
-        ) callconv(@import("std").os.windows.WINAPI) void,
-        GetType: fn(
-            self: *const IDirect3DResource9,
-        ) callconv(@import("std").os.windows.WINAPI) D3DRESOURCETYPE,
+        GetDevice: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DResource9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DResource9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetPrivateData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DResource9,
+                refguid: ?*const Guid,
+                pData: ?*const anyopaque,
+                SizeOfData: u32,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DResource9,
+                refguid: ?*const Guid,
+                pData: ?*const anyopaque,
+                SizeOfData: u32,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPrivateData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DResource9,
+                refguid: ?*const Guid,
+                pData: ?*anyopaque,
+                pSizeOfData: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DResource9,
+                refguid: ?*const Guid,
+                pData: ?*anyopaque,
+                pSizeOfData: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        FreePrivateData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DResource9,
+                refguid: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DResource9,
+                refguid: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetPriority: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DResource9,
+                PriorityNew: u32,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDirect3DResource9,
+                PriorityNew: u32,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        GetPriority: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DResource9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDirect3DResource9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        PreLoad: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DResource9,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+            else => *const fn(
+                self: *const IDirect3DResource9,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+        },
+        GetType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DResource9,
+            ) callconv(@import("std").os.windows.WINAPI) D3DRESOURCETYPE,
+            else => *const fn(
+                self: *const IDirect3DResource9,
+            ) callconv(@import("std").os.windows.WINAPI) D3DRESOURCETYPE,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3787,20 +4878,33 @@ pub const IDirect3DResource9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DVertexDeclaration9_Value = @import("../zig.zig").Guid.initString("dd13c59c-36fa-4098-a8fb-c7ed39dc8546");
+const IID_IDirect3DVertexDeclaration9_Value = Guid.initString("dd13c59c-36fa-4098-a8fb-c7ed39dc8546");
 pub const IID_IDirect3DVertexDeclaration9 = &IID_IDirect3DVertexDeclaration9_Value;
 pub const IDirect3DVertexDeclaration9 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetDevice: fn(
-            self: *const IDirect3DVertexDeclaration9,
-            ppDevice: ?*?*IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDeclaration: fn(
-            self: *const IDirect3DVertexDeclaration9,
-            pElement: ?*D3DVERTEXELEMENT9,
-            pNumElements: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetDevice: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVertexDeclaration9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVertexDeclaration9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDeclaration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVertexDeclaration9,
+                pElement: ?*D3DVERTEXELEMENT9,
+                pNumElements: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVertexDeclaration9,
+                pElement: ?*D3DVERTEXELEMENT9,
+                pNumElements: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3817,20 +4921,33 @@ pub const IDirect3DVertexDeclaration9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DVertexShader9_Value = @import("../zig.zig").Guid.initString("efc5557e-6265-4613-8a94-43857889eb36");
+const IID_IDirect3DVertexShader9_Value = Guid.initString("efc5557e-6265-4613-8a94-43857889eb36");
 pub const IID_IDirect3DVertexShader9 = &IID_IDirect3DVertexShader9_Value;
 pub const IDirect3DVertexShader9 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetDevice: fn(
-            self: *const IDirect3DVertexShader9,
-            ppDevice: ?*?*IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFunction: fn(
-            self: *const IDirect3DVertexShader9,
-            param0: ?*anyopaque,
-            pSizeOfData: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetDevice: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVertexShader9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVertexShader9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFunction: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVertexShader9,
+                param0: ?*anyopaque,
+                pSizeOfData: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVertexShader9,
+                param0: ?*anyopaque,
+                pSizeOfData: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3847,20 +4964,33 @@ pub const IDirect3DVertexShader9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DPixelShader9_Value = @import("../zig.zig").Guid.initString("6d3bdbdc-5b02-4415-b852-ce5e8bccb289");
+const IID_IDirect3DPixelShader9_Value = Guid.initString("6d3bdbdc-5b02-4415-b852-ce5e8bccb289");
 pub const IID_IDirect3DPixelShader9 = &IID_IDirect3DPixelShader9_Value;
 pub const IDirect3DPixelShader9 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetDevice: fn(
-            self: *const IDirect3DPixelShader9,
-            ppDevice: ?*?*IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFunction: fn(
-            self: *const IDirect3DPixelShader9,
-            param0: ?*anyopaque,
-            pSizeOfData: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetDevice: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DPixelShader9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DPixelShader9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFunction: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DPixelShader9,
+                param0: ?*anyopaque,
+                pSizeOfData: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DPixelShader9,
+                param0: ?*anyopaque,
+                pSizeOfData: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3877,31 +5007,63 @@ pub const IDirect3DPixelShader9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DBaseTexture9_Value = @import("../zig.zig").Guid.initString("580ca87e-1d3c-4d54-991d-b7d3e3c298ce");
+const IID_IDirect3DBaseTexture9_Value = Guid.initString("580ca87e-1d3c-4d54-991d-b7d3e3c298ce");
 pub const IID_IDirect3DBaseTexture9 = &IID_IDirect3DBaseTexture9_Value;
 pub const IDirect3DBaseTexture9 = extern struct {
     pub const VTable = extern struct {
         base: IDirect3DResource9.VTable,
-        SetLOD: fn(
-            self: *const IDirect3DBaseTexture9,
-            LODNew: u32,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        GetLOD: fn(
-            self: *const IDirect3DBaseTexture9,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        GetLevelCount: fn(
-            self: *const IDirect3DBaseTexture9,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        SetAutoGenFilterType: fn(
-            self: *const IDirect3DBaseTexture9,
-            FilterType: D3DTEXTUREFILTERTYPE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAutoGenFilterType: fn(
-            self: *const IDirect3DBaseTexture9,
-        ) callconv(@import("std").os.windows.WINAPI) D3DTEXTUREFILTERTYPE,
-        GenerateMipSubLevels: fn(
-            self: *const IDirect3DBaseTexture9,
-        ) callconv(@import("std").os.windows.WINAPI) void,
+        SetLOD: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DBaseTexture9,
+                LODNew: u32,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDirect3DBaseTexture9,
+                LODNew: u32,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        GetLOD: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        GetLevelCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        SetAutoGenFilterType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DBaseTexture9,
+                FilterType: D3DTEXTUREFILTERTYPE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DBaseTexture9,
+                FilterType: D3DTEXTUREFILTERTYPE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAutoGenFilterType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) D3DTEXTUREFILTERTYPE,
+            else => *const fn(
+                self: *const IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) D3DTEXTUREFILTERTYPE,
+        },
+        GenerateMipSubLevels: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+            else => *const fn(
+                self: *const IDirect3DBaseTexture9,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3934,36 +5096,71 @@ pub const IDirect3DBaseTexture9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DTexture9_Value = @import("../zig.zig").Guid.initString("85c31227-3de5-4f00-9b3a-f11ac38c18b5");
+const IID_IDirect3DTexture9_Value = Guid.initString("85c31227-3de5-4f00-9b3a-f11ac38c18b5");
 pub const IID_IDirect3DTexture9 = &IID_IDirect3DTexture9_Value;
 pub const IDirect3DTexture9 = extern struct {
     pub const VTable = extern struct {
         base: IDirect3DBaseTexture9.VTable,
-        GetLevelDesc: fn(
-            self: *const IDirect3DTexture9,
-            Level: u32,
-            pDesc: ?*D3DSURFACE_DESC,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSurfaceLevel: fn(
-            self: *const IDirect3DTexture9,
-            Level: u32,
-            ppSurfaceLevel: ?*?*IDirect3DSurface9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        LockRect: fn(
-            self: *const IDirect3DTexture9,
-            Level: u32,
-            pLockedRect: ?*D3DLOCKED_RECT,
-            pRect: ?*const RECT,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UnlockRect: fn(
-            self: *const IDirect3DTexture9,
-            Level: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddDirtyRect: fn(
-            self: *const IDirect3DTexture9,
-            pDirtyRect: ?*const RECT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetLevelDesc: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DTexture9,
+                Level: u32,
+                pDesc: ?*D3DSURFACE_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DTexture9,
+                Level: u32,
+                pDesc: ?*D3DSURFACE_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSurfaceLevel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DTexture9,
+                Level: u32,
+                ppSurfaceLevel: ?*?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DTexture9,
+                Level: u32,
+                ppSurfaceLevel: ?*?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        LockRect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DTexture9,
+                Level: u32,
+                pLockedRect: ?*D3DLOCKED_RECT,
+                pRect: ?*const RECT,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DTexture9,
+                Level: u32,
+                pLockedRect: ?*D3DLOCKED_RECT,
+                pRect: ?*const RECT,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UnlockRect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DTexture9,
+                Level: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DTexture9,
+                Level: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddDirtyRect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DTexture9,
+                pDirtyRect: ?*const RECT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DTexture9,
+                pDirtyRect: ?*const RECT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3992,36 +5189,71 @@ pub const IDirect3DTexture9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DVolumeTexture9_Value = @import("../zig.zig").Guid.initString("2518526c-e789-4111-a7b9-47ef328d13e6");
+const IID_IDirect3DVolumeTexture9_Value = Guid.initString("2518526c-e789-4111-a7b9-47ef328d13e6");
 pub const IID_IDirect3DVolumeTexture9 = &IID_IDirect3DVolumeTexture9_Value;
 pub const IDirect3DVolumeTexture9 = extern struct {
     pub const VTable = extern struct {
         base: IDirect3DBaseTexture9.VTable,
-        GetLevelDesc: fn(
-            self: *const IDirect3DVolumeTexture9,
-            Level: u32,
-            pDesc: ?*D3DVOLUME_DESC,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVolumeLevel: fn(
-            self: *const IDirect3DVolumeTexture9,
-            Level: u32,
-            ppVolumeLevel: ?*?*IDirect3DVolume9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        LockBox: fn(
-            self: *const IDirect3DVolumeTexture9,
-            Level: u32,
-            pLockedVolume: ?*D3DLOCKED_BOX,
-            pBox: ?*const D3DBOX,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UnlockBox: fn(
-            self: *const IDirect3DVolumeTexture9,
-            Level: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddDirtyBox: fn(
-            self: *const IDirect3DVolumeTexture9,
-            pDirtyBox: ?*const D3DBOX,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetLevelDesc: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVolumeTexture9,
+                Level: u32,
+                pDesc: ?*D3DVOLUME_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVolumeTexture9,
+                Level: u32,
+                pDesc: ?*D3DVOLUME_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVolumeLevel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVolumeTexture9,
+                Level: u32,
+                ppVolumeLevel: ?*?*IDirect3DVolume9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVolumeTexture9,
+                Level: u32,
+                ppVolumeLevel: ?*?*IDirect3DVolume9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        LockBox: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVolumeTexture9,
+                Level: u32,
+                pLockedVolume: ?*D3DLOCKED_BOX,
+                pBox: ?*const D3DBOX,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVolumeTexture9,
+                Level: u32,
+                pLockedVolume: ?*D3DLOCKED_BOX,
+                pBox: ?*const D3DBOX,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UnlockBox: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVolumeTexture9,
+                Level: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVolumeTexture9,
+                Level: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddDirtyBox: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVolumeTexture9,
+                pDirtyBox: ?*const D3DBOX,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVolumeTexture9,
+                pDirtyBox: ?*const D3DBOX,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4050,40 +5282,79 @@ pub const IDirect3DVolumeTexture9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DCubeTexture9_Value = @import("../zig.zig").Guid.initString("fff32f81-d953-473a-9223-93d652aba93f");
+const IID_IDirect3DCubeTexture9_Value = Guid.initString("fff32f81-d953-473a-9223-93d652aba93f");
 pub const IID_IDirect3DCubeTexture9 = &IID_IDirect3DCubeTexture9_Value;
 pub const IDirect3DCubeTexture9 = extern struct {
     pub const VTable = extern struct {
         base: IDirect3DBaseTexture9.VTable,
-        GetLevelDesc: fn(
-            self: *const IDirect3DCubeTexture9,
-            Level: u32,
-            pDesc: ?*D3DSURFACE_DESC,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCubeMapSurface: fn(
-            self: *const IDirect3DCubeTexture9,
-            FaceType: D3DCUBEMAP_FACES,
-            Level: u32,
-            ppCubeMapSurface: ?*?*IDirect3DSurface9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        LockRect: fn(
-            self: *const IDirect3DCubeTexture9,
-            FaceType: D3DCUBEMAP_FACES,
-            Level: u32,
-            pLockedRect: ?*D3DLOCKED_RECT,
-            pRect: ?*const RECT,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UnlockRect: fn(
-            self: *const IDirect3DCubeTexture9,
-            FaceType: D3DCUBEMAP_FACES,
-            Level: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddDirtyRect: fn(
-            self: *const IDirect3DCubeTexture9,
-            FaceType: D3DCUBEMAP_FACES,
-            pDirtyRect: ?*const RECT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetLevelDesc: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DCubeTexture9,
+                Level: u32,
+                pDesc: ?*D3DSURFACE_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DCubeTexture9,
+                Level: u32,
+                pDesc: ?*D3DSURFACE_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCubeMapSurface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DCubeTexture9,
+                FaceType: D3DCUBEMAP_FACES,
+                Level: u32,
+                ppCubeMapSurface: ?*?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DCubeTexture9,
+                FaceType: D3DCUBEMAP_FACES,
+                Level: u32,
+                ppCubeMapSurface: ?*?*IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        LockRect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DCubeTexture9,
+                FaceType: D3DCUBEMAP_FACES,
+                Level: u32,
+                pLockedRect: ?*D3DLOCKED_RECT,
+                pRect: ?*const RECT,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DCubeTexture9,
+                FaceType: D3DCUBEMAP_FACES,
+                Level: u32,
+                pLockedRect: ?*D3DLOCKED_RECT,
+                pRect: ?*const RECT,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UnlockRect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DCubeTexture9,
+                FaceType: D3DCUBEMAP_FACES,
+                Level: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DCubeTexture9,
+                FaceType: D3DCUBEMAP_FACES,
+                Level: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddDirtyRect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DCubeTexture9,
+                FaceType: D3DCUBEMAP_FACES,
+                pDirtyRect: ?*const RECT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DCubeTexture9,
+                FaceType: D3DCUBEMAP_FACES,
+                pDirtyRect: ?*const RECT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4112,25 +5383,45 @@ pub const IDirect3DCubeTexture9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DVertexBuffer9_Value = @import("../zig.zig").Guid.initString("b64bb1b5-fd70-4df6-bf91-19d0a12455e3");
+const IID_IDirect3DVertexBuffer9_Value = Guid.initString("b64bb1b5-fd70-4df6-bf91-19d0a12455e3");
 pub const IID_IDirect3DVertexBuffer9 = &IID_IDirect3DVertexBuffer9_Value;
 pub const IDirect3DVertexBuffer9 = extern struct {
     pub const VTable = extern struct {
         base: IDirect3DResource9.VTable,
-        Lock: fn(
-            self: *const IDirect3DVertexBuffer9,
-            OffsetToLock: u32,
-            SizeToLock: u32,
-            ppbData: ?*?*anyopaque,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Unlock: fn(
-            self: *const IDirect3DVertexBuffer9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDesc: fn(
-            self: *const IDirect3DVertexBuffer9,
-            pDesc: ?*D3DVERTEXBUFFER_DESC,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Lock: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVertexBuffer9,
+                OffsetToLock: u32,
+                SizeToLock: u32,
+                ppbData: ?*?*anyopaque,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVertexBuffer9,
+                OffsetToLock: u32,
+                SizeToLock: u32,
+                ppbData: ?*?*anyopaque,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Unlock: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVertexBuffer9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVertexBuffer9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDesc: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVertexBuffer9,
+                pDesc: ?*D3DVERTEXBUFFER_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVertexBuffer9,
+                pDesc: ?*D3DVERTEXBUFFER_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4151,25 +5442,45 @@ pub const IDirect3DVertexBuffer9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DIndexBuffer9_Value = @import("../zig.zig").Guid.initString("7c9dd65e-d3f7-4529-acee-785830acde35");
+const IID_IDirect3DIndexBuffer9_Value = Guid.initString("7c9dd65e-d3f7-4529-acee-785830acde35");
 pub const IID_IDirect3DIndexBuffer9 = &IID_IDirect3DIndexBuffer9_Value;
 pub const IDirect3DIndexBuffer9 = extern struct {
     pub const VTable = extern struct {
         base: IDirect3DResource9.VTable,
-        Lock: fn(
-            self: *const IDirect3DIndexBuffer9,
-            OffsetToLock: u32,
-            SizeToLock: u32,
-            ppbData: ?*?*anyopaque,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Unlock: fn(
-            self: *const IDirect3DIndexBuffer9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDesc: fn(
-            self: *const IDirect3DIndexBuffer9,
-            pDesc: ?*D3DINDEXBUFFER_DESC,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Lock: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DIndexBuffer9,
+                OffsetToLock: u32,
+                SizeToLock: u32,
+                ppbData: ?*?*anyopaque,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DIndexBuffer9,
+                OffsetToLock: u32,
+                SizeToLock: u32,
+                ppbData: ?*?*anyopaque,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Unlock: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DIndexBuffer9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DIndexBuffer9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDesc: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DIndexBuffer9,
+                pDesc: ?*D3DINDEXBUFFER_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DIndexBuffer9,
+                pDesc: ?*D3DINDEXBUFFER_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4190,37 +5501,75 @@ pub const IDirect3DIndexBuffer9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DSurface9_Value = @import("../zig.zig").Guid.initString("0cfbaf3a-9ff6-429a-99b3-a2796af8b89b");
+const IID_IDirect3DSurface9_Value = Guid.initString("0cfbaf3a-9ff6-429a-99b3-a2796af8b89b");
 pub const IID_IDirect3DSurface9 = &IID_IDirect3DSurface9_Value;
 pub const IDirect3DSurface9 = extern struct {
     pub const VTable = extern struct {
         base: IDirect3DResource9.VTable,
-        GetContainer: fn(
-            self: *const IDirect3DSurface9,
-            riid: ?*const Guid,
-            ppContainer: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDesc: fn(
-            self: *const IDirect3DSurface9,
-            pDesc: ?*D3DSURFACE_DESC,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        LockRect: fn(
-            self: *const IDirect3DSurface9,
-            pLockedRect: ?*D3DLOCKED_RECT,
-            pRect: ?*const RECT,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UnlockRect: fn(
-            self: *const IDirect3DSurface9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDC: fn(
-            self: *const IDirect3DSurface9,
-            phdc: ?*?HDC,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ReleaseDC: fn(
-            self: *const IDirect3DSurface9,
-            hdc: ?HDC,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetContainer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSurface9,
+                riid: ?*const Guid,
+                ppContainer: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSurface9,
+                riid: ?*const Guid,
+                ppContainer: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDesc: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSurface9,
+                pDesc: ?*D3DSURFACE_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSurface9,
+                pDesc: ?*D3DSURFACE_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        LockRect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSurface9,
+                pLockedRect: ?*D3DLOCKED_RECT,
+                pRect: ?*const RECT,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSurface9,
+                pLockedRect: ?*D3DLOCKED_RECT,
+                pRect: ?*const RECT,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UnlockRect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSurface9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDC: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSurface9,
+                phdc: ?*?HDC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSurface9,
+                phdc: ?*?HDC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ReleaseDC: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSurface9,
+                hdc: ?HDC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSurface9,
+                hdc: ?HDC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4253,50 +5602,105 @@ pub const IDirect3DSurface9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DVolume9_Value = @import("../zig.zig").Guid.initString("24f416e6-1f67-4aa7-b88e-d33f6f3128a1");
+const IID_IDirect3DVolume9_Value = Guid.initString("24f416e6-1f67-4aa7-b88e-d33f6f3128a1");
 pub const IID_IDirect3DVolume9 = &IID_IDirect3DVolume9_Value;
 pub const IDirect3DVolume9 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetDevice: fn(
-            self: *const IDirect3DVolume9,
-            ppDevice: ?*?*IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetPrivateData: fn(
-            self: *const IDirect3DVolume9,
-            refguid: ?*const Guid,
-            pData: ?*const anyopaque,
-            SizeOfData: u32,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPrivateData: fn(
-            self: *const IDirect3DVolume9,
-            refguid: ?*const Guid,
-            pData: ?*anyopaque,
-            pSizeOfData: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        FreePrivateData: fn(
-            self: *const IDirect3DVolume9,
-            refguid: ?*const Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetContainer: fn(
-            self: *const IDirect3DVolume9,
-            riid: ?*const Guid,
-            ppContainer: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDesc: fn(
-            self: *const IDirect3DVolume9,
-            pDesc: ?*D3DVOLUME_DESC,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        LockBox: fn(
-            self: *const IDirect3DVolume9,
-            pLockedVolume: ?*D3DLOCKED_BOX,
-            pBox: ?*const D3DBOX,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UnlockBox: fn(
-            self: *const IDirect3DVolume9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetDevice: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVolume9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVolume9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetPrivateData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVolume9,
+                refguid: ?*const Guid,
+                pData: ?*const anyopaque,
+                SizeOfData: u32,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVolume9,
+                refguid: ?*const Guid,
+                pData: ?*const anyopaque,
+                SizeOfData: u32,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPrivateData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVolume9,
+                refguid: ?*const Guid,
+                pData: ?*anyopaque,
+                pSizeOfData: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVolume9,
+                refguid: ?*const Guid,
+                pData: ?*anyopaque,
+                pSizeOfData: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        FreePrivateData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVolume9,
+                refguid: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVolume9,
+                refguid: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetContainer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVolume9,
+                riid: ?*const Guid,
+                ppContainer: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVolume9,
+                riid: ?*const Guid,
+                ppContainer: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDesc: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVolume9,
+                pDesc: ?*D3DVOLUME_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVolume9,
+                pDesc: ?*D3DVOLUME_DESC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        LockBox: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVolume9,
+                pLockedVolume: ?*D3DLOCKED_BOX,
+                pBox: ?*const D3DBOX,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVolume9,
+                pLockedVolume: ?*D3DLOCKED_BOX,
+                pBox: ?*const D3DBOX,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UnlockBox: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DVolume9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DVolume9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4337,31 +5741,61 @@ pub const IDirect3DVolume9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DQuery9_Value = @import("../zig.zig").Guid.initString("d9771460-a695-4f26-bbd3-27b840b541cc");
+const IID_IDirect3DQuery9_Value = Guid.initString("d9771460-a695-4f26-bbd3-27b840b541cc");
 pub const IID_IDirect3DQuery9 = &IID_IDirect3DQuery9_Value;
 pub const IDirect3DQuery9 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetDevice: fn(
-            self: *const IDirect3DQuery9,
-            ppDevice: ?*?*IDirect3DDevice9,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetType: fn(
-            self: *const IDirect3DQuery9,
-        ) callconv(@import("std").os.windows.WINAPI) D3DQUERYTYPE,
-        GetDataSize: fn(
-            self: *const IDirect3DQuery9,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        Issue: fn(
-            self: *const IDirect3DQuery9,
-            dwIssueFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetData: fn(
-            self: *const IDirect3DQuery9,
-            pData: ?*anyopaque,
-            dwSize: u32,
-            dwGetDataFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetDevice: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DQuery9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DQuery9,
+                ppDevice: ?*?*IDirect3DDevice9,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DQuery9,
+            ) callconv(@import("std").os.windows.WINAPI) D3DQUERYTYPE,
+            else => *const fn(
+                self: *const IDirect3DQuery9,
+            ) callconv(@import("std").os.windows.WINAPI) D3DQUERYTYPE,
+        },
+        GetDataSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DQuery9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDirect3DQuery9,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        Issue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DQuery9,
+                dwIssueFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DQuery9,
+                dwIssueFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DQuery9,
+                pData: ?*anyopaque,
+                dwSize: u32,
+                dwGetDataFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DQuery9,
+                pData: ?*anyopaque,
+                dwSize: u32,
+                dwGetDataFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4390,44 +5824,87 @@ pub const IDirect3DQuery9 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3D9Ex_Value = @import("../zig.zig").Guid.initString("02177241-69fc-400c-8ff1-93a44df6861d");
+const IID_IDirect3D9Ex_Value = Guid.initString("02177241-69fc-400c-8ff1-93a44df6861d");
 pub const IID_IDirect3D9Ex = &IID_IDirect3D9Ex_Value;
 pub const IDirect3D9Ex = extern struct {
     pub const VTable = extern struct {
         base: IDirect3D9.VTable,
-        GetAdapterModeCountEx: fn(
-            self: *const IDirect3D9Ex,
-            Adapter: u32,
-            pFilter: ?*const D3DDISPLAYMODEFILTER,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        EnumAdapterModesEx: fn(
-            self: *const IDirect3D9Ex,
-            Adapter: u32,
-            pFilter: ?*const D3DDISPLAYMODEFILTER,
-            Mode: u32,
-            pMode: ?*D3DDISPLAYMODEEX,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAdapterDisplayModeEx: fn(
-            self: *const IDirect3D9Ex,
-            Adapter: u32,
-            pMode: ?*D3DDISPLAYMODEEX,
-            pRotation: ?*D3DDISPLAYROTATION,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateDeviceEx: fn(
-            self: *const IDirect3D9Ex,
-            Adapter: u32,
-            DeviceType: D3DDEVTYPE,
-            hFocusWindow: ?HWND,
-            BehaviorFlags: u32,
-            pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
-            pFullscreenDisplayMode: ?*D3DDISPLAYMODEEX,
-            ppReturnedDeviceInterface: ?*?*IDirect3DDevice9Ex,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAdapterLUID: fn(
-            self: *const IDirect3D9Ex,
-            Adapter: u32,
-            pLUID: ?*LUID,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetAdapterModeCountEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9Ex,
+                Adapter: u32,
+                pFilter: ?*const D3DDISPLAYMODEFILTER,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDirect3D9Ex,
+                Adapter: u32,
+                pFilter: ?*const D3DDISPLAYMODEFILTER,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        EnumAdapterModesEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9Ex,
+                Adapter: u32,
+                pFilter: ?*const D3DDISPLAYMODEFILTER,
+                Mode: u32,
+                pMode: ?*D3DDISPLAYMODEEX,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9Ex,
+                Adapter: u32,
+                pFilter: ?*const D3DDISPLAYMODEFILTER,
+                Mode: u32,
+                pMode: ?*D3DDISPLAYMODEEX,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAdapterDisplayModeEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9Ex,
+                Adapter: u32,
+                pMode: ?*D3DDISPLAYMODEEX,
+                pRotation: ?*D3DDISPLAYROTATION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9Ex,
+                Adapter: u32,
+                pMode: ?*D3DDISPLAYMODEEX,
+                pRotation: ?*D3DDISPLAYROTATION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateDeviceEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9Ex,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                hFocusWindow: ?HWND,
+                BehaviorFlags: u32,
+                pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
+                pFullscreenDisplayMode: ?*D3DDISPLAYMODEEX,
+                ppReturnedDeviceInterface: ?*?*IDirect3DDevice9Ex,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9Ex,
+                Adapter: u32,
+                DeviceType: D3DDEVTYPE,
+                hFocusWindow: ?HWND,
+                BehaviorFlags: u32,
+                pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
+                pFullscreenDisplayMode: ?*D3DDISPLAYMODEEX,
+                ppReturnedDeviceInterface: ?*?*IDirect3DDevice9Ex,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAdapterLUID: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3D9Ex,
+                Adapter: u32,
+                pLUID: ?*LUID,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3D9Ex,
+                Adapter: u32,
+                pLUID: ?*LUID,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4456,111 +5933,241 @@ pub const IDirect3D9Ex = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DDevice9Ex_Value = @import("../zig.zig").Guid.initString("b18b10ce-2649-405a-870f-95f777d4313a");
+const IID_IDirect3DDevice9Ex_Value = Guid.initString("b18b10ce-2649-405a-870f-95f777d4313a");
 pub const IID_IDirect3DDevice9Ex = &IID_IDirect3DDevice9Ex_Value;
 pub const IDirect3DDevice9Ex = extern struct {
     pub const VTable = extern struct {
         base: IDirect3DDevice9.VTable,
-        SetConvolutionMonoKernel: fn(
-            self: *const IDirect3DDevice9Ex,
-            width: u32,
-            height: u32,
-            rows: ?*f32,
-            columns: ?*f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ComposeRects: fn(
-            self: *const IDirect3DDevice9Ex,
-            pSrc: ?*IDirect3DSurface9,
-            pDst: ?*IDirect3DSurface9,
-            pSrcRectDescs: ?*IDirect3DVertexBuffer9,
-            NumRects: u32,
-            pDstRectDescs: ?*IDirect3DVertexBuffer9,
-            Operation: D3DCOMPOSERECTSOP,
-            Xoffset: i32,
-            Yoffset: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        PresentEx: fn(
-            self: *const IDirect3DDevice9Ex,
-            pSourceRect: ?*const RECT,
-            pDestRect: ?*const RECT,
-            hDestWindowOverride: ?HWND,
-            pDirtyRegion: ?*const RGNDATA,
-            dwFlags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetGPUThreadPriority: fn(
-            self: *const IDirect3DDevice9Ex,
-            pPriority: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetGPUThreadPriority: fn(
-            self: *const IDirect3DDevice9Ex,
-            Priority: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        WaitForVBlank: fn(
-            self: *const IDirect3DDevice9Ex,
-            iSwapChain: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CheckResourceResidency: fn(
-            self: *const IDirect3DDevice9Ex,
-            pResourceArray: ?*?*IDirect3DResource9,
-            NumResources: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetMaximumFrameLatency: fn(
-            self: *const IDirect3DDevice9Ex,
-            MaxLatency: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetMaximumFrameLatency: fn(
-            self: *const IDirect3DDevice9Ex,
-            pMaxLatency: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CheckDeviceState: fn(
-            self: *const IDirect3DDevice9Ex,
-            hDestinationWindow: ?HWND,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateRenderTargetEx: fn(
-            self: *const IDirect3DDevice9Ex,
-            Width: u32,
-            Height: u32,
-            Format: D3DFORMAT,
-            MultiSample: D3DMULTISAMPLE_TYPE,
-            MultisampleQuality: u32,
-            Lockable: BOOL,
-            ppSurface: ?*?*IDirect3DSurface9,
-            pSharedHandle: ?*?HANDLE,
-            Usage: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateOffscreenPlainSurfaceEx: fn(
-            self: *const IDirect3DDevice9Ex,
-            Width: u32,
-            Height: u32,
-            Format: D3DFORMAT,
-            Pool: D3DPOOL,
-            ppSurface: ?*?*IDirect3DSurface9,
-            pSharedHandle: ?*?HANDLE,
-            Usage: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateDepthStencilSurfaceEx: fn(
-            self: *const IDirect3DDevice9Ex,
-            Width: u32,
-            Height: u32,
-            Format: D3DFORMAT,
-            MultiSample: D3DMULTISAMPLE_TYPE,
-            MultisampleQuality: u32,
-            Discard: BOOL,
-            ppSurface: ?*?*IDirect3DSurface9,
-            pSharedHandle: ?*?HANDLE,
-            Usage: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ResetEx: fn(
-            self: *const IDirect3DDevice9Ex,
-            pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
-            pFullscreenDisplayMode: ?*D3DDISPLAYMODEEX,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDisplayModeEx: fn(
-            self: *const IDirect3DDevice9Ex,
-            iSwapChain: u32,
-            pMode: ?*D3DDISPLAYMODEEX,
-            pRotation: ?*D3DDISPLAYROTATION,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetConvolutionMonoKernel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                width: u32,
+                height: u32,
+                rows: ?*f32,
+                columns: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                width: u32,
+                height: u32,
+                rows: ?*f32,
+                columns: ?*f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ComposeRects: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                pSrc: ?*IDirect3DSurface9,
+                pDst: ?*IDirect3DSurface9,
+                pSrcRectDescs: ?*IDirect3DVertexBuffer9,
+                NumRects: u32,
+                pDstRectDescs: ?*IDirect3DVertexBuffer9,
+                Operation: D3DCOMPOSERECTSOP,
+                Xoffset: i32,
+                Yoffset: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                pSrc: ?*IDirect3DSurface9,
+                pDst: ?*IDirect3DSurface9,
+                pSrcRectDescs: ?*IDirect3DVertexBuffer9,
+                NumRects: u32,
+                pDstRectDescs: ?*IDirect3DVertexBuffer9,
+                Operation: D3DCOMPOSERECTSOP,
+                Xoffset: i32,
+                Yoffset: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        PresentEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                pSourceRect: ?*const RECT,
+                pDestRect: ?*const RECT,
+                hDestWindowOverride: ?HWND,
+                pDirtyRegion: ?*const RGNDATA,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                pSourceRect: ?*const RECT,
+                pDestRect: ?*const RECT,
+                hDestWindowOverride: ?HWND,
+                pDirtyRegion: ?*const RGNDATA,
+                dwFlags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetGPUThreadPriority: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                pPriority: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                pPriority: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetGPUThreadPriority: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                Priority: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                Priority: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        WaitForVBlank: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                iSwapChain: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                iSwapChain: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CheckResourceResidency: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                pResourceArray: ?*?*IDirect3DResource9,
+                NumResources: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                pResourceArray: ?*?*IDirect3DResource9,
+                NumResources: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetMaximumFrameLatency: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                MaxLatency: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                MaxLatency: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetMaximumFrameLatency: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                pMaxLatency: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                pMaxLatency: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CheckDeviceState: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                hDestinationWindow: ?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                hDestinationWindow: ?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateRenderTargetEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                Width: u32,
+                Height: u32,
+                Format: D3DFORMAT,
+                MultiSample: D3DMULTISAMPLE_TYPE,
+                MultisampleQuality: u32,
+                Lockable: BOOL,
+                ppSurface: ?*?*IDirect3DSurface9,
+                pSharedHandle: ?*?HANDLE,
+                Usage: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                Width: u32,
+                Height: u32,
+                Format: D3DFORMAT,
+                MultiSample: D3DMULTISAMPLE_TYPE,
+                MultisampleQuality: u32,
+                Lockable: BOOL,
+                ppSurface: ?*?*IDirect3DSurface9,
+                pSharedHandle: ?*?HANDLE,
+                Usage: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateOffscreenPlainSurfaceEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                Width: u32,
+                Height: u32,
+                Format: D3DFORMAT,
+                Pool: D3DPOOL,
+                ppSurface: ?*?*IDirect3DSurface9,
+                pSharedHandle: ?*?HANDLE,
+                Usage: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                Width: u32,
+                Height: u32,
+                Format: D3DFORMAT,
+                Pool: D3DPOOL,
+                ppSurface: ?*?*IDirect3DSurface9,
+                pSharedHandle: ?*?HANDLE,
+                Usage: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateDepthStencilSurfaceEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                Width: u32,
+                Height: u32,
+                Format: D3DFORMAT,
+                MultiSample: D3DMULTISAMPLE_TYPE,
+                MultisampleQuality: u32,
+                Discard: BOOL,
+                ppSurface: ?*?*IDirect3DSurface9,
+                pSharedHandle: ?*?HANDLE,
+                Usage: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                Width: u32,
+                Height: u32,
+                Format: D3DFORMAT,
+                MultiSample: D3DMULTISAMPLE_TYPE,
+                MultisampleQuality: u32,
+                Discard: BOOL,
+                ppSurface: ?*?*IDirect3DSurface9,
+                pSharedHandle: ?*?HANDLE,
+                Usage: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ResetEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
+                pFullscreenDisplayMode: ?*D3DDISPLAYMODEEX,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                pPresentationParameters: ?*D3DPRESENT_PARAMETERS,
+                pFullscreenDisplayMode: ?*D3DDISPLAYMODEEX,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDisplayModeEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDevice9Ex,
+                iSwapChain: u32,
+                pMode: ?*D3DDISPLAYMODEEX,
+                pRotation: ?*D3DDISPLAYROTATION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDevice9Ex,
+                iSwapChain: u32,
+                pMode: ?*D3DDISPLAYMODEEX,
+                pRotation: ?*D3DDISPLAYROTATION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4629,24 +6236,43 @@ pub const IDirect3DDevice9Ex = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDirect3DSwapChain9Ex_Value = @import("../zig.zig").Guid.initString("91886caf-1c3d-4d2e-a0ab-3e4c7d8d3303");
+const IID_IDirect3DSwapChain9Ex_Value = Guid.initString("91886caf-1c3d-4d2e-a0ab-3e4c7d8d3303");
 pub const IID_IDirect3DSwapChain9Ex = &IID_IDirect3DSwapChain9Ex_Value;
 pub const IDirect3DSwapChain9Ex = extern struct {
     pub const VTable = extern struct {
         base: IDirect3DSwapChain9.VTable,
-        GetLastPresentCount: fn(
-            self: *const IDirect3DSwapChain9Ex,
-            pLastPresentCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPresentStats: fn(
-            self: *const IDirect3DSwapChain9Ex,
-            pPresentationStatistics: ?*D3DPRESENTSTATS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDisplayModeEx: fn(
-            self: *const IDirect3DSwapChain9Ex,
-            pMode: ?*D3DDISPLAYMODEEX,
-            pRotation: ?*D3DDISPLAYROTATION,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetLastPresentCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSwapChain9Ex,
+                pLastPresentCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSwapChain9Ex,
+                pLastPresentCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPresentStats: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSwapChain9Ex,
+                pPresentationStatistics: ?*D3DPRESENTSTATS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSwapChain9Ex,
+                pPresentationStatistics: ?*D3DPRESENTSTATS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDisplayModeEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DSwapChain9Ex,
+                pMode: ?*D3DDISPLAYMODEEX,
+                pRotation: ?*D3DDISPLAYROTATION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DSwapChain9Ex,
+                pMode: ?*D3DDISPLAYMODEEX,
+                pRotation: ?*D3DDISPLAYROTATION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4836,14 +6462,14 @@ const RGNDATA = @import("../graphics/gdi.zig").RGNDATA;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

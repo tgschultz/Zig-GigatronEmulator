@@ -117,9 +117,14 @@ pub const RM_FILTER_INFO = extern struct {
     },
 };
 
-pub const RM_WRITE_STATUS_CALLBACK = fn(
-    nPercentComplete: u32,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const RM_WRITE_STATUS_CALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        nPercentComplete: u32,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        nPercentComplete: u32,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 
 //--------------------------------------------------------------------------------
@@ -133,7 +138,7 @@ pub extern "rstrtmgr" fn RmStartSession(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "RstrtMgr" fn RmJoinSession(
+pub extern "rstrtmgr" fn RmJoinSession(
     pSessionHandle: ?*u32,
     strSessionKey: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) u32;
@@ -178,12 +183,12 @@ pub extern "rstrtmgr" fn RmRestart(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "RstrtMgr" fn RmCancelCurrentTask(
+pub extern "rstrtmgr" fn RmCancelCurrentTask(
     dwSessionHandle: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "RstrtMgr" fn RmAddFilter(
+pub extern "rstrtmgr" fn RmAddFilter(
     dwSessionHandle: u32,
     strModuleName: ?[*:0]const u16,
     pProcess: ?*RM_UNIQUE_PROCESS,
@@ -192,7 +197,7 @@ pub extern "RstrtMgr" fn RmAddFilter(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "RstrtMgr" fn RmRemoveFilter(
+pub extern "rstrtmgr" fn RmRemoveFilter(
     dwSessionHandle: u32,
     strModuleName: ?[*:0]const u16,
     pProcess: ?*RM_UNIQUE_PROCESS,
@@ -200,7 +205,7 @@ pub extern "RstrtMgr" fn RmRemoveFilter(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "RstrtMgr" fn RmGetFilterList(
+pub extern "rstrtmgr" fn RmGetFilterList(
     dwSessionHandle: u32,
     // TODO: what to do with BytesParamIndex 2?
     pbFilterBuf: ?*u8,
@@ -234,14 +239,14 @@ test {
     if (@hasDecl(@This(), "RM_WRITE_STATUS_CALLBACK")) { _ = RM_WRITE_STATUS_CALLBACK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

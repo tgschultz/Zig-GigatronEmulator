@@ -42,26 +42,42 @@ pub const DefaultBehavior = AUTHNEXTSTEP.DefaultBehavior;
 pub const RetryRequest = AUTHNEXTSTEP.RetryRequest;
 pub const CancelRequest = AUTHNEXTSTEP.CancelRequest;
 
-pub const PFNDAVAUTHCALLBACK_FREECRED = fn(
-    pbuffer: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PFNDAVAUTHCALLBACK_FREECRED = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pbuffer: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        pbuffer: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const PFNDAVAUTHCALLBACK = fn(
-    lpwzServerName: ?PWSTR,
-    lpwzRemoteName: ?PWSTR,
-    dwAuthScheme: u32,
-    dwFlags: u32,
-    pCallbackCred: ?*DAV_CALLBACK_CRED,
-    NextStep: ?*AUTHNEXTSTEP,
-    pFreeCred: ?*?PFNDAVAUTHCALLBACK_FREECRED,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PFNDAVAUTHCALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        lpwzServerName: ?PWSTR,
+        lpwzRemoteName: ?PWSTR,
+        dwAuthScheme: u32,
+        dwFlags: u32,
+        pCallbackCred: ?*DAV_CALLBACK_CRED,
+        NextStep: ?*AUTHNEXTSTEP,
+        pFreeCred: ?*?PFNDAVAUTHCALLBACK_FREECRED,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        lpwzServerName: ?PWSTR,
+        lpwzRemoteName: ?PWSTR,
+        dwAuthScheme: u32,
+        dwFlags: u32,
+        pCallbackCred: ?*DAV_CALLBACK_CRED,
+        NextStep: ?*AUTHNEXTSTEP,
+        pFreeCred: ?*?PFNDAVAUTHCALLBACK_FREECRED,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
 
 //--------------------------------------------------------------------------------
 // Section: Functions (11)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NETAPI32" fn DavAddConnection(
+pub extern "netapi32" fn DavAddConnection(
     ConnectionHandle: ?*?HANDLE,
     RemoteName: ?[*:0]const u16,
     UserName: ?[*:0]const u16,
@@ -72,19 +88,19 @@ pub extern "NETAPI32" fn DavAddConnection(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NETAPI32" fn DavDeleteConnection(
+pub extern "netapi32" fn DavDeleteConnection(
     ConnectionHandle: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NETAPI32" fn DavGetUNCFromHTTPPath(
+pub extern "netapi32" fn DavGetUNCFromHTTPPath(
     Url: ?[*:0]const u16,
     UncPath: ?[*:0]u16,
     lpSize: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NETAPI32" fn DavGetHTTPFromUNCPath(
+pub extern "netapi32" fn DavGetHTTPFromUNCPath(
     UncPath: ?[*:0]const u16,
     Url: ?[*:0]u16,
     lpSize: ?*u32,
@@ -99,7 +115,7 @@ pub extern "davclnt" fn DavGetTheLockOwnerOfTheFile(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NETAPI32" fn DavGetExtendedError(
+pub extern "netapi32" fn DavGetExtendedError(
     hFile: ?HANDLE,
     ExtError: ?*u32,
     ExtErrorString: [*:0]u16,
@@ -107,7 +123,7 @@ pub extern "NETAPI32" fn DavGetExtendedError(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "NETAPI32" fn DavFlushFile(
+pub extern "netapi32" fn DavFlushFile(
     hFile: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
@@ -160,14 +176,14 @@ test {
     if (@hasDecl(@This(), "PFNDAVAUTHCALLBACK")) { _ = PFNDAVAUTHCALLBACK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

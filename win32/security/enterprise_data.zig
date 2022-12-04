@@ -6,25 +6,43 @@
 //--------------------------------------------------------------------------------
 // Section: Types (8)
 //--------------------------------------------------------------------------------
-const IID_IProtectionPolicyManagerInterop_Value = @import("../zig.zig").Guid.initString("4652651d-c1fe-4ba1-9f0a-c0f56596f721");
+const IID_IProtectionPolicyManagerInterop_Value = Guid.initString("4652651d-c1fe-4ba1-9f0a-c0f56596f721");
 pub const IID_IProtectionPolicyManagerInterop = &IID_IProtectionPolicyManagerInterop_Value;
 pub const IProtectionPolicyManagerInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        RequestAccessForWindowAsync: fn(
-            self: *const IProtectionPolicyManagerInterop,
-            appWindow: ?HWND,
-            sourceIdentity: ?HSTRING,
-            targetIdentity: ?HSTRING,
-            riid: ?*const Guid,
-            asyncOperation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetForWindow: fn(
-            self: *const IProtectionPolicyManagerInterop,
-            appWindow: ?HWND,
-            riid: ?*const Guid,
-            result: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        RequestAccessForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IProtectionPolicyManagerInterop,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                targetIdentity: ?HSTRING,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IProtectionPolicyManagerInterop,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                targetIdentity: ?HSTRING,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IProtectionPolicyManagerInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                result: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IProtectionPolicyManagerInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                result: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -41,57 +59,113 @@ pub const IProtectionPolicyManagerInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IProtectionPolicyManagerInterop2_Value = @import("../zig.zig").Guid.initString("157cfbe4-a78d-4156-b384-61fdac41e686");
+const IID_IProtectionPolicyManagerInterop2_Value = Guid.initString("157cfbe4-a78d-4156-b384-61fdac41e686");
 pub const IID_IProtectionPolicyManagerInterop2 = &IID_IProtectionPolicyManagerInterop2_Value;
 pub const IProtectionPolicyManagerInterop2 = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        RequestAccessForAppWithWindowAsync: fn(
-            self: *const IProtectionPolicyManagerInterop2,
-            appWindow: ?HWND,
-            sourceIdentity: ?HSTRING,
-            appPackageFamilyName: ?HSTRING,
-            riid: ?*const Guid,
-            asyncOperation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestAccessWithAuditingInfoForWindowAsync: fn(
-            self: *const IProtectionPolicyManagerInterop2,
-            appWindow: ?HWND,
-            sourceIdentity: ?HSTRING,
-            targetIdentity: ?HSTRING,
-            auditInfoUnk: ?*IUnknown,
-            riid: ?*const Guid,
-            asyncOperation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestAccessWithMessageForWindowAsync: fn(
-            self: *const IProtectionPolicyManagerInterop2,
-            appWindow: ?HWND,
-            sourceIdentity: ?HSTRING,
-            targetIdentity: ?HSTRING,
-            auditInfoUnk: ?*IUnknown,
-            messageFromApp: ?HSTRING,
-            riid: ?*const Guid,
-            asyncOperation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestAccessForAppWithAuditingInfoForWindowAsync: fn(
-            self: *const IProtectionPolicyManagerInterop2,
-            appWindow: ?HWND,
-            sourceIdentity: ?HSTRING,
-            appPackageFamilyName: ?HSTRING,
-            auditInfoUnk: ?*IUnknown,
-            riid: ?*const Guid,
-            asyncOperation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestAccessForAppWithMessageForWindowAsync: fn(
-            self: *const IProtectionPolicyManagerInterop2,
-            appWindow: ?HWND,
-            sourceIdentity: ?HSTRING,
-            appPackageFamilyName: ?HSTRING,
-            auditInfoUnk: ?*IUnknown,
-            messageFromApp: ?HSTRING,
-            riid: ?*const Guid,
-            asyncOperation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        RequestAccessForAppWithWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IProtectionPolicyManagerInterop2,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                appPackageFamilyName: ?HSTRING,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IProtectionPolicyManagerInterop2,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                appPackageFamilyName: ?HSTRING,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestAccessWithAuditingInfoForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IProtectionPolicyManagerInterop2,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                targetIdentity: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IProtectionPolicyManagerInterop2,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                targetIdentity: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestAccessWithMessageForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IProtectionPolicyManagerInterop2,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                targetIdentity: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                messageFromApp: ?HSTRING,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IProtectionPolicyManagerInterop2,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                targetIdentity: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                messageFromApp: ?HSTRING,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestAccessForAppWithAuditingInfoForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IProtectionPolicyManagerInterop2,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                appPackageFamilyName: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IProtectionPolicyManagerInterop2,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                appPackageFamilyName: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestAccessForAppWithMessageForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IProtectionPolicyManagerInterop2,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                appPackageFamilyName: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                messageFromApp: ?HSTRING,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IProtectionPolicyManagerInterop2,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                appPackageFamilyName: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                messageFromApp: ?HSTRING,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -120,73 +194,147 @@ pub const IProtectionPolicyManagerInterop2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IProtectionPolicyManagerInterop3_Value = @import("../zig.zig").Guid.initString("c1c03933-b398-4d93-b0fd-2972adf802c2");
+const IID_IProtectionPolicyManagerInterop3_Value = Guid.initString("c1c03933-b398-4d93-b0fd-2972adf802c2");
 pub const IID_IProtectionPolicyManagerInterop3 = &IID_IProtectionPolicyManagerInterop3_Value;
 pub const IProtectionPolicyManagerInterop3 = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        RequestAccessWithBehaviorForWindowAsync: fn(
-            self: *const IProtectionPolicyManagerInterop3,
-            appWindow: ?HWND,
-            sourceIdentity: ?HSTRING,
-            targetIdentity: ?HSTRING,
-            auditInfoUnk: ?*IUnknown,
-            messageFromApp: ?HSTRING,
-            behavior: u32,
-            riid: ?*const Guid,
-            asyncOperation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestAccessForAppWithBehaviorForWindowAsync: fn(
-            self: *const IProtectionPolicyManagerInterop3,
-            appWindow: ?HWND,
-            sourceIdentity: ?HSTRING,
-            appPackageFamilyName: ?HSTRING,
-            auditInfoUnk: ?*IUnknown,
-            messageFromApp: ?HSTRING,
-            behavior: u32,
-            riid: ?*const Guid,
-            asyncOperation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestAccessToFilesForAppForWindowAsync: fn(
-            self: *const IProtectionPolicyManagerInterop3,
-            appWindow: ?HWND,
-            sourceItemListUnk: ?*IUnknown,
-            appPackageFamilyName: ?HSTRING,
-            auditInfoUnk: ?*IUnknown,
-            riid: ?*const Guid,
-            asyncOperation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestAccessToFilesForAppWithMessageAndBehaviorForWindowAsync: fn(
-            self: *const IProtectionPolicyManagerInterop3,
-            appWindow: ?HWND,
-            sourceItemListUnk: ?*IUnknown,
-            appPackageFamilyName: ?HSTRING,
-            auditInfoUnk: ?*IUnknown,
-            messageFromApp: ?HSTRING,
-            behavior: u32,
-            riid: ?*const Guid,
-            asyncOperation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestAccessToFilesForProcessForWindowAsync: fn(
-            self: *const IProtectionPolicyManagerInterop3,
-            appWindow: ?HWND,
-            sourceItemListUnk: ?*IUnknown,
-            processId: u32,
-            auditInfoUnk: ?*IUnknown,
-            riid: ?*const Guid,
-            asyncOperation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestAccessToFilesForProcessWithMessageAndBehaviorForWindowAsync: fn(
-            self: *const IProtectionPolicyManagerInterop3,
-            appWindow: ?HWND,
-            sourceItemListUnk: ?*IUnknown,
-            processId: u32,
-            auditInfoUnk: ?*IUnknown,
-            messageFromApp: ?HSTRING,
-            behavior: u32,
-            riid: ?*const Guid,
-            asyncOperation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        RequestAccessWithBehaviorForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IProtectionPolicyManagerInterop3,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                targetIdentity: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                messageFromApp: ?HSTRING,
+                behavior: u32,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IProtectionPolicyManagerInterop3,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                targetIdentity: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                messageFromApp: ?HSTRING,
+                behavior: u32,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestAccessForAppWithBehaviorForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IProtectionPolicyManagerInterop3,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                appPackageFamilyName: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                messageFromApp: ?HSTRING,
+                behavior: u32,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IProtectionPolicyManagerInterop3,
+                appWindow: ?HWND,
+                sourceIdentity: ?HSTRING,
+                appPackageFamilyName: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                messageFromApp: ?HSTRING,
+                behavior: u32,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestAccessToFilesForAppForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IProtectionPolicyManagerInterop3,
+                appWindow: ?HWND,
+                sourceItemListUnk: ?*IUnknown,
+                appPackageFamilyName: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IProtectionPolicyManagerInterop3,
+                appWindow: ?HWND,
+                sourceItemListUnk: ?*IUnknown,
+                appPackageFamilyName: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestAccessToFilesForAppWithMessageAndBehaviorForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IProtectionPolicyManagerInterop3,
+                appWindow: ?HWND,
+                sourceItemListUnk: ?*IUnknown,
+                appPackageFamilyName: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                messageFromApp: ?HSTRING,
+                behavior: u32,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IProtectionPolicyManagerInterop3,
+                appWindow: ?HWND,
+                sourceItemListUnk: ?*IUnknown,
+                appPackageFamilyName: ?HSTRING,
+                auditInfoUnk: ?*IUnknown,
+                messageFromApp: ?HSTRING,
+                behavior: u32,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestAccessToFilesForProcessForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IProtectionPolicyManagerInterop3,
+                appWindow: ?HWND,
+                sourceItemListUnk: ?*IUnknown,
+                processId: u32,
+                auditInfoUnk: ?*IUnknown,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IProtectionPolicyManagerInterop3,
+                appWindow: ?HWND,
+                sourceItemListUnk: ?*IUnknown,
+                processId: u32,
+                auditInfoUnk: ?*IUnknown,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestAccessToFilesForProcessWithMessageAndBehaviorForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IProtectionPolicyManagerInterop3,
+                appWindow: ?HWND,
+                sourceItemListUnk: ?*IUnknown,
+                processId: u32,
+                auditInfoUnk: ?*IUnknown,
+                messageFromApp: ?HSTRING,
+                behavior: u32,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IProtectionPolicyManagerInterop3,
+                appWindow: ?HWND,
+                sourceItemListUnk: ?*IUnknown,
+                processId: u32,
+                auditInfoUnk: ?*IUnknown,
+                messageFromApp: ?HSTRING,
+                behavior: u32,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -377,14 +525,14 @@ const PWSTR = @import("../foundation.zig").PWSTR;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

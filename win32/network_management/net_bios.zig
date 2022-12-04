@@ -209,7 +209,7 @@ pub const NCB = switch(@import("../zig.zig").arch) {
 // Section: Functions (1)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows5.0'
-pub extern "NETAPI32" fn Netbios(
+pub extern "netapi32" fn Netbios(
     pncb: ?*NCB,
 ) callconv(@import("std").os.windows.WINAPI) u8;
 
@@ -234,14 +234,14 @@ const HANDLE = @import("../foundation.zig").HANDLE;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

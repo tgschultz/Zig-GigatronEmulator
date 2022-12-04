@@ -24,15 +24,27 @@ pub const COMPRESS_ALGORITHM_LZMS = COMPRESS_ALGORITHM.LZMS;
 // TODO: this type has a FreeFunc 'CloseDecompressor', what can Zig do with this information?
 pub const COMPRESSOR_HANDLE = isize;
 
-pub const PFN_COMPRESS_ALLOCATE = fn(
-    UserContext: ?*anyopaque,
-    Size: usize,
-) callconv(@import("std").os.windows.WINAPI) ?*anyopaque;
+pub const PFN_COMPRESS_ALLOCATE = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        UserContext: ?*anyopaque,
+        Size: usize,
+    ) callconv(@import("std").os.windows.WINAPI) ?*anyopaque,
+    else => *const fn(
+        UserContext: ?*anyopaque,
+        Size: usize,
+    ) callconv(@import("std").os.windows.WINAPI) ?*anyopaque,
+} ;
 
-pub const PFN_COMPRESS_FREE = fn(
-    UserContext: ?*anyopaque,
-    Memory: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const PFN_COMPRESS_FREE = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        UserContext: ?*anyopaque,
+        Memory: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        UserContext: ?*anyopaque,
+        Memory: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 pub const COMPRESS_ALLOCATION_ROUTINES = extern struct {
     Allocate: ?PFN_COMPRESS_ALLOCATE,
@@ -54,14 +66,14 @@ pub const COMPRESS_INFORMATION_CLASS_LEVEL = COMPRESS_INFORMATION_CLASS.LEVEL;
 // Section: Functions (12)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "Cabinet" fn CreateCompressor(
+pub extern "cabinet" fn CreateCompressor(
     Algorithm: COMPRESS_ALGORITHM,
     AllocationRoutines: ?*COMPRESS_ALLOCATION_ROUTINES,
     CompressorHandle: ?*isize,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "Cabinet" fn SetCompressorInformation(
+pub extern "cabinet" fn SetCompressorInformation(
     CompressorHandle: COMPRESSOR_HANDLE,
     CompressInformationClass: COMPRESS_INFORMATION_CLASS,
     // TODO: what to do with BytesParamIndex 3?
@@ -70,7 +82,7 @@ pub extern "Cabinet" fn SetCompressorInformation(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "Cabinet" fn QueryCompressorInformation(
+pub extern "cabinet" fn QueryCompressorInformation(
     CompressorHandle: COMPRESSOR_HANDLE,
     CompressInformationClass: COMPRESS_INFORMATION_CLASS,
     // TODO: what to do with BytesParamIndex 3?
@@ -79,7 +91,7 @@ pub extern "Cabinet" fn QueryCompressorInformation(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "Cabinet" fn Compress(
+pub extern "cabinet" fn Compress(
     CompressorHandle: COMPRESSOR_HANDLE,
     // TODO: what to do with BytesParamIndex 2?
     UncompressedData: ?*const anyopaque,
@@ -91,24 +103,24 @@ pub extern "Cabinet" fn Compress(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "Cabinet" fn ResetCompressor(
+pub extern "cabinet" fn ResetCompressor(
     CompressorHandle: COMPRESSOR_HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "Cabinet" fn CloseCompressor(
+pub extern "cabinet" fn CloseCompressor(
     CompressorHandle: COMPRESSOR_HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "Cabinet" fn CreateDecompressor(
+pub extern "cabinet" fn CreateDecompressor(
     Algorithm: COMPRESS_ALGORITHM,
     AllocationRoutines: ?*COMPRESS_ALLOCATION_ROUTINES,
     DecompressorHandle: ?*isize,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "Cabinet" fn SetDecompressorInformation(
+pub extern "cabinet" fn SetDecompressorInformation(
     DecompressorHandle: isize,
     CompressInformationClass: COMPRESS_INFORMATION_CLASS,
     // TODO: what to do with BytesParamIndex 3?
@@ -117,7 +129,7 @@ pub extern "Cabinet" fn SetDecompressorInformation(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "Cabinet" fn QueryDecompressorInformation(
+pub extern "cabinet" fn QueryDecompressorInformation(
     DecompressorHandle: isize,
     CompressInformationClass: COMPRESS_INFORMATION_CLASS,
     // TODO: what to do with BytesParamIndex 3?
@@ -126,7 +138,7 @@ pub extern "Cabinet" fn QueryDecompressorInformation(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "Cabinet" fn Decompress(
+pub extern "cabinet" fn Decompress(
     DecompressorHandle: isize,
     // TODO: what to do with BytesParamIndex 2?
     CompressedData: ?*const anyopaque,
@@ -138,12 +150,12 @@ pub extern "Cabinet" fn Decompress(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "Cabinet" fn ResetDecompressor(
+pub extern "cabinet" fn ResetDecompressor(
     DecompressorHandle: isize,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "Cabinet" fn CloseDecompressor(
+pub extern "cabinet" fn CloseDecompressor(
     DecompressorHandle: isize,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
@@ -172,14 +184,14 @@ test {
     if (@hasDecl(@This(), "PFN_COMPRESS_FREE")) { _ = PFN_COMPRESS_FREE; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

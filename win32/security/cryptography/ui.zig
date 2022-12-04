@@ -403,19 +403,35 @@ pub const CTL_MODIFY_REQUEST_ADD_TRUSTED = CTL_MODIFY_REQUEST_OPERATION.ADD_TRUS
 pub const CTL_MODIFY_REQUEST_ADD_NOT_TRUSTED = CTL_MODIFY_REQUEST_OPERATION.ADD_NOT_TRUSTED;
 pub const CTL_MODIFY_REQUEST_REMOVE = CTL_MODIFY_REQUEST_OPERATION.REMOVE;
 
-pub const PFNCMFILTERPROC = fn(
-    pCertContext: ?*const CERT_CONTEXT,
-    param1: LPARAM,
-    param2: u32,
-    param3: u32,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const PFNCMFILTERPROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pCertContext: ?*const CERT_CONTEXT,
+        param1: LPARAM,
+        param2: u32,
+        param3: u32,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        pCertContext: ?*const CERT_CONTEXT,
+        param1: LPARAM,
+        param2: u32,
+        param3: u32,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
-pub const PFNCMHOOKPROC = fn(
-    hwndDialog: ?HWND,
-    message: u32,
-    wParam: WPARAM,
-    lParam: LPARAM,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const PFNCMHOOKPROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        hwndDialog: ?HWND,
+        message: u32,
+        wParam: WPARAM,
+        lParam: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        hwndDialog: ?HWND,
+        message: u32,
+        wParam: WPARAM,
+        lParam: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
 pub const CERT_SELECT_STRUCT_A = extern struct {
     dwSize: u32,
@@ -521,12 +537,20 @@ pub const CMFLTR = extern struct {
     dwCheckingFlags: u32,
 };
 
-pub const PFNTRUSTHELPER = fn(
-    pCertContext: ?*const CERT_CONTEXT,
-    lCustData: LPARAM,
-    fLeafCertificate: BOOL,
-    pbTrustBlob: ?*u8,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PFNTRUSTHELPER = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pCertContext: ?*const CERT_CONTEXT,
+        lCustData: LPARAM,
+        fLeafCertificate: BOOL,
+        pbTrustBlob: ?*u8,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pCertContext: ?*const CERT_CONTEXT,
+        lCustData: LPARAM,
+        fLeafCertificate: BOOL,
+        pbTrustBlob: ?*u8,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
 pub const CERT_VERIFY_CERTIFICATE_TRUST = extern struct {
     cbSize: u32,
@@ -556,11 +580,18 @@ pub const CTL_MODIFY_REQUEST = extern struct {
     dwError: u32,
 };
 
-pub const PFNCFILTERPROC = fn(
-    pCertContext: ?*const CERT_CONTEXT,
-    pfInitialSelectedCert: ?*BOOL,
-    pvCallbackData: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const PFNCFILTERPROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pCertContext: ?*const CERT_CONTEXT,
+        pfInitialSelectedCert: ?*BOOL,
+        pvCallbackData: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        pCertContext: ?*const CERT_CONTEXT,
+        pfInitialSelectedCert: ?*BOOL,
+        pvCallbackData: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
 pub const CERT_SELECTUI_INPUT = extern struct {
     hStore: ?*anyopaque,
@@ -740,7 +771,7 @@ pub const CRYPTUI_WIZ_IMPORT_SRC_INFO = extern struct {
 // Section: Functions (10)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "CRYPTUI" fn CryptUIDlgViewContext(
+pub extern "cryptui" fn CryptUIDlgViewContext(
     dwContextType: u32,
     pvContext: ?*const anyopaque,
     hwnd: ?HWND,
@@ -750,7 +781,7 @@ pub extern "CRYPTUI" fn CryptUIDlgViewContext(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "CRYPTUI" fn CryptUIDlgSelectCertificateFromStore(
+pub extern "cryptui" fn CryptUIDlgSelectCertificateFromStore(
     hCertStore: ?*anyopaque,
     hwnd: ?HWND,
     pwszTitle: ?[*:0]const u16,
@@ -761,19 +792,19 @@ pub extern "CRYPTUI" fn CryptUIDlgSelectCertificateFromStore(
 ) callconv(@import("std").os.windows.WINAPI) ?*CERT_CONTEXT;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "CRYPTUI" fn CertSelectionGetSerializedBlob(
+pub extern "cryptui" fn CertSelectionGetSerializedBlob(
     pcsi: ?*CERT_SELECTUI_INPUT,
     ppOutBuffer: ?*?*anyopaque,
     pulOutBufferSize: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "CRYPTUI" fn CryptUIDlgCertMgr(
+pub extern "cryptui" fn CryptUIDlgCertMgr(
     pCryptUICertMgr: ?*CRYPTUI_CERT_MGR_STRUCT,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "CRYPTUI" fn CryptUIWizDigitalSign(
+pub extern "cryptui" fn CryptUIWizDigitalSign(
     dwFlags: u32,
     hwndParent: ?HWND,
     pwszWizardTitle: ?[*:0]const u16,
@@ -782,24 +813,24 @@ pub extern "CRYPTUI" fn CryptUIWizDigitalSign(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "CRYPTUI" fn CryptUIWizFreeDigitalSignContext(
+pub extern "cryptui" fn CryptUIWizFreeDigitalSignContext(
     pSignContext: ?*CRYPTUI_WIZ_DIGITAL_SIGN_CONTEXT,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "CRYPTUI" fn CryptUIDlgViewCertificateW(
+pub extern "cryptui" fn CryptUIDlgViewCertificateW(
     pCertViewInfo: ?*CRYPTUI_VIEWCERTIFICATE_STRUCTW,
     pfPropertiesChanged: ?*BOOL,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "CRYPTUI" fn CryptUIDlgViewCertificateA(
+pub extern "cryptui" fn CryptUIDlgViewCertificateA(
     pCertViewInfo: ?*CRYPTUI_VIEWCERTIFICATE_STRUCTA,
     pfPropertiesChanged: ?*BOOL,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "CRYPTUI" fn CryptUIWizExport(
+pub extern "cryptui" fn CryptUIWizExport(
     dwFlags: CRYPTUI_WIZ_FLAGS,
     hwndParent: ?HWND,
     pwszWizardTitle: ?[*:0]const u16,
@@ -808,7 +839,7 @@ pub extern "CRYPTUI" fn CryptUIWizExport(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "CRYPTUI" fn CryptUIWizImport(
+pub extern "cryptui" fn CryptUIWizImport(
     dwFlags: CRYPTUI_WIZ_FLAGS,
     hwndParent: ?HWND,
     pwszWizardTitle: ?[*:0]const u16,
@@ -879,14 +910,14 @@ test {
     if (@hasDecl(@This(), "PFNCFILTERPROC")) { _ = PFNCFILTERPROC; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

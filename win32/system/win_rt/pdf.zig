@@ -6,10 +6,16 @@
 //--------------------------------------------------------------------------------
 // Section: Types (3)
 //--------------------------------------------------------------------------------
-pub const PFN_PDF_CREATE_RENDERER = fn(
-    param0: ?*IDXGIDevice,
-    param1: ?*?*IPdfRendererNative,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PFN_PDF_CREATE_RENDERER = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?*IDXGIDevice,
+        param1: ?*?*IPdfRendererNative,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        param0: ?*IDXGIDevice,
+        param1: ?*?*IPdfRendererNative,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
 pub const PDF_RENDER_PARAMS = extern struct {
     SourceRect: D2D_RECT_F,
@@ -19,24 +25,41 @@ pub const PDF_RENDER_PARAMS = extern struct {
     IgnoreHighContrast: BOOLEAN,
 };
 
-const IID_IPdfRendererNative_Value = @import("../../zig.zig").Guid.initString("7d9dcd91-d277-4947-8527-07a0daeda94a");
+const IID_IPdfRendererNative_Value = Guid.initString("7d9dcd91-d277-4947-8527-07a0daeda94a");
 pub const IID_IPdfRendererNative = &IID_IPdfRendererNative_Value;
 pub const IPdfRendererNative = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        RenderPageToSurface: fn(
-            self: *const IPdfRendererNative,
-            pdfPage: ?*IUnknown,
-            pSurface: ?*IDXGISurface,
-            offset: POINT,
-            pRenderParams: ?*PDF_RENDER_PARAMS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RenderPageToDeviceContext: fn(
-            self: *const IPdfRendererNative,
-            pdfPage: ?*IUnknown,
-            pD2DDeviceContext: ?*ID2D1DeviceContext,
-            pRenderParams: ?*PDF_RENDER_PARAMS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        RenderPageToSurface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPdfRendererNative,
+                pdfPage: ?*IUnknown,
+                pSurface: ?*IDXGISurface,
+                offset: POINT,
+                pRenderParams: ?*PDF_RENDER_PARAMS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPdfRendererNative,
+                pdfPage: ?*IUnknown,
+                pSurface: ?*IDXGISurface,
+                offset: POINT,
+                pRenderParams: ?*PDF_RENDER_PARAMS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RenderPageToDeviceContext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPdfRendererNative,
+                pdfPage: ?*IUnknown,
+                pD2DDeviceContext: ?*ID2D1DeviceContext,
+                pRenderParams: ?*PDF_RENDER_PARAMS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPdfRendererNative,
+                pdfPage: ?*IUnknown,
+                pD2DDeviceContext: ?*ID2D1DeviceContext,
+                pRenderParams: ?*PDF_RENDER_PARAMS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -57,7 +80,7 @@ pub const IPdfRendererNative = extern struct {
 //--------------------------------------------------------------------------------
 // Section: Functions (1)
 //--------------------------------------------------------------------------------
-pub extern "Windows.Data.Pdf" fn PdfCreateRenderer(
+pub extern "windows.data.pdf" fn PdfCreateRenderer(
     pDevice: ?*IDXGIDevice,
     ppRenderer: ?*?*IPdfRendererNative,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
@@ -77,8 +100,9 @@ pub usingnamespace switch (@import("../../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (9)
+// Section: Imports (10)
 //--------------------------------------------------------------------------------
+const Guid = @import("../../zig.zig").Guid;
 const BOOLEAN = @import("../../foundation.zig").BOOLEAN;
 const D2D_COLOR_F = @import("../../graphics/direct2d/common.zig").D2D_COLOR_F;
 const D2D_RECT_F = @import("../../graphics/direct2d/common.zig").D2D_RECT_F;
@@ -94,14 +118,14 @@ test {
     if (@hasDecl(@This(), "PFN_PDF_CREATE_RENDERER")) { _ = PFN_PDF_CREATE_RENDERER; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

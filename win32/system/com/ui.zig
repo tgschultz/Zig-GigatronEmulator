@@ -6,24 +6,41 @@
 //--------------------------------------------------------------------------------
 // Section: Types (2)
 //--------------------------------------------------------------------------------
-const IID_IThumbnailExtractor_Value = @import("../../zig.zig").Guid.initString("969dc708-5c76-11d1-8d86-0000f804b057");
+const IID_IThumbnailExtractor_Value = Guid.initString("969dc708-5c76-11d1-8d86-0000f804b057");
 pub const IID_IThumbnailExtractor = &IID_IThumbnailExtractor_Value;
 pub const IThumbnailExtractor = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ExtractThumbnail: fn(
-            self: *const IThumbnailExtractor,
-            pStg: ?*IStorage,
-            ulLength: u32,
-            ulHeight: u32,
-            pulOutputLength: ?*u32,
-            pulOutputHeight: ?*u32,
-            phOutputBitmap: ?*?HBITMAP,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnFileUpdated: fn(
-            self: *const IThumbnailExtractor,
-            pStg: ?*IStorage,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ExtractThumbnail: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IThumbnailExtractor,
+                pStg: ?*IStorage,
+                ulLength: u32,
+                ulHeight: u32,
+                pulOutputLength: ?*u32,
+                pulOutputHeight: ?*u32,
+                phOutputBitmap: ?*?HBITMAP,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IThumbnailExtractor,
+                pStg: ?*IStorage,
+                ulLength: u32,
+                ulHeight: u32,
+                pulOutputLength: ?*u32,
+                pulOutputHeight: ?*u32,
+                phOutputBitmap: ?*?HBITMAP,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnFileUpdated: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IThumbnailExtractor,
+                pStg: ?*IStorage,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IThumbnailExtractor,
+                pStg: ?*IStorage,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -40,16 +57,23 @@ pub const IThumbnailExtractor = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDummyHICONIncluder_Value = @import("../../zig.zig").Guid.initString("947990de-cc28-11d2-a0f7-00805f858fb1");
+const IID_IDummyHICONIncluder_Value = Guid.initString("947990de-cc28-11d2-a0f7-00805f858fb1");
 pub const IID_IDummyHICONIncluder = &IID_IDummyHICONIncluder_Value;
 pub const IDummyHICONIncluder = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Dummy: fn(
-            self: *const IDummyHICONIncluder,
-            h1: ?HICON,
-            h2: ?HDC,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Dummy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDummyHICONIncluder,
+                h1: ?HICON,
+                h2: ?HDC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDummyHICONIncluder,
+                h1: ?HICON,
+                h2: ?HDC,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -81,8 +105,9 @@ pub usingnamespace switch (@import("../../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (6)
+// Section: Imports (7)
 //--------------------------------------------------------------------------------
+const Guid = @import("../../zig.zig").Guid;
 const HBITMAP = @import("../../graphics/gdi.zig").HBITMAP;
 const HDC = @import("../../graphics/gdi.zig").HDC;
 const HICON = @import("../../ui/windows_and_messaging.zig").HICON;
@@ -92,14 +117,14 @@ const IUnknown = @import("../../system/com.zig").IUnknown;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

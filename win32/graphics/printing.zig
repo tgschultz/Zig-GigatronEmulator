@@ -1298,13 +1298,13 @@ pub const CLSID_XPSRASTERIZER_FACTORY = Guid.initString("503e79bf-1d09-4764-9d72
 //--------------------------------------------------------------------------------
 // Section: Types (370)
 //--------------------------------------------------------------------------------
-const CLSID_BidiRequest_Value = @import("../zig.zig").Guid.initString("b9162a23-45f9-47cc-80f5-fe0fe9b9e1a2");
+const CLSID_BidiRequest_Value = Guid.initString("b9162a23-45f9-47cc-80f5-fe0fe9b9e1a2");
 pub const CLSID_BidiRequest = &CLSID_BidiRequest_Value;
 
-const CLSID_BidiRequestContainer_Value = @import("../zig.zig").Guid.initString("fc5b8a24-db05-4a01-8388-22edf6c2bbba");
+const CLSID_BidiRequestContainer_Value = Guid.initString("fc5b8a24-db05-4a01-8388-22edf6c2bbba");
 pub const CLSID_BidiRequestContainer = &CLSID_BidiRequestContainer_Value;
 
-const CLSID_BidiSpl_Value = @import("../zig.zig").Guid.initString("2a614240-a4c5-4c33-bd87-1bc709331639");
+const CLSID_BidiSpl_Value = Guid.initString("2a614240-a4c5-4c33-bd87-1bc709331639");
 pub const CLSID_BidiSpl = &CLSID_BidiSpl_Value;
 
 pub const IBidiRequestVtbl = extern struct {
@@ -1912,9 +1912,14 @@ pub const CPSUICBPARAM = extern struct {
     Result: usize,
 };
 
-pub const _CPSUICALLBACK = fn(
-    pCPSUICBParam: ?*CPSUICBPARAM,
-) callconv(@import("std").os.windows.WINAPI) i32;
+pub const _CPSUICALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pCPSUICBParam: ?*CPSUICBPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) i32,
+    else => *const fn(
+        pCPSUICBParam: ?*CPSUICBPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) i32,
+} ;
 
 pub const DLGPAGE = extern struct {
     cbSize: u16,
@@ -1963,12 +1968,20 @@ pub const INSERTPSUIPAGE_INFO = extern struct {
     dwData3: usize,
 };
 
-pub const PFNCOMPROPSHEET = fn(
-    hComPropSheet: ?HANDLE,
-    Function: u32,
-    lParam1: LPARAM,
-    lParam2: LPARAM,
-) callconv(@import("std").os.windows.WINAPI) isize;
+pub const PFNCOMPROPSHEET = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        hComPropSheet: ?HANDLE,
+        Function: u32,
+        lParam1: LPARAM,
+        lParam2: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) isize,
+    else => *const fn(
+        hComPropSheet: ?HANDLE,
+        Function: u32,
+        lParam1: LPARAM,
+        lParam2: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) isize,
+} ;
 
 pub const PSPINFO = extern struct {
     cbSize: u16,
@@ -2003,10 +2016,16 @@ pub const PROPSHEETUI_GETICON_INFO = extern struct {
     hIcon: ?HICON,
 };
 
-pub const PFNPROPSHEETUI = fn(
-    pPSUIInfo: ?*PROPSHEETUI_INFO,
-    lParam: LPARAM,
-) callconv(@import("std").os.windows.WINAPI) i32;
+pub const PFNPROPSHEETUI = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pPSUIInfo: ?*PROPSHEETUI_INFO,
+        lParam: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) i32,
+    else => *const fn(
+        pPSUIInfo: ?*PROPSHEETUI_INFO,
+        lParam: LPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) i32,
+} ;
 
 pub const PROPSHEETUI_INFO_HEADER = extern struct {
     cbSize: u16,
@@ -3214,28 +3233,54 @@ pub const USERDATA = extern struct {
     dwReserved: [8]u32,
 };
 
-pub const PFN_DrvGetDriverSetting = fn(
-    pdriverobj: ?*anyopaque,
-    Feature: ?[*:0]const u8,
-    // TODO: what to do with BytesParamIndex 3?
-    pOutput: ?*anyopaque,
-    cbSize: u32,
-    pcbNeeded: ?*u32,
-    pdwOptionsReturned: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const PFN_DrvGetDriverSetting = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pdriverobj: ?*anyopaque,
+        Feature: ?[*:0]const u8,
+        // TODO: what to do with BytesParamIndex 3?
+        pOutput: ?*anyopaque,
+        cbSize: u32,
+        pcbNeeded: ?*u32,
+        pdwOptionsReturned: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        pdriverobj: ?*anyopaque,
+        Feature: ?[*:0]const u8,
+        // TODO: what to do with BytesParamIndex 3?
+        pOutput: ?*anyopaque,
+        cbSize: u32,
+        pcbNeeded: ?*u32,
+        pdwOptionsReturned: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
-pub const PFN_DrvUpgradeRegistrySetting = fn(
-    hPrinter: ?HANDLE,
-    pFeature: ?[*:0]const u8,
-    pOption: ?[*:0]const u8,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const PFN_DrvUpgradeRegistrySetting = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        hPrinter: ?HANDLE,
+        pFeature: ?[*:0]const u8,
+        pOption: ?[*:0]const u8,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        hPrinter: ?HANDLE,
+        pFeature: ?[*:0]const u8,
+        pOption: ?[*:0]const u8,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
-pub const PFN_DrvUpdateUISetting = fn(
-    pdriverobj: ?*anyopaque,
-    pOptItem: ?*anyopaque,
-    dwPreviousSelection: u32,
-    dwMode: u32,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const PFN_DrvUpdateUISetting = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pdriverobj: ?*anyopaque,
+        pOptItem: ?*anyopaque,
+        dwPreviousSelection: u32,
+        dwMode: u32,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        pdriverobj: ?*anyopaque,
+        pOptItem: ?*anyopaque,
+        dwPreviousSelection: u32,
+        dwMode: u32,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
 pub const SIMULATE_CAPS_1 = extern struct {
     dwLevel: u32,
@@ -3255,10 +3300,16 @@ pub const OEMUIOBJ = extern struct {
     pOemUIProcs: ?*OEMUIPROCS,
 };
 
-pub const OEMCUIPCALLBACK = fn(
-    param0: ?*CPSUICBPARAM,
-    param1: ?*OEMCUIPPARAM,
-) callconv(@import("std").os.windows.WINAPI) i32;
+pub const OEMCUIPCALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?*CPSUICBPARAM,
+        param1: ?*OEMCUIPPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) i32,
+    else => *const fn(
+        param0: ?*CPSUICBPARAM,
+        param1: ?*OEMCUIPPARAM,
+    ) callconv(@import("std").os.windows.WINAPI) i32,
+} ;
 
 pub const OEMCUIPPARAM = extern struct {
     cbSize: u32,
@@ -3328,76 +3379,159 @@ pub const PRINT_FEATURE_OPTION = extern struct {
     pszOption: ?[*:0]const u8,
 };
 
-const IID_IPrintCoreHelper_Value = @import("../zig.zig").Guid.initString("a89ec53e-3905-49c6-9c1a-c0a88117fdb6");
+const IID_IPrintCoreHelper_Value = Guid.initString("a89ec53e-3905-49c6-9c1a-c0a88117fdb6");
 pub const IID_IPrintCoreHelper = &IID_IPrintCoreHelper_Value;
 pub const IPrintCoreHelper = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetOption: fn(
-            self: *const IPrintCoreHelper,
-            // TODO: what to do with BytesParamIndex 1?
-            pDevmode: ?*const DEVMODEA,
-            cbSize: u32,
-            pszFeatureRequested: ?[*:0]const u8,
-            ppszOption: ?*?PSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetOptions: fn(
-            self: *const IPrintCoreHelper,
-            pDevmode: ?*DEVMODEA,
-            cbSize: u32,
-            bResolveConflicts: BOOL,
-            pFOPairs: ?*const PRINT_FEATURE_OPTION,
-            cPairs: u32,
-            pcPairsWritten: ?*u32,
-            pdwResult: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumConstrainedOptions: fn(
-            self: *const IPrintCoreHelper,
-            pDevmode: ?*const DEVMODEA,
-            cbSize: u32,
-            pszFeatureKeyword: ?[*:0]const u8,
-            pConstrainedOptionList: ?*?*?*?PSTR,
-            pdwNumOptions: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        WhyConstrained: fn(
-            self: *const IPrintCoreHelper,
-            // TODO: what to do with BytesParamIndex 1?
-            pDevmode: ?*const DEVMODEA,
-            cbSize: u32,
-            pszFeatureKeyword: ?[*:0]const u8,
-            pszOptionKeyword: ?[*:0]const u8,
-            ppFOConstraints: ?*const ?*PRINT_FEATURE_OPTION,
-            pdwNumOptions: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumFeatures: fn(
-            self: *const IPrintCoreHelper,
-            pFeatureList: ?*?*?*?PSTR,
-            pdwNumFeatures: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumOptions: fn(
-            self: *const IPrintCoreHelper,
-            pszFeatureKeyword: ?[*:0]const u8,
-            pOptionList: ?*?*?*?PSTR,
-            pdwNumOptions: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFontSubstitution: fn(
-            self: *const IPrintCoreHelper,
-            pszTrueTypeFontName: ?[*:0]const u16,
-            ppszDevFontName: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetFontSubstitution: fn(
-            self: *const IPrintCoreHelper,
-            pszTrueTypeFontName: ?[*:0]const u16,
-            pszDevFontName: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateInstanceOfMSXMLObject: fn(
-            self: *const IPrintCoreHelper,
-            rclsid: ?*const Guid,
-            pUnkOuter: ?*IUnknown,
-            dwClsContext: u32,
-            riid: ?*const Guid,
-            ppv: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetOption: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelper,
+                // TODO: what to do with BytesParamIndex 1?
+                pDevmode: ?*const DEVMODEA,
+                cbSize: u32,
+                pszFeatureRequested: ?[*:0]const u8,
+                ppszOption: ?*?PSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelper,
+                // TODO: what to do with BytesParamIndex 1?
+                pDevmode: ?*const DEVMODEA,
+                cbSize: u32,
+                pszFeatureRequested: ?[*:0]const u8,
+                ppszOption: ?*?PSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetOptions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelper,
+                pDevmode: ?*DEVMODEA,
+                cbSize: u32,
+                bResolveConflicts: BOOL,
+                pFOPairs: ?*const PRINT_FEATURE_OPTION,
+                cPairs: u32,
+                pcPairsWritten: ?*u32,
+                pdwResult: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelper,
+                pDevmode: ?*DEVMODEA,
+                cbSize: u32,
+                bResolveConflicts: BOOL,
+                pFOPairs: ?*const PRINT_FEATURE_OPTION,
+                cPairs: u32,
+                pcPairsWritten: ?*u32,
+                pdwResult: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumConstrainedOptions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelper,
+                pDevmode: ?*const DEVMODEA,
+                cbSize: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pConstrainedOptionList: ?*?*?*?PSTR,
+                pdwNumOptions: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelper,
+                pDevmode: ?*const DEVMODEA,
+                cbSize: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pConstrainedOptionList: ?*?*?*?PSTR,
+                pdwNumOptions: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        WhyConstrained: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelper,
+                // TODO: what to do with BytesParamIndex 1?
+                pDevmode: ?*const DEVMODEA,
+                cbSize: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pszOptionKeyword: ?[*:0]const u8,
+                ppFOConstraints: ?*const ?*PRINT_FEATURE_OPTION,
+                pdwNumOptions: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelper,
+                // TODO: what to do with BytesParamIndex 1?
+                pDevmode: ?*const DEVMODEA,
+                cbSize: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pszOptionKeyword: ?[*:0]const u8,
+                ppFOConstraints: ?*const ?*PRINT_FEATURE_OPTION,
+                pdwNumOptions: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumFeatures: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelper,
+                pFeatureList: ?*?*?*?PSTR,
+                pdwNumFeatures: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelper,
+                pFeatureList: ?*?*?*?PSTR,
+                pdwNumFeatures: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumOptions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelper,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pOptionList: ?*?*?*?PSTR,
+                pdwNumOptions: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelper,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pOptionList: ?*?*?*?PSTR,
+                pdwNumOptions: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFontSubstitution: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelper,
+                pszTrueTypeFontName: ?[*:0]const u16,
+                ppszDevFontName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelper,
+                pszTrueTypeFontName: ?[*:0]const u16,
+                ppszDevFontName: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetFontSubstitution: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelper,
+                pszTrueTypeFontName: ?[*:0]const u16,
+                pszDevFontName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelper,
+                pszTrueTypeFontName: ?[*:0]const u16,
+                pszDevFontName: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateInstanceOfMSXMLObject: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelper,
+                rclsid: ?*const Guid,
+                pUnkOuter: ?*IUnknown,
+                dwClsContext: u32,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelper,
+                rclsid: ?*const Guid,
+                pUnkOuter: ?*IUnknown,
+                dwClsContext: u32,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3442,23 +3576,39 @@ pub const IPrintCoreHelper = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintCoreHelperUni_Value = @import("../zig.zig").Guid.initString("7e8e51d6-e5ee-4426-817b-958b9444eb79");
+const IID_IPrintCoreHelperUni_Value = Guid.initString("7e8e51d6-e5ee-4426-817b-958b9444eb79");
 pub const IID_IPrintCoreHelperUni = &IID_IPrintCoreHelperUni_Value;
 pub const IPrintCoreHelperUni = extern struct {
     pub const VTable = extern struct {
         base: IPrintCoreHelper.VTable,
-        CreateGDLSnapshot: fn(
-            self: *const IPrintCoreHelperUni,
-            pDevmode: ?*DEVMODEA,
-            cbSize: u32,
-            dwFlags: u32,
-            ppSnapshotStream: ?*?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateDefaultGDLSnapshot: fn(
-            self: *const IPrintCoreHelperUni,
-            dwFlags: u32,
-            ppSnapshotStream: ?*?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateGDLSnapshot: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelperUni,
+                pDevmode: ?*DEVMODEA,
+                cbSize: u32,
+                dwFlags: u32,
+                ppSnapshotStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelperUni,
+                pDevmode: ?*DEVMODEA,
+                cbSize: u32,
+                dwFlags: u32,
+                ppSnapshotStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateDefaultGDLSnapshot: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelperUni,
+                dwFlags: u32,
+                ppSnapshotStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelperUni,
+                dwFlags: u32,
+                ppSnapshotStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3475,20 +3625,31 @@ pub const IPrintCoreHelperUni = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintCoreHelperUni2_Value = @import("../zig.zig").Guid.initString("6c8afdfc-ead0-4d2d-8071-9bf0175a6c3a");
+const IID_IPrintCoreHelperUni2_Value = Guid.initString("6c8afdfc-ead0-4d2d-8071-9bf0175a6c3a");
 pub const IID_IPrintCoreHelperUni2 = &IID_IPrintCoreHelperUni2_Value;
 pub const IPrintCoreHelperUni2 = extern struct {
     pub const VTable = extern struct {
         base: IPrintCoreHelperUni.VTable,
-        GetNamedCommand: fn(
-            self: *const IPrintCoreHelperUni2,
-            // TODO: what to do with BytesParamIndex 1?
-            pDevmode: ?*DEVMODEA,
-            cbSize: u32,
-            pszCommandName: ?[*:0]const u16,
-            ppCommandBytes: ?*?*u8,
-            pcbCommandSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetNamedCommand: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelperUni2,
+                // TODO: what to do with BytesParamIndex 1?
+                pDevmode: ?*DEVMODEA,
+                cbSize: u32,
+                pszCommandName: ?[*:0]const u16,
+                ppCommandBytes: ?*?*u8,
+                pcbCommandSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelperUni2,
+                // TODO: what to do with BytesParamIndex 1?
+                pDevmode: ?*DEVMODEA,
+                cbSize: u32,
+                pszCommandName: ?[*:0]const u16,
+                ppCommandBytes: ?*?*u8,
+                pcbCommandSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3501,35 +3662,65 @@ pub const IPrintCoreHelperUni2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintCoreHelperPS_Value = @import("../zig.zig").Guid.initString("c2c14f6f-95d3-4d63-96cf-6bd9e6c907c2");
+const IID_IPrintCoreHelperPS_Value = Guid.initString("c2c14f6f-95d3-4d63-96cf-6bd9e6c907c2");
 pub const IID_IPrintCoreHelperPS = &IID_IPrintCoreHelperPS_Value;
 pub const IPrintCoreHelperPS = extern struct {
     pub const VTable = extern struct {
         base: IPrintCoreHelper.VTable,
-        GetGlobalAttribute: fn(
-            self: *const IPrintCoreHelperPS,
-            pszAttribute: ?[*:0]const u8,
-            pdwDataType: ?*u32,
-            ppbData: ?*?*u8,
-            pcbSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFeatureAttribute: fn(
-            self: *const IPrintCoreHelperPS,
-            pszFeatureKeyword: ?[*:0]const u8,
-            pszAttribute: ?[*:0]const u8,
-            pdwDataType: ?*u32,
-            ppbData: ?*?*u8,
-            pcbSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetOptionAttribute: fn(
-            self: *const IPrintCoreHelperPS,
-            pszFeatureKeyword: ?[*:0]const u8,
-            pszOptionKeyword: ?[*:0]const u8,
-            pszAttribute: ?[*:0]const u8,
-            pdwDataType: ?*u32,
-            ppbData: ?*?*u8,
-            pcbSize: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetGlobalAttribute: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelperPS,
+                pszAttribute: ?[*:0]const u8,
+                pdwDataType: ?*u32,
+                ppbData: ?*?*u8,
+                pcbSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelperPS,
+                pszAttribute: ?[*:0]const u8,
+                pdwDataType: ?*u32,
+                ppbData: ?*?*u8,
+                pcbSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFeatureAttribute: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelperPS,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pszAttribute: ?[*:0]const u8,
+                pdwDataType: ?*u32,
+                ppbData: ?*?*u8,
+                pcbSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelperPS,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pszAttribute: ?[*:0]const u8,
+                pdwDataType: ?*u32,
+                ppbData: ?*?*u8,
+                pcbSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetOptionAttribute: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreHelperPS,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pszOptionKeyword: ?[*:0]const u8,
+                pszAttribute: ?[*:0]const u8,
+                pdwDataType: ?*u32,
+                ppbData: ?*?*u8,
+                pcbSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreHelperPS,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pszOptionKeyword: ?[*:0]const u8,
+                pszAttribute: ?[*:0]const u8,
+                pdwDataType: ?*u32,
+                ppbData: ?*?*u8,
+                pcbSize: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3550,24 +3741,41 @@ pub const IPrintCoreHelperPS = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintOemCommon_Value = @import("../zig.zig").Guid.initString("7f42285e-91d5-11d1-8820-00c04fb961ec");
+const IID_IPrintOemCommon_Value = Guid.initString("7f42285e-91d5-11d1-8820-00c04fb961ec");
 pub const IID_IPrintOemCommon = &IID_IPrintOemCommon_Value;
 pub const IPrintOemCommon = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetInfo: fn(
-            self: *const IPrintOemCommon,
-            dwMode: u32,
-            // TODO: what to do with BytesParamIndex 2?
-            pBuffer: ?*anyopaque,
-            cbSize: u32,
-            pcbNeeded: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DevMode: fn(
-            self: *const IPrintOemCommon,
-            dwMode: u32,
-            pOemDMParam: ?*OEMDMPARAM,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemCommon,
+                dwMode: u32,
+                // TODO: what to do with BytesParamIndex 2?
+                pBuffer: ?*anyopaque,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemCommon,
+                dwMode: u32,
+                // TODO: what to do with BytesParamIndex 2?
+                pBuffer: ?*anyopaque,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DevMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemCommon,
+                dwMode: u32,
+                pOemDMParam: ?*OEMDMPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemCommon,
+                dwMode: u32,
+                pOemDMParam: ?*OEMDMPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3584,92 +3792,197 @@ pub const IPrintOemCommon = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintOemUI_Value = @import("../zig.zig").Guid.initString("c6a7a9d0-774c-11d1-947f-00a0c90640b8");
+const IID_IPrintOemUI_Value = Guid.initString("c6a7a9d0-774c-11d1-947f-00a0c90640b8");
 pub const IID_IPrintOemUI = &IID_IPrintOemUI_Value;
 pub const IPrintOemUI = extern struct {
     pub const VTable = extern struct {
         base: IPrintOemCommon.VTable,
-        PublishDriverInterface: fn(
-            self: *const IPrintOemUI,
-            pIUnknown: ?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CommonUIProp: fn(
-            self: *const IPrintOemUI,
-            dwMode: u32,
-            pOemCUIPParam: ?*OEMCUIPPARAM,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DocumentPropertySheets: fn(
-            self: *const IPrintOemUI,
-            pPSUIInfo: ?*PROPSHEETUI_INFO,
-            lParam: LPARAM,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DevicePropertySheets: fn(
-            self: *const IPrintOemUI,
-            pPSUIInfo: ?*PROPSHEETUI_INFO,
-            lParam: LPARAM,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DevQueryPrintEx: fn(
-            self: *const IPrintOemUI,
-            poemuiobj: ?*OEMUIOBJ,
-            pDQPInfo: ?*DEVQUERYPRINT_INFO,
-            pPublicDM: ?*DEVMODEA,
-            pOEMDM: ?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DeviceCapabilitiesA: fn(
-            self: *const IPrintOemUI,
-            poemuiobj: ?*OEMUIOBJ,
-            hPrinter: ?HANDLE,
-            pDeviceName: ?PWSTR,
-            wCapability: u16,
-            pOutput: ?*anyopaque,
-            pPublicDM: ?*DEVMODEA,
-            pOEMDM: ?*anyopaque,
-            dwOld: u32,
-            dwResult: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UpgradePrinter: fn(
-            self: *const IPrintOemUI,
-            dwLevel: u32,
-            pDriverUpgradeInfo: ?*u8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        PrinterEvent: fn(
-            self: *const IPrintOemUI,
-            pPrinterName: ?PWSTR,
-            iDriverEvent: i32,
-            dwFlags: u32,
-            lParam: LPARAM,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DriverEvent: fn(
-            self: *const IPrintOemUI,
-            dwDriverEvent: u32,
-            dwLevel: u32,
-            pDriverInfo: ?*u8,
-            lParam: LPARAM,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        QueryColorProfile: fn(
-            self: *const IPrintOemUI,
-            hPrinter: ?HANDLE,
-            poemuiobj: ?*OEMUIOBJ,
-            pPublicDM: ?*DEVMODEA,
-            pOEMDM: ?*anyopaque,
-            ulQueryMode: u32,
-            pvProfileData: [*]u8,
-            pcbProfileData: ?*u32,
-            pflProfileData: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        FontInstallerDlgProc: fn(
-            self: *const IPrintOemUI,
-            hWnd: ?HWND,
-            usMsg: u32,
-            wParam: WPARAM,
-            lParam: LPARAM,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UpdateExternalFonts: fn(
-            self: *const IPrintOemUI,
-            hPrinter: ?HANDLE,
-            hHeap: ?HANDLE,
-            pwstrCartridges: ?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        PublishDriverInterface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI,
+                pIUnknown: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI,
+                pIUnknown: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CommonUIProp: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI,
+                dwMode: u32,
+                pOemCUIPParam: ?*OEMCUIPPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI,
+                dwMode: u32,
+                pOemCUIPParam: ?*OEMCUIPPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DocumentPropertySheets: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI,
+                pPSUIInfo: ?*PROPSHEETUI_INFO,
+                lParam: LPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI,
+                pPSUIInfo: ?*PROPSHEETUI_INFO,
+                lParam: LPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DevicePropertySheets: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI,
+                pPSUIInfo: ?*PROPSHEETUI_INFO,
+                lParam: LPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI,
+                pPSUIInfo: ?*PROPSHEETUI_INFO,
+                lParam: LPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DevQueryPrintEx: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI,
+                poemuiobj: ?*OEMUIOBJ,
+                pDQPInfo: ?*DEVQUERYPRINT_INFO,
+                pPublicDM: ?*DEVMODEA,
+                pOEMDM: ?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI,
+                poemuiobj: ?*OEMUIOBJ,
+                pDQPInfo: ?*DEVQUERYPRINT_INFO,
+                pPublicDM: ?*DEVMODEA,
+                pOEMDM: ?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DeviceCapabilitiesA: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI,
+                poemuiobj: ?*OEMUIOBJ,
+                hPrinter: ?HANDLE,
+                pDeviceName: ?PWSTR,
+                wCapability: u16,
+                pOutput: ?*anyopaque,
+                pPublicDM: ?*DEVMODEA,
+                pOEMDM: ?*anyopaque,
+                dwOld: u32,
+                dwResult: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI,
+                poemuiobj: ?*OEMUIOBJ,
+                hPrinter: ?HANDLE,
+                pDeviceName: ?PWSTR,
+                wCapability: u16,
+                pOutput: ?*anyopaque,
+                pPublicDM: ?*DEVMODEA,
+                pOEMDM: ?*anyopaque,
+                dwOld: u32,
+                dwResult: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UpgradePrinter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI,
+                dwLevel: u32,
+                pDriverUpgradeInfo: ?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI,
+                dwLevel: u32,
+                pDriverUpgradeInfo: ?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        PrinterEvent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI,
+                pPrinterName: ?PWSTR,
+                iDriverEvent: i32,
+                dwFlags: u32,
+                lParam: LPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI,
+                pPrinterName: ?PWSTR,
+                iDriverEvent: i32,
+                dwFlags: u32,
+                lParam: LPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DriverEvent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI,
+                dwDriverEvent: u32,
+                dwLevel: u32,
+                pDriverInfo: ?*u8,
+                lParam: LPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI,
+                dwDriverEvent: u32,
+                dwLevel: u32,
+                pDriverInfo: ?*u8,
+                lParam: LPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        QueryColorProfile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI,
+                hPrinter: ?HANDLE,
+                poemuiobj: ?*OEMUIOBJ,
+                pPublicDM: ?*DEVMODEA,
+                pOEMDM: ?*anyopaque,
+                ulQueryMode: u32,
+                pvProfileData: [*]u8,
+                pcbProfileData: ?*u32,
+                pflProfileData: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI,
+                hPrinter: ?HANDLE,
+                poemuiobj: ?*OEMUIOBJ,
+                pPublicDM: ?*DEVMODEA,
+                pOEMDM: ?*anyopaque,
+                ulQueryMode: u32,
+                pvProfileData: [*]u8,
+                pcbProfileData: ?*u32,
+                pflProfileData: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        FontInstallerDlgProc: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI,
+                hWnd: ?HWND,
+                usMsg: u32,
+                wParam: WPARAM,
+                lParam: LPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI,
+                hWnd: ?HWND,
+                usMsg: u32,
+                wParam: WPARAM,
+                lParam: LPARAM,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UpdateExternalFonts: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI,
+                hPrinter: ?HANDLE,
+                hHeap: ?HANDLE,
+                pwstrCartridges: ?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI,
+                hPrinter: ?HANDLE,
+                hHeap: ?HANDLE,
+                pwstrCartridges: ?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3726,33 +4039,61 @@ pub const IPrintOemUI = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintOemUI2_Value = @import("../zig.zig").Guid.initString("292515f9-b54b-489b-9275-bab56821395e");
+const IID_IPrintOemUI2_Value = Guid.initString("292515f9-b54b-489b-9275-bab56821395e");
 pub const IID_IPrintOemUI2 = &IID_IPrintOemUI2_Value;
 pub const IPrintOemUI2 = extern struct {
     pub const VTable = extern struct {
         base: IPrintOemUI.VTable,
-        QueryJobAttributes: fn(
-            self: *const IPrintOemUI2,
-            hPrinter: ?HANDLE,
-            pDevmode: ?*DEVMODEA,
-            dwLevel: u32,
-            lpAttributeInfo: ?*u8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        HideStandardUI: fn(
-            self: *const IPrintOemUI2,
-            dwMode: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DocumentEvent: fn(
-            self: *const IPrintOemUI2,
-            hPrinter: ?HANDLE,
-            hdc: ?HDC,
-            iEsc: i32,
-            cbIn: u32,
-            pvIn: ?*anyopaque,
-            cbOut: u32,
-            pvOut: ?*anyopaque,
-            piResult: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        QueryJobAttributes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI2,
+                hPrinter: ?HANDLE,
+                pDevmode: ?*DEVMODEA,
+                dwLevel: u32,
+                lpAttributeInfo: ?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI2,
+                hPrinter: ?HANDLE,
+                pDevmode: ?*DEVMODEA,
+                dwLevel: u32,
+                lpAttributeInfo: ?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        HideStandardUI: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI2,
+                dwMode: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI2,
+                dwMode: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DocumentEvent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUI2,
+                hPrinter: ?HANDLE,
+                hdc: ?HDC,
+                iEsc: i32,
+                cbIn: u32,
+                pvIn: ?*anyopaque,
+                cbOut: u32,
+                pvOut: ?*anyopaque,
+                piResult: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUI2,
+                hPrinter: ?HANDLE,
+                hdc: ?HDC,
+                iEsc: i32,
+                cbIn: u32,
+                pvIn: ?*anyopaque,
+                cbOut: u32,
+                pvOut: ?*anyopaque,
+                piResult: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3773,38 +4114,71 @@ pub const IPrintOemUI2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintOemUIMXDC_Value = @import("../zig.zig").Guid.initString("7349d725-e2c1-4dca-afb5-c13e91bc9306");
+const IID_IPrintOemUIMXDC_Value = Guid.initString("7349d725-e2c1-4dca-afb5-c13e91bc9306");
 pub const IID_IPrintOemUIMXDC = &IID_IPrintOemUIMXDC_Value;
 pub const IPrintOemUIMXDC = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AdjustImageableArea: fn(
-            self: *const IPrintOemUIMXDC,
-            hPrinter: ?HANDLE,
-            cbDevMode: u32,
-            pDevMode: ?*const DEVMODEA,
-            cbOEMDM: u32,
-            pOEMDM: ?*const anyopaque,
-            prclImageableArea: ?*RECTL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AdjustImageCompression: fn(
-            self: *const IPrintOemUIMXDC,
-            hPrinter: ?HANDLE,
-            cbDevMode: u32,
-            pDevMode: ?*const DEVMODEA,
-            cbOEMDM: u32,
-            pOEMDM: ?*const anyopaque,
-            pCompressionMode: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AdjustDPI: fn(
-            self: *const IPrintOemUIMXDC,
-            hPrinter: ?HANDLE,
-            cbDevMode: u32,
-            pDevMode: ?*const DEVMODEA,
-            cbOEMDM: u32,
-            pOEMDM: ?*const anyopaque,
-            pDPI: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AdjustImageableArea: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUIMXDC,
+                hPrinter: ?HANDLE,
+                cbDevMode: u32,
+                pDevMode: ?*const DEVMODEA,
+                cbOEMDM: u32,
+                pOEMDM: ?*const anyopaque,
+                prclImageableArea: ?*RECTL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUIMXDC,
+                hPrinter: ?HANDLE,
+                cbDevMode: u32,
+                pDevMode: ?*const DEVMODEA,
+                cbOEMDM: u32,
+                pOEMDM: ?*const anyopaque,
+                prclImageableArea: ?*RECTL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AdjustImageCompression: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUIMXDC,
+                hPrinter: ?HANDLE,
+                cbDevMode: u32,
+                pDevMode: ?*const DEVMODEA,
+                cbOEMDM: u32,
+                pOEMDM: ?*const anyopaque,
+                pCompressionMode: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUIMXDC,
+                hPrinter: ?HANDLE,
+                cbDevMode: u32,
+                pDevMode: ?*const DEVMODEA,
+                cbOEMDM: u32,
+                pOEMDM: ?*const anyopaque,
+                pCompressionMode: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AdjustDPI: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemUIMXDC,
+                hPrinter: ?HANDLE,
+                cbDevMode: u32,
+                pDevMode: ?*const DEVMODEA,
+                cbOEMDM: u32,
+                pOEMDM: ?*const anyopaque,
+                pDPI: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemUIMXDC,
+                hPrinter: ?HANDLE,
+                cbDevMode: u32,
+                pDevMode: ?*const DEVMODEA,
+                cbOEMDM: u32,
+                pOEMDM: ?*const anyopaque,
+                pDPI: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3825,33 +4199,61 @@ pub const IPrintOemUIMXDC = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintOemDriverUI_Value = @import("../zig.zig").Guid.initString("92b05d50-78bc-11d1-9480-00a0c90640b8");
+const IID_IPrintOemDriverUI_Value = Guid.initString("92b05d50-78bc-11d1-9480-00a0c90640b8");
 pub const IID_IPrintOemDriverUI = &IID_IPrintOemDriverUI_Value;
 pub const IPrintOemDriverUI = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        DrvGetDriverSetting: fn(
-            self: *const IPrintOemDriverUI,
-            pci: ?*anyopaque,
-            Feature: ?[*:0]const u8,
-            pOutput: ?*anyopaque,
-            cbSize: u32,
-            pcbNeeded: ?*u32,
-            pdwOptionsReturned: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DrvUpgradeRegistrySetting: fn(
-            self: *const IPrintOemDriverUI,
-            hPrinter: ?HANDLE,
-            pFeature: ?[*:0]const u8,
-            pOption: ?[*:0]const u8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DrvUpdateUISetting: fn(
-            self: *const IPrintOemDriverUI,
-            pci: ?*anyopaque,
-            pOptItem: ?*anyopaque,
-            dwPreviousSelection: u32,
-            dwMode: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        DrvGetDriverSetting: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemDriverUI,
+                pci: ?*anyopaque,
+                Feature: ?[*:0]const u8,
+                pOutput: ?*anyopaque,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+                pdwOptionsReturned: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemDriverUI,
+                pci: ?*anyopaque,
+                Feature: ?[*:0]const u8,
+                pOutput: ?*anyopaque,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+                pdwOptionsReturned: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DrvUpgradeRegistrySetting: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemDriverUI,
+                hPrinter: ?HANDLE,
+                pFeature: ?[*:0]const u8,
+                pOption: ?[*:0]const u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemDriverUI,
+                hPrinter: ?HANDLE,
+                pFeature: ?[*:0]const u8,
+                pOption: ?[*:0]const u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DrvUpdateUISetting: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintOemDriverUI,
+                pci: ?*anyopaque,
+                pOptItem: ?*anyopaque,
+                dwPreviousSelection: u32,
+                dwMode: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintOemDriverUI,
+                pci: ?*anyopaque,
+                pOptItem: ?*anyopaque,
+                dwPreviousSelection: u32,
+                dwMode: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -3872,117 +4274,243 @@ pub const IPrintOemDriverUI = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintCoreUI2_Value = @import("../zig.zig").Guid.initString("085ccfca-3adf-4c9e-b491-d851a6edc997");
+const IID_IPrintCoreUI2_Value = Guid.initString("085ccfca-3adf-4c9e-b491-d851a6edc997");
 pub const IID_IPrintCoreUI2 = &IID_IPrintCoreUI2_Value;
 pub const IPrintCoreUI2 = extern struct {
     pub const VTable = extern struct {
         base: IPrintOemDriverUI.VTable,
-        GetOptions: fn(
-            self: *const IPrintCoreUI2,
-            poemuiobj: ?*OEMUIOBJ,
-            dwFlags: u32,
-            // TODO: what to do with BytesParamIndex 3?
-            pmszFeaturesRequested: ?*i8,
-            cbIn: u32,
-            // TODO: what to do with BytesParamIndex 5?
-            pmszFeatureOptionBuf: ?[*]u8,
-            cbSize: u32,
-            pcbNeeded: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetOptions: fn(
-            self: *const IPrintCoreUI2,
-            poemuiobj: ?*OEMUIOBJ,
-            dwFlags: u32,
-            // TODO: what to do with BytesParamIndex 3?
-            pmszFeatureOptionBuf: ?*i8,
-            cbIn: u32,
-            pdwResult: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumConstrainedOptions: fn(
-            self: *const IPrintCoreUI2,
-            poemuiobj: ?*OEMUIOBJ,
-            dwFlags: u32,
-            pszFeatureKeyword: ?[*:0]const u8,
-            // TODO: what to do with BytesParamIndex 4?
-            pmszConstrainedOptionList: ?[*]u8,
-            cbSize: u32,
-            pcbNeeded: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        WhyConstrained: fn(
-            self: *const IPrintCoreUI2,
-            poemuiobj: ?*OEMUIOBJ,
-            dwFlags: u32,
-            pszFeatureKeyword: ?[*:0]const u8,
-            pszOptionKeyword: ?[*:0]const u8,
-            // TODO: what to do with BytesParamIndex 5?
-            pmszReasonList: ?[*]u8,
-            cbSize: u32,
-            pcbNeeded: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetGlobalAttribute: fn(
-            self: *const IPrintCoreUI2,
-            poemuiobj: ?*OEMUIOBJ,
-            dwFlags: u32,
-            pszAttribute: ?[*:0]const u8,
-            pdwDataType: ?*u32,
-            // TODO: what to do with BytesParamIndex 5?
-            pbData: ?*u8,
-            cbSize: u32,
-            pcbNeeded: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFeatureAttribute: fn(
-            self: *const IPrintCoreUI2,
-            poemuiobj: ?*OEMUIOBJ,
-            dwFlags: u32,
-            pszFeatureKeyword: ?[*:0]const u8,
-            pszAttribute: ?[*:0]const u8,
-            pdwDataType: ?*u32,
-            // TODO: what to do with BytesParamIndex 6?
-            pbData: ?*u8,
-            cbSize: u32,
-            pcbNeeded: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetOptionAttribute: fn(
-            self: *const IPrintCoreUI2,
-            poemuiobj: ?*OEMUIOBJ,
-            dwFlags: u32,
-            pszFeatureKeyword: ?[*:0]const u8,
-            pszOptionKeyword: ?[*:0]const u8,
-            pszAttribute: ?[*:0]const u8,
-            pdwDataType: ?*u32,
-            // TODO: what to do with BytesParamIndex 7?
-            pbData: ?*u8,
-            cbSize: u32,
-            pcbNeeded: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumFeatures: fn(
-            self: *const IPrintCoreUI2,
-            poemuiobj: ?*OEMUIOBJ,
-            dwFlags: u32,
-            // TODO: what to do with BytesParamIndex 3?
-            pmszFeatureList: ?[*]u8,
-            cbSize: u32,
-            pcbNeeded: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumOptions: fn(
-            self: *const IPrintCoreUI2,
-            poemuiobj: ?*OEMUIOBJ,
-            dwFlags: u32,
-            pszFeatureKeyword: ?[*:0]const u8,
-            // TODO: what to do with BytesParamIndex 4?
-            pmszOptionList: ?[*]u8,
-            cbSize: u32,
-            pcbNeeded: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        QuerySimulationSupport: fn(
-            self: *const IPrintCoreUI2,
-            hPrinter: ?HANDLE,
-            dwLevel: u32,
-            // TODO: what to do with BytesParamIndex 3?
-            pCaps: ?*u8,
-            cbSize: u32,
-            pcbNeeded: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetOptions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                // TODO: what to do with BytesParamIndex 3?
+                pmszFeaturesRequested: ?*i8,
+                cbIn: u32,
+                // TODO: what to do with BytesParamIndex 5?
+                pmszFeatureOptionBuf: ?[*]u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                // TODO: what to do with BytesParamIndex 3?
+                pmszFeaturesRequested: ?*i8,
+                cbIn: u32,
+                // TODO: what to do with BytesParamIndex 5?
+                pmszFeatureOptionBuf: ?[*]u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetOptions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                // TODO: what to do with BytesParamIndex 3?
+                pmszFeatureOptionBuf: ?*i8,
+                cbIn: u32,
+                pdwResult: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                // TODO: what to do with BytesParamIndex 3?
+                pmszFeatureOptionBuf: ?*i8,
+                cbIn: u32,
+                pdwResult: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumConstrainedOptions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                // TODO: what to do with BytesParamIndex 4?
+                pmszConstrainedOptionList: ?[*]u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                // TODO: what to do with BytesParamIndex 4?
+                pmszConstrainedOptionList: ?[*]u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        WhyConstrained: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pszOptionKeyword: ?[*:0]const u8,
+                // TODO: what to do with BytesParamIndex 5?
+                pmszReasonList: ?[*]u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pszOptionKeyword: ?[*:0]const u8,
+                // TODO: what to do with BytesParamIndex 5?
+                pmszReasonList: ?[*]u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetGlobalAttribute: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                pszAttribute: ?[*:0]const u8,
+                pdwDataType: ?*u32,
+                // TODO: what to do with BytesParamIndex 5?
+                pbData: ?*u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                pszAttribute: ?[*:0]const u8,
+                pdwDataType: ?*u32,
+                // TODO: what to do with BytesParamIndex 5?
+                pbData: ?*u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFeatureAttribute: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pszAttribute: ?[*:0]const u8,
+                pdwDataType: ?*u32,
+                // TODO: what to do with BytesParamIndex 6?
+                pbData: ?*u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pszAttribute: ?[*:0]const u8,
+                pdwDataType: ?*u32,
+                // TODO: what to do with BytesParamIndex 6?
+                pbData: ?*u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetOptionAttribute: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pszOptionKeyword: ?[*:0]const u8,
+                pszAttribute: ?[*:0]const u8,
+                pdwDataType: ?*u32,
+                // TODO: what to do with BytesParamIndex 7?
+                pbData: ?*u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                pszOptionKeyword: ?[*:0]const u8,
+                pszAttribute: ?[*:0]const u8,
+                pdwDataType: ?*u32,
+                // TODO: what to do with BytesParamIndex 7?
+                pbData: ?*u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumFeatures: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                // TODO: what to do with BytesParamIndex 3?
+                pmszFeatureList: ?[*]u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                // TODO: what to do with BytesParamIndex 3?
+                pmszFeatureList: ?[*]u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumOptions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                // TODO: what to do with BytesParamIndex 4?
+                pmszOptionList: ?[*]u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreUI2,
+                poemuiobj: ?*OEMUIOBJ,
+                dwFlags: u32,
+                pszFeatureKeyword: ?[*:0]const u8,
+                // TODO: what to do with BytesParamIndex 4?
+                pmszOptionList: ?[*]u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        QuerySimulationSupport: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintCoreUI2,
+                hPrinter: ?HANDLE,
+                dwLevel: u32,
+                // TODO: what to do with BytesParamIndex 3?
+                pCaps: ?*u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintCoreUI2,
+                hPrinter: ?HANDLE,
+                dwLevel: u32,
+                // TODO: what to do with BytesParamIndex 3?
+                pCaps: ?*u8,
+                cbSize: u32,
+                pcbNeeded: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4038,53 +4566,109 @@ pub const SHIMOPTS = enum(i32) {
 pub const PTSHIM_DEFAULT = SHIMOPTS.DEFAULT;
 pub const PTSHIM_NOSNAPSHOT = SHIMOPTS.NOSNAPSHOT;
 
-const IID_IPrintTicketProvider_Value = @import("../zig.zig").Guid.initString("bb5116db-0a23-4c3a-a6b6-89e5558dfb5d");
+const IID_IPrintTicketProvider_Value = Guid.initString("bb5116db-0a23-4c3a-a6b6-89e5558dfb5d");
 pub const IID_IPrintTicketProvider = &IID_IPrintTicketProvider_Value;
 pub const IPrintTicketProvider = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetSupportedVersions: fn(
-            self: *const IPrintTicketProvider,
-            hPrinter: ?HANDLE,
-            ppVersions: ?*?*i32,
-            cVersions: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        BindPrinter: fn(
-            self: *const IPrintTicketProvider,
-            hPrinter: ?HANDLE,
-            version: i32,
-            pOptions: ?*SHIMOPTS,
-            pDevModeFlags: ?*u32,
-            cNamespaces: ?*i32,
-            ppNamespaces: ?*?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        QueryDeviceNamespace: fn(
-            self: *const IPrintTicketProvider,
-            pDefaultNamespace: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ConvertPrintTicketToDevMode: fn(
-            self: *const IPrintTicketProvider,
-            pPrintTicket: ?*IXMLDOMDocument2,
-            cbDevmodeIn: u32,
-            pDevmodeIn: ?*DEVMODEA,
-            pcbDevmodeOut: ?*u32,
-            ppDevmodeOut: ?*?*DEVMODEA,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ConvertDevModeToPrintTicket: fn(
-            self: *const IPrintTicketProvider,
-            cbDevmode: u32,
-            pDevmode: ?*DEVMODEA,
-            pPrintTicket: ?*IXMLDOMDocument2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPrintCapabilities: fn(
-            self: *const IPrintTicketProvider,
-            pPrintTicket: ?*IXMLDOMDocument2,
-            ppCapabilities: ?*?*IXMLDOMDocument2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ValidatePrintTicket: fn(
-            self: *const IPrintTicketProvider,
-            pBaseTicket: ?*IXMLDOMDocument2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetSupportedVersions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintTicketProvider,
+                hPrinter: ?HANDLE,
+                ppVersions: ?*?*i32,
+                cVersions: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintTicketProvider,
+                hPrinter: ?HANDLE,
+                ppVersions: ?*?*i32,
+                cVersions: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        BindPrinter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintTicketProvider,
+                hPrinter: ?HANDLE,
+                version: i32,
+                pOptions: ?*SHIMOPTS,
+                pDevModeFlags: ?*u32,
+                cNamespaces: ?*i32,
+                ppNamespaces: ?*?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintTicketProvider,
+                hPrinter: ?HANDLE,
+                version: i32,
+                pOptions: ?*SHIMOPTS,
+                pDevModeFlags: ?*u32,
+                cNamespaces: ?*i32,
+                ppNamespaces: ?*?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        QueryDeviceNamespace: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintTicketProvider,
+                pDefaultNamespace: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintTicketProvider,
+                pDefaultNamespace: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ConvertPrintTicketToDevMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintTicketProvider,
+                pPrintTicket: ?*IXMLDOMDocument2,
+                cbDevmodeIn: u32,
+                pDevmodeIn: ?*DEVMODEA,
+                pcbDevmodeOut: ?*u32,
+                ppDevmodeOut: ?*?*DEVMODEA,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintTicketProvider,
+                pPrintTicket: ?*IXMLDOMDocument2,
+                cbDevmodeIn: u32,
+                pDevmodeIn: ?*DEVMODEA,
+                pcbDevmodeOut: ?*u32,
+                ppDevmodeOut: ?*?*DEVMODEA,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ConvertDevModeToPrintTicket: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintTicketProvider,
+                cbDevmode: u32,
+                pDevmode: ?*DEVMODEA,
+                pPrintTicket: ?*IXMLDOMDocument2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintTicketProvider,
+                cbDevmode: u32,
+                pDevmode: ?*DEVMODEA,
+                pPrintTicket: ?*IXMLDOMDocument2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPrintCapabilities: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintTicketProvider,
+                pPrintTicket: ?*IXMLDOMDocument2,
+                ppCapabilities: ?*?*IXMLDOMDocument2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintTicketProvider,
+                pPrintTicket: ?*IXMLDOMDocument2,
+                ppCapabilities: ?*?*IXMLDOMDocument2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ValidatePrintTicket: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintTicketProvider,
+                pBaseTicket: ?*IXMLDOMDocument2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintTicketProvider,
+                pBaseTicket: ?*IXMLDOMDocument2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4121,22 +4705,37 @@ pub const IPrintTicketProvider = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintTicketProvider2_Value = @import("../zig.zig").Guid.initString("b8a70ab2-3dfc-4fec-a074-511b13c651cb");
+const IID_IPrintTicketProvider2_Value = Guid.initString("b8a70ab2-3dfc-4fec-a074-511b13c651cb");
 pub const IID_IPrintTicketProvider2 = &IID_IPrintTicketProvider2_Value;
 pub const IPrintTicketProvider2 = extern struct {
     pub const VTable = extern struct {
         base: IPrintTicketProvider.VTable,
-        GetPrintDeviceCapabilities: fn(
-            self: *const IPrintTicketProvider2,
-            pPrintTicket: ?*IXMLDOMDocument2,
-            ppDeviceCapabilities: ?*?*IXMLDOMDocument2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPrintDeviceResources: fn(
-            self: *const IPrintTicketProvider2,
-            pszLocaleName: ?[*:0]const u16,
-            pPrintTicket: ?*IXMLDOMDocument2,
-            ppDeviceResources: ?*?*IXMLDOMDocument2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetPrintDeviceCapabilities: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintTicketProvider2,
+                pPrintTicket: ?*IXMLDOMDocument2,
+                ppDeviceCapabilities: ?*?*IXMLDOMDocument2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintTicketProvider2,
+                pPrintTicket: ?*IXMLDOMDocument2,
+                ppDeviceCapabilities: ?*?*IXMLDOMDocument2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPrintDeviceResources: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintTicketProvider2,
+                pszLocaleName: ?[*:0]const u16,
+                pPrintTicket: ?*IXMLDOMDocument2,
+                ppDeviceResources: ?*?*IXMLDOMDocument2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintTicketProvider2,
+                pszLocaleName: ?[*:0]const u16,
+                pPrintTicket: ?*IXMLDOMDocument2,
+                ppDeviceResources: ?*?*IXMLDOMDocument2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4153,38 +4752,62 @@ pub const IPrintTicketProvider2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const CLSID_PrinterQueue_Value = @import("../zig.zig").Guid.initString("eb54c230-798c-4c9e-b461-29fad04039b1");
+const CLSID_PrinterQueue_Value = Guid.initString("eb54c230-798c-4c9e-b461-29fad04039b1");
 pub const CLSID_PrinterQueue = &CLSID_PrinterQueue_Value;
 
-const CLSID_PrinterQueueView_Value = @import("../zig.zig").Guid.initString("eb54c231-798c-4c9e-b461-29fad04039b1");
+const CLSID_PrinterQueueView_Value = Guid.initString("eb54c231-798c-4c9e-b461-29fad04039b1");
 pub const CLSID_PrinterQueueView = &CLSID_PrinterQueueView_Value;
 
-const CLSID_PrintSchemaAsyncOperation_Value = @import("../zig.zig").Guid.initString("43b2f83d-10f2-48ab-831b-55fdbdbd34a4");
+const CLSID_PrintSchemaAsyncOperation_Value = Guid.initString("43b2f83d-10f2-48ab-831b-55fdbdbd34a4");
 pub const CLSID_PrintSchemaAsyncOperation = &CLSID_PrintSchemaAsyncOperation_Value;
 
-const CLSID_PrinterExtensionManager_Value = @import("../zig.zig").Guid.initString("331b60da-9e90-4dd0-9c84-eac4e659b61f");
+const CLSID_PrinterExtensionManager_Value = Guid.initString("331b60da-9e90-4dd0-9c84-eac4e659b61f");
 pub const CLSID_PrinterExtensionManager = &CLSID_PrinterExtensionManager_Value;
 
-const IID_IPrintSchemaElement_Value = @import("../zig.zig").Guid.initString("724c1646-e64b-4bbf-8eb4-d45e4fd580da");
+const IID_IPrintSchemaElement_Value = Guid.initString("724c1646-e64b-4bbf-8eb4-d45e4fd580da");
 pub const IID_IPrintSchemaElement = &IID_IPrintSchemaElement_Value;
 pub const IPrintSchemaElement = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_XmlNode: fn(
-            self: *const IPrintSchemaElement,
-            ppXmlNode: ?*?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_XmlNode: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaElement,
+                ppXmlNode: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaElement,
+                ppXmlNode: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Name: fn(
-            self: *const IPrintSchemaElement,
-            pbstrName: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Name: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaElement,
+                pbstrName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaElement,
+                pbstrName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_NamespaceUri: fn(
-            self: *const IPrintSchemaElement,
-            pbstrNamespaceUri: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_NamespaceUri: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaElement,
+                pbstrNamespaceUri: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaElement,
+                pbstrNamespaceUri: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4205,16 +4828,24 @@ pub const IPrintSchemaElement = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintSchemaDisplayableElement_Value = @import("../zig.zig").Guid.initString("af45af49-d6aa-407d-bf87-3912236e9d94");
+const IID_IPrintSchemaDisplayableElement_Value = Guid.initString("af45af49-d6aa-407d-bf87-3912236e9d94");
 pub const IID_IPrintSchemaDisplayableElement = &IID_IPrintSchemaDisplayableElement_Value;
 pub const IPrintSchemaDisplayableElement = extern struct {
     pub const VTable = extern struct {
         base: IPrintSchemaElement.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DisplayName: fn(
-            self: *const IPrintSchemaDisplayableElement,
-            pbstrDisplayName: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DisplayName: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaDisplayableElement,
+                pbstrDisplayName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaDisplayableElement,
+                pbstrDisplayName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4238,27 +4869,51 @@ pub const PrintSchemaConstrainedSetting_PrintTicket = PrintSchemaConstrainedSett
 pub const PrintSchemaConstrainedSetting_Admin = PrintSchemaConstrainedSetting.Admin;
 pub const PrintSchemaConstrainedSetting_Device = PrintSchemaConstrainedSetting.Device;
 
-const IID_IPrintSchemaOption_Value = @import("../zig.zig").Guid.initString("66bb2f51-5844-4997-8d70-4b7cc221cf92");
+const IID_IPrintSchemaOption_Value = Guid.initString("66bb2f51-5844-4997-8d70-4b7cc221cf92");
 pub const IID_IPrintSchemaOption = &IID_IPrintSchemaOption_Value;
 pub const IPrintSchemaOption = extern struct {
     pub const VTable = extern struct {
         base: IPrintSchemaDisplayableElement.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Selected: fn(
-            self: *const IPrintSchemaOption,
-            pbIsSelected: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Selected: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaOption,
+                pbIsSelected: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaOption,
+                pbIsSelected: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Constrained: fn(
-            self: *const IPrintSchemaOption,
-            pSetting: ?*PrintSchemaConstrainedSetting,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPropertyValue: fn(
-            self: *const IPrintSchemaOption,
-            bstrName: ?BSTR,
-            bstrNamespaceUri: ?BSTR,
-            ppXmlValueNode: ?*?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Constrained: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaOption,
+                pSetting: ?*PrintSchemaConstrainedSetting,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaOption,
+                pSetting: ?*PrintSchemaConstrainedSetting,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPropertyValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaOption,
+                bstrName: ?BSTR,
+                bstrNamespaceUri: ?BSTR,
+                ppXmlValueNode: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaOption,
+                bstrName: ?BSTR,
+                bstrNamespaceUri: ?BSTR,
+                ppXmlValueNode: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4279,21 +4934,37 @@ pub const IPrintSchemaOption = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintSchemaPageMediaSizeOption_Value = @import("../zig.zig").Guid.initString("68746729-f493-4830-a10f-69028774605d");
+const IID_IPrintSchemaPageMediaSizeOption_Value = Guid.initString("68746729-f493-4830-a10f-69028774605d");
 pub const IID_IPrintSchemaPageMediaSizeOption = &IID_IPrintSchemaPageMediaSizeOption_Value;
 pub const IPrintSchemaPageMediaSizeOption = extern struct {
     pub const VTable = extern struct {
         base: IPrintSchemaOption.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_WidthInMicrons: fn(
-            self: *const IPrintSchemaPageMediaSizeOption,
-            pulWidth: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_WidthInMicrons: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaPageMediaSizeOption,
+                pulWidth: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaPageMediaSizeOption,
+                pulWidth: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_HeightInMicrons: fn(
-            self: *const IPrintSchemaPageMediaSizeOption,
-            pulHeight: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_HeightInMicrons: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaPageMediaSizeOption,
+                pulHeight: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaPageMediaSizeOption,
+                pulHeight: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4310,16 +4981,24 @@ pub const IPrintSchemaPageMediaSizeOption = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintSchemaNUpOption_Value = @import("../zig.zig").Guid.initString("1f6342f2-d848-42e3-8995-c10a9ef9a3ba");
+const IID_IPrintSchemaNUpOption_Value = Guid.initString("1f6342f2-d848-42e3-8995-c10a9ef9a3ba");
 pub const IID_IPrintSchemaNUpOption = &IID_IPrintSchemaNUpOption_Value;
 pub const IPrintSchemaNUpOption = extern struct {
     pub const VTable = extern struct {
         base: IPrintSchemaOption.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_PagesPerSheet: fn(
-            self: *const IPrintSchemaNUpOption,
-            pulPagesPerSheet: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_PagesPerSheet: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaNUpOption,
+                pulPagesPerSheet: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaNUpOption,
+                pulPagesPerSheet: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4339,26 +5018,49 @@ pub const PrintSchemaSelectionType = enum(i32) {
 pub const PrintSchemaSelectionType_PickOne = PrintSchemaSelectionType.One;
 pub const PrintSchemaSelectionType_PickMany = PrintSchemaSelectionType.Many;
 
-const IID_IPrintSchemaOptionCollection_Value = @import("../zig.zig").Guid.initString("baecb0bd-a946-4771-bc30-e8b24f8d45c1");
+const IID_IPrintSchemaOptionCollection_Value = Guid.initString("baecb0bd-a946-4771-bc30-e8b24f8d45c1");
 pub const IID_IPrintSchemaOptionCollection = &IID_IPrintSchemaOptionCollection_Value;
 pub const IPrintSchemaOptionCollection = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Count: fn(
-            self: *const IPrintSchemaOptionCollection,
-            pulCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAt: fn(
-            self: *const IPrintSchemaOptionCollection,
-            ulIndex: u32,
-            ppOption: ?*?*IPrintSchemaOption,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Count: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaOptionCollection,
+                pulCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaOptionCollection,
+                pulCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAt: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaOptionCollection,
+                ulIndex: u32,
+                ppOption: ?*?*IPrintSchemaOption,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaOptionCollection,
+                ulIndex: u32,
+                ppOption: ?*?*IPrintSchemaOption,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get__NewEnum: fn(
-            self: *const IPrintSchemaOptionCollection,
-            ppUnk: ?*?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get__NewEnum: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaOptionCollection,
+                ppUnk: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaOptionCollection,
+                ppUnk: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4379,37 +5081,77 @@ pub const IPrintSchemaOptionCollection = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintSchemaFeature_Value = @import("../zig.zig").Guid.initString("ef189461-5d62-4626-8e57-ff83583c4826");
+const IID_IPrintSchemaFeature_Value = Guid.initString("ef189461-5d62-4626-8e57-ff83583c4826");
 pub const IID_IPrintSchemaFeature = &IID_IPrintSchemaFeature_Value;
 pub const IPrintSchemaFeature = extern struct {
     pub const VTable = extern struct {
         base: IPrintSchemaDisplayableElement.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_SelectedOption: fn(
-            self: *const IPrintSchemaFeature,
-            ppOption: ?*?*IPrintSchemaOption,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_SelectedOption: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaFeature,
+                ppOption: ?*?*IPrintSchemaOption,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaFeature,
+                ppOption: ?*?*IPrintSchemaOption,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_SelectedOption: fn(
-            self: *const IPrintSchemaFeature,
-            pOption: ?*IPrintSchemaOption,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_SelectedOption: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaFeature,
+                pOption: ?*IPrintSchemaOption,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaFeature,
+                pOption: ?*IPrintSchemaOption,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_SelectionType: fn(
-            self: *const IPrintSchemaFeature,
-            pSelectionType: ?*PrintSchemaSelectionType,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetOption: fn(
-            self: *const IPrintSchemaFeature,
-            bstrName: ?BSTR,
-            bstrNamespaceUri: ?BSTR,
-            ppOption: ?*?*IPrintSchemaOption,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_SelectionType: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaFeature,
+                pSelectionType: ?*PrintSchemaSelectionType,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaFeature,
+                pSelectionType: ?*PrintSchemaSelectionType,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetOption: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaFeature,
+                bstrName: ?BSTR,
+                bstrNamespaceUri: ?BSTR,
+                ppOption: ?*?*IPrintSchemaOption,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaFeature,
+                bstrName: ?BSTR,
+                bstrNamespaceUri: ?BSTR,
+                ppOption: ?*?*IPrintSchemaOption,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DisplayUI: fn(
-            self: *const IPrintSchemaFeature,
-            pbShow: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DisplayUI: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaFeature,
+                pbShow: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaFeature,
+                pbShow: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4438,41 +5180,89 @@ pub const IPrintSchemaFeature = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintSchemaPageImageableSize_Value = @import("../zig.zig").Guid.initString("7c85bf5e-dc7c-4f61-839b-4107e1c9b68e");
+const IID_IPrintSchemaPageImageableSize_Value = Guid.initString("7c85bf5e-dc7c-4f61-839b-4107e1c9b68e");
 pub const IID_IPrintSchemaPageImageableSize = &IID_IPrintSchemaPageImageableSize_Value;
 pub const IPrintSchemaPageImageableSize = extern struct {
     pub const VTable = extern struct {
         base: IPrintSchemaElement.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_ImageableSizeWidthInMicrons: fn(
-            self: *const IPrintSchemaPageImageableSize,
-            pulImageableSizeWidth: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_ImageableSizeWidthInMicrons: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaPageImageableSize,
+                pulImageableSizeWidth: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaPageImageableSize,
+                pulImageableSizeWidth: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_ImageableSizeHeightInMicrons: fn(
-            self: *const IPrintSchemaPageImageableSize,
-            pulImageableSizeHeight: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_ImageableSizeHeightInMicrons: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaPageImageableSize,
+                pulImageableSizeHeight: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaPageImageableSize,
+                pulImageableSizeHeight: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_OriginWidthInMicrons: fn(
-            self: *const IPrintSchemaPageImageableSize,
-            pulOriginWidth: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_OriginWidthInMicrons: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaPageImageableSize,
+                pulOriginWidth: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaPageImageableSize,
+                pulOriginWidth: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_OriginHeightInMicrons: fn(
-            self: *const IPrintSchemaPageImageableSize,
-            pulOriginHeight: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_OriginHeightInMicrons: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaPageImageableSize,
+                pulOriginHeight: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaPageImageableSize,
+                pulOriginHeight: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_ExtentWidthInMicrons: fn(
-            self: *const IPrintSchemaPageImageableSize,
-            pulExtentWidth: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_ExtentWidthInMicrons: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaPageImageableSize,
+                pulExtentWidth: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaPageImageableSize,
+                pulExtentWidth: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_ExtentHeightInMicrons: fn(
-            self: *const IPrintSchemaPageImageableSize,
-            pulExtentHeight: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_ExtentHeightInMicrons: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaPageImageableSize,
+                pulExtentHeight: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaPageImageableSize,
+                pulExtentHeight: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4514,36 +5304,76 @@ pub const PrintSchemaParameterDataType_Integer = PrintSchemaParameterDataType.In
 pub const PrintSchemaParameterDataType_NumericString = PrintSchemaParameterDataType.NumericString;
 pub const PrintSchemaParameterDataType_String = PrintSchemaParameterDataType.String;
 
-const IID_IPrintSchemaParameterDefinition_Value = @import("../zig.zig").Guid.initString("b5ade81e-0e61-4fe1-81c6-c333e4ffe0f1");
+const IID_IPrintSchemaParameterDefinition_Value = Guid.initString("b5ade81e-0e61-4fe1-81c6-c333e4ffe0f1");
 pub const IID_IPrintSchemaParameterDefinition = &IID_IPrintSchemaParameterDefinition_Value;
 pub const IPrintSchemaParameterDefinition = extern struct {
     pub const VTable = extern struct {
         base: IPrintSchemaDisplayableElement.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_UserInputRequired: fn(
-            self: *const IPrintSchemaParameterDefinition,
-            pbIsRequired: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_UserInputRequired: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaParameterDefinition,
+                pbIsRequired: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaParameterDefinition,
+                pbIsRequired: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_UnitType: fn(
-            self: *const IPrintSchemaParameterDefinition,
-            pbstrUnitType: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_UnitType: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaParameterDefinition,
+                pbstrUnitType: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaParameterDefinition,
+                pbstrUnitType: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DataType: fn(
-            self: *const IPrintSchemaParameterDefinition,
-            pDataType: ?*PrintSchemaParameterDataType,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DataType: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaParameterDefinition,
+                pDataType: ?*PrintSchemaParameterDataType,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaParameterDefinition,
+                pDataType: ?*PrintSchemaParameterDataType,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_RangeMin: fn(
-            self: *const IPrintSchemaParameterDefinition,
-            pRangeMin: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_RangeMin: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaParameterDefinition,
+                pRangeMin: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaParameterDefinition,
+                pRangeMin: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_RangeMax: fn(
-            self: *const IPrintSchemaParameterDefinition,
-            pRangeMax: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_RangeMax: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaParameterDefinition,
+                pRangeMax: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaParameterDefinition,
+                pRangeMax: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4572,21 +5402,37 @@ pub const IPrintSchemaParameterDefinition = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintSchemaParameterInitializer_Value = @import("../zig.zig").Guid.initString("52027082-0b74-4648-9564-828cc6cb656c");
+const IID_IPrintSchemaParameterInitializer_Value = Guid.initString("52027082-0b74-4648-9564-828cc6cb656c");
 pub const IID_IPrintSchemaParameterInitializer = &IID_IPrintSchemaParameterInitializer_Value;
 pub const IPrintSchemaParameterInitializer = extern struct {
     pub const VTable = extern struct {
         base: IPrintSchemaElement.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Value: fn(
-            self: *const IPrintSchemaParameterInitializer,
-            pVar: ?*VARIANT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Value: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaParameterInitializer,
+                pVar: ?*VARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaParameterInitializer,
+                pVar: ?*VARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_Value: fn(
-            self: *const IPrintSchemaParameterInitializer,
-            pVar: ?*VARIANT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_Value: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaParameterInitializer,
+                pVar: ?*VARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaParameterInitializer,
+                pVar: ?*VARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4603,47 +5449,100 @@ pub const IPrintSchemaParameterInitializer = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintSchemaCapabilities_Value = @import("../zig.zig").Guid.initString("5a577640-501d-4927-bcd0-5ef57a7ed175");
+const IID_IPrintSchemaCapabilities_Value = Guid.initString("5a577640-501d-4927-bcd0-5ef57a7ed175");
 pub const IID_IPrintSchemaCapabilities = &IID_IPrintSchemaCapabilities_Value;
 pub const IPrintSchemaCapabilities = extern struct {
     pub const VTable = extern struct {
         base: IPrintSchemaElement.VTable,
-        GetFeatureByKeyName: fn(
-            self: *const IPrintSchemaCapabilities,
-            bstrKeyName: ?BSTR,
-            ppFeature: ?*?*IPrintSchemaFeature,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFeature: fn(
-            self: *const IPrintSchemaCapabilities,
-            bstrName: ?BSTR,
-            bstrNamespaceUri: ?BSTR,
-            ppFeature: ?*?*IPrintSchemaFeature,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetFeatureByKeyName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaCapabilities,
+                bstrKeyName: ?BSTR,
+                ppFeature: ?*?*IPrintSchemaFeature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaCapabilities,
+                bstrKeyName: ?BSTR,
+                ppFeature: ?*?*IPrintSchemaFeature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFeature: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaCapabilities,
+                bstrName: ?BSTR,
+                bstrNamespaceUri: ?BSTR,
+                ppFeature: ?*?*IPrintSchemaFeature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaCapabilities,
+                bstrName: ?BSTR,
+                bstrNamespaceUri: ?BSTR,
+                ppFeature: ?*?*IPrintSchemaFeature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_PageImageableSize: fn(
-            self: *const IPrintSchemaCapabilities,
-            ppPageImageableSize: ?*?*IPrintSchemaPageImageableSize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_PageImageableSize: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaCapabilities,
+                ppPageImageableSize: ?*?*IPrintSchemaPageImageableSize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaCapabilities,
+                ppPageImageableSize: ?*?*IPrintSchemaPageImageableSize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_JobCopiesAllDocumentsMinValue: fn(
-            self: *const IPrintSchemaCapabilities,
-            pulJobCopiesAllDocumentsMinValue: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_JobCopiesAllDocumentsMinValue: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaCapabilities,
+                pulJobCopiesAllDocumentsMinValue: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaCapabilities,
+                pulJobCopiesAllDocumentsMinValue: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_JobCopiesAllDocumentsMaxValue: fn(
-            self: *const IPrintSchemaCapabilities,
-            pulJobCopiesAllDocumentsMaxValue: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSelectedOptionInPrintTicket: fn(
-            self: *const IPrintSchemaCapabilities,
-            pFeature: ?*IPrintSchemaFeature,
-            ppOption: ?*?*IPrintSchemaOption,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetOptions: fn(
-            self: *const IPrintSchemaCapabilities,
-            pFeature: ?*IPrintSchemaFeature,
-            ppOptionCollection: ?*?*IPrintSchemaOptionCollection,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_JobCopiesAllDocumentsMaxValue: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaCapabilities,
+                pulJobCopiesAllDocumentsMaxValue: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaCapabilities,
+                pulJobCopiesAllDocumentsMaxValue: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSelectedOptionInPrintTicket: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaCapabilities,
+                pFeature: ?*IPrintSchemaFeature,
+                ppOption: ?*?*IPrintSchemaOption,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaCapabilities,
+                pFeature: ?*IPrintSchemaFeature,
+                ppOption: ?*?*IPrintSchemaOption,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetOptions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaCapabilities,
+                pFeature: ?*IPrintSchemaFeature,
+                ppOptionCollection: ?*?*IPrintSchemaOptionCollection,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaCapabilities,
+                pFeature: ?*IPrintSchemaFeature,
+                ppOptionCollection: ?*?*IPrintSchemaOptionCollection,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4680,17 +5579,25 @@ pub const IPrintSchemaCapabilities = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintSchemaCapabilities2_Value = @import("../zig.zig").Guid.initString("b58845f4-9970-4d87-a636-169fb82ed642");
+const IID_IPrintSchemaCapabilities2_Value = Guid.initString("b58845f4-9970-4d87-a636-169fb82ed642");
 pub const IID_IPrintSchemaCapabilities2 = &IID_IPrintSchemaCapabilities2_Value;
 pub const IPrintSchemaCapabilities2 = extern struct {
     pub const VTable = extern struct {
         base: IPrintSchemaCapabilities.VTable,
-        GetParameterDefinition: fn(
-            self: *const IPrintSchemaCapabilities2,
-            bstrName: ?BSTR,
-            bstrNamespaceUri: ?BSTR,
-            ppParameterDefinition: ?*?*IPrintSchemaParameterDefinition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetParameterDefinition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaCapabilities2,
+                bstrName: ?BSTR,
+                bstrNamespaceUri: ?BSTR,
+                ppParameterDefinition: ?*?*IPrintSchemaParameterDefinition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaCapabilities2,
+                bstrName: ?BSTR,
+                bstrNamespaceUri: ?BSTR,
+                ppParameterDefinition: ?*?*IPrintSchemaParameterDefinition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4703,17 +5610,27 @@ pub const IPrintSchemaCapabilities2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintSchemaAsyncOperation_Value = @import("../zig.zig").Guid.initString("143c8dcb-d37f-47f7-88e8-6b1d21f2c5f7");
+const IID_IPrintSchemaAsyncOperation_Value = Guid.initString("143c8dcb-d37f-47f7-88e8-6b1d21f2c5f7");
 pub const IID_IPrintSchemaAsyncOperation = &IID_IPrintSchemaAsyncOperation_Value;
 pub const IPrintSchemaAsyncOperation = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        Start: fn(
-            self: *const IPrintSchemaAsyncOperation,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Cancel: fn(
-            self: *const IPrintSchemaAsyncOperation,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Start: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaAsyncOperation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaAsyncOperation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Cancel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaAsyncOperation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaAsyncOperation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4730,48 +5647,103 @@ pub const IPrintSchemaAsyncOperation = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintSchemaTicket_Value = @import("../zig.zig").Guid.initString("e480b861-4708-4e6d-a5b4-a2b4eeb9baa4");
+const IID_IPrintSchemaTicket_Value = Guid.initString("e480b861-4708-4e6d-a5b4-a2b4eeb9baa4");
 pub const IID_IPrintSchemaTicket = &IID_IPrintSchemaTicket_Value;
 pub const IPrintSchemaTicket = extern struct {
     pub const VTable = extern struct {
         base: IPrintSchemaElement.VTable,
-        GetFeatureByKeyName: fn(
-            self: *const IPrintSchemaTicket,
-            bstrKeyName: ?BSTR,
-            ppFeature: ?*?*IPrintSchemaFeature,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFeature: fn(
-            self: *const IPrintSchemaTicket,
-            bstrName: ?BSTR,
-            bstrNamespaceUri: ?BSTR,
-            ppFeature: ?*?*IPrintSchemaFeature,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ValidateAsync: fn(
-            self: *const IPrintSchemaTicket,
-            ppAsyncOperation: ?*?*IPrintSchemaAsyncOperation,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CommitAsync: fn(
-            self: *const IPrintSchemaTicket,
-            pPrintTicketCommit: ?*IPrintSchemaTicket,
-            ppAsyncOperation: ?*?*IPrintSchemaAsyncOperation,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        NotifyXmlChanged: fn(
-            self: *const IPrintSchemaTicket,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCapabilities: fn(
-            self: *const IPrintSchemaTicket,
-            ppCapabilities: ?*?*IPrintSchemaCapabilities,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetFeatureByKeyName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaTicket,
+                bstrKeyName: ?BSTR,
+                ppFeature: ?*?*IPrintSchemaFeature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaTicket,
+                bstrKeyName: ?BSTR,
+                ppFeature: ?*?*IPrintSchemaFeature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFeature: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaTicket,
+                bstrName: ?BSTR,
+                bstrNamespaceUri: ?BSTR,
+                ppFeature: ?*?*IPrintSchemaFeature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaTicket,
+                bstrName: ?BSTR,
+                bstrNamespaceUri: ?BSTR,
+                ppFeature: ?*?*IPrintSchemaFeature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ValidateAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaTicket,
+                ppAsyncOperation: ?*?*IPrintSchemaAsyncOperation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaTicket,
+                ppAsyncOperation: ?*?*IPrintSchemaAsyncOperation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CommitAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaTicket,
+                pPrintTicketCommit: ?*IPrintSchemaTicket,
+                ppAsyncOperation: ?*?*IPrintSchemaAsyncOperation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaTicket,
+                pPrintTicketCommit: ?*IPrintSchemaTicket,
+                ppAsyncOperation: ?*?*IPrintSchemaAsyncOperation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        NotifyXmlChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaTicket,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaTicket,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCapabilities: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaTicket,
+                ppCapabilities: ?*?*IPrintSchemaCapabilities,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaTicket,
+                ppCapabilities: ?*?*IPrintSchemaCapabilities,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_JobCopiesAllDocuments: fn(
-            self: *const IPrintSchemaTicket,
-            pulJobCopiesAllDocuments: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_JobCopiesAllDocuments: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaTicket,
+                pulJobCopiesAllDocuments: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaTicket,
+                pulJobCopiesAllDocuments: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_JobCopiesAllDocuments: fn(
-            self: *const IPrintSchemaTicket,
-            ulJobCopiesAllDocuments: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_JobCopiesAllDocuments: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintSchemaTicket,
+                ulJobCopiesAllDocuments: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintSchemaTicket,
+                ulJobCopiesAllDocuments: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4812,17 +5784,25 @@ pub const IPrintSchemaTicket = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintSchemaTicket2_Value = @import("../zig.zig").Guid.initString("2ec1f844-766a-47a1-91f4-2eeb6190f80c");
+const IID_IPrintSchemaTicket2_Value = Guid.initString("2ec1f844-766a-47a1-91f4-2eeb6190f80c");
 pub const IID_IPrintSchemaTicket2 = &IID_IPrintSchemaTicket2_Value;
 pub const IPrintSchemaTicket2 = extern struct {
     pub const VTable = extern struct {
         base: IPrintSchemaTicket.VTable,
-        GetParameterInitializer: fn(
-            self: *const IPrintSchemaTicket2,
-            bstrName: ?BSTR,
-            bstrNamespaceUri: ?BSTR,
-            ppParameterInitializer: ?*?*IPrintSchemaParameterInitializer,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetParameterInitializer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaTicket2,
+                bstrName: ?BSTR,
+                bstrNamespaceUri: ?BSTR,
+                ppParameterInitializer: ?*?*IPrintSchemaParameterInitializer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaTicket2,
+                bstrName: ?BSTR,
+                bstrNamespaceUri: ?BSTR,
+                ppParameterInitializer: ?*?*IPrintSchemaParameterInitializer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4835,16 +5815,23 @@ pub const IPrintSchemaTicket2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintSchemaAsyncOperationEvent_Value = @import("../zig.zig").Guid.initString("23adbb16-0133-4906-b29a-1dce1d026379");
+const IID_IPrintSchemaAsyncOperationEvent_Value = Guid.initString("23adbb16-0133-4906-b29a-1dce1d026379");
 pub const IID_IPrintSchemaAsyncOperationEvent = &IID_IPrintSchemaAsyncOperationEvent_Value;
 pub const IPrintSchemaAsyncOperationEvent = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        Completed: fn(
-            self: *const IPrintSchemaAsyncOperationEvent,
-            pTicket: ?*IPrintSchemaTicket,
-            hrOperation: HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Completed: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintSchemaAsyncOperationEvent,
+                pTicket: ?*IPrintSchemaTicket,
+                hrOperation: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintSchemaAsyncOperationEvent,
+                pTicket: ?*IPrintSchemaTicket,
+                hrOperation: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4857,21 +5844,35 @@ pub const IPrintSchemaAsyncOperationEvent = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterScriptableSequentialStream_Value = @import("../zig.zig").Guid.initString("2072838a-316f-467a-a949-27f68c44a854");
+const IID_IPrinterScriptableSequentialStream_Value = Guid.initString("2072838a-316f-467a-a949-27f68c44a854");
 pub const IID_IPrinterScriptableSequentialStream = &IID_IPrinterScriptableSequentialStream_Value;
 pub const IPrinterScriptableSequentialStream = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        Read: fn(
-            self: *const IPrinterScriptableSequentialStream,
-            cbRead: i32,
-            ppArray: ?*?*IDispatch,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Write: fn(
-            self: *const IPrinterScriptableSequentialStream,
-            pArray: ?*IDispatch,
-            pcbWritten: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Read: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptableSequentialStream,
+                cbRead: i32,
+                ppArray: ?*?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptableSequentialStream,
+                cbRead: i32,
+                ppArray: ?*?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Write: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptableSequentialStream,
+                pArray: ?*IDispatch,
+                pcbWritten: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptableSequentialStream,
+                pArray: ?*IDispatch,
+                pcbWritten: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4888,24 +5889,43 @@ pub const IPrinterScriptableSequentialStream = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterScriptableStream_Value = @import("../zig.zig").Guid.initString("7edf9a92-4750-41a5-a17f-879a6f4f7dcb");
+const IID_IPrinterScriptableStream_Value = Guid.initString("7edf9a92-4750-41a5-a17f-879a6f4f7dcb");
 pub const IID_IPrinterScriptableStream = &IID_IPrinterScriptableStream_Value;
 pub const IPrinterScriptableStream = extern struct {
     pub const VTable = extern struct {
         base: IPrinterScriptableSequentialStream.VTable,
-        Commit: fn(
-            self: *const IPrinterScriptableStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Seek: fn(
-            self: *const IPrinterScriptableStream,
-            lOffset: i32,
-            streamSeek: STREAM_SEEK,
-            plPosition: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetSize: fn(
-            self: *const IPrinterScriptableStream,
-            lSize: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Commit: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptableStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptableStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Seek: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptableStream,
+                lOffset: i32,
+                streamSeek: STREAM_SEEK,
+                plPosition: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptableStream,
+                lOffset: i32,
+                streamSeek: STREAM_SEEK,
+                plPosition: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptableStream,
+                lSize: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptableStream,
+                lSize: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -4926,63 +5946,135 @@ pub const IPrinterScriptableStream = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterPropertyBag_Value = @import("../zig.zig").Guid.initString("fea77364-df95-4a23-a905-019b79a8e481");
+const IID_IPrinterPropertyBag_Value = Guid.initString("fea77364-df95-4a23-a905-019b79a8e481");
 pub const IID_IPrinterPropertyBag = &IID_IPrinterPropertyBag_Value;
 pub const IPrinterPropertyBag = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        GetBool: fn(
-            self: *const IPrinterPropertyBag,
-            bstrName: ?BSTR,
-            pbValue: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetBool: fn(
-            self: *const IPrinterPropertyBag,
-            bstrName: ?BSTR,
-            bValue: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetInt32: fn(
-            self: *const IPrinterPropertyBag,
-            bstrName: ?BSTR,
-            pnValue: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetInt32: fn(
-            self: *const IPrinterPropertyBag,
-            bstrName: ?BSTR,
-            nValue: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetString: fn(
-            self: *const IPrinterPropertyBag,
-            bstrName: ?BSTR,
-            pbstrValue: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetString: fn(
-            self: *const IPrinterPropertyBag,
-            bstrName: ?BSTR,
-            bstrValue: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetBytes: fn(
-            self: *const IPrinterPropertyBag,
-            bstrName: ?BSTR,
-            pcbValue: ?*u32,
-            ppValue: [*]?*u8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetBytes: fn(
-            self: *const IPrinterPropertyBag,
-            bstrName: ?BSTR,
-            cbValue: u32,
-            pValue: [*:0]u8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetReadStream: fn(
-            self: *const IPrinterPropertyBag,
-            bstrName: ?BSTR,
-            ppValue: ?*?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetWriteStream: fn(
-            self: *const IPrinterPropertyBag,
-            bstrName: ?BSTR,
-            ppValue: ?*?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetBool: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                pbValue: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                pbValue: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetBool: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                bValue: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                bValue: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetInt32: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                pnValue: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                pnValue: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetInt32: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                nValue: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                nValue: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetString: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                pbstrValue: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                pbstrValue: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetString: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                bstrValue: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                bstrValue: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetBytes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                pcbValue: ?*u32,
+                ppValue: [*]?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                pcbValue: ?*u32,
+                ppValue: [*]?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetBytes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                cbValue: u32,
+                pValue: [*:0]u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                cbValue: u32,
+                pValue: [*:0]u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetReadStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                ppValue: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                ppValue: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetWriteStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                ppValue: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterPropertyBag,
+                bstrName: ?BSTR,
+                ppValue: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5031,61 +6123,131 @@ pub const IPrinterPropertyBag = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterScriptablePropertyBag_Value = @import("../zig.zig").Guid.initString("91c7765f-ed57-49ad-8b01-dc24816a5294");
+const IID_IPrinterScriptablePropertyBag_Value = Guid.initString("91c7765f-ed57-49ad-8b01-dc24816a5294");
 pub const IID_IPrinterScriptablePropertyBag = &IID_IPrinterScriptablePropertyBag_Value;
 pub const IPrinterScriptablePropertyBag = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        GetBool: fn(
-            self: *const IPrinterScriptablePropertyBag,
-            bstrName: ?BSTR,
-            pbValue: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetBool: fn(
-            self: *const IPrinterScriptablePropertyBag,
-            bstrName: ?BSTR,
-            bValue: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetInt32: fn(
-            self: *const IPrinterScriptablePropertyBag,
-            bstrName: ?BSTR,
-            pnValue: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetInt32: fn(
-            self: *const IPrinterScriptablePropertyBag,
-            bstrName: ?BSTR,
-            nValue: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetString: fn(
-            self: *const IPrinterScriptablePropertyBag,
-            bstrName: ?BSTR,
-            pbstrValue: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetString: fn(
-            self: *const IPrinterScriptablePropertyBag,
-            bstrName: ?BSTR,
-            bstrValue: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetBytes: fn(
-            self: *const IPrinterScriptablePropertyBag,
-            bstrName: ?BSTR,
-            ppArray: ?*?*IDispatch,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetBytes: fn(
-            self: *const IPrinterScriptablePropertyBag,
-            bstrName: ?BSTR,
-            pArray: ?*IDispatch,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetReadStream: fn(
-            self: *const IPrinterScriptablePropertyBag,
-            bstrName: ?BSTR,
-            ppStream: ?*?*IPrinterScriptableStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetWriteStream: fn(
-            self: *const IPrinterScriptablePropertyBag,
-            bstrName: ?BSTR,
-            ppStream: ?*?*IPrinterScriptableStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetBool: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                pbValue: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                pbValue: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetBool: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                bValue: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                bValue: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetInt32: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                pnValue: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                pnValue: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetInt32: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                nValue: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                nValue: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetString: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                pbstrValue: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                pbstrValue: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetString: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                bstrValue: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                bstrValue: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetBytes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                ppArray: ?*?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                ppArray: ?*?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetBytes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                pArray: ?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                pArray: ?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetReadStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                ppStream: ?*?*IPrinterScriptableStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                ppStream: ?*?*IPrinterScriptableStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetWriteStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                ppStream: ?*?*IPrinterScriptableStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptablePropertyBag,
+                bstrName: ?BSTR,
+                ppStream: ?*?*IPrinterScriptableStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5134,16 +6296,23 @@ pub const IPrinterScriptablePropertyBag = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterScriptablePropertyBag2_Value = @import("../zig.zig").Guid.initString("2a1c53c4-8638-4b3e-b518-2773c94556a3");
+const IID_IPrinterScriptablePropertyBag2_Value = Guid.initString("2a1c53c4-8638-4b3e-b518-2773c94556a3");
 pub const IID_IPrinterScriptablePropertyBag2 = &IID_IPrinterScriptablePropertyBag2_Value;
 pub const IPrinterScriptablePropertyBag2 = extern struct {
     pub const VTable = extern struct {
         base: IPrinterScriptablePropertyBag.VTable,
-        GetReadStreamAsXML: fn(
-            self: *const IPrinterScriptablePropertyBag2,
-            bstrName: ?BSTR,
-            ppXmlNode: ?*?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetReadStreamAsXML: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterScriptablePropertyBag2,
+                bstrName: ?BSTR,
+                ppXmlNode: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterScriptablePropertyBag2,
+                bstrName: ?BSTR,
+                ppXmlNode: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5156,29 +6325,57 @@ pub const IPrinterScriptablePropertyBag2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterQueue_Value = @import("../zig.zig").Guid.initString("3580a828-07fe-4b94-ac1a-757d9d2d3056");
+const IID_IPrinterQueue_Value = Guid.initString("3580a828-07fe-4b94-ac1a-757d9d2d3056");
 pub const IID_IPrinterQueue = &IID_IPrinterQueue_Value;
 pub const IPrinterQueue = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Handle: fn(
-            self: *const IPrinterQueue,
-            phPrinter: ?*?HANDLE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Handle: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterQueue,
+                phPrinter: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterQueue,
+                phPrinter: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Name: fn(
-            self: *const IPrinterQueue,
-            pbstrName: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SendBidiQuery: fn(
-            self: *const IPrinterQueue,
-            bstrBidiQuery: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetProperties: fn(
-            self: *const IPrinterQueue,
-            ppPropertyBag: ?*?*IPrinterPropertyBag,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Name: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterQueue,
+                pbstrName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterQueue,
+                pbstrName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SendBidiQuery: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterQueue,
+                bstrBidiQuery: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterQueue,
+                bstrBidiQuery: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetProperties: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterQueue,
+                ppPropertyBag: ?*?*IPrinterPropertyBag,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterQueue,
+                ppPropertyBag: ?*?*IPrinterPropertyBag,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5234,44 +6431,97 @@ pub const PrintJobStatus_Restarted = PrintJobStatus.Restarted;
 pub const PrintJobStatus_Complete = PrintJobStatus.Complete;
 pub const PrintJobStatus_Retained = PrintJobStatus.Retained;
 
-const IID_IPrintJob_Value = @import("../zig.zig").Guid.initString("b771dab8-1282-41b7-858c-f206e4d20577");
+const IID_IPrintJob_Value = Guid.initString("b771dab8-1282-41b7-858c-f206e4d20577");
 pub const IID_IPrintJob = &IID_IPrintJob_Value;
 pub const IPrintJob = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Name: fn(
-            self: *const IPrintJob,
-            pbstrName: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Name: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintJob,
+                pbstrName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintJob,
+                pbstrName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Id: fn(
-            self: *const IPrintJob,
-            pulID: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Id: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintJob,
+                pulID: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintJob,
+                pulID: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_PrintedPages: fn(
-            self: *const IPrintJob,
-            pulPages: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_PrintedPages: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintJob,
+                pulPages: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintJob,
+                pulPages: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_TotalPages: fn(
-            self: *const IPrintJob,
-            pulPages: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_TotalPages: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintJob,
+                pulPages: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintJob,
+                pulPages: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Status: fn(
-            self: *const IPrintJob,
-            pStatus: ?*PrintJobStatus,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Status: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintJob,
+                pStatus: ?*PrintJobStatus,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintJob,
+                pStatus: ?*PrintJobStatus,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_SubmissionTime: fn(
-            self: *const IPrintJob,
-            pSubmissionTime: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestCancel: fn(
-            self: *const IPrintJob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_SubmissionTime: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintJob,
+                pSubmissionTime: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintJob,
+                pSubmissionTime: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestCancel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5308,26 +6558,49 @@ pub const IPrintJob = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintJobCollection_Value = @import("../zig.zig").Guid.initString("72b82a24-a598-4e87-895f-cdb23a49e9dc");
+const IID_IPrintJobCollection_Value = Guid.initString("72b82a24-a598-4e87-895f-cdb23a49e9dc");
 pub const IID_IPrintJobCollection = &IID_IPrintJobCollection_Value;
 pub const IPrintJobCollection = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Count: fn(
-            self: *const IPrintJobCollection,
-            pulCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAt: fn(
-            self: *const IPrintJobCollection,
-            ulIndex: u32,
-            ppJob: ?*?*IPrintJob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Count: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintJobCollection,
+                pulCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintJobCollection,
+                pulCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAt: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintJobCollection,
+                ulIndex: u32,
+                ppJob: ?*?*IPrintJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintJobCollection,
+                ulIndex: u32,
+                ppJob: ?*?*IPrintJob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get__NewEnum: fn(
-            self: *const IPrintJobCollection,
-            ppUnk: ?*?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get__NewEnum: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrintJobCollection,
+                ppUnk: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrintJobCollection,
+                ppUnk: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5348,18 +6621,27 @@ pub const IPrintJobCollection = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterQueueViewEvent_Value = @import("../zig.zig").Guid.initString("c5b6042b-fd21-404a-a0ef-e2fbb52b9080");
+const IID_IPrinterQueueViewEvent_Value = Guid.initString("c5b6042b-fd21-404a-a0ef-e2fbb52b9080");
 pub const IID_IPrinterQueueViewEvent = &IID_IPrinterQueueViewEvent_Value;
 pub const IPrinterQueueViewEvent = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        OnChanged: fn(
-            self: *const IPrinterQueueViewEvent,
-            pCollection: ?*IPrintJobCollection,
-            ulViewOffset: u32,
-            ulViewSize: u32,
-            ulCountJobsInPrintQueue: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterQueueViewEvent,
+                pCollection: ?*IPrintJobCollection,
+                ulViewOffset: u32,
+                ulViewSize: u32,
+                ulCountJobsInPrintQueue: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterQueueViewEvent,
+                pCollection: ?*IPrintJobCollection,
+                ulViewOffset: u32,
+                ulViewSize: u32,
+                ulCountJobsInPrintQueue: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5372,16 +6654,23 @@ pub const IPrinterQueueViewEvent = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterQueueView_Value = @import("../zig.zig").Guid.initString("476e2969-3b2b-4b3f-8277-cff6056042aa");
+const IID_IPrinterQueueView_Value = Guid.initString("476e2969-3b2b-4b3f-8277-cff6056042aa");
 pub const IID_IPrinterQueueView = &IID_IPrinterQueueView_Value;
 pub const IPrinterQueueView = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        SetViewRange: fn(
-            self: *const IPrinterQueueView,
-            ulViewOffset: u32,
-            ulViewSize: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetViewRange: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterQueueView,
+                ulViewOffset: u32,
+                ulViewSize: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterQueueView,
+                ulViewOffset: u32,
+                ulViewSize: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5394,16 +6683,23 @@ pub const IPrinterQueueView = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterQueueEvent_Value = @import("../zig.zig").Guid.initString("214685f6-7b78-4681-87e0-495f739273d1");
+const IID_IPrinterQueueEvent_Value = Guid.initString("214685f6-7b78-4681-87e0-495f739273d1");
 pub const IID_IPrinterQueueEvent = &IID_IPrinterQueueEvent_Value;
 pub const IPrinterQueueEvent = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        OnBidiResponseReceived: fn(
-            self: *const IPrinterQueueEvent,
-            bstrResponse: ?BSTR,
-            hrStatus: HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnBidiResponseReceived: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterQueueEvent,
+                bstrResponse: ?BSTR,
+                hrStatus: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterQueueEvent,
+                bstrResponse: ?BSTR,
+                hrStatus: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5416,16 +6712,23 @@ pub const IPrinterQueueEvent = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterBidiSetRequestCallback_Value = @import("../zig.zig").Guid.initString("c52d32dd-f2b4-4052-8502-ec4305ecb71f");
+const IID_IPrinterBidiSetRequestCallback_Value = Guid.initString("c52d32dd-f2b4-4052-8502-ec4305ecb71f");
 pub const IID_IPrinterBidiSetRequestCallback = &IID_IPrinterBidiSetRequestCallback_Value;
 pub const IPrinterBidiSetRequestCallback = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Completed: fn(
-            self: *const IPrinterBidiSetRequestCallback,
-            bstrResponse: ?BSTR,
-            hrStatus: HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Completed: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterBidiSetRequestCallback,
+                bstrResponse: ?BSTR,
+                hrStatus: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterBidiSetRequestCallback,
+                bstrResponse: ?BSTR,
+                hrStatus: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5438,14 +6741,19 @@ pub const IPrinterBidiSetRequestCallback = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterExtensionAsyncOperation_Value = @import("../zig.zig").Guid.initString("108d6a23-6a4b-4552-9448-68b427186acd");
+const IID_IPrinterExtensionAsyncOperation_Value = Guid.initString("108d6a23-6a4b-4552-9448-68b427186acd");
 pub const IID_IPrinterExtensionAsyncOperation = &IID_IPrinterExtensionAsyncOperation_Value;
 pub const IPrinterExtensionAsyncOperation = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Cancel: fn(
-            self: *const IPrinterExtensionAsyncOperation,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Cancel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterExtensionAsyncOperation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterExtensionAsyncOperation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5458,23 +6766,39 @@ pub const IPrinterExtensionAsyncOperation = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterQueue2_Value = @import("../zig.zig").Guid.initString("8cd444e8-c9bb-49b3-8e38-e03209416131");
+const IID_IPrinterQueue2_Value = Guid.initString("8cd444e8-c9bb-49b3-8e38-e03209416131");
 pub const IID_IPrinterQueue2 = &IID_IPrinterQueue2_Value;
 pub const IPrinterQueue2 = extern struct {
     pub const VTable = extern struct {
         base: IPrinterQueue.VTable,
-        SendBidiSetRequestAsync: fn(
-            self: *const IPrinterQueue2,
-            bstrBidiRequest: ?BSTR,
-            pCallback: ?*IPrinterBidiSetRequestCallback,
-            ppAsyncOperation: ?*?*IPrinterExtensionAsyncOperation,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPrinterQueueView: fn(
-            self: *const IPrinterQueue2,
-            ulViewOffset: u32,
-            ulViewSize: u32,
-            ppJobView: ?*?*IPrinterQueueView,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SendBidiSetRequestAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterQueue2,
+                bstrBidiRequest: ?BSTR,
+                pCallback: ?*IPrinterBidiSetRequestCallback,
+                ppAsyncOperation: ?*?*IPrinterExtensionAsyncOperation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterQueue2,
+                bstrBidiRequest: ?BSTR,
+                pCallback: ?*IPrinterBidiSetRequestCallback,
+                ppAsyncOperation: ?*?*IPrinterExtensionAsyncOperation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPrinterQueueView: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterQueue2,
+                ulViewOffset: u32,
+                ulViewSize: u32,
+                ppJobView: ?*?*IPrinterQueueView,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterQueue2,
+                ulViewOffset: u32,
+                ulViewSize: u32,
+                ppJobView: ?*?*IPrinterQueueView,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5491,31 +6815,63 @@ pub const IPrinterQueue2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterExtensionContext_Value = @import("../zig.zig").Guid.initString("39843bf2-c4d2-41fd-b4b2-aedbee5e1900");
+const IID_IPrinterExtensionContext_Value = Guid.initString("39843bf2-c4d2-41fd-b4b2-aedbee5e1900");
 pub const IID_IPrinterExtensionContext = &IID_IPrinterExtensionContext_Value;
 pub const IPrinterExtensionContext = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_PrinterQueue: fn(
-            self: *const IPrinterExtensionContext,
-            ppQueue: ?*?*IPrinterQueue,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_PrinterQueue: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterExtensionContext,
+                ppQueue: ?*?*IPrinterQueue,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterExtensionContext,
+                ppQueue: ?*?*IPrinterQueue,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_PrintSchemaTicket: fn(
-            self: *const IPrinterExtensionContext,
-            ppTicket: ?*?*IPrintSchemaTicket,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_PrintSchemaTicket: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterExtensionContext,
+                ppTicket: ?*?*IPrintSchemaTicket,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterExtensionContext,
+                ppTicket: ?*?*IPrintSchemaTicket,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DriverProperties: fn(
-            self: *const IPrinterExtensionContext,
-            ppPropertyBag: ?*?*IPrinterPropertyBag,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DriverProperties: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterExtensionContext,
+                ppPropertyBag: ?*?*IPrinterPropertyBag,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterExtensionContext,
+                ppPropertyBag: ?*?*IPrinterPropertyBag,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_UserProperties: fn(
-            self: *const IPrinterExtensionContext,
-            ppPropertyBag: ?*?*IPrinterPropertyBag,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_UserProperties: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterExtensionContext,
+                ppPropertyBag: ?*?*IPrinterPropertyBag,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterExtensionContext,
+                ppPropertyBag: ?*?*IPrinterPropertyBag,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5540,19 +6896,31 @@ pub const IPrinterExtensionContext = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterExtensionRequest_Value = @import("../zig.zig").Guid.initString("39843bf3-c4d2-41fd-b4b2-aedbee5e1900");
+const IID_IPrinterExtensionRequest_Value = Guid.initString("39843bf3-c4d2-41fd-b4b2-aedbee5e1900");
 pub const IID_IPrinterExtensionRequest = &IID_IPrinterExtensionRequest_Value;
 pub const IPrinterExtensionRequest = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        Cancel: fn(
-            self: *const IPrinterExtensionRequest,
-            hrStatus: HRESULT,
-            bstrLogMessage: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Complete: fn(
-            self: *const IPrinterExtensionRequest,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Cancel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterExtensionRequest,
+                hrStatus: HRESULT,
+                bstrLogMessage: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterExtensionRequest,
+                hrStatus: HRESULT,
+                bstrLogMessage: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Complete: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterExtensionRequest,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterExtensionRequest,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5569,46 +6937,102 @@ pub const IPrinterExtensionRequest = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterExtensionEventArgs_Value = @import("../zig.zig").Guid.initString("39843bf4-c4d2-41fd-b4b2-aedbee5e1900");
+const IID_IPrinterExtensionEventArgs_Value = Guid.initString("39843bf4-c4d2-41fd-b4b2-aedbee5e1900");
 pub const IID_IPrinterExtensionEventArgs = &IID_IPrinterExtensionEventArgs_Value;
 pub const IPrinterExtensionEventArgs = extern struct {
     pub const VTable = extern struct {
         base: IPrinterExtensionContext.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_BidiNotification: fn(
-            self: *const IPrinterExtensionEventArgs,
-            pbstrBidiNotification: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_BidiNotification: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterExtensionEventArgs,
+                pbstrBidiNotification: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterExtensionEventArgs,
+                pbstrBidiNotification: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_ReasonId: fn(
-            self: *const IPrinterExtensionEventArgs,
-            pReasonId: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_ReasonId: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterExtensionEventArgs,
+                pReasonId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterExtensionEventArgs,
+                pReasonId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Request: fn(
-            self: *const IPrinterExtensionEventArgs,
-            ppRequest: ?*?*IPrinterExtensionRequest,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Request: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterExtensionEventArgs,
+                ppRequest: ?*?*IPrinterExtensionRequest,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterExtensionEventArgs,
+                ppRequest: ?*?*IPrinterExtensionRequest,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_SourceApplication: fn(
-            self: *const IPrinterExtensionEventArgs,
-            pbstrApplication: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_SourceApplication: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterExtensionEventArgs,
+                pbstrApplication: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterExtensionEventArgs,
+                pbstrApplication: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DetailedReasonId: fn(
-            self: *const IPrinterExtensionEventArgs,
-            pDetailedReasonId: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DetailedReasonId: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterExtensionEventArgs,
+                pDetailedReasonId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterExtensionEventArgs,
+                pDetailedReasonId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_WindowModal: fn(
-            self: *const IPrinterExtensionEventArgs,
-            pbModal: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_WindowModal: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterExtensionEventArgs,
+                pbModal: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterExtensionEventArgs,
+                pbModal: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_WindowParent: fn(
-            self: *const IPrinterExtensionEventArgs,
-            phwndParent: ?*?HANDLE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_WindowParent: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterExtensionEventArgs,
+                phwndParent: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterExtensionEventArgs,
+                phwndParent: ?*?HANDLE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5645,26 +7069,49 @@ pub const IPrinterExtensionEventArgs = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterExtensionContextCollection_Value = @import("../zig.zig").Guid.initString("fb476970-9bab-4861-811e-3e98b0c5addf");
+const IID_IPrinterExtensionContextCollection_Value = Guid.initString("fb476970-9bab-4861-811e-3e98b0c5addf");
 pub const IID_IPrinterExtensionContextCollection = &IID_IPrinterExtensionContextCollection_Value;
 pub const IPrinterExtensionContextCollection = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Count: fn(
-            self: *const IPrinterExtensionContextCollection,
-            pulCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAt: fn(
-            self: *const IPrinterExtensionContextCollection,
-            ulIndex: u32,
-            ppContext: ?*?*IPrinterExtensionContext,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Count: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterExtensionContextCollection,
+                pulCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterExtensionContextCollection,
+                pulCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAt: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterExtensionContextCollection,
+                ulIndex: u32,
+                ppContext: ?*?*IPrinterExtensionContext,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterExtensionContextCollection,
+                ulIndex: u32,
+                ppContext: ?*?*IPrinterExtensionContext,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get__NewEnum: fn(
-            self: *const IPrinterExtensionContextCollection,
-            ppUnk: ?*?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get__NewEnum: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterExtensionContextCollection,
+                ppUnk: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterExtensionContextCollection,
+                ppUnk: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5685,19 +7132,31 @@ pub const IPrinterExtensionContextCollection = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterExtensionEvent_Value = @import("../zig.zig").Guid.initString("c093cb63-5ef5-4585-af8e-4d5637487b57");
+const IID_IPrinterExtensionEvent_Value = Guid.initString("c093cb63-5ef5-4585-af8e-4d5637487b57");
 pub const IID_IPrinterExtensionEvent = &IID_IPrinterExtensionEvent_Value;
 pub const IPrinterExtensionEvent = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        OnDriverEvent: fn(
-            self: *const IPrinterExtensionEvent,
-            pEventArgs: ?*IPrinterExtensionEventArgs,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnPrinterQueuesEnumerated: fn(
-            self: *const IPrinterExtensionEvent,
-            pContextCollection: ?*IPrinterExtensionContextCollection,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnDriverEvent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterExtensionEvent,
+                pEventArgs: ?*IPrinterExtensionEventArgs,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterExtensionEvent,
+                pEventArgs: ?*IPrinterExtensionEventArgs,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnPrinterQueuesEnumerated: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterExtensionEvent,
+                pContextCollection: ?*IPrinterExtensionContextCollection,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterExtensionEvent,
+                pContextCollection: ?*IPrinterExtensionContextCollection,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5714,18 +7173,29 @@ pub const IPrinterExtensionEvent = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterExtensionManager_Value = @import("../zig.zig").Guid.initString("93c6eb8c-b001-4355-9629-8e8a1b3f8e77");
+const IID_IPrinterExtensionManager_Value = Guid.initString("93c6eb8c-b001-4355-9629-8e8a1b3f8e77");
 pub const IID_IPrinterExtensionManager = &IID_IPrinterExtensionManager_Value;
 pub const IPrinterExtensionManager = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        EnableEvents: fn(
-            self: *const IPrinterExtensionManager,
-            printerDriverId: Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DisableEvents: fn(
-            self: *const IPrinterExtensionManager,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        EnableEvents: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterExtensionManager,
+                printerDriverId: Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterExtensionManager,
+                printerDriverId: Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DisableEvents: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrinterExtensionManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrinterExtensionManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5742,26 +7212,50 @@ pub const IPrinterExtensionManager = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrinterScriptContext_Value = @import("../zig.zig").Guid.initString("066acbca-8881-49c9-bb98-fae16b4889e1");
+const IID_IPrinterScriptContext_Value = Guid.initString("066acbca-8881-49c9-bb98-fae16b4889e1");
 pub const IID_IPrinterScriptContext = &IID_IPrinterScriptContext_Value;
 pub const IPrinterScriptContext = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_DriverProperties: fn(
-            self: *const IPrinterScriptContext,
-            ppPropertyBag: ?*?*IPrinterScriptablePropertyBag,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_DriverProperties: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterScriptContext,
+                ppPropertyBag: ?*?*IPrinterScriptablePropertyBag,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterScriptContext,
+                ppPropertyBag: ?*?*IPrinterScriptablePropertyBag,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_QueueProperties: fn(
-            self: *const IPrinterScriptContext,
-            ppPropertyBag: ?*?*IPrinterScriptablePropertyBag,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_QueueProperties: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterScriptContext,
+                ppPropertyBag: ?*?*IPrinterScriptablePropertyBag,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterScriptContext,
+                ppPropertyBag: ?*?*IPrinterScriptablePropertyBag,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_UserProperties: fn(
-            self: *const IPrinterScriptContext,
-            ppPropertyBag: ?*?*IPrinterScriptablePropertyBag,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_UserProperties: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IPrinterScriptContext,
+                ppPropertyBag: ?*?*IPrinterScriptablePropertyBag,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IPrinterScriptContext,
+                ppPropertyBag: ?*?*IPrinterScriptablePropertyBag,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5797,20 +7291,33 @@ pub const kBiDirectional = PrintAsyncNotifyConversationStyle.BiDirectional;
 pub const kUniDirectional = PrintAsyncNotifyConversationStyle.UniDirectional;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IPrintAsyncNotifyDataObject_Value = @import("../zig.zig").Guid.initString("77cf513e-5d49-4789-9f30-d0822b335c0d");
+const IID_IPrintAsyncNotifyDataObject_Value = Guid.initString("77cf513e-5d49-4789-9f30-d0822b335c0d");
 pub const IID_IPrintAsyncNotifyDataObject = &IID_IPrintAsyncNotifyDataObject_Value;
 pub const IPrintAsyncNotifyDataObject = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AcquireData: fn(
-            self: *const IPrintAsyncNotifyDataObject,
-            ppNotificationData: ?*?*u8,
-            pSize: ?*u32,
-            ppSchema: ?*?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ReleaseData: fn(
-            self: *const IPrintAsyncNotifyDataObject,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AcquireData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNotifyDataObject,
+                ppNotificationData: ?*?*u8,
+                pSize: ?*u32,
+                ppSchema: ?*?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNotifyDataObject,
+                ppNotificationData: ?*?*u8,
+                pSize: ?*u32,
+                ppSchema: ?*?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ReleaseData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5828,19 +7335,31 @@ pub const IPrintAsyncNotifyDataObject = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IPrintAsyncNotifyChannel_Value = @import("../zig.zig").Guid.initString("4a5031b1-1f3f-4db0-a462-4530ed8b0451");
+const IID_IPrintAsyncNotifyChannel_Value = Guid.initString("4a5031b1-1f3f-4db0-a462-4530ed8b0451");
 pub const IID_IPrintAsyncNotifyChannel = &IID_IPrintAsyncNotifyChannel_Value;
 pub const IPrintAsyncNotifyChannel = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SendNotification: fn(
-            self: *const IPrintAsyncNotifyChannel,
-            pData: ?*IPrintAsyncNotifyDataObject,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CloseChannel: fn(
-            self: *const IPrintAsyncNotifyChannel,
-            pData: ?*IPrintAsyncNotifyDataObject,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SendNotification: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNotifyChannel,
+                pData: ?*IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNotifyChannel,
+                pData: ?*IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CloseChannel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNotifyChannel,
+                pData: ?*IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNotifyChannel,
+                pData: ?*IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5858,21 +7377,35 @@ pub const IPrintAsyncNotifyChannel = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IPrintAsyncNotifyCallback_Value = @import("../zig.zig").Guid.initString("7def34c1-9d92-4c99-b3b3-db94a9d4191b");
+const IID_IPrintAsyncNotifyCallback_Value = Guid.initString("7def34c1-9d92-4c99-b3b3-db94a9d4191b");
 pub const IID_IPrintAsyncNotifyCallback = &IID_IPrintAsyncNotifyCallback_Value;
 pub const IPrintAsyncNotifyCallback = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnEventNotify: fn(
-            self: *const IPrintAsyncNotifyCallback,
-            pChannel: ?*IPrintAsyncNotifyChannel,
-            pData: ?*IPrintAsyncNotifyDataObject,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ChannelClosed: fn(
-            self: *const IPrintAsyncNotifyCallback,
-            pChannel: ?*IPrintAsyncNotifyChannel,
-            pData: ?*IPrintAsyncNotifyDataObject,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnEventNotify: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNotifyCallback,
+                pChannel: ?*IPrintAsyncNotifyChannel,
+                pData: ?*IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNotifyCallback,
+                pChannel: ?*IPrintAsyncNotifyChannel,
+                pData: ?*IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ChannelClosed: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNotifyCallback,
+                pChannel: ?*IPrintAsyncNotifyChannel,
+                pData: ?*IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNotifyCallback,
+                pChannel: ?*IPrintAsyncNotifyChannel,
+                pData: ?*IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5940,17 +7473,27 @@ pub const MAX_CHANNEL_COUNT_EXCEEDED = PrintAsyncNotifyError.MAX_CHANNEL_COUNT_E
 pub const LOCAL_ONLY_REGISTRATION = PrintAsyncNotifyError.LOCAL_ONLY_REGISTRATION;
 pub const REMOTE_ONLY_REGISTRATION = PrintAsyncNotifyError.REMOTE_ONLY_REGISTRATION;
 
-const IID_IPrintAsyncNotifyRegistration_Value = @import("../zig.zig").Guid.initString("0f6f27b6-6f86-4591-9203-64c3bfadedfe");
+const IID_IPrintAsyncNotifyRegistration_Value = Guid.initString("0f6f27b6-6f86-4591-9203-64c3bfadedfe");
 pub const IID_IPrintAsyncNotifyRegistration = &IID_IPrintAsyncNotifyRegistration_Value;
 pub const IPrintAsyncNotifyRegistration = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        RegisterForNotifications: fn(
-            self: *const IPrintAsyncNotifyRegistration,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UnregisterForNotifications: fn(
-            self: *const IPrintAsyncNotifyRegistration,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        RegisterForNotifications: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNotifyRegistration,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNotifyRegistration,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UnregisterForNotifications: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNotifyRegistration,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNotifyRegistration,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -5967,28 +7510,49 @@ pub const IPrintAsyncNotifyRegistration = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IPrintAsyncNotify_Value = @import("../zig.zig").Guid.initString("532818f7-921b-4fb2-bff8-2f4fd52ebebf");
+const IID_IPrintAsyncNotify_Value = Guid.initString("532818f7-921b-4fb2-bff8-2f4fd52ebebf");
 pub const IID_IPrintAsyncNotify = &IID_IPrintAsyncNotify_Value;
 pub const IPrintAsyncNotify = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreatePrintAsyncNotifyChannel: fn(
-            self: *const IPrintAsyncNotify,
-            param0: u32,
-            param1: ?*Guid,
-            param2: PrintAsyncNotifyUserFilter,
-            param3: PrintAsyncNotifyConversationStyle,
-            param4: ?*IPrintAsyncNotifyCallback,
-            param5: ?*?*IPrintAsyncNotifyChannel,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreatePrintAsyncNotifyRegistration: fn(
-            self: *const IPrintAsyncNotify,
-            param0: ?*Guid,
-            param1: PrintAsyncNotifyUserFilter,
-            param2: PrintAsyncNotifyConversationStyle,
-            param3: ?*IPrintAsyncNotifyCallback,
-            param4: ?*?*IPrintAsyncNotifyRegistration,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreatePrintAsyncNotifyChannel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNotify,
+                param0: u32,
+                param1: ?*Guid,
+                param2: PrintAsyncNotifyUserFilter,
+                param3: PrintAsyncNotifyConversationStyle,
+                param4: ?*IPrintAsyncNotifyCallback,
+                param5: ?*?*IPrintAsyncNotifyChannel,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNotify,
+                param0: u32,
+                param1: ?*Guid,
+                param2: PrintAsyncNotifyUserFilter,
+                param3: PrintAsyncNotifyConversationStyle,
+                param4: ?*IPrintAsyncNotifyCallback,
+                param5: ?*?*IPrintAsyncNotifyChannel,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreatePrintAsyncNotifyRegistration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNotify,
+                param0: ?*Guid,
+                param1: PrintAsyncNotifyUserFilter,
+                param2: PrintAsyncNotifyConversationStyle,
+                param3: ?*IPrintAsyncNotifyCallback,
+                param4: ?*?*IPrintAsyncNotifyRegistration,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNotify,
+                param0: ?*Guid,
+                param1: PrintAsyncNotifyUserFilter,
+                param2: PrintAsyncNotifyConversationStyle,
+                param3: ?*IPrintAsyncNotifyCallback,
+                param4: ?*?*IPrintAsyncNotifyRegistration,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -6008,14 +7572,26 @@ pub const IPrintAsyncNotify = extern struct {
 pub const IPrintAsyncCookie = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        FinishAsyncCall: fn(
-            self: *const IPrintAsyncCookie,
-            param0: HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CancelAsyncCall: fn(
-            self: *const IPrintAsyncCookie,
-            param0: HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        FinishAsyncCall: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncCookie,
+                param0: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncCookie,
+                param0: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CancelAsyncCall: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncCookie,
+                param0: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncCookie,
+                param0: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -6035,11 +7611,18 @@ pub const IPrintAsyncCookie = extern struct {
 pub const IPrintAsyncNewChannelCookie = extern struct {
     pub const VTable = extern struct {
         base: IPrintAsyncCookie.VTable,
-        FinishAsyncCallWithData: fn(
-            self: *const IPrintAsyncNewChannelCookie,
-            param0: ?*?*IPrintAsyncNotifyChannel,
-            param1: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        FinishAsyncCallWithData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNewChannelCookie,
+                param0: ?*?*IPrintAsyncNotifyChannel,
+                param1: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNewChannelCookie,
+                param0: ?*?*IPrintAsyncNotifyChannel,
+                param1: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -6055,11 +7638,18 @@ pub const IPrintAsyncNewChannelCookie = extern struct {
 pub const IAsyncGetSendNotificationCookie = extern struct {
     pub const VTable = extern struct {
         base: IPrintAsyncCookie.VTable,
-        FinishAsyncCallWithData: fn(
-            self: *const IAsyncGetSendNotificationCookie,
-            param0: ?*IPrintAsyncNotifyDataObject,
-            param1: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        FinishAsyncCallWithData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAsyncGetSendNotificationCookie,
+                param0: ?*IPrintAsyncNotifyDataObject,
+                param1: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAsyncGetSendNotificationCookie,
+                param0: ?*IPrintAsyncNotifyDataObject,
+                param1: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -6075,18 +7665,36 @@ pub const IAsyncGetSendNotificationCookie = extern struct {
 pub const IAsyncGetSrvReferralCookie = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        FinishAsyncCall: fn(
-            self: *const IAsyncGetSrvReferralCookie,
-            param0: HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CancelAsyncCall: fn(
-            self: *const IAsyncGetSrvReferralCookie,
-            param0: HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        FinishAsyncCallWithData: fn(
-            self: *const IAsyncGetSrvReferralCookie,
-            param0: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        FinishAsyncCall: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAsyncGetSrvReferralCookie,
+                param0: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAsyncGetSrvReferralCookie,
+                param0: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CancelAsyncCall: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAsyncGetSrvReferralCookie,
+                param0: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAsyncGetSrvReferralCookie,
+                param0: HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        FinishAsyncCallWithData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAsyncGetSrvReferralCookie,
+                param0: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAsyncGetSrvReferralCookie,
+                param0: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -6110,10 +7718,16 @@ pub const IAsyncGetSrvReferralCookie = extern struct {
 pub const IPrintBidiAsyncNotifyRegistration = extern struct {
     pub const VTable = extern struct {
         base: IPrintAsyncNotifyRegistration.VTable,
-        AsyncGetNewChannel: fn(
-            self: *const IPrintBidiAsyncNotifyRegistration,
-            param0: ?*IPrintAsyncNewChannelCookie,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AsyncGetNewChannel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintBidiAsyncNotifyRegistration,
+                param0: ?*IPrintAsyncNewChannelCookie,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintBidiAsyncNotifyRegistration,
+                param0: ?*IPrintAsyncNewChannelCookie,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -6129,10 +7743,16 @@ pub const IPrintBidiAsyncNotifyRegistration = extern struct {
 pub const IPrintUnidiAsyncNotifyRegistration = extern struct {
     pub const VTable = extern struct {
         base: IPrintAsyncNotifyRegistration.VTable,
-        AsyncGetNotification: fn(
-            self: *const IPrintUnidiAsyncNotifyRegistration,
-            param0: ?*IAsyncGetSendNotificationCookie,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AsyncGetNotification: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintUnidiAsyncNotifyRegistration,
+                param0: ?*IAsyncGetSendNotificationCookie,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintUnidiAsyncNotifyRegistration,
+                param0: ?*IAsyncGetSendNotificationCookie,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -6148,18 +7768,36 @@ pub const IPrintUnidiAsyncNotifyRegistration = extern struct {
 pub const IPrintAsyncNotifyServerReferral = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetServerReferral: fn(
-            self: *const IPrintAsyncNotifyServerReferral,
-            param0: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AsyncGetServerReferral: fn(
-            self: *const IPrintAsyncNotifyServerReferral,
-            param0: ?*IAsyncGetSrvReferralCookie,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetServerReferral: fn(
-            self: *const IPrintAsyncNotifyServerReferral,
-            pRmtServerReferral: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetServerReferral: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNotifyServerReferral,
+                param0: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNotifyServerReferral,
+                param0: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AsyncGetServerReferral: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNotifyServerReferral,
+                param0: ?*IAsyncGetSrvReferralCookie,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNotifyServerReferral,
+                param0: ?*IAsyncGetSrvReferralCookie,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetServerReferral: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintAsyncNotifyServerReferral,
+                pRmtServerReferral: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintAsyncNotifyServerReferral,
+                pRmtServerReferral: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -6180,32 +7818,63 @@ pub const IPrintAsyncNotifyServerReferral = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IBidiAsyncNotifyChannel_Value = @import("../zig.zig").Guid.initString("532818f7-921b-4fb2-bff8-2f4fd52ebebf");
+const IID_IBidiAsyncNotifyChannel_Value = Guid.initString("532818f7-921b-4fb2-bff8-2f4fd52ebebf");
 pub const IID_IBidiAsyncNotifyChannel = &IID_IBidiAsyncNotifyChannel_Value;
 pub const IBidiAsyncNotifyChannel = extern struct {
     pub const VTable = extern struct {
         base: IPrintAsyncNotifyChannel.VTable,
-        CreateNotificationChannel: fn(
-            self: *const IBidiAsyncNotifyChannel,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPrintName: fn(
-            self: *const IBidiAsyncNotifyChannel,
-            param0: ?*?*IPrintAsyncNotifyDataObject,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetChannelNotificationType: fn(
-            self: *const IBidiAsyncNotifyChannel,
-            param0: ?*?*IPrintAsyncNotifyDataObject,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AsyncGetNotificationSendResponse: fn(
-            self: *const IBidiAsyncNotifyChannel,
-            param0: ?*IPrintAsyncNotifyDataObject,
-            param1: ?*IAsyncGetSendNotificationCookie,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AsyncCloseChannel: fn(
-            self: *const IBidiAsyncNotifyChannel,
-            param0: ?*IPrintAsyncNotifyDataObject,
-            param1: ?*IPrintAsyncCookie,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateNotificationChannel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBidiAsyncNotifyChannel,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBidiAsyncNotifyChannel,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPrintName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBidiAsyncNotifyChannel,
+                param0: ?*?*IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBidiAsyncNotifyChannel,
+                param0: ?*?*IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetChannelNotificationType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBidiAsyncNotifyChannel,
+                param0: ?*?*IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBidiAsyncNotifyChannel,
+                param0: ?*?*IPrintAsyncNotifyDataObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AsyncGetNotificationSendResponse: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBidiAsyncNotifyChannel,
+                param0: ?*IPrintAsyncNotifyDataObject,
+                param1: ?*IAsyncGetSendNotificationCookie,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBidiAsyncNotifyChannel,
+                param0: ?*IPrintAsyncNotifyDataObject,
+                param1: ?*IAsyncGetSendNotificationCookie,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AsyncCloseChannel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBidiAsyncNotifyChannel,
+                param0: ?*IPrintAsyncNotifyDataObject,
+                param1: ?*IPrintAsyncCookie,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBidiAsyncNotifyChannel,
+                param0: ?*IPrintAsyncNotifyDataObject,
+                param1: ?*IPrintAsyncCookie,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -6513,11 +8182,18 @@ pub const CONFIG_INFO_DATA_1 = extern struct {
     dwVersion: u32,
 };
 
-pub const EMFPLAYPROC = fn(
-    param0: ?HDC,
-    param1: i32,
-    param2: ?HANDLE,
-) callconv(@import("std").os.windows.WINAPI) i32;
+pub const EMFPLAYPROC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?HDC,
+        param1: i32,
+        param2: ?HANDLE,
+    ) callconv(@import("std").os.windows.WINAPI) i32,
+    else => *const fn(
+        param0: ?HDC,
+        param1: i32,
+        param2: ?HANDLE,
+    ) callconv(@import("std").os.windows.WINAPI) i32,
+} ;
 
 pub const EBranchOfficeJobEventType = enum(i32) {
     InvalidJobState = 0,
@@ -6835,14 +8511,24 @@ pub const MONITORUI = extern struct {
     pfnDeletePortUI: isize,
 };
 
-pub const ROUTER_NOTIFY_CALLBACK = fn(
-    dwCommand: u32,
-    pContext: ?*anyopaque,
-    dwColor: u32,
-    pNofityInfo: ?*PRINTER_NOTIFY_INFO,
-    fdwFlags: u32,
-    pdwResult: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const ROUTER_NOTIFY_CALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        dwCommand: u32,
+        pContext: ?*anyopaque,
+        dwColor: u32,
+        pNofityInfo: ?*PRINTER_NOTIFY_INFO,
+        fdwFlags: u32,
+        pdwResult: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        dwCommand: u32,
+        pContext: ?*anyopaque,
+        dwColor: u32,
+        pNofityInfo: ?*PRINTER_NOTIFY_INFO,
+        fdwFlags: u32,
+        pdwResult: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
 pub const NOTIFICATION_CALLBACK_COMMANDS = enum(i32) {
     NOTIFY = 0,
@@ -6890,14 +8576,19 @@ pub const SHOWUIPARAMS = extern struct {
     MessageBoxParams: MESSAGEBOX_PARAMS,
 };
 
-const IID_IXpsRasterizerNotificationCallback_Value = @import("../zig.zig").Guid.initString("9ab8fd0d-cb94-49c2-9cb0-97ec1d5469d2");
+const IID_IXpsRasterizerNotificationCallback_Value = Guid.initString("9ab8fd0d-cb94-49c2-9cb0-97ec1d5469d2");
 pub const IID_IXpsRasterizerNotificationCallback = &IID_IXpsRasterizerNotificationCallback_Value;
 pub const IXpsRasterizerNotificationCallback = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Continue: fn(
-            self: *const IXpsRasterizerNotificationCallback,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Continue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IXpsRasterizerNotificationCallback,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IXpsRasterizerNotificationCallback,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -6917,24 +8608,41 @@ pub const XPSRAS_RENDERING_MODE = enum(i32) {
 pub const XPSRAS_RENDERING_MODE_ANTIALIASED = XPSRAS_RENDERING_MODE.NTIALIASED;
 pub const XPSRAS_RENDERING_MODE_ALIASED = XPSRAS_RENDERING_MODE.LIASED;
 
-const IID_IXpsRasterizer_Value = @import("../zig.zig").Guid.initString("7567cfc8-c156-47a8-9dac-11a2ae5bdd6b");
+const IID_IXpsRasterizer_Value = Guid.initString("7567cfc8-c156-47a8-9dac-11a2ae5bdd6b");
 pub const IID_IXpsRasterizer = &IID_IXpsRasterizer_Value;
 pub const IXpsRasterizer = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        RasterizeRect: fn(
-            self: *const IXpsRasterizer,
-            x: i32,
-            y: i32,
-            width: i32,
-            height: i32,
-            notificationCallback: ?*IXpsRasterizerNotificationCallback,
-            bitmap: ?*?*IWICBitmap,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetMinimalLineWidth: fn(
-            self: *const IXpsRasterizer,
-            width: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        RasterizeRect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IXpsRasterizer,
+                x: i32,
+                y: i32,
+                width: i32,
+                height: i32,
+                notificationCallback: ?*IXpsRasterizerNotificationCallback,
+                bitmap: ?*?*IWICBitmap,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IXpsRasterizer,
+                x: i32,
+                y: i32,
+                width: i32,
+                height: i32,
+                notificationCallback: ?*IXpsRasterizerNotificationCallback,
+                bitmap: ?*?*IWICBitmap,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetMinimalLineWidth: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IXpsRasterizer,
+                width: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IXpsRasterizer,
+                width: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -6951,19 +8659,29 @@ pub const IXpsRasterizer = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IXpsRasterizationFactory_Value = @import("../zig.zig").Guid.initString("e094808a-24c6-482b-a3a7-c21ac9b55f17");
+const IID_IXpsRasterizationFactory_Value = Guid.initString("e094808a-24c6-482b-a3a7-c21ac9b55f17");
 pub const IID_IXpsRasterizationFactory = &IID_IXpsRasterizationFactory_Value;
 pub const IXpsRasterizationFactory = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateRasterizer: fn(
-            self: *const IXpsRasterizationFactory,
-            xpsPage: ?*IXpsOMPage,
-            DPI: f32,
-            nonTextRenderingMode: XPSRAS_RENDERING_MODE,
-            textRenderingMode: XPSRAS_RENDERING_MODE,
-            ppIXPSRasterizer: ?*?*IXpsRasterizer,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateRasterizer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IXpsRasterizationFactory,
+                xpsPage: ?*IXpsOMPage,
+                DPI: f32,
+                nonTextRenderingMode: XPSRAS_RENDERING_MODE,
+                textRenderingMode: XPSRAS_RENDERING_MODE,
+                ppIXPSRasterizer: ?*?*IXpsRasterizer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IXpsRasterizationFactory,
+                xpsPage: ?*IXpsOMPage,
+                DPI: f32,
+                nonTextRenderingMode: XPSRAS_RENDERING_MODE,
+                textRenderingMode: XPSRAS_RENDERING_MODE,
+                ppIXPSRasterizer: ?*?*IXpsRasterizer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -6985,20 +8703,31 @@ pub const XPSRAS_PIXEL_FORMAT_32BPP_PBGRA_UINT_SRGB = XPSRAS_PIXEL_FORMAT.@"32BP
 pub const XPSRAS_PIXEL_FORMAT_64BPP_PRGBA_HALF_SCRGB = XPSRAS_PIXEL_FORMAT.@"64BPP_PRGBA_HALF_SCRGB";
 pub const XPSRAS_PIXEL_FORMAT_128BPP_PRGBA_FLOAT_SCRGB = XPSRAS_PIXEL_FORMAT.@"128BPP_PRGBA_FLOAT_SCRGB";
 
-const IID_IXpsRasterizationFactory1_Value = @import("../zig.zig").Guid.initString("2d6e5f77-6414-4a1e-a8e0-d4194ce6a26f");
+const IID_IXpsRasterizationFactory1_Value = Guid.initString("2d6e5f77-6414-4a1e-a8e0-d4194ce6a26f");
 pub const IID_IXpsRasterizationFactory1 = &IID_IXpsRasterizationFactory1_Value;
 pub const IXpsRasterizationFactory1 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateRasterizer: fn(
-            self: *const IXpsRasterizationFactory1,
-            xpsPage: ?*IXpsOMPage,
-            DPI: f32,
-            nonTextRenderingMode: XPSRAS_RENDERING_MODE,
-            textRenderingMode: XPSRAS_RENDERING_MODE,
-            pixelFormat: XPSRAS_PIXEL_FORMAT,
-            ppIXPSRasterizer: ?*?*IXpsRasterizer,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateRasterizer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IXpsRasterizationFactory1,
+                xpsPage: ?*IXpsOMPage,
+                DPI: f32,
+                nonTextRenderingMode: XPSRAS_RENDERING_MODE,
+                textRenderingMode: XPSRAS_RENDERING_MODE,
+                pixelFormat: XPSRAS_PIXEL_FORMAT,
+                ppIXPSRasterizer: ?*?*IXpsRasterizer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IXpsRasterizationFactory1,
+                xpsPage: ?*IXpsOMPage,
+                DPI: f32,
+                nonTextRenderingMode: XPSRAS_RENDERING_MODE,
+                textRenderingMode: XPSRAS_RENDERING_MODE,
+                pixelFormat: XPSRAS_PIXEL_FORMAT,
+                ppIXPSRasterizer: ?*?*IXpsRasterizer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -7018,22 +8747,35 @@ pub const XPSRAS_BACKGROUND_COLOR = enum(i32) {
 pub const XPSRAS_BACKGROUND_COLOR_TRANSPARENT = XPSRAS_BACKGROUND_COLOR.TRANSPARENT;
 pub const XPSRAS_BACKGROUND_COLOR_OPAQUE = XPSRAS_BACKGROUND_COLOR.OPAQUE;
 
-const IID_IXpsRasterizationFactory2_Value = @import("../zig.zig").Guid.initString("9c16ce3e-10f5-41fd-9ddc-6826669c2ff6");
+const IID_IXpsRasterizationFactory2_Value = Guid.initString("9c16ce3e-10f5-41fd-9ddc-6826669c2ff6");
 pub const IID_IXpsRasterizationFactory2 = &IID_IXpsRasterizationFactory2_Value;
 pub const IXpsRasterizationFactory2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateRasterizer: fn(
-            self: *const IXpsRasterizationFactory2,
-            xpsPage: ?*IXpsOMPage,
-            DPIX: f32,
-            DPIY: f32,
-            nonTextRenderingMode: XPSRAS_RENDERING_MODE,
-            textRenderingMode: XPSRAS_RENDERING_MODE,
-            pixelFormat: XPSRAS_PIXEL_FORMAT,
-            backgroundColor: XPSRAS_BACKGROUND_COLOR,
-            ppIXpsRasterizer: ?*?*IXpsRasterizer,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateRasterizer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IXpsRasterizationFactory2,
+                xpsPage: ?*IXpsOMPage,
+                DPIX: f32,
+                DPIY: f32,
+                nonTextRenderingMode: XPSRAS_RENDERING_MODE,
+                textRenderingMode: XPSRAS_RENDERING_MODE,
+                pixelFormat: XPSRAS_PIXEL_FORMAT,
+                backgroundColor: XPSRAS_BACKGROUND_COLOR,
+                ppIXpsRasterizer: ?*?*IXpsRasterizer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IXpsRasterizationFactory2,
+                xpsPage: ?*IXpsOMPage,
+                DPIX: f32,
+                DPIY: f32,
+                nonTextRenderingMode: XPSRAS_RENDERING_MODE,
+                textRenderingMode: XPSRAS_RENDERING_MODE,
+                pixelFormat: XPSRAS_PIXEL_FORMAT,
+                backgroundColor: XPSRAS_BACKGROUND_COLOR,
+                ppIXpsRasterizer: ?*?*IXpsRasterizer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -7053,26 +8795,47 @@ pub const PageCountType = enum(i32) {
 pub const FinalPageCount = PageCountType.FinalPageCount;
 pub const IntermediatePageCount = PageCountType.IntermediatePageCount;
 
-const IID_IPrintPreviewDxgiPackageTarget_Value = @import("../zig.zig").Guid.initString("1a6dd0ad-1e2a-4e99-a5ba-91f17818290e");
+const IID_IPrintPreviewDxgiPackageTarget_Value = Guid.initString("1a6dd0ad-1e2a-4e99-a5ba-91f17818290e");
 pub const IID_IPrintPreviewDxgiPackageTarget = &IID_IPrintPreviewDxgiPackageTarget_Value;
 pub const IPrintPreviewDxgiPackageTarget = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetJobPageCount: fn(
-            self: *const IPrintPreviewDxgiPackageTarget,
-            countType: PageCountType,
-            count: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DrawPage: fn(
-            self: *const IPrintPreviewDxgiPackageTarget,
-            jobPageNumber: u32,
-            pageImage: ?*IDXGISurface,
-            dpiX: f32,
-            dpiY: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        InvalidatePreview: fn(
-            self: *const IPrintPreviewDxgiPackageTarget,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetJobPageCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintPreviewDxgiPackageTarget,
+                countType: PageCountType,
+                count: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintPreviewDxgiPackageTarget,
+                countType: PageCountType,
+                count: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DrawPage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintPreviewDxgiPackageTarget,
+                jobPageNumber: u32,
+                pageImage: ?*IDXGISurface,
+                dpiX: f32,
+                dpiY: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintPreviewDxgiPackageTarget,
+                jobPageNumber: u32,
+                pageImage: ?*IDXGISurface,
+                dpiX: f32,
+                dpiY: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        InvalidatePreview: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPrintPreviewDxgiPackageTarget,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPrintPreviewDxgiPackageTarget,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -7106,30 +8869,30 @@ pub const _SPLCLIENT_INFO_2_V2 = switch(@import("../zig.zig").arch) {
 //--------------------------------------------------------------------------------
 // Section: Functions (214)
 //--------------------------------------------------------------------------------
-pub extern "COMPSTUI" fn CommonPropertySheetUIA(
+pub extern "compstui" fn CommonPropertySheetUIA(
     hWndOwner: ?HWND,
     pfnPropSheetUI: ?PFNPROPSHEETUI,
     lParam: LPARAM,
     pResult: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "COMPSTUI" fn CommonPropertySheetUIW(
+pub extern "compstui" fn CommonPropertySheetUIW(
     hWndOwner: ?HWND,
     pfnPropSheetUI: ?PFNPROPSHEETUI,
     lParam: LPARAM,
     pResult: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "COMPSTUI" fn GetCPSUIUserData(
+pub extern "compstui" fn GetCPSUIUserData(
     hDlg: ?HWND,
 ) callconv(@import("std").os.windows.WINAPI) usize;
 
-pub extern "COMPSTUI" fn SetCPSUIUserData(
+pub extern "compstui" fn SetCPSUIUserData(
     hDlg: ?HWND,
     CPSUIUserData: usize,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumPrintersA(
+pub extern "winspool" fn EnumPrintersA(
     Flags: u32,
     Name: ?PSTR,
     Level: u32,
@@ -7140,7 +8903,7 @@ pub extern "WINSPOOL" fn EnumPrintersA(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumPrintersW(
+pub extern "winspool" fn EnumPrintersW(
     Flags: u32,
     Name: ?PWSTR,
     Level: u32,
@@ -7151,44 +8914,44 @@ pub extern "WINSPOOL" fn EnumPrintersW(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetSpoolFileHandle(
+pub extern "winspool" fn GetSpoolFileHandle(
     hPrinter: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) ?HANDLE;
 
-pub extern "WINSPOOL" fn CommitSpoolData(
+pub extern "winspool" fn CommitSpoolData(
     hPrinter: ?HANDLE,
     hSpoolFile: ?HANDLE,
     cbCommit: u32,
 ) callconv(@import("std").os.windows.WINAPI) ?HANDLE;
 
-pub extern "WINSPOOL" fn CloseSpoolFileHandle(
+pub extern "winspool" fn CloseSpoolFileHandle(
     hPrinter: ?HANDLE,
     hSpoolFile: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn OpenPrinterA(
+pub extern "winspool" fn OpenPrinterA(
     pPrinterName: ?PSTR,
     phPrinter: ?*?HANDLE,
     pDefault: ?*PRINTER_DEFAULTSA,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn OpenPrinterW(
+pub extern "winspool" fn OpenPrinterW(
     pPrinterName: ?PWSTR,
     phPrinter: ?*?HANDLE,
     pDefault: ?*PRINTER_DEFAULTSW,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn ResetPrinterA(
+pub extern "winspool" fn ResetPrinterA(
     hPrinter: ?HANDLE,
     pDefault: ?*PRINTER_DEFAULTSA,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn ResetPrinterW(
+pub extern "winspool" fn ResetPrinterW(
     hPrinter: ?HANDLE,
     pDefault: ?*PRINTER_DEFAULTSW,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn SetJobA(
+pub extern "winspool" fn SetJobA(
     hPrinter: ?HANDLE,
     JobId: u32,
     Level: u32,
@@ -7196,7 +8959,7 @@ pub extern "WINSPOOL" fn SetJobA(
     Command: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn SetJobW(
+pub extern "winspool" fn SetJobW(
     hPrinter: ?HANDLE,
     JobId: u32,
     Level: u32,
@@ -7204,7 +8967,7 @@ pub extern "WINSPOOL" fn SetJobW(
     Command: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetJobA(
+pub extern "winspool" fn GetJobA(
     hPrinter: ?HANDLE,
     JobId: u32,
     Level: u32,
@@ -7214,7 +8977,7 @@ pub extern "WINSPOOL" fn GetJobA(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetJobW(
+pub extern "winspool" fn GetJobW(
     hPrinter: ?HANDLE,
     JobId: u32,
     Level: u32,
@@ -7224,7 +8987,7 @@ pub extern "WINSPOOL" fn GetJobW(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumJobsA(
+pub extern "winspool" fn EnumJobsA(
     hPrinter: ?HANDLE,
     FirstJob: u32,
     NoJobs: u32,
@@ -7236,7 +8999,7 @@ pub extern "WINSPOOL" fn EnumJobsA(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumJobsW(
+pub extern "winspool" fn EnumJobsW(
     hPrinter: ?HANDLE,
     FirstJob: u32,
     NoJobs: u32,
@@ -7248,37 +9011,37 @@ pub extern "WINSPOOL" fn EnumJobsW(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPrinterA(
+pub extern "winspool" fn AddPrinterA(
     pName: ?PSTR,
     Level: u32,
     pPrinter: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) ?HANDLE;
 
-pub extern "WINSPOOL" fn AddPrinterW(
+pub extern "winspool" fn AddPrinterW(
     pName: ?PWSTR,
     Level: u32,
     pPrinter: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) ?HANDLE;
 
-pub extern "WINSPOOL" fn DeletePrinter(
+pub extern "winspool" fn DeletePrinter(
     hPrinter: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn SetPrinterA(
-    hPrinter: ?HANDLE,
-    Level: u32,
-    pPrinter: ?*u8,
-    Command: u32,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
-
-pub extern "WINSPOOL" fn SetPrinterW(
+pub extern "winspool" fn SetPrinterA(
     hPrinter: ?HANDLE,
     Level: u32,
     pPrinter: ?*u8,
     Command: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetPrinterA(
+pub extern "winspool" fn SetPrinterW(
+    hPrinter: ?HANDLE,
+    Level: u32,
+    pPrinter: ?*u8,
+    Command: u32,
+) callconv(@import("std").os.windows.WINAPI) BOOL;
+
+pub extern "winspool" fn GetPrinterA(
     hPrinter: ?HANDLE,
     Level: u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -7287,7 +9050,7 @@ pub extern "WINSPOOL" fn GetPrinterA(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetPrinterW(
+pub extern "winspool" fn GetPrinterW(
     hPrinter: ?HANDLE,
     Level: u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -7296,33 +9059,33 @@ pub extern "WINSPOOL" fn GetPrinterW(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPrinterDriverA(
+pub extern "winspool" fn AddPrinterDriverA(
     pName: ?PSTR,
     Level: u32,
     pDriverInfo: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPrinterDriverW(
+pub extern "winspool" fn AddPrinterDriverW(
     pName: ?PWSTR,
     Level: u32,
     pDriverInfo: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPrinterDriverExA(
+pub extern "winspool" fn AddPrinterDriverExA(
     pName: ?PSTR,
     Level: u32,
     lpbDriverInfo: ?*u8,
     dwFileCopyFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPrinterDriverExW(
+pub extern "winspool" fn AddPrinterDriverExW(
     pName: ?PWSTR,
     Level: u32,
     lpbDriverInfo: ?*u8,
     dwFileCopyFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumPrinterDriversA(
+pub extern "winspool" fn EnumPrinterDriversA(
     pName: ?PSTR,
     pEnvironment: ?PSTR,
     Level: u32,
@@ -7333,7 +9096,7 @@ pub extern "WINSPOOL" fn EnumPrinterDriversA(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumPrinterDriversW(
+pub extern "winspool" fn EnumPrinterDriversW(
     pName: ?PWSTR,
     pEnvironment: ?PWSTR,
     Level: u32,
@@ -7344,7 +9107,7 @@ pub extern "WINSPOOL" fn EnumPrinterDriversW(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetPrinterDriverA(
+pub extern "winspool" fn GetPrinterDriverA(
     hPrinter: ?HANDLE,
     pEnvironment: ?PSTR,
     Level: u32,
@@ -7354,7 +9117,7 @@ pub extern "WINSPOOL" fn GetPrinterDriverA(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetPrinterDriverW(
+pub extern "winspool" fn GetPrinterDriverW(
     hPrinter: ?HANDLE,
     pEnvironment: ?PWSTR,
     Level: u32,
@@ -7364,7 +9127,7 @@ pub extern "WINSPOOL" fn GetPrinterDriverW(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetPrinterDriverDirectoryA(
+pub extern "winspool" fn GetPrinterDriverDirectoryA(
     pName: ?PSTR,
     pEnvironment: ?PSTR,
     Level: u32,
@@ -7374,7 +9137,7 @@ pub extern "WINSPOOL" fn GetPrinterDriverDirectoryA(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetPrinterDriverDirectoryW(
+pub extern "winspool" fn GetPrinterDriverDirectoryW(
     pName: ?PWSTR,
     pEnvironment: ?PWSTR,
     Level: u32,
@@ -7384,19 +9147,19 @@ pub extern "WINSPOOL" fn GetPrinterDriverDirectoryW(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeletePrinterDriverA(
+pub extern "winspool" fn DeletePrinterDriverA(
     pName: ?PSTR,
     pEnvironment: ?PSTR,
     pDriverName: ?PSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeletePrinterDriverW(
+pub extern "winspool" fn DeletePrinterDriverW(
     pName: ?PWSTR,
     pEnvironment: ?PWSTR,
     pDriverName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeletePrinterDriverExA(
+pub extern "winspool" fn DeletePrinterDriverExA(
     pName: ?PSTR,
     pEnvironment: ?PSTR,
     pDriverName: ?PSTR,
@@ -7404,7 +9167,7 @@ pub extern "WINSPOOL" fn DeletePrinterDriverExA(
     dwVersionFlag: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeletePrinterDriverExW(
+pub extern "winspool" fn DeletePrinterDriverExW(
     pName: ?PWSTR,
     pEnvironment: ?PWSTR,
     pDriverName: ?PWSTR,
@@ -7412,21 +9175,21 @@ pub extern "WINSPOOL" fn DeletePrinterDriverExW(
     dwVersionFlag: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPrintProcessorA(
+pub extern "winspool" fn AddPrintProcessorA(
     pName: ?PSTR,
     pEnvironment: ?PSTR,
     pPathName: ?PSTR,
     pPrintProcessorName: ?PSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPrintProcessorW(
+pub extern "winspool" fn AddPrintProcessorW(
     pName: ?PWSTR,
     pEnvironment: ?PWSTR,
     pPathName: ?PWSTR,
     pPrintProcessorName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumPrintProcessorsA(
+pub extern "winspool" fn EnumPrintProcessorsA(
     pName: ?PSTR,
     pEnvironment: ?PSTR,
     Level: u32,
@@ -7437,7 +9200,7 @@ pub extern "WINSPOOL" fn EnumPrintProcessorsA(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumPrintProcessorsW(
+pub extern "winspool" fn EnumPrintProcessorsW(
     pName: ?PWSTR,
     pEnvironment: ?PWSTR,
     Level: u32,
@@ -7448,7 +9211,7 @@ pub extern "WINSPOOL" fn EnumPrintProcessorsW(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetPrintProcessorDirectoryA(
+pub extern "winspool" fn GetPrintProcessorDirectoryA(
     pName: ?PSTR,
     pEnvironment: ?PSTR,
     Level: u32,
@@ -7458,7 +9221,7 @@ pub extern "WINSPOOL" fn GetPrintProcessorDirectoryA(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetPrintProcessorDirectoryW(
+pub extern "winspool" fn GetPrintProcessorDirectoryW(
     pName: ?PWSTR,
     pEnvironment: ?PWSTR,
     Level: u32,
@@ -7468,7 +9231,7 @@ pub extern "WINSPOOL" fn GetPrintProcessorDirectoryW(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumPrintProcessorDatatypesA(
+pub extern "winspool" fn EnumPrintProcessorDatatypesA(
     pName: ?PSTR,
     pPrintProcessorName: ?PSTR,
     Level: u32,
@@ -7479,7 +9242,7 @@ pub extern "WINSPOOL" fn EnumPrintProcessorDatatypesA(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumPrintProcessorDatatypesW(
+pub extern "winspool" fn EnumPrintProcessorDatatypesW(
     pName: ?PWSTR,
     pPrintProcessorName: ?PWSTR,
     Level: u32,
@@ -7490,35 +9253,35 @@ pub extern "WINSPOOL" fn EnumPrintProcessorDatatypesW(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeletePrintProcessorA(
+pub extern "winspool" fn DeletePrintProcessorA(
     pName: ?PSTR,
     pEnvironment: ?PSTR,
     pPrintProcessorName: ?PSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeletePrintProcessorW(
+pub extern "winspool" fn DeletePrintProcessorW(
     pName: ?PWSTR,
     pEnvironment: ?PWSTR,
     pPrintProcessorName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn StartDocPrinterA(
+pub extern "winspool" fn StartDocPrinterA(
     hPrinter: ?HANDLE,
     Level: u32,
     pDocInfo: ?*DOC_INFO_1A,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn StartDocPrinterW(
+pub extern "winspool" fn StartDocPrinterW(
     hPrinter: ?HANDLE,
     Level: u32,
     pDocInfo: ?*DOC_INFO_1W,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn StartPagePrinter(
+pub extern "winspool" fn StartPagePrinter(
     hPrinter: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn WritePrinter(
+pub extern "winspool" fn WritePrinter(
     hPrinter: ?HANDLE,
     // TODO: what to do with BytesParamIndex 2?
     pBuf: ?*anyopaque,
@@ -7526,7 +9289,7 @@ pub extern "WINSPOOL" fn WritePrinter(
     pcWritten: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn FlushPrinter(
+pub extern "winspool" fn FlushPrinter(
     hPrinter: ?HANDLE,
     // TODO: what to do with BytesParamIndex 2?
     pBuf: ?*anyopaque,
@@ -7535,15 +9298,15 @@ pub extern "WINSPOOL" fn FlushPrinter(
     cSleep: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EndPagePrinter(
+pub extern "winspool" fn EndPagePrinter(
     hPrinter: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AbortPrinter(
+pub extern "winspool" fn AbortPrinter(
     hPrinter: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn ReadPrinter(
+pub extern "winspool" fn ReadPrinter(
     hPrinter: ?HANDLE,
     // TODO: what to do with BytesParamIndex 2?
     pBuf: ?*anyopaque,
@@ -7551,20 +9314,11 @@ pub extern "WINSPOOL" fn ReadPrinter(
     pNoBytesRead: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EndDocPrinter(
+pub extern "winspool" fn EndDocPrinter(
     hPrinter: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddJobA(
-    hPrinter: ?HANDLE,
-    Level: u32,
-    // TODO: what to do with BytesParamIndex 3?
-    pData: ?*u8,
-    cbBuf: u32,
-    pcbNeeded: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
-
-pub extern "WINSPOOL" fn AddJobW(
+pub extern "winspool" fn AddJobA(
     hPrinter: ?HANDLE,
     Level: u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -7573,17 +9327,26 @@ pub extern "WINSPOOL" fn AddJobW(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn ScheduleJob(
+pub extern "winspool" fn AddJobW(
+    hPrinter: ?HANDLE,
+    Level: u32,
+    // TODO: what to do with BytesParamIndex 3?
+    pData: ?*u8,
+    cbBuf: u32,
+    pcbNeeded: ?*u32,
+) callconv(@import("std").os.windows.WINAPI) BOOL;
+
+pub extern "winspool" fn ScheduleJob(
     hPrinter: ?HANDLE,
     JobId: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn PrinterProperties(
+pub extern "winspool" fn PrinterProperties(
     hWnd: ?HWND,
     hPrinter: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DocumentPropertiesA(
+pub extern "winspool" fn DocumentPropertiesA(
     hWnd: ?HWND,
     hPrinter: ?HANDLE,
     pDeviceName: ?PSTR,
@@ -7592,7 +9355,7 @@ pub extern "WINSPOOL" fn DocumentPropertiesA(
     fMode: u32,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "WINSPOOL" fn DocumentPropertiesW(
+pub extern "winspool" fn DocumentPropertiesW(
     hWnd: ?HWND,
     hPrinter: ?HANDLE,
     pDeviceName: ?PWSTR,
@@ -7601,7 +9364,7 @@ pub extern "WINSPOOL" fn DocumentPropertiesW(
     fMode: u32,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "WINSPOOL" fn AdvancedDocumentPropertiesA(
+pub extern "winspool" fn AdvancedDocumentPropertiesA(
     hWnd: ?HWND,
     hPrinter: ?HANDLE,
     pDeviceName: ?PSTR,
@@ -7609,7 +9372,7 @@ pub extern "WINSPOOL" fn AdvancedDocumentPropertiesA(
     pDevModeInput: ?*DEVMODEA,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "WINSPOOL" fn AdvancedDocumentPropertiesW(
+pub extern "winspool" fn AdvancedDocumentPropertiesW(
     hWnd: ?HWND,
     hPrinter: ?HANDLE,
     pDeviceName: ?PWSTR,
@@ -7617,7 +9380,7 @@ pub extern "WINSPOOL" fn AdvancedDocumentPropertiesW(
     pDevModeInput: ?*DEVMODEW,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "WINSPOOL" fn ExtDeviceMode(
+pub extern "winspool" fn ExtDeviceMode(
     hWnd: ?HWND,
     hInst: ?HANDLE,
     pDevModeOutput: ?*DEVMODEA,
@@ -7628,7 +9391,7 @@ pub extern "WINSPOOL" fn ExtDeviceMode(
     fMode: u32,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
-pub extern "WINSPOOL" fn GetPrinterDataA(
+pub extern "winspool" fn GetPrinterDataA(
     hPrinter: ?HANDLE,
     pValueName: ?PSTR,
     pType: ?*u32,
@@ -7638,7 +9401,7 @@ pub extern "WINSPOOL" fn GetPrinterDataA(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn GetPrinterDataW(
+pub extern "winspool" fn GetPrinterDataW(
     hPrinter: ?HANDLE,
     pValueName: ?PWSTR,
     pType: ?*u32,
@@ -7648,7 +9411,7 @@ pub extern "WINSPOOL" fn GetPrinterDataW(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn GetPrinterDataExA(
+pub extern "winspool" fn GetPrinterDataExA(
     hPrinter: ?HANDLE,
     pKeyName: ?[*:0]const u8,
     pValueName: ?[*:0]const u8,
@@ -7659,7 +9422,7 @@ pub extern "WINSPOOL" fn GetPrinterDataExA(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn GetPrinterDataExW(
+pub extern "winspool" fn GetPrinterDataExW(
     hPrinter: ?HANDLE,
     pKeyName: ?[*:0]const u16,
     pValueName: ?[*:0]const u16,
@@ -7670,7 +9433,7 @@ pub extern "WINSPOOL" fn GetPrinterDataExW(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn EnumPrinterDataA(
+pub extern "winspool" fn EnumPrinterDataA(
     hPrinter: ?HANDLE,
     dwIndex: u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -7683,7 +9446,7 @@ pub extern "WINSPOOL" fn EnumPrinterDataA(
     pcbData: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn EnumPrinterDataW(
+pub extern "winspool" fn EnumPrinterDataW(
     hPrinter: ?HANDLE,
     dwIndex: u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -7696,7 +9459,7 @@ pub extern "WINSPOOL" fn EnumPrinterDataW(
     pcbData: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn EnumPrinterDataExA(
+pub extern "winspool" fn EnumPrinterDataExA(
     hPrinter: ?HANDLE,
     pKeyName: ?[*:0]const u8,
     // TODO: what to do with BytesParamIndex 3?
@@ -7706,7 +9469,7 @@ pub extern "WINSPOOL" fn EnumPrinterDataExA(
     pnEnumValues: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn EnumPrinterDataExW(
+pub extern "winspool" fn EnumPrinterDataExW(
     hPrinter: ?HANDLE,
     pKeyName: ?[*:0]const u16,
     // TODO: what to do with BytesParamIndex 3?
@@ -7716,7 +9479,7 @@ pub extern "WINSPOOL" fn EnumPrinterDataExW(
     pnEnumValues: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn EnumPrinterKeyA(
+pub extern "winspool" fn EnumPrinterKeyA(
     hPrinter: ?HANDLE,
     pKeyName: ?[*:0]const u8,
     // TODO: what to do with BytesParamIndex 3?
@@ -7725,7 +9488,7 @@ pub extern "WINSPOOL" fn EnumPrinterKeyA(
     pcbSubkey: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn EnumPrinterKeyW(
+pub extern "winspool" fn EnumPrinterKeyW(
     hPrinter: ?HANDLE,
     pKeyName: ?[*:0]const u16,
     // TODO: what to do with BytesParamIndex 3?
@@ -7734,7 +9497,7 @@ pub extern "WINSPOOL" fn EnumPrinterKeyW(
     pcbSubkey: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn SetPrinterDataA(
+pub extern "winspool" fn SetPrinterDataA(
     hPrinter: ?HANDLE,
     pValueName: ?PSTR,
     Type: u32,
@@ -7743,7 +9506,7 @@ pub extern "WINSPOOL" fn SetPrinterDataA(
     cbData: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn SetPrinterDataW(
+pub extern "winspool" fn SetPrinterDataW(
     hPrinter: ?HANDLE,
     pValueName: ?PWSTR,
     Type: u32,
@@ -7752,7 +9515,7 @@ pub extern "WINSPOOL" fn SetPrinterDataW(
     cbData: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn SetPrinterDataExA(
+pub extern "winspool" fn SetPrinterDataExA(
     hPrinter: ?HANDLE,
     pKeyName: ?[*:0]const u8,
     pValueName: ?[*:0]const u8,
@@ -7762,7 +9525,7 @@ pub extern "WINSPOOL" fn SetPrinterDataExA(
     cbData: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn SetPrinterDataExW(
+pub extern "winspool" fn SetPrinterDataExW(
     hPrinter: ?HANDLE,
     pKeyName: ?[*:0]const u16,
     pValueName: ?[*:0]const u16,
@@ -7772,66 +9535,66 @@ pub extern "WINSPOOL" fn SetPrinterDataExW(
     cbData: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn DeletePrinterDataA(
+pub extern "winspool" fn DeletePrinterDataA(
     hPrinter: ?HANDLE,
     pValueName: ?PSTR,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn DeletePrinterDataW(
+pub extern "winspool" fn DeletePrinterDataW(
     hPrinter: ?HANDLE,
     pValueName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn DeletePrinterDataExA(
+pub extern "winspool" fn DeletePrinterDataExA(
     hPrinter: ?HANDLE,
     pKeyName: ?[*:0]const u8,
     pValueName: ?[*:0]const u8,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn DeletePrinterDataExW(
+pub extern "winspool" fn DeletePrinterDataExW(
     hPrinter: ?HANDLE,
     pKeyName: ?[*:0]const u16,
     pValueName: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn DeletePrinterKeyA(
+pub extern "winspool" fn DeletePrinterKeyA(
     hPrinter: ?HANDLE,
     pKeyName: ?[*:0]const u8,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn DeletePrinterKeyW(
+pub extern "winspool" fn DeletePrinterKeyW(
     hPrinter: ?HANDLE,
     pKeyName: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn WaitForPrinterChange(
+pub extern "winspool" fn WaitForPrinterChange(
     hPrinter: ?HANDLE,
     Flags: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn FindFirstPrinterChangeNotification(
+pub extern "winspool" fn FindFirstPrinterChangeNotification(
     hPrinter: ?HANDLE,
     fdwFilter: u32,
     fdwOptions: u32,
     pPrinterNotifyOptions: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) ?HANDLE;
 
-pub extern "WINSPOOL" fn FindNextPrinterChangeNotification(
+pub extern "winspool" fn FindNextPrinterChangeNotification(
     hChange: ?HANDLE,
     pdwChange: ?*u32,
     pvReserved: ?*anyopaque,
     ppPrinterNotifyInfo: ?*?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn FreePrinterNotifyInfo(
+pub extern "winspool" fn FreePrinterNotifyInfo(
     pPrinterNotifyInfo: ?*PRINTER_NOTIFY_INFO,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn FindClosePrinterChangeNotification(
+pub extern "winspool" fn FindClosePrinterChangeNotification(
     hChange: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn PrinterMessageBoxA(
+pub extern "winspool" fn PrinterMessageBoxA(
     hPrinter: ?HANDLE,
     Error: u32,
     hWnd: ?HWND,
@@ -7840,7 +9603,7 @@ pub extern "WINSPOOL" fn PrinterMessageBoxA(
     dwType: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn PrinterMessageBoxW(
+pub extern "winspool" fn PrinterMessageBoxW(
     hPrinter: ?HANDLE,
     Error: u32,
     hWnd: ?HWND,
@@ -7849,33 +9612,33 @@ pub extern "WINSPOOL" fn PrinterMessageBoxW(
     dwType: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn ClosePrinter(
+pub extern "winspool" fn ClosePrinter(
     hPrinter: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddFormA(
-    hPrinter: ?HANDLE,
-    Level: u32,
-    pForm: ?*u8,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
-
-pub extern "WINSPOOL" fn AddFormW(
+pub extern "winspool" fn AddFormA(
     hPrinter: ?HANDLE,
     Level: u32,
     pForm: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeleteFormA(
+pub extern "winspool" fn AddFormW(
+    hPrinter: ?HANDLE,
+    Level: u32,
+    pForm: ?*u8,
+) callconv(@import("std").os.windows.WINAPI) BOOL;
+
+pub extern "winspool" fn DeleteFormA(
     hPrinter: ?HANDLE,
     pFormName: ?PSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeleteFormW(
+pub extern "winspool" fn DeleteFormW(
     hPrinter: ?HANDLE,
     pFormName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetFormA(
+pub extern "winspool" fn GetFormA(
     hPrinter: ?HANDLE,
     pFormName: ?PSTR,
     Level: u32,
@@ -7885,7 +9648,7 @@ pub extern "WINSPOOL" fn GetFormA(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetFormW(
+pub extern "winspool" fn GetFormW(
     hPrinter: ?HANDLE,
     pFormName: ?PWSTR,
     Level: u32,
@@ -7895,21 +9658,21 @@ pub extern "WINSPOOL" fn GetFormW(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn SetFormA(
+pub extern "winspool" fn SetFormA(
     hPrinter: ?HANDLE,
     pFormName: ?PSTR,
     Level: u32,
     pForm: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn SetFormW(
+pub extern "winspool" fn SetFormW(
     hPrinter: ?HANDLE,
     pFormName: ?PWSTR,
     Level: u32,
     pForm: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumFormsA(
+pub extern "winspool" fn EnumFormsA(
     hPrinter: ?HANDLE,
     Level: u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -7919,7 +9682,7 @@ pub extern "WINSPOOL" fn EnumFormsA(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumFormsW(
+pub extern "winspool" fn EnumFormsW(
     hPrinter: ?HANDLE,
     Level: u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -7929,7 +9692,7 @@ pub extern "WINSPOOL" fn EnumFormsW(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumMonitorsA(
+pub extern "winspool" fn EnumMonitorsA(
     pName: ?PSTR,
     Level: u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -7939,7 +9702,7 @@ pub extern "WINSPOOL" fn EnumMonitorsA(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumMonitorsW(
+pub extern "winspool" fn EnumMonitorsW(
     pName: ?PWSTR,
     Level: u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -7949,31 +9712,31 @@ pub extern "WINSPOOL" fn EnumMonitorsW(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddMonitorA(
+pub extern "winspool" fn AddMonitorA(
     pName: ?PSTR,
     Level: u32,
     pMonitors: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddMonitorW(
+pub extern "winspool" fn AddMonitorW(
     pName: ?PWSTR,
     Level: u32,
     pMonitors: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeleteMonitorA(
+pub extern "winspool" fn DeleteMonitorA(
     pName: ?PSTR,
     pEnvironment: ?PSTR,
     pMonitorName: ?PSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeleteMonitorW(
+pub extern "winspool" fn DeleteMonitorW(
     pName: ?PWSTR,
     pEnvironment: ?PWSTR,
     pMonitorName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumPortsA(
+pub extern "winspool" fn EnumPortsA(
     pName: ?PSTR,
     Level: u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -7983,7 +9746,7 @@ pub extern "WINSPOOL" fn EnumPortsA(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn EnumPortsW(
+pub extern "winspool" fn EnumPortsW(
     pName: ?PWSTR,
     Level: u32,
     // TODO: what to do with BytesParamIndex 3?
@@ -7993,43 +9756,43 @@ pub extern "WINSPOOL" fn EnumPortsW(
     pcReturned: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPortA(
+pub extern "winspool" fn AddPortA(
     pName: ?PSTR,
     hWnd: ?HWND,
     pMonitorName: ?PSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPortW(
+pub extern "winspool" fn AddPortW(
     pName: ?PWSTR,
     hWnd: ?HWND,
     pMonitorName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn ConfigurePortA(
+pub extern "winspool" fn ConfigurePortA(
     pName: ?PSTR,
     hWnd: ?HWND,
     pPortName: ?PSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn ConfigurePortW(
+pub extern "winspool" fn ConfigurePortW(
     pName: ?PWSTR,
     hWnd: ?HWND,
     pPortName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeletePortA(
+pub extern "winspool" fn DeletePortA(
     pName: ?PSTR,
     hWnd: ?HWND,
     pPortName: ?PSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeletePortW(
+pub extern "winspool" fn DeletePortW(
     pName: ?PWSTR,
     hWnd: ?HWND,
     pPortName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn XcvDataW(
+pub extern "winspool" fn XcvDataW(
     hXcv: ?HANDLE,
     pszDataName: ?[*:0]const u16,
     // TODO: what to do with BytesParamIndex 3?
@@ -8042,122 +9805,122 @@ pub extern "WINSPOOL" fn XcvDataW(
     pdwStatus: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetDefaultPrinterA(
+pub extern "winspool" fn GetDefaultPrinterA(
     pszBuffer: ?[*:0]u8,
     pcchBuffer: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetDefaultPrinterW(
+pub extern "winspool" fn GetDefaultPrinterW(
     pszBuffer: ?[*:0]u16,
     pcchBuffer: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn SetDefaultPrinterA(
+pub extern "winspool" fn SetDefaultPrinterA(
     pszPrinter: ?[*:0]const u8,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn SetDefaultPrinterW(
+pub extern "winspool" fn SetDefaultPrinterW(
     pszPrinter: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn SetPortA(
+pub extern "winspool" fn SetPortA(
     pName: ?PSTR,
     pPortName: ?PSTR,
     dwLevel: u32,
     pPortInfo: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn SetPortW(
+pub extern "winspool" fn SetPortW(
     pName: ?PWSTR,
     pPortName: ?PWSTR,
     dwLevel: u32,
     pPortInfo: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPrinterConnectionA(
+pub extern "winspool" fn AddPrinterConnectionA(
     pName: ?PSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPrinterConnectionW(
+pub extern "winspool" fn AddPrinterConnectionW(
     pName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeletePrinterConnectionA(
+pub extern "winspool" fn DeletePrinterConnectionA(
     pName: ?PSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeletePrinterConnectionW(
+pub extern "winspool" fn DeletePrinterConnectionW(
     pName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn ConnectToPrinterDlg(
+pub extern "winspool" fn ConnectToPrinterDlg(
     hwnd: ?HWND,
     Flags: u32,
 ) callconv(@import("std").os.windows.WINAPI) ?HANDLE;
 
-pub extern "WINSPOOL" fn AddPrintProvidorA(
+pub extern "winspool" fn AddPrintProvidorA(
     pName: ?PSTR,
     Level: u32,
     pProvidorInfo: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPrintProvidorW(
+pub extern "winspool" fn AddPrintProvidorW(
     pName: ?PWSTR,
     Level: u32,
     pProvidorInfo: ?*u8,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeletePrintProvidorA(
+pub extern "winspool" fn DeletePrintProvidorA(
     pName: ?PSTR,
     pEnvironment: ?PSTR,
     pPrintProvidorName: ?PSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeletePrintProvidorW(
+pub extern "winspool" fn DeletePrintProvidorW(
     pName: ?PWSTR,
     pEnvironment: ?PWSTR,
     pPrintProvidorName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn IsValidDevmodeA(
+pub extern "winspool" fn IsValidDevmodeA(
     pDevmode: ?*DEVMODEA,
     DevmodeSize: usize,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn IsValidDevmodeW(
+pub extern "winspool" fn IsValidDevmodeW(
     pDevmode: ?*DEVMODEW,
     DevmodeSize: usize,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn OpenPrinter2A(
+pub extern "winspool" fn OpenPrinter2A(
     pPrinterName: ?[*:0]const u8,
     phPrinter: ?*?HANDLE,
     pDefault: ?*PRINTER_DEFAULTSA,
     pOptions: ?*PRINTER_OPTIONSA,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn OpenPrinter2W(
+pub extern "winspool" fn OpenPrinter2W(
     pPrinterName: ?[*:0]const u16,
     phPrinter: ?*?HANDLE,
     pDefault: ?*PRINTER_DEFAULTSW,
     pOptions: ?*PRINTER_OPTIONSW,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPrinterConnection2A(
+pub extern "winspool" fn AddPrinterConnection2A(
     hWnd: ?HWND,
     pszName: ?[*:0]const u8,
     dwLevel: u32,
     pConnectionInfo: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn AddPrinterConnection2W(
+pub extern "winspool" fn AddPrinterConnection2W(
     hWnd: ?HWND,
     pszName: ?[*:0]const u16,
     dwLevel: u32,
     pConnectionInfo: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn InstallPrinterDriverFromPackageA(
+pub extern "winspool" fn InstallPrinterDriverFromPackageA(
     pszServer: ?[*:0]const u8,
     pszInfPath: ?[*:0]const u8,
     pszDriverName: ?[*:0]const u8,
@@ -8165,7 +9928,7 @@ pub extern "WINSPOOL" fn InstallPrinterDriverFromPackageA(
     dwFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "WINSPOOL" fn InstallPrinterDriverFromPackageW(
+pub extern "winspool" fn InstallPrinterDriverFromPackageW(
     pszServer: ?[*:0]const u16,
     pszInfPath: ?[*:0]const u16,
     pszDriverName: ?[*:0]const u16,
@@ -8173,7 +9936,7 @@ pub extern "WINSPOOL" fn InstallPrinterDriverFromPackageW(
     dwFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "WINSPOOL" fn UploadPrinterDriverPackageA(
+pub extern "winspool" fn UploadPrinterDriverPackageA(
     pszServer: ?[*:0]const u8,
     pszInfPath: ?[*:0]const u8,
     pszEnvironment: ?[*:0]const u8,
@@ -8183,7 +9946,7 @@ pub extern "WINSPOOL" fn UploadPrinterDriverPackageA(
     pcchDestInfPath: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "WINSPOOL" fn UploadPrinterDriverPackageW(
+pub extern "winspool" fn UploadPrinterDriverPackageW(
     pszServer: ?[*:0]const u16,
     pszInfPath: ?[*:0]const u16,
     pszEnvironment: ?[*:0]const u16,
@@ -8193,7 +9956,7 @@ pub extern "WINSPOOL" fn UploadPrinterDriverPackageW(
     pcchDestInfPath: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "WINSPOOL" fn GetCorePrinterDriversA(
+pub extern "winspool" fn GetCorePrinterDriversA(
     pszServer: ?[*:0]const u8,
     pszEnvironment: ?[*:0]const u8,
     pszzCoreDriverDependencies: ?[*:0]const u8,
@@ -8201,7 +9964,7 @@ pub extern "WINSPOOL" fn GetCorePrinterDriversA(
     pCorePrinterDrivers: [*]CORE_PRINTER_DRIVERA,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "WINSPOOL" fn GetCorePrinterDriversW(
+pub extern "winspool" fn GetCorePrinterDriversW(
     pszServer: ?[*:0]const u16,
     pszEnvironment: ?[*:0]const u16,
     pszzCoreDriverDependencies: ?[*:0]const u16,
@@ -8215,7 +9978,7 @@ pub fn CorePrinterDriverInstalledA() void { @panic("this function is not working
 // This function from dll 'WINSPOOL' is being skipped because it has some sort of issue
 pub fn CorePrinterDriverInstalledW() void { @panic("this function is not working"); }
 
-pub extern "WINSPOOL" fn GetPrinterDriverPackagePathA(
+pub extern "winspool" fn GetPrinterDriverPackagePathA(
     pszServer: ?[*:0]const u8,
     pszEnvironment: ?[*:0]const u8,
     pszLanguage: ?[*:0]const u8,
@@ -8225,7 +9988,7 @@ pub extern "WINSPOOL" fn GetPrinterDriverPackagePathA(
     pcchRequiredSize: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "WINSPOOL" fn GetPrinterDriverPackagePathW(
+pub extern "winspool" fn GetPrinterDriverPackagePathW(
     pszServer: ?[*:0]const u16,
     pszEnvironment: ?[*:0]const u16,
     pszLanguage: ?[*:0]const u16,
@@ -8235,26 +9998,26 @@ pub extern "WINSPOOL" fn GetPrinterDriverPackagePathW(
     pcchRequiredSize: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "WINSPOOL" fn DeletePrinterDriverPackageA(
+pub extern "winspool" fn DeletePrinterDriverPackageA(
     pszServer: ?[*:0]const u8,
     pszInfPath: ?[*:0]const u8,
     pszEnvironment: ?[*:0]const u8,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "WINSPOOL" fn DeletePrinterDriverPackageW(
+pub extern "winspool" fn DeletePrinterDriverPackageW(
     pszServer: ?[*:0]const u16,
     pszInfPath: ?[*:0]const u16,
     pszEnvironment: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "WINSPOOL" fn ReportJobProcessingProgress(
+pub extern "winspool" fn ReportJobProcessingProgress(
     printerHandle: ?HANDLE,
     jobId: u32,
     jobOperation: EPrintXPSJobOperation,
     jobProgress: EPrintXPSJobProgress,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "WINSPOOL" fn GetPrinterDriver2A(
+pub extern "winspool" fn GetPrinterDriver2A(
     hWnd: ?HWND,
     hPrinter: ?HANDLE,
     pEnvironment: ?PSTR,
@@ -8265,7 +10028,7 @@ pub extern "WINSPOOL" fn GetPrinterDriver2A(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetPrinterDriver2W(
+pub extern "winspool" fn GetPrinterDriver2W(
     hWnd: ?HWND,
     hPrinter: ?HANDLE,
     pEnvironment: ?PWSTR,
@@ -8276,58 +10039,58 @@ pub extern "WINSPOOL" fn GetPrinterDriver2W(
     pcbNeeded: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetPrintExecutionData(
+pub extern "winspool" fn GetPrintExecutionData(
     pData: ?*PRINT_EXECUTION_DATA,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn GetJobNamedPropertyValue(
+pub extern "winspool" fn GetJobNamedPropertyValue(
     hPrinter: ?HANDLE,
     JobId: u32,
     pszName: ?[*:0]const u16,
     pValue: ?*PrintPropertyValue,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn FreePrintPropertyValue(
+pub extern "winspool" fn FreePrintPropertyValue(
     pValue: ?*PrintPropertyValue,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
-pub extern "WINSPOOL" fn FreePrintNamedPropertyArray(
+pub extern "winspool" fn FreePrintNamedPropertyArray(
     cProperties: u32,
     ppProperties: ?[*]?*PrintNamedProperty,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
-pub extern "WINSPOOL" fn SetJobNamedProperty(
+pub extern "winspool" fn SetJobNamedProperty(
     hPrinter: ?HANDLE,
     JobId: u32,
     pProperty: ?*const PrintNamedProperty,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn DeleteJobNamedProperty(
+pub extern "winspool" fn DeleteJobNamedProperty(
     hPrinter: ?HANDLE,
     JobId: u32,
     pszName: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn EnumJobNamedProperties(
+pub extern "winspool" fn EnumJobNamedProperties(
     hPrinter: ?HANDLE,
     JobId: u32,
     pcProperties: ?*u32,
     ppProperties: ?*?*PrintNamedProperty,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WINSPOOL" fn GetPrintOutputInfo(
+pub extern "winspool" fn GetPrintOutputInfo(
     hWnd: ?HWND,
     pszPrinter: ?[*:0]const u16,
     phFile: ?*?HANDLE,
     ppszOutputFile: ?*?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "WINSPOOL" fn DevQueryPrintEx(
+pub extern "winspool" fn DevQueryPrintEx(
     pDQPInfo: ?*DEVQUERYPRINT_INFO,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "WINSPOOL" fn RegisterForPrintAsyncNotifications(
+pub extern "winspool" fn RegisterForPrintAsyncNotifications(
     pszName: ?[*:0]const u16,
     pNotificationType: ?*Guid,
     eUserFilter: PrintAsyncNotifyUserFilter,
@@ -8337,12 +10100,12 @@ pub extern "WINSPOOL" fn RegisterForPrintAsyncNotifications(
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "WINSPOOL" fn UnRegisterForPrintAsyncNotifications(
+pub extern "winspool" fn UnRegisterForPrintAsyncNotifications(
     param0: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "WINSPOOL" fn CreatePrintAsyncNotifyChannel(
+pub extern "winspool" fn CreatePrintAsyncNotifyChannel(
     pszName: ?[*:0]const u16,
     pNotificationType: ?*Guid,
     eUserFilter: PrintAsyncNotifyUserFilter,
@@ -8351,40 +10114,40 @@ pub extern "WINSPOOL" fn CreatePrintAsyncNotifyChannel(
     ppIAsynchNotification: ?*?*IPrintAsyncNotifyChannel,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "GDI32" fn GdiGetSpoolFileHandle(
+pub extern "gdi32" fn GdiGetSpoolFileHandle(
     pwszPrinterName: ?PWSTR,
     pDevmode: ?*DEVMODEW,
     pwszDocName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) ?HANDLE;
 
-pub extern "GDI32" fn GdiDeleteSpoolFileHandle(
+pub extern "gdi32" fn GdiDeleteSpoolFileHandle(
     SpoolFileHandle: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "GDI32" fn GdiGetPageCount(
+pub extern "gdi32" fn GdiGetPageCount(
     SpoolFileHandle: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "GDI32" fn GdiGetDC(
+pub extern "gdi32" fn GdiGetDC(
     SpoolFileHandle: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) ?HDC;
 
-pub extern "GDI32" fn GdiGetPageHandle(
+pub extern "gdi32" fn GdiGetPageHandle(
     SpoolFileHandle: ?HANDLE,
     Page: u32,
     pdwPageType: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) ?HANDLE;
 
-pub extern "GDI32" fn GdiStartDocEMF(
+pub extern "gdi32" fn GdiStartDocEMF(
     SpoolFileHandle: ?HANDLE,
     pDocInfo: ?*DOCINFOW,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "GDI32" fn GdiStartPageEMF(
+pub extern "gdi32" fn GdiStartPageEMF(
     SpoolFileHandle: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "GDI32" fn GdiPlayPageEMF(
+pub extern "gdi32" fn GdiPlayPageEMF(
     SpoolFileHandle: ?HANDLE,
     hemf: ?HANDLE,
     prectDocument: ?*RECT,
@@ -8392,34 +10155,34 @@ pub extern "GDI32" fn GdiPlayPageEMF(
     prectClip: ?*RECT,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "GDI32" fn GdiEndPageEMF(
+pub extern "gdi32" fn GdiEndPageEMF(
     SpoolFileHandle: ?HANDLE,
     dwOptimization: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "GDI32" fn GdiEndDocEMF(
+pub extern "gdi32" fn GdiEndDocEMF(
     SpoolFileHandle: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "GDI32" fn GdiGetDevmodeForPage(
+pub extern "gdi32" fn GdiGetDevmodeForPage(
     SpoolFileHandle: ?HANDLE,
     dwPageNumber: u32,
     pCurrDM: ?*?*DEVMODEW,
     pLastDM: ?*?*DEVMODEW,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "GDI32" fn GdiResetDCEMF(
+pub extern "gdi32" fn GdiResetDCEMF(
     SpoolFileHandle: ?HANDLE,
     pCurrDM: ?*DEVMODEW,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn GetJobAttributes(
+pub extern "spoolss" fn GetJobAttributes(
     pPrinterName: ?PWSTR,
     pDevmode: ?*DEVMODEW,
     pAttributeInfo: ?*ATTRIBUTE_INFO_3,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn GetJobAttributesEx(
+pub extern "spoolss" fn GetJobAttributesEx(
     pPrinterName: ?PWSTR,
     pDevmode: ?*DEVMODEW,
     dwLevel: u32,
@@ -8429,12 +10192,12 @@ pub extern "SPOOLSS" fn GetJobAttributesEx(
     dwFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn CreatePrinterIC(
+pub extern "winspool" fn CreatePrinterIC(
     hPrinter: ?HANDLE,
     pDevMode: ?*DEVMODEW,
 ) callconv(@import("std").os.windows.WINAPI) ?HANDLE;
 
-pub extern "WINSPOOL" fn PlayGdiScriptOnPrinterIC(
+pub extern "winspool" fn PlayGdiScriptOnPrinterIC(
     hPrinterIC: ?HANDLE,
     // TODO: what to do with BytesParamIndex 2?
     pIn: ?*u8,
@@ -8445,31 +10208,31 @@ pub extern "WINSPOOL" fn PlayGdiScriptOnPrinterIC(
     ul: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DeletePrinterIC(
+pub extern "winspool" fn DeletePrinterIC(
     hPrinterIC: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINSPOOL" fn DevQueryPrint(
+pub extern "winspool" fn DevQueryPrint(
     hPrinter: ?HANDLE,
     pDevMode: ?*DEVMODEA,
     pResID: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn RevertToPrinterSelf(
+pub extern "spoolss" fn RevertToPrinterSelf(
 ) callconv(@import("std").os.windows.WINAPI) ?HANDLE;
 
-pub extern "SPOOLSS" fn ImpersonatePrinterClient(
+pub extern "spoolss" fn ImpersonatePrinterClient(
     hToken: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn ReplyPrinterChangeNotification(
+pub extern "spoolss" fn ReplyPrinterChangeNotification(
     hPrinter: ?HANDLE,
     fdwChangeFlags: u32,
     pdwResult: ?*u32,
     pPrinterNotifyInfo: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn ReplyPrinterChangeNotificationEx(
+pub extern "spoolss" fn ReplyPrinterChangeNotificationEx(
     hNotify: ?HANDLE,
     dwColor: u32,
     fdwFlags: u32,
@@ -8477,42 +10240,42 @@ pub extern "SPOOLSS" fn ReplyPrinterChangeNotificationEx(
     pPrinterNotifyInfo: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn PartialReplyPrinterChangeNotification(
+pub extern "spoolss" fn PartialReplyPrinterChangeNotification(
     hPrinter: ?HANDLE,
     pDataSrc: ?*PRINTER_NOTIFY_INFO_DATA,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn RouterAllocPrinterNotifyInfo(
+pub extern "spoolss" fn RouterAllocPrinterNotifyInfo(
     cPrinterNotifyInfoData: u32,
 ) callconv(@import("std").os.windows.WINAPI) ?*PRINTER_NOTIFY_INFO;
 
-pub extern "SPOOLSS" fn RouterFreePrinterNotifyInfo(
+pub extern "spoolss" fn RouterFreePrinterNotifyInfo(
     pInfo: ?*PRINTER_NOTIFY_INFO,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn RouterAllocBidiResponseContainer(
+pub extern "spoolss" fn RouterAllocBidiResponseContainer(
     Count: u32,
 ) callconv(@import("std").os.windows.WINAPI) ?*BIDI_RESPONSE_CONTAINER;
 
-pub extern "SPOOLSS" fn RouterAllocBidiMem(
+pub extern "spoolss" fn RouterAllocBidiMem(
     NumBytes: usize,
 ) callconv(@import("std").os.windows.WINAPI) ?*anyopaque;
 
-pub extern "WINSPOOL" fn RouterFreeBidiResponseContainer(
+pub extern "winspool" fn RouterFreeBidiResponseContainer(
     pData: ?*BIDI_RESPONSE_CONTAINER,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "SPOOLSS" fn RouterFreeBidiMem(
+pub extern "spoolss" fn RouterFreeBidiMem(
     pMemPointer: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
-pub extern "SPOOLSS" fn AppendPrinterNotifyInfoData(
+pub extern "spoolss" fn AppendPrinterNotifyInfoData(
     pInfoDest: ?*PRINTER_NOTIFY_INFO,
     pDataSrc: ?*PRINTER_NOTIFY_INFO_DATA,
     fdwFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn CallRouterFindFirstPrinterChangeNotification(
+pub extern "spoolss" fn CallRouterFindFirstPrinterChangeNotification(
     hPrinterRPC: ?HANDLE,
     fdwFilterFlags: u32,
     fdwOptions: u32,
@@ -8520,7 +10283,7 @@ pub extern "SPOOLSS" fn CallRouterFindFirstPrinterChangeNotification(
     pPrinterNotifyOptions: ?*PRINTER_NOTIFY_OPTIONS,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "SPOOLSS" fn ProvidorFindFirstPrinterChangeNotification(
+pub extern "spoolss" fn ProvidorFindFirstPrinterChangeNotification(
     hPrinter: ?HANDLE,
     fdwFlags: u32,
     fdwOptions: u32,
@@ -8529,11 +10292,11 @@ pub extern "SPOOLSS" fn ProvidorFindFirstPrinterChangeNotification(
     pvReserved1: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn ProvidorFindClosePrinterChangeNotification(
+pub extern "spoolss" fn ProvidorFindClosePrinterChangeNotification(
     hPrinter: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn SpoolerFindFirstPrinterChangeNotification(
+pub extern "spoolss" fn SpoolerFindFirstPrinterChangeNotification(
     hPrinter: ?HANDLE,
     fdwFilterFlags: u32,
     fdwOptions: u32,
@@ -8544,25 +10307,25 @@ pub extern "SPOOLSS" fn SpoolerFindFirstPrinterChangeNotification(
     phEvent: ?*?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn SpoolerFindNextPrinterChangeNotification(
+pub extern "spoolss" fn SpoolerFindNextPrinterChangeNotification(
     hPrinter: ?HANDLE,
     pfdwChange: ?*u32,
     pPrinterNotifyOptions: ?*anyopaque,
     ppPrinterNotifyInfo: ?*?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn SpoolerRefreshPrinterChangeNotification(
+pub extern "spoolss" fn SpoolerRefreshPrinterChangeNotification(
     hPrinter: ?HANDLE,
     dwColor: u32,
     pOptions: ?*PRINTER_NOTIFY_OPTIONS,
     ppInfo: ?*?*PRINTER_NOTIFY_INFO,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn SpoolerFreePrinterNotifyInfo(
+pub extern "spoolss" fn SpoolerFreePrinterNotifyInfo(
     pInfo: ?*PRINTER_NOTIFY_INFO,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
-pub extern "SPOOLSS" fn SpoolerFindClosePrinterChangeNotification(
+pub extern "spoolss" fn SpoolerFindClosePrinterChangeNotification(
     hPrinter: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
@@ -8584,30 +10347,30 @@ pub extern "mscms" fn GenerateCopyFilePaths(
     dwFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "SPOOLSS" fn SplPromptUIInUsersSession(
+pub extern "spoolss" fn SplPromptUIInUsersSession(
     hPrinter: ?HANDLE,
     JobId: u32,
     pUIParams: ?*SHOWUIPARAMS,
     pResponse: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "SPOOLSS" fn SplIsSessionZero(
+pub extern "spoolss" fn SplIsSessionZero(
     hPrinter: ?HANDLE,
     JobId: u32,
     pIsSessionZero: ?*BOOL,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "SPOOLSS" fn AddPrintDeviceObject(
+pub extern "spoolss" fn AddPrintDeviceObject(
     hPrinter: ?HANDLE,
     phDeviceObject: ?*?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "SPOOLSS" fn UpdatePrintDeviceObject(
+pub extern "spoolss" fn UpdatePrintDeviceObject(
     hPrinter: ?HANDLE,
     hDeviceObject: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "SPOOLSS" fn RemovePrintDeviceObject(
+pub extern "spoolss" fn RemovePrintDeviceObject(
     hDeviceObject: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
@@ -9093,14 +10856,14 @@ test {
     if (@hasDecl(@This(), "ROUTER_NOTIFY_CALLBACK")) { _ = ROUTER_NOTIFY_CALLBACK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

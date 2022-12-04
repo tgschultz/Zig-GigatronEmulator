@@ -6,17 +6,25 @@
 //--------------------------------------------------------------------------------
 // Section: Types (1)
 //--------------------------------------------------------------------------------
-const IID_ICoreFrameworkInputViewInterop_Value = @import("../../zig.zig").Guid.initString("0e3da342-b11c-484b-9c1c-be0d61c2f6c5");
+const IID_ICoreFrameworkInputViewInterop_Value = Guid.initString("0e3da342-b11c-484b-9c1c-be0d61c2f6c5");
 pub const IID_ICoreFrameworkInputViewInterop = &IID_ICoreFrameworkInputViewInterop_Value;
 pub const ICoreFrameworkInputViewInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        GetForWindow: fn(
-            self: *const ICoreFrameworkInputViewInterop,
-            appWindow: ?HWND,
-            riid: ?*const Guid,
-            coreFrameworkInputView: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICoreFrameworkInputViewInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                coreFrameworkInputView: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICoreFrameworkInputViewInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                coreFrameworkInputView: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -57,14 +65,14 @@ const IInspectable = @import("../../system/win_rt.zig").IInspectable;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

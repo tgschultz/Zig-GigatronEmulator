@@ -6,7 +6,7 @@
 //--------------------------------------------------------------------------------
 // Section: Types (3)
 //--------------------------------------------------------------------------------
-const CLSID_IsolatedAppLauncher_Value = @import("../zig.zig").Guid.initString("bc812430-e75e-4fd1-9641-1f9f1e2d9a1f");
+const CLSID_IsolatedAppLauncher_Value = Guid.initString("bc812430-e75e-4fd1-9641-1f9f1e2d9a1f");
 pub const CLSID_IsolatedAppLauncher = &CLSID_IsolatedAppLauncher_Value;
 
 pub const IsolatedAppLauncherTelemetryParameters = extern struct {
@@ -14,17 +14,25 @@ pub const IsolatedAppLauncherTelemetryParameters = extern struct {
     CorrelationGUID: Guid,
 };
 
-const IID_IIsolatedAppLauncher_Value = @import("../zig.zig").Guid.initString("f686878f-7b42-4cc4-96fb-f4f3b6e3d24d");
+const IID_IIsolatedAppLauncher_Value = Guid.initString("f686878f-7b42-4cc4-96fb-f4f3b6e3d24d");
 pub const IID_IIsolatedAppLauncher = &IID_IIsolatedAppLauncher_Value;
 pub const IIsolatedAppLauncher = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Launch: fn(
-            self: *const IIsolatedAppLauncher,
-            appUserModelId: ?[*:0]const u16,
-            arguments: ?[*:0]const u16,
-            telemetryParameters: ?*const IsolatedAppLauncherTelemetryParameters,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Launch: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IIsolatedAppLauncher,
+                appUserModelId: ?[*:0]const u16,
+                arguments: ?[*:0]const u16,
+                telemetryParameters: ?*const IsolatedAppLauncherTelemetryParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IIsolatedAppLauncher,
+                appUserModelId: ?[*:0]const u16,
+                arguments: ?[*:0]const u16,
+                telemetryParameters: ?*const IsolatedAppLauncherTelemetryParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -42,7 +50,7 @@ pub const IIsolatedAppLauncher = extern struct {
 // Section: Functions (10)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "KERNEL32" fn GetAppContainerNamedObjectPath(
+pub extern "kernel32" fn GetAppContainerNamedObjectPath(
     Token: ?HANDLE,
     AppContainerSid: ?PSID,
     ObjectPathLength: u32,
@@ -59,12 +67,12 @@ pub extern "api-ms-win-security-isolatedcontainer-l1-1-0" fn IsProcessInIsolated
     isProcessInIsolatedContainer: ?*BOOL,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "IsolatedWindowsEnvironmentUtils" fn IsProcessInIsolatedWindowsEnvironment(
+pub extern "isolatedwindowsenvironmentutils" fn IsProcessInIsolatedWindowsEnvironment(
     isProcessInIsolatedWindowsEnvironment: ?*BOOL,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "USERENV" fn CreateAppContainerProfile(
+pub extern "userenv" fn CreateAppContainerProfile(
     pszAppContainerName: ?[*:0]const u16,
     pszDisplayName: ?[*:0]const u16,
     pszDescription: ?[*:0]const u16,
@@ -74,31 +82,31 @@ pub extern "USERENV" fn CreateAppContainerProfile(
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "USERENV" fn DeleteAppContainerProfile(
+pub extern "userenv" fn DeleteAppContainerProfile(
     pszAppContainerName: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "USERENV" fn GetAppContainerRegistryLocation(
+pub extern "userenv" fn GetAppContainerRegistryLocation(
     desiredAccess: u32,
     phAppContainerKey: ?*?HKEY,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "USERENV" fn GetAppContainerFolderPath(
+pub extern "userenv" fn GetAppContainerFolderPath(
     pszAppContainerSid: ?[*:0]const u16,
     ppszPath: ?*?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows10.0.10240'
-pub extern "USERENV" fn DeriveRestrictedAppContainerSidFromAppContainerSidAndRestrictedName(
+pub extern "userenv" fn DeriveRestrictedAppContainerSidFromAppContainerSidAndRestrictedName(
     psidAppContainerSid: ?PSID,
     pszRestrictedAppContainerName: ?[*:0]const u16,
     ppsidRestrictedAppContainerSid: ?*?PSID,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "USERENV" fn DeriveAppContainerSidFromAppContainerName(
+pub extern "userenv" fn DeriveAppContainerSidFromAppContainerName(
     pszAppContainerName: ?[*:0]const u16,
     ppsidAppContainerSid: ?*?PSID,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
@@ -132,14 +140,14 @@ const SID_AND_ATTRIBUTES = @import("../security.zig").SID_AND_ATTRIBUTES;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

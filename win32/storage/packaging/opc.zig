@@ -108,29 +108,49 @@ pub const OPC_E_ZIP_REQUIRES_64_BIT = @import("../../zig.zig").typedConst(HRESUL
 //--------------------------------------------------------------------------------
 // Section: Types (43)
 //--------------------------------------------------------------------------------
-const CLSID_OpcFactory_Value = @import("../../zig.zig").Guid.initString("6b2d6ba0-9f3e-4f27-920b-313cc426a39e");
+const CLSID_OpcFactory_Value = Guid.initString("6b2d6ba0-9f3e-4f27-920b-313cc426a39e");
 pub const CLSID_OpcFactory = &CLSID_OpcFactory_Value;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcUri_Value = @import("../../zig.zig").Guid.initString("bc9c1b9b-d62c-49eb-aef0-3b4e0b28ebed");
+const IID_IOpcUri_Value = Guid.initString("bc9c1b9b-d62c-49eb-aef0-3b4e0b28ebed");
 pub const IID_IOpcUri = &IID_IOpcUri_Value;
 pub const IOpcUri = extern struct {
     pub const VTable = extern struct {
         base: IUri.VTable,
-        GetRelationshipsPartUri: fn(
-            self: *const IOpcUri,
-            relationshipPartUri: ?*?*IOpcPartUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRelativeUri: fn(
-            self: *const IOpcUri,
-            targetPartUri: ?*IOpcPartUri,
-            relativeUri: ?*?*IUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CombinePartUri: fn(
-            self: *const IOpcUri,
-            relativeUri: ?*IUri,
-            combinedUri: ?*?*IOpcPartUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetRelationshipsPartUri: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcUri,
+                relationshipPartUri: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcUri,
+                relationshipPartUri: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRelativeUri: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcUri,
+                targetPartUri: ?*IOpcPartUri,
+                relativeUri: ?*?*IUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcUri,
+                targetPartUri: ?*IOpcPartUri,
+                relativeUri: ?*?*IUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CombinePartUri: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcUri,
+                relativeUri: ?*IUri,
+                combinedUri: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcUri,
+                relativeUri: ?*IUri,
+                combinedUri: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -152,24 +172,43 @@ pub const IOpcUri = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcPartUri_Value = @import("../../zig.zig").Guid.initString("7d3babe7-88b2-46ba-85cb-4203cb016c87");
+const IID_IOpcPartUri_Value = Guid.initString("7d3babe7-88b2-46ba-85cb-4203cb016c87");
 pub const IID_IOpcPartUri = &IID_IOpcPartUri_Value;
 pub const IOpcPartUri = extern struct {
     pub const VTable = extern struct {
         base: IOpcUri.VTable,
-        ComparePartUri: fn(
-            self: *const IOpcPartUri,
-            partUri: ?*IOpcPartUri,
-            comparisonResult: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSourceUri: fn(
-            self: *const IOpcPartUri,
-            sourceUri: ?*?*IOpcUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsRelationshipsPartUri: fn(
-            self: *const IOpcPartUri,
-            isRelationshipUri: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ComparePartUri: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPartUri,
+                partUri: ?*IOpcPartUri,
+                comparisonResult: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPartUri,
+                partUri: ?*IOpcPartUri,
+                comparisonResult: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSourceUri: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPartUri,
+                sourceUri: ?*?*IOpcUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPartUri,
+                sourceUri: ?*?*IOpcUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsRelationshipsPartUri: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPartUri,
+                isRelationshipUri: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPartUri,
+                isRelationshipUri: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -310,19 +349,31 @@ pub const OPC_SIGNATURE_TIME_FORMAT_MONTHS = OPC_SIGNATURE_TIME_FORMAT.MONTHS;
 pub const OPC_SIGNATURE_TIME_FORMAT_YEARS = OPC_SIGNATURE_TIME_FORMAT.YEARS;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcPackage_Value = @import("../../zig.zig").Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee70");
+const IID_IOpcPackage_Value = Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee70");
 pub const IID_IOpcPackage = &IID_IOpcPackage_Value;
 pub const IOpcPackage = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetPartSet: fn(
-            self: *const IOpcPackage,
-            partSet: ?*?*IOpcPartSet,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRelationshipSet: fn(
-            self: *const IOpcPackage,
-            relationshipSet: ?*?*IOpcRelationshipSet,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetPartSet: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPackage,
+                partSet: ?*?*IOpcPartSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPackage,
+                partSet: ?*?*IOpcPartSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRelationshipSet: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPackage,
+                relationshipSet: ?*?*IOpcRelationshipSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPackage,
+                relationshipSet: ?*?*IOpcRelationshipSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -340,31 +391,61 @@ pub const IOpcPackage = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcPart_Value = @import("../../zig.zig").Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee71");
+const IID_IOpcPart_Value = Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee71");
 pub const IID_IOpcPart = &IID_IOpcPart_Value;
 pub const IOpcPart = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetRelationshipSet: fn(
-            self: *const IOpcPart,
-            relationshipSet: ?*?*IOpcRelationshipSet,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetContentStream: fn(
-            self: *const IOpcPart,
-            stream: ?*?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetName: fn(
-            self: *const IOpcPart,
-            name: ?*?*IOpcPartUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetContentType: fn(
-            self: *const IOpcPart,
-            contentType: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCompressionOptions: fn(
-            self: *const IOpcPart,
-            compressionOptions: ?*OPC_COMPRESSION_OPTIONS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetRelationshipSet: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPart,
+                relationshipSet: ?*?*IOpcRelationshipSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPart,
+                relationshipSet: ?*?*IOpcRelationshipSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetContentStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPart,
+                stream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPart,
+                stream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPart,
+                name: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPart,
+                name: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetContentType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPart,
+                contentType: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPart,
+                contentType: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCompressionOptions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPart,
+                compressionOptions: ?*OPC_COMPRESSION_OPTIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPart,
+                compressionOptions: ?*OPC_COMPRESSION_OPTIONS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -394,31 +475,61 @@ pub const IOpcPart = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcRelationship_Value = @import("../../zig.zig").Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee72");
+const IID_IOpcRelationship_Value = Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee72");
 pub const IID_IOpcRelationship = &IID_IOpcRelationship_Value;
 pub const IOpcRelationship = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetId: fn(
-            self: *const IOpcRelationship,
-            relationshipIdentifier: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRelationshipType: fn(
-            self: *const IOpcRelationship,
-            relationshipType: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSourceUri: fn(
-            self: *const IOpcRelationship,
-            sourceUri: ?*?*IOpcUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTargetUri: fn(
-            self: *const IOpcRelationship,
-            targetUri: ?*?*IUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTargetMode: fn(
-            self: *const IOpcRelationship,
-            targetMode: ?*OPC_URI_TARGET_MODE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationship,
+                relationshipIdentifier: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationship,
+                relationshipIdentifier: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRelationshipType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationship,
+                relationshipType: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationship,
+                relationshipType: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSourceUri: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationship,
+                sourceUri: ?*?*IOpcUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationship,
+                sourceUri: ?*?*IOpcUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTargetUri: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationship,
+                targetUri: ?*?*IUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationship,
+                targetUri: ?*?*IUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTargetMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationship,
+                targetMode: ?*OPC_URI_TARGET_MODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationship,
+                targetMode: ?*OPC_URI_TARGET_MODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -448,36 +559,71 @@ pub const IOpcRelationship = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcPartSet_Value = @import("../../zig.zig").Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee73");
+const IID_IOpcPartSet_Value = Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee73");
 pub const IID_IOpcPartSet = &IID_IOpcPartSet_Value;
 pub const IOpcPartSet = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetPart: fn(
-            self: *const IOpcPartSet,
-            name: ?*IOpcPartUri,
-            part: ?*?*IOpcPart,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreatePart: fn(
-            self: *const IOpcPartSet,
-            name: ?*IOpcPartUri,
-            contentType: ?[*:0]const u16,
-            compressionOptions: OPC_COMPRESSION_OPTIONS,
-            part: ?*?*IOpcPart,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DeletePart: fn(
-            self: *const IOpcPartSet,
-            name: ?*IOpcPartUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        PartExists: fn(
-            self: *const IOpcPartSet,
-            name: ?*IOpcPartUri,
-            partExists: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetEnumerator: fn(
-            self: *const IOpcPartSet,
-            partEnumerator: ?*?*IOpcPartEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetPart: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPartSet,
+                name: ?*IOpcPartUri,
+                part: ?*?*IOpcPart,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPartSet,
+                name: ?*IOpcPartUri,
+                part: ?*?*IOpcPart,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreatePart: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPartSet,
+                name: ?*IOpcPartUri,
+                contentType: ?[*:0]const u16,
+                compressionOptions: OPC_COMPRESSION_OPTIONS,
+                part: ?*?*IOpcPart,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPartSet,
+                name: ?*IOpcPartUri,
+                contentType: ?[*:0]const u16,
+                compressionOptions: OPC_COMPRESSION_OPTIONS,
+                part: ?*?*IOpcPart,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DeletePart: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPartSet,
+                name: ?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPartSet,
+                name: ?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        PartExists: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPartSet,
+                name: ?*IOpcPartUri,
+                partExists: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPartSet,
+                name: ?*IOpcPartUri,
+                partExists: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPartSet,
+                partEnumerator: ?*?*IOpcPartEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPartSet,
+                partEnumerator: ?*?*IOpcPartEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -507,46 +653,95 @@ pub const IOpcPartSet = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcRelationshipSet_Value = @import("../../zig.zig").Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee74");
+const IID_IOpcRelationshipSet_Value = Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee74");
 pub const IID_IOpcRelationshipSet = &IID_IOpcRelationshipSet_Value;
 pub const IOpcRelationshipSet = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetRelationship: fn(
-            self: *const IOpcRelationshipSet,
-            relationshipIdentifier: ?[*:0]const u16,
-            relationship: ?*?*IOpcRelationship,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateRelationship: fn(
-            self: *const IOpcRelationshipSet,
-            relationshipIdentifier: ?[*:0]const u16,
-            relationshipType: ?[*:0]const u16,
-            targetUri: ?*IUri,
-            targetMode: OPC_URI_TARGET_MODE,
-            relationship: ?*?*IOpcRelationship,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DeleteRelationship: fn(
-            self: *const IOpcRelationshipSet,
-            relationshipIdentifier: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RelationshipExists: fn(
-            self: *const IOpcRelationshipSet,
-            relationshipIdentifier: ?[*:0]const u16,
-            relationshipExists: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetEnumerator: fn(
-            self: *const IOpcRelationshipSet,
-            relationshipEnumerator: ?*?*IOpcRelationshipEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetEnumeratorForType: fn(
-            self: *const IOpcRelationshipSet,
-            relationshipType: ?[*:0]const u16,
-            relationshipEnumerator: ?*?*IOpcRelationshipEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRelationshipsContentStream: fn(
-            self: *const IOpcRelationshipSet,
-            contents: ?*?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetRelationship: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSet,
+                relationshipIdentifier: ?[*:0]const u16,
+                relationship: ?*?*IOpcRelationship,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSet,
+                relationshipIdentifier: ?[*:0]const u16,
+                relationship: ?*?*IOpcRelationship,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateRelationship: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSet,
+                relationshipIdentifier: ?[*:0]const u16,
+                relationshipType: ?[*:0]const u16,
+                targetUri: ?*IUri,
+                targetMode: OPC_URI_TARGET_MODE,
+                relationship: ?*?*IOpcRelationship,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSet,
+                relationshipIdentifier: ?[*:0]const u16,
+                relationshipType: ?[*:0]const u16,
+                targetUri: ?*IUri,
+                targetMode: OPC_URI_TARGET_MODE,
+                relationship: ?*?*IOpcRelationship,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DeleteRelationship: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSet,
+                relationshipIdentifier: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSet,
+                relationshipIdentifier: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RelationshipExists: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSet,
+                relationshipIdentifier: ?[*:0]const u16,
+                relationshipExists: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSet,
+                relationshipIdentifier: ?[*:0]const u16,
+                relationshipExists: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSet,
+                relationshipEnumerator: ?*?*IOpcRelationshipEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSet,
+                relationshipEnumerator: ?*?*IOpcRelationshipEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetEnumeratorForType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSet,
+                relationshipType: ?[*:0]const u16,
+                relationshipEnumerator: ?*?*IOpcRelationshipEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSet,
+                relationshipType: ?[*:0]const u16,
+                relationshipEnumerator: ?*?*IOpcRelationshipEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRelationshipsContentStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSet,
+                contents: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSet,
+                contents: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -584,27 +779,51 @@ pub const IOpcRelationshipSet = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcPartEnumerator_Value = @import("../../zig.zig").Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee75");
+const IID_IOpcPartEnumerator_Value = Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee75");
 pub const IID_IOpcPartEnumerator = &IID_IOpcPartEnumerator_Value;
 pub const IOpcPartEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        MoveNext: fn(
-            self: *const IOpcPartEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MovePrevious: fn(
-            self: *const IOpcPartEnumerator,
-            hasPrevious: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrent: fn(
-            self: *const IOpcPartEnumerator,
-            part: ?*?*IOpcPart,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IOpcPartEnumerator,
-            copy: ?*?*IOpcPartEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPartEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPartEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MovePrevious: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPartEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPartEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPartEnumerator,
+                part: ?*?*IOpcPart,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPartEnumerator,
+                part: ?*?*IOpcPart,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcPartEnumerator,
+                copy: ?*?*IOpcPartEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcPartEnumerator,
+                copy: ?*?*IOpcPartEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -630,27 +849,51 @@ pub const IOpcPartEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcRelationshipEnumerator_Value = @import("../../zig.zig").Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee76");
+const IID_IOpcRelationshipEnumerator_Value = Guid.initString("42195949-3b79-4fc8-89c6-fc7fb979ee76");
 pub const IID_IOpcRelationshipEnumerator = &IID_IOpcRelationshipEnumerator_Value;
 pub const IOpcRelationshipEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        MoveNext: fn(
-            self: *const IOpcRelationshipEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MovePrevious: fn(
-            self: *const IOpcRelationshipEnumerator,
-            hasPrevious: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrent: fn(
-            self: *const IOpcRelationshipEnumerator,
-            relationship: ?*?*IOpcRelationship,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IOpcRelationshipEnumerator,
-            copy: ?*?*IOpcRelationshipEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MovePrevious: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipEnumerator,
+                relationship: ?*?*IOpcRelationship,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipEnumerator,
+                relationship: ?*?*IOpcRelationship,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipEnumerator,
+                copy: ?*?*IOpcRelationshipEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipEnumerator,
+                copy: ?*?*IOpcRelationshipEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -676,32 +919,63 @@ pub const IOpcRelationshipEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcSignaturePartReference_Value = @import("../../zig.zig").Guid.initString("e24231ca-59f4-484e-b64b-36eeda36072c");
+const IID_IOpcSignaturePartReference_Value = Guid.initString("e24231ca-59f4-484e-b64b-36eeda36072c");
 pub const IID_IOpcSignaturePartReference = &IID_IOpcSignaturePartReference_Value;
 pub const IOpcSignaturePartReference = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetPartName: fn(
-            self: *const IOpcSignaturePartReference,
-            partName: ?*?*IOpcPartUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetContentType: fn(
-            self: *const IOpcSignaturePartReference,
-            contentType: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDigestMethod: fn(
-            self: *const IOpcSignaturePartReference,
-            digestMethod: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDigestValue: fn(
-            self: *const IOpcSignaturePartReference,
-            digestValue: ?[*]?*u8,
-            count: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTransformMethod: fn(
-            self: *const IOpcSignaturePartReference,
-            transformMethod: ?*OPC_CANONICALIZATION_METHOD,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetPartName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignaturePartReference,
+                partName: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignaturePartReference,
+                partName: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetContentType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignaturePartReference,
+                contentType: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignaturePartReference,
+                contentType: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDigestMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignaturePartReference,
+                digestMethod: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignaturePartReference,
+                digestMethod: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDigestValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignaturePartReference,
+                digestValue: ?[*]?*u8,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignaturePartReference,
+                digestValue: ?[*]?*u8,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTransformMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignaturePartReference,
+                transformMethod: ?*OPC_CANONICALIZATION_METHOD,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignaturePartReference,
+                transformMethod: ?*OPC_CANONICALIZATION_METHOD,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -731,36 +1005,73 @@ pub const IOpcSignaturePartReference = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcSignatureRelationshipReference_Value = @import("../../zig.zig").Guid.initString("57babac6-9d4a-4e50-8b86-e5d4051eae7c");
+const IID_IOpcSignatureRelationshipReference_Value = Guid.initString("57babac6-9d4a-4e50-8b86-e5d4051eae7c");
 pub const IID_IOpcSignatureRelationshipReference = &IID_IOpcSignatureRelationshipReference_Value;
 pub const IOpcSignatureRelationshipReference = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetSourceUri: fn(
-            self: *const IOpcSignatureRelationshipReference,
-            sourceUri: ?*?*IOpcUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDigestMethod: fn(
-            self: *const IOpcSignatureRelationshipReference,
-            digestMethod: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDigestValue: fn(
-            self: *const IOpcSignatureRelationshipReference,
-            digestValue: ?[*]?*u8,
-            count: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTransformMethod: fn(
-            self: *const IOpcSignatureRelationshipReference,
-            transformMethod: ?*OPC_CANONICALIZATION_METHOD,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRelationshipSigningOption: fn(
-            self: *const IOpcSignatureRelationshipReference,
-            relationshipSigningOption: ?*OPC_RELATIONSHIPS_SIGNING_OPTION,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRelationshipSelectorEnumerator: fn(
-            self: *const IOpcSignatureRelationshipReference,
-            selectorEnumerator: ?*?*IOpcRelationshipSelectorEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetSourceUri: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReference,
+                sourceUri: ?*?*IOpcUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReference,
+                sourceUri: ?*?*IOpcUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDigestMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReference,
+                digestMethod: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReference,
+                digestMethod: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDigestValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReference,
+                digestValue: ?[*]?*u8,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReference,
+                digestValue: ?[*]?*u8,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTransformMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReference,
+                transformMethod: ?*OPC_CANONICALIZATION_METHOD,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReference,
+                transformMethod: ?*OPC_CANONICALIZATION_METHOD,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRelationshipSigningOption: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReference,
+                relationshipSigningOption: ?*OPC_RELATIONSHIPS_SIGNING_OPTION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReference,
+                relationshipSigningOption: ?*OPC_RELATIONSHIPS_SIGNING_OPTION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRelationshipSelectorEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReference,
+                selectorEnumerator: ?*?*IOpcRelationshipSelectorEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReference,
+                selectorEnumerator: ?*?*IOpcRelationshipSelectorEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -794,19 +1105,31 @@ pub const IOpcSignatureRelationshipReference = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcRelationshipSelector_Value = @import("../../zig.zig").Guid.initString("f8f26c7f-b28f-4899-84c8-5d5639ede75f");
+const IID_IOpcRelationshipSelector_Value = Guid.initString("f8f26c7f-b28f-4899-84c8-5d5639ede75f");
 pub const IID_IOpcRelationshipSelector = &IID_IOpcRelationshipSelector_Value;
 pub const IOpcRelationshipSelector = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetSelectorType: fn(
-            self: *const IOpcRelationshipSelector,
-            selector: ?*OPC_RELATIONSHIP_SELECTOR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSelectionCriterion: fn(
-            self: *const IOpcRelationshipSelector,
-            selectionCriterion: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetSelectorType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSelector,
+                selector: ?*OPC_RELATIONSHIP_SELECTOR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSelector,
+                selector: ?*OPC_RELATIONSHIP_SELECTOR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSelectionCriterion: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSelector,
+                selectionCriterion: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSelector,
+                selectionCriterion: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -824,36 +1147,73 @@ pub const IOpcRelationshipSelector = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcSignatureReference_Value = @import("../../zig.zig").Guid.initString("1b47005e-3011-4edc-be6f-0f65e5ab0342");
+const IID_IOpcSignatureReference_Value = Guid.initString("1b47005e-3011-4edc-be6f-0f65e5ab0342");
 pub const IID_IOpcSignatureReference = &IID_IOpcSignatureReference_Value;
 pub const IOpcSignatureReference = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetId: fn(
-            self: *const IOpcSignatureReference,
-            referenceId: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetUri: fn(
-            self: *const IOpcSignatureReference,
-            referenceUri: ?*?*IUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetType: fn(
-            self: *const IOpcSignatureReference,
-            type: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTransformMethod: fn(
-            self: *const IOpcSignatureReference,
-            transformMethod: ?*OPC_CANONICALIZATION_METHOD,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDigestMethod: fn(
-            self: *const IOpcSignatureReference,
-            digestMethod: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDigestValue: fn(
-            self: *const IOpcSignatureReference,
-            digestValue: ?[*]?*u8,
-            count: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureReference,
+                referenceId: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureReference,
+                referenceId: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetUri: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureReference,
+                referenceUri: ?*?*IUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureReference,
+                referenceUri: ?*?*IUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureReference,
+                type: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureReference,
+                type: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTransformMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureReference,
+                transformMethod: ?*OPC_CANONICALIZATION_METHOD,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureReference,
+                transformMethod: ?*OPC_CANONICALIZATION_METHOD,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDigestMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureReference,
+                digestMethod: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureReference,
+                digestMethod: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDigestValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureReference,
+                digestValue: ?[*]?*u8,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureReference,
+                digestValue: ?[*]?*u8,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -887,16 +1247,23 @@ pub const IOpcSignatureReference = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcSignatureCustomObject_Value = @import("../../zig.zig").Guid.initString("5d77a19e-62c1-44e7-becd-45da5ae51a56");
+const IID_IOpcSignatureCustomObject_Value = Guid.initString("5d77a19e-62c1-44e7-becd-45da5ae51a56");
 pub const IID_IOpcSignatureCustomObject = &IID_IOpcSignatureCustomObject_Value;
 pub const IOpcSignatureCustomObject = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetXml: fn(
-            self: *const IOpcSignatureCustomObject,
-            xmlMarkup: ?[*]?*u8,
-            count: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetXml: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureCustomObject,
+                xmlMarkup: ?[*]?*u8,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureCustomObject,
+                xmlMarkup: ?[*]?*u8,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -910,75 +1277,169 @@ pub const IOpcSignatureCustomObject = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcDigitalSignature_Value = @import("../../zig.zig").Guid.initString("52ab21dd-1cd0-4949-bc80-0c1232d00cb4");
+const IID_IOpcDigitalSignature_Value = Guid.initString("52ab21dd-1cd0-4949-bc80-0c1232d00cb4");
 pub const IID_IOpcDigitalSignature = &IID_IOpcDigitalSignature_Value;
 pub const IOpcDigitalSignature = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetNamespaces: fn(
-            self: *const IOpcDigitalSignature,
-            prefixes: ?[*]?*?PWSTR,
-            namespaces: ?[*]?*?PWSTR,
-            count: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSignatureId: fn(
-            self: *const IOpcDigitalSignature,
-            signatureId: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSignaturePartName: fn(
-            self: *const IOpcDigitalSignature,
-            signaturePartName: ?*?*IOpcPartUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSignatureMethod: fn(
-            self: *const IOpcDigitalSignature,
-            signatureMethod: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCanonicalizationMethod: fn(
-            self: *const IOpcDigitalSignature,
-            canonicalizationMethod: ?*OPC_CANONICALIZATION_METHOD,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSignatureValue: fn(
-            self: *const IOpcDigitalSignature,
-            signatureValue: ?[*]?*u8,
-            count: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSignaturePartReferenceEnumerator: fn(
-            self: *const IOpcDigitalSignature,
-            partReferenceEnumerator: ?*?*IOpcSignaturePartReferenceEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSignatureRelationshipReferenceEnumerator: fn(
-            self: *const IOpcDigitalSignature,
-            relationshipReferenceEnumerator: ?*?*IOpcSignatureRelationshipReferenceEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSigningTime: fn(
-            self: *const IOpcDigitalSignature,
-            signingTime: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTimeFormat: fn(
-            self: *const IOpcDigitalSignature,
-            timeFormat: ?*OPC_SIGNATURE_TIME_FORMAT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPackageObjectReference: fn(
-            self: *const IOpcDigitalSignature,
-            packageObjectReference: ?*?*IOpcSignatureReference,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCertificateEnumerator: fn(
-            self: *const IOpcDigitalSignature,
-            certificateEnumerator: ?*?*IOpcCertificateEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCustomReferenceEnumerator: fn(
-            self: *const IOpcDigitalSignature,
-            customReferenceEnumerator: ?*?*IOpcSignatureReferenceEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCustomObjectEnumerator: fn(
-            self: *const IOpcDigitalSignature,
-            customObjectEnumerator: ?*?*IOpcSignatureCustomObjectEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSignatureXml: fn(
-            self: *const IOpcDigitalSignature,
-            signatureXml: ?*?*u8,
-            count: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetNamespaces: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                prefixes: ?[*]?*?PWSTR,
+                namespaces: ?[*]?*?PWSTR,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                prefixes: ?[*]?*?PWSTR,
+                namespaces: ?[*]?*?PWSTR,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSignatureId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                signatureId: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                signatureId: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSignaturePartName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                signaturePartName: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                signaturePartName: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSignatureMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                signatureMethod: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                signatureMethod: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCanonicalizationMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                canonicalizationMethod: ?*OPC_CANONICALIZATION_METHOD,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                canonicalizationMethod: ?*OPC_CANONICALIZATION_METHOD,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSignatureValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                signatureValue: ?[*]?*u8,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                signatureValue: ?[*]?*u8,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSignaturePartReferenceEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                partReferenceEnumerator: ?*?*IOpcSignaturePartReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                partReferenceEnumerator: ?*?*IOpcSignaturePartReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSignatureRelationshipReferenceEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                relationshipReferenceEnumerator: ?*?*IOpcSignatureRelationshipReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                relationshipReferenceEnumerator: ?*?*IOpcSignatureRelationshipReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSigningTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                signingTime: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                signingTime: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTimeFormat: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                timeFormat: ?*OPC_SIGNATURE_TIME_FORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                timeFormat: ?*OPC_SIGNATURE_TIME_FORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPackageObjectReference: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                packageObjectReference: ?*?*IOpcSignatureReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                packageObjectReference: ?*?*IOpcSignatureReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCertificateEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                certificateEnumerator: ?*?*IOpcCertificateEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                certificateEnumerator: ?*?*IOpcCertificateEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCustomReferenceEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                customReferenceEnumerator: ?*?*IOpcSignatureReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                customReferenceEnumerator: ?*?*IOpcSignatureReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCustomObjectEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                customObjectEnumerator: ?*?*IOpcSignatureCustomObjectEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                customObjectEnumerator: ?*?*IOpcSignatureCustomObjectEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSignatureXml: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignature,
+                signatureXml: ?*?*u8,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignature,
+                signatureXml: ?*?*u8,
+                count: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1048,79 +1509,181 @@ pub const IOpcDigitalSignature = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcSigningOptions_Value = @import("../../zig.zig").Guid.initString("50d2d6a5-7aeb-46c0-b241-43ab0e9b407e");
+const IID_IOpcSigningOptions_Value = Guid.initString("50d2d6a5-7aeb-46c0-b241-43ab0e9b407e");
 pub const IID_IOpcSigningOptions = &IID_IOpcSigningOptions_Value;
 pub const IOpcSigningOptions = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetSignatureId: fn(
-            self: *const IOpcSigningOptions,
-            signatureId: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetSignatureId: fn(
-            self: *const IOpcSigningOptions,
-            signatureId: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSignatureMethod: fn(
-            self: *const IOpcSigningOptions,
-            signatureMethod: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetSignatureMethod: fn(
-            self: *const IOpcSigningOptions,
-            signatureMethod: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDefaultDigestMethod: fn(
-            self: *const IOpcSigningOptions,
-            digestMethod: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDefaultDigestMethod: fn(
-            self: *const IOpcSigningOptions,
-            digestMethod: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCertificateEmbeddingOption: fn(
-            self: *const IOpcSigningOptions,
-            embeddingOption: ?*OPC_CERTIFICATE_EMBEDDING_OPTION,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetCertificateEmbeddingOption: fn(
-            self: *const IOpcSigningOptions,
-            embeddingOption: OPC_CERTIFICATE_EMBEDDING_OPTION,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTimeFormat: fn(
-            self: *const IOpcSigningOptions,
-            timeFormat: ?*OPC_SIGNATURE_TIME_FORMAT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetTimeFormat: fn(
-            self: *const IOpcSigningOptions,
-            timeFormat: OPC_SIGNATURE_TIME_FORMAT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSignaturePartReferenceSet: fn(
-            self: *const IOpcSigningOptions,
-            partReferenceSet: ?*?*IOpcSignaturePartReferenceSet,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSignatureRelationshipReferenceSet: fn(
-            self: *const IOpcSigningOptions,
-            relationshipReferenceSet: ?*?*IOpcSignatureRelationshipReferenceSet,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCustomObjectSet: fn(
-            self: *const IOpcSigningOptions,
-            customObjectSet: ?*?*IOpcSignatureCustomObjectSet,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCustomReferenceSet: fn(
-            self: *const IOpcSigningOptions,
-            customReferenceSet: ?*?*IOpcSignatureReferenceSet,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCertificateSet: fn(
-            self: *const IOpcSigningOptions,
-            certificateSet: ?*?*IOpcCertificateSet,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSignaturePartName: fn(
-            self: *const IOpcSigningOptions,
-            signaturePartName: ?*?*IOpcPartUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetSignaturePartName: fn(
-            self: *const IOpcSigningOptions,
-            signaturePartName: ?*IOpcPartUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetSignatureId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                signatureId: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                signatureId: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetSignatureId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                signatureId: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                signatureId: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSignatureMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                signatureMethod: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                signatureMethod: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetSignatureMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                signatureMethod: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                signatureMethod: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDefaultDigestMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                digestMethod: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                digestMethod: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDefaultDigestMethod: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                digestMethod: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                digestMethod: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCertificateEmbeddingOption: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                embeddingOption: ?*OPC_CERTIFICATE_EMBEDDING_OPTION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                embeddingOption: ?*OPC_CERTIFICATE_EMBEDDING_OPTION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetCertificateEmbeddingOption: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                embeddingOption: OPC_CERTIFICATE_EMBEDDING_OPTION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                embeddingOption: OPC_CERTIFICATE_EMBEDDING_OPTION,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTimeFormat: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                timeFormat: ?*OPC_SIGNATURE_TIME_FORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                timeFormat: ?*OPC_SIGNATURE_TIME_FORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetTimeFormat: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                timeFormat: OPC_SIGNATURE_TIME_FORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                timeFormat: OPC_SIGNATURE_TIME_FORMAT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSignaturePartReferenceSet: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                partReferenceSet: ?*?*IOpcSignaturePartReferenceSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                partReferenceSet: ?*?*IOpcSignaturePartReferenceSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSignatureRelationshipReferenceSet: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                relationshipReferenceSet: ?*?*IOpcSignatureRelationshipReferenceSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                relationshipReferenceSet: ?*?*IOpcSignatureRelationshipReferenceSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCustomObjectSet: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                customObjectSet: ?*?*IOpcSignatureCustomObjectSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                customObjectSet: ?*?*IOpcSignatureCustomObjectSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCustomReferenceSet: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                customReferenceSet: ?*?*IOpcSignatureReferenceSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                customReferenceSet: ?*?*IOpcSignatureReferenceSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCertificateSet: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                certificateSet: ?*?*IOpcCertificateSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                certificateSet: ?*?*IOpcCertificateSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSignaturePartName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                signaturePartName: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                signaturePartName: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetSignaturePartName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSigningOptions,
+                signaturePartName: ?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSigningOptions,
+                signaturePartName: ?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1198,50 +1761,105 @@ pub const IOpcSigningOptions = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcDigitalSignatureManager_Value = @import("../../zig.zig").Guid.initString("d5e62a0b-696d-462f-94df-72e33cef2659");
+const IID_IOpcDigitalSignatureManager_Value = Guid.initString("d5e62a0b-696d-462f-94df-72e33cef2659");
 pub const IID_IOpcDigitalSignatureManager = &IID_IOpcDigitalSignatureManager_Value;
 pub const IOpcDigitalSignatureManager = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetSignatureOriginPartName: fn(
-            self: *const IOpcDigitalSignatureManager,
-            signatureOriginPartName: ?*?*IOpcPartUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetSignatureOriginPartName: fn(
-            self: *const IOpcDigitalSignatureManager,
-            signatureOriginPartName: ?*IOpcPartUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSignatureEnumerator: fn(
-            self: *const IOpcDigitalSignatureManager,
-            signatureEnumerator: ?*?*IOpcDigitalSignatureEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RemoveSignature: fn(
-            self: *const IOpcDigitalSignatureManager,
-            signaturePartName: ?*IOpcPartUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateSigningOptions: fn(
-            self: *const IOpcDigitalSignatureManager,
-            signingOptions: ?*?*IOpcSigningOptions,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Validate: fn(
-            self: *const IOpcDigitalSignatureManager,
-            signature: ?*IOpcDigitalSignature,
-            certificate: ?*const CERT_CONTEXT,
-            validationResult: ?*OPC_SIGNATURE_VALIDATION_RESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Sign: fn(
-            self: *const IOpcDigitalSignatureManager,
-            certificate: ?*const CERT_CONTEXT,
-            signingOptions: ?*IOpcSigningOptions,
-            digitalSignature: ?*?*IOpcDigitalSignature,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ReplaceSignatureXml: fn(
-            self: *const IOpcDigitalSignatureManager,
-            signaturePartName: ?*IOpcPartUri,
-            newSignatureXml: ?*const u8,
-            count: u32,
-            digitalSignature: ?*?*IOpcDigitalSignature,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetSignatureOriginPartName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignatureManager,
+                signatureOriginPartName: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignatureManager,
+                signatureOriginPartName: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetSignatureOriginPartName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignatureManager,
+                signatureOriginPartName: ?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignatureManager,
+                signatureOriginPartName: ?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSignatureEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignatureManager,
+                signatureEnumerator: ?*?*IOpcDigitalSignatureEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignatureManager,
+                signatureEnumerator: ?*?*IOpcDigitalSignatureEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RemoveSignature: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignatureManager,
+                signaturePartName: ?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignatureManager,
+                signaturePartName: ?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateSigningOptions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignatureManager,
+                signingOptions: ?*?*IOpcSigningOptions,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignatureManager,
+                signingOptions: ?*?*IOpcSigningOptions,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Validate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignatureManager,
+                signature: ?*IOpcDigitalSignature,
+                certificate: ?*const CERT_CONTEXT,
+                validationResult: ?*OPC_SIGNATURE_VALIDATION_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignatureManager,
+                signature: ?*IOpcDigitalSignature,
+                certificate: ?*const CERT_CONTEXT,
+                validationResult: ?*OPC_SIGNATURE_VALIDATION_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Sign: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignatureManager,
+                certificate: ?*const CERT_CONTEXT,
+                signingOptions: ?*IOpcSigningOptions,
+                digitalSignature: ?*?*IOpcDigitalSignature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignatureManager,
+                certificate: ?*const CERT_CONTEXT,
+                signingOptions: ?*IOpcSigningOptions,
+                digitalSignature: ?*?*IOpcDigitalSignature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ReplaceSignatureXml: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignatureManager,
+                signaturePartName: ?*IOpcPartUri,
+                newSignatureXml: ?*const u8,
+                count: u32,
+                digitalSignature: ?*?*IOpcDigitalSignature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignatureManager,
+                signaturePartName: ?*IOpcPartUri,
+                newSignatureXml: ?*const u8,
+                count: u32,
+                digitalSignature: ?*?*IOpcDigitalSignature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1283,27 +1901,51 @@ pub const IOpcDigitalSignatureManager = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcSignaturePartReferenceEnumerator_Value = @import("../../zig.zig").Guid.initString("80eb1561-8c77-49cf-8266-459b356ee99a");
+const IID_IOpcSignaturePartReferenceEnumerator_Value = Guid.initString("80eb1561-8c77-49cf-8266-459b356ee99a");
 pub const IID_IOpcSignaturePartReferenceEnumerator = &IID_IOpcSignaturePartReferenceEnumerator_Value;
 pub const IOpcSignaturePartReferenceEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        MoveNext: fn(
-            self: *const IOpcSignaturePartReferenceEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MovePrevious: fn(
-            self: *const IOpcSignaturePartReferenceEnumerator,
-            hasPrevious: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrent: fn(
-            self: *const IOpcSignaturePartReferenceEnumerator,
-            partReference: ?*?*IOpcSignaturePartReference,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IOpcSignaturePartReferenceEnumerator,
-            copy: ?*?*IOpcSignaturePartReferenceEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignaturePartReferenceEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignaturePartReferenceEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MovePrevious: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignaturePartReferenceEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignaturePartReferenceEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignaturePartReferenceEnumerator,
+                partReference: ?*?*IOpcSignaturePartReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignaturePartReferenceEnumerator,
+                partReference: ?*?*IOpcSignaturePartReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignaturePartReferenceEnumerator,
+                copy: ?*?*IOpcSignaturePartReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignaturePartReferenceEnumerator,
+                copy: ?*?*IOpcSignaturePartReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1329,27 +1971,51 @@ pub const IOpcSignaturePartReferenceEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcSignatureRelationshipReferenceEnumerator_Value = @import("../../zig.zig").Guid.initString("773ba3e4-f021-48e4-aa04-9816db5d3495");
+const IID_IOpcSignatureRelationshipReferenceEnumerator_Value = Guid.initString("773ba3e4-f021-48e4-aa04-9816db5d3495");
 pub const IID_IOpcSignatureRelationshipReferenceEnumerator = &IID_IOpcSignatureRelationshipReferenceEnumerator_Value;
 pub const IOpcSignatureRelationshipReferenceEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        MoveNext: fn(
-            self: *const IOpcSignatureRelationshipReferenceEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MovePrevious: fn(
-            self: *const IOpcSignatureRelationshipReferenceEnumerator,
-            hasPrevious: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrent: fn(
-            self: *const IOpcSignatureRelationshipReferenceEnumerator,
-            relationshipReference: ?*?*IOpcSignatureRelationshipReference,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IOpcSignatureRelationshipReferenceEnumerator,
-            copy: ?*?*IOpcSignatureRelationshipReferenceEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReferenceEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReferenceEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MovePrevious: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReferenceEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReferenceEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReferenceEnumerator,
+                relationshipReference: ?*?*IOpcSignatureRelationshipReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReferenceEnumerator,
+                relationshipReference: ?*?*IOpcSignatureRelationshipReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReferenceEnumerator,
+                copy: ?*?*IOpcSignatureRelationshipReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReferenceEnumerator,
+                copy: ?*?*IOpcSignatureRelationshipReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1375,27 +2041,51 @@ pub const IOpcSignatureRelationshipReferenceEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcRelationshipSelectorEnumerator_Value = @import("../../zig.zig").Guid.initString("5e50a181-a91b-48ac-88d2-bca3d8f8c0b1");
+const IID_IOpcRelationshipSelectorEnumerator_Value = Guid.initString("5e50a181-a91b-48ac-88d2-bca3d8f8c0b1");
 pub const IID_IOpcRelationshipSelectorEnumerator = &IID_IOpcRelationshipSelectorEnumerator_Value;
 pub const IOpcRelationshipSelectorEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        MoveNext: fn(
-            self: *const IOpcRelationshipSelectorEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MovePrevious: fn(
-            self: *const IOpcRelationshipSelectorEnumerator,
-            hasPrevious: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrent: fn(
-            self: *const IOpcRelationshipSelectorEnumerator,
-            relationshipSelector: ?*?*IOpcRelationshipSelector,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IOpcRelationshipSelectorEnumerator,
-            copy: ?*?*IOpcRelationshipSelectorEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSelectorEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSelectorEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MovePrevious: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSelectorEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSelectorEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSelectorEnumerator,
+                relationshipSelector: ?*?*IOpcRelationshipSelector,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSelectorEnumerator,
+                relationshipSelector: ?*?*IOpcRelationshipSelector,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSelectorEnumerator,
+                copy: ?*?*IOpcRelationshipSelectorEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSelectorEnumerator,
+                copy: ?*?*IOpcRelationshipSelectorEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1421,27 +2111,51 @@ pub const IOpcRelationshipSelectorEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcSignatureReferenceEnumerator_Value = @import("../../zig.zig").Guid.initString("cfa59a45-28b1-4868-969e-fa8097fdc12a");
+const IID_IOpcSignatureReferenceEnumerator_Value = Guid.initString("cfa59a45-28b1-4868-969e-fa8097fdc12a");
 pub const IID_IOpcSignatureReferenceEnumerator = &IID_IOpcSignatureReferenceEnumerator_Value;
 pub const IOpcSignatureReferenceEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        MoveNext: fn(
-            self: *const IOpcSignatureReferenceEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MovePrevious: fn(
-            self: *const IOpcSignatureReferenceEnumerator,
-            hasPrevious: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrent: fn(
-            self: *const IOpcSignatureReferenceEnumerator,
-            reference: ?*?*IOpcSignatureReference,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IOpcSignatureReferenceEnumerator,
-            copy: ?*?*IOpcSignatureReferenceEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureReferenceEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureReferenceEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MovePrevious: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureReferenceEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureReferenceEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureReferenceEnumerator,
+                reference: ?*?*IOpcSignatureReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureReferenceEnumerator,
+                reference: ?*?*IOpcSignatureReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureReferenceEnumerator,
+                copy: ?*?*IOpcSignatureReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureReferenceEnumerator,
+                copy: ?*?*IOpcSignatureReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1467,27 +2181,51 @@ pub const IOpcSignatureReferenceEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcSignatureCustomObjectEnumerator_Value = @import("../../zig.zig").Guid.initString("5ee4fe1d-e1b0-4683-8079-7ea0fcf80b4c");
+const IID_IOpcSignatureCustomObjectEnumerator_Value = Guid.initString("5ee4fe1d-e1b0-4683-8079-7ea0fcf80b4c");
 pub const IID_IOpcSignatureCustomObjectEnumerator = &IID_IOpcSignatureCustomObjectEnumerator_Value;
 pub const IOpcSignatureCustomObjectEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        MoveNext: fn(
-            self: *const IOpcSignatureCustomObjectEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MovePrevious: fn(
-            self: *const IOpcSignatureCustomObjectEnumerator,
-            hasPrevious: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrent: fn(
-            self: *const IOpcSignatureCustomObjectEnumerator,
-            customObject: ?*?*IOpcSignatureCustomObject,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IOpcSignatureCustomObjectEnumerator,
-            copy: ?*?*IOpcSignatureCustomObjectEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureCustomObjectEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureCustomObjectEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MovePrevious: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureCustomObjectEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureCustomObjectEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureCustomObjectEnumerator,
+                customObject: ?*?*IOpcSignatureCustomObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureCustomObjectEnumerator,
+                customObject: ?*?*IOpcSignatureCustomObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureCustomObjectEnumerator,
+                copy: ?*?*IOpcSignatureCustomObjectEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureCustomObjectEnumerator,
+                copy: ?*?*IOpcSignatureCustomObjectEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1513,27 +2251,51 @@ pub const IOpcSignatureCustomObjectEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcCertificateEnumerator_Value = @import("../../zig.zig").Guid.initString("85131937-8f24-421f-b439-59ab24d140b8");
+const IID_IOpcCertificateEnumerator_Value = Guid.initString("85131937-8f24-421f-b439-59ab24d140b8");
 pub const IID_IOpcCertificateEnumerator = &IID_IOpcCertificateEnumerator_Value;
 pub const IOpcCertificateEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        MoveNext: fn(
-            self: *const IOpcCertificateEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MovePrevious: fn(
-            self: *const IOpcCertificateEnumerator,
-            hasPrevious: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrent: fn(
-            self: *const IOpcCertificateEnumerator,
-            certificate: ?*const ?*CERT_CONTEXT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IOpcCertificateEnumerator,
-            copy: ?*?*IOpcCertificateEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcCertificateEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcCertificateEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MovePrevious: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcCertificateEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcCertificateEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcCertificateEnumerator,
+                certificate: ?*const ?*CERT_CONTEXT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcCertificateEnumerator,
+                certificate: ?*const ?*CERT_CONTEXT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcCertificateEnumerator,
+                copy: ?*?*IOpcCertificateEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcCertificateEnumerator,
+                copy: ?*?*IOpcCertificateEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1559,27 +2321,51 @@ pub const IOpcCertificateEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcDigitalSignatureEnumerator_Value = @import("../../zig.zig").Guid.initString("967b6882-0ba3-4358-b9e7-b64c75063c5e");
+const IID_IOpcDigitalSignatureEnumerator_Value = Guid.initString("967b6882-0ba3-4358-b9e7-b64c75063c5e");
 pub const IID_IOpcDigitalSignatureEnumerator = &IID_IOpcDigitalSignatureEnumerator_Value;
 pub const IOpcDigitalSignatureEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        MoveNext: fn(
-            self: *const IOpcDigitalSignatureEnumerator,
-            hasNext: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MovePrevious: fn(
-            self: *const IOpcDigitalSignatureEnumerator,
-            hasPrevious: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrent: fn(
-            self: *const IOpcDigitalSignatureEnumerator,
-            digitalSignature: ?*?*IOpcDigitalSignature,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IOpcDigitalSignatureEnumerator,
-            copy: ?*?*IOpcDigitalSignatureEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        MoveNext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignatureEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignatureEnumerator,
+                hasNext: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MovePrevious: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignatureEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignatureEnumerator,
+                hasPrevious: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignatureEnumerator,
+                digitalSignature: ?*?*IOpcDigitalSignature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignatureEnumerator,
+                digitalSignature: ?*?*IOpcDigitalSignature,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcDigitalSignatureEnumerator,
+                copy: ?*?*IOpcDigitalSignatureEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcDigitalSignatureEnumerator,
+                copy: ?*?*IOpcDigitalSignatureEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1605,26 +2391,47 @@ pub const IOpcDigitalSignatureEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcSignaturePartReferenceSet_Value = @import("../../zig.zig").Guid.initString("6c9fe28c-ecd9-4b22-9d36-7fdde670fec0");
+const IID_IOpcSignaturePartReferenceSet_Value = Guid.initString("6c9fe28c-ecd9-4b22-9d36-7fdde670fec0");
 pub const IID_IOpcSignaturePartReferenceSet = &IID_IOpcSignaturePartReferenceSet_Value;
 pub const IOpcSignaturePartReferenceSet = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Create: fn(
-            self: *const IOpcSignaturePartReferenceSet,
-            partUri: ?*IOpcPartUri,
-            digestMethod: ?[*:0]const u16,
-            transformMethod: OPC_CANONICALIZATION_METHOD,
-            partReference: ?*?*IOpcSignaturePartReference,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Delete: fn(
-            self: *const IOpcSignaturePartReferenceSet,
-            partReference: ?*IOpcSignaturePartReference,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetEnumerator: fn(
-            self: *const IOpcSignaturePartReferenceSet,
-            partReferenceEnumerator: ?*?*IOpcSignaturePartReferenceEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Create: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignaturePartReferenceSet,
+                partUri: ?*IOpcPartUri,
+                digestMethod: ?[*:0]const u16,
+                transformMethod: OPC_CANONICALIZATION_METHOD,
+                partReference: ?*?*IOpcSignaturePartReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignaturePartReferenceSet,
+                partUri: ?*IOpcPartUri,
+                digestMethod: ?[*:0]const u16,
+                transformMethod: OPC_CANONICALIZATION_METHOD,
+                partReference: ?*?*IOpcSignaturePartReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Delete: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignaturePartReferenceSet,
+                partReference: ?*IOpcSignaturePartReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignaturePartReferenceSet,
+                partReference: ?*IOpcSignaturePartReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignaturePartReferenceSet,
+                partReferenceEnumerator: ?*?*IOpcSignaturePartReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignaturePartReferenceSet,
+                partReferenceEnumerator: ?*?*IOpcSignaturePartReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1646,32 +2453,61 @@ pub const IOpcSignaturePartReferenceSet = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcSignatureRelationshipReferenceSet_Value = @import("../../zig.zig").Guid.initString("9f863ca5-3631-404c-828d-807e0715069b");
+const IID_IOpcSignatureRelationshipReferenceSet_Value = Guid.initString("9f863ca5-3631-404c-828d-807e0715069b");
 pub const IID_IOpcSignatureRelationshipReferenceSet = &IID_IOpcSignatureRelationshipReferenceSet_Value;
 pub const IOpcSignatureRelationshipReferenceSet = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Create: fn(
-            self: *const IOpcSignatureRelationshipReferenceSet,
-            sourceUri: ?*IOpcUri,
-            digestMethod: ?[*:0]const u16,
-            relationshipSigningOption: OPC_RELATIONSHIPS_SIGNING_OPTION,
-            selectorSet: ?*IOpcRelationshipSelectorSet,
-            transformMethod: OPC_CANONICALIZATION_METHOD,
-            relationshipReference: ?*?*IOpcSignatureRelationshipReference,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateRelationshipSelectorSet: fn(
-            self: *const IOpcSignatureRelationshipReferenceSet,
-            selectorSet: ?*?*IOpcRelationshipSelectorSet,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Delete: fn(
-            self: *const IOpcSignatureRelationshipReferenceSet,
-            relationshipReference: ?*IOpcSignatureRelationshipReference,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetEnumerator: fn(
-            self: *const IOpcSignatureRelationshipReferenceSet,
-            relationshipReferenceEnumerator: ?*?*IOpcSignatureRelationshipReferenceEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Create: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReferenceSet,
+                sourceUri: ?*IOpcUri,
+                digestMethod: ?[*:0]const u16,
+                relationshipSigningOption: OPC_RELATIONSHIPS_SIGNING_OPTION,
+                selectorSet: ?*IOpcRelationshipSelectorSet,
+                transformMethod: OPC_CANONICALIZATION_METHOD,
+                relationshipReference: ?*?*IOpcSignatureRelationshipReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReferenceSet,
+                sourceUri: ?*IOpcUri,
+                digestMethod: ?[*:0]const u16,
+                relationshipSigningOption: OPC_RELATIONSHIPS_SIGNING_OPTION,
+                selectorSet: ?*IOpcRelationshipSelectorSet,
+                transformMethod: OPC_CANONICALIZATION_METHOD,
+                relationshipReference: ?*?*IOpcSignatureRelationshipReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateRelationshipSelectorSet: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReferenceSet,
+                selectorSet: ?*?*IOpcRelationshipSelectorSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReferenceSet,
+                selectorSet: ?*?*IOpcRelationshipSelectorSet,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Delete: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReferenceSet,
+                relationshipReference: ?*IOpcSignatureRelationshipReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReferenceSet,
+                relationshipReference: ?*IOpcSignatureRelationshipReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureRelationshipReferenceSet,
+                relationshipReferenceEnumerator: ?*?*IOpcSignatureRelationshipReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureRelationshipReferenceSet,
+                relationshipReferenceEnumerator: ?*?*IOpcSignatureRelationshipReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1697,25 +2533,45 @@ pub const IOpcSignatureRelationshipReferenceSet = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcRelationshipSelectorSet_Value = @import("../../zig.zig").Guid.initString("6e34c269-a4d3-47c0-b5c4-87ff2b3b6136");
+const IID_IOpcRelationshipSelectorSet_Value = Guid.initString("6e34c269-a4d3-47c0-b5c4-87ff2b3b6136");
 pub const IID_IOpcRelationshipSelectorSet = &IID_IOpcRelationshipSelectorSet_Value;
 pub const IOpcRelationshipSelectorSet = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Create: fn(
-            self: *const IOpcRelationshipSelectorSet,
-            selector: OPC_RELATIONSHIP_SELECTOR,
-            selectionCriterion: ?[*:0]const u16,
-            relationshipSelector: ?*?*IOpcRelationshipSelector,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Delete: fn(
-            self: *const IOpcRelationshipSelectorSet,
-            relationshipSelector: ?*IOpcRelationshipSelector,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetEnumerator: fn(
-            self: *const IOpcRelationshipSelectorSet,
-            relationshipSelectorEnumerator: ?*?*IOpcRelationshipSelectorEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Create: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSelectorSet,
+                selector: OPC_RELATIONSHIP_SELECTOR,
+                selectionCriterion: ?[*:0]const u16,
+                relationshipSelector: ?*?*IOpcRelationshipSelector,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSelectorSet,
+                selector: OPC_RELATIONSHIP_SELECTOR,
+                selectionCriterion: ?[*:0]const u16,
+                relationshipSelector: ?*?*IOpcRelationshipSelector,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Delete: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSelectorSet,
+                relationshipSelector: ?*IOpcRelationshipSelector,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSelectorSet,
+                relationshipSelector: ?*IOpcRelationshipSelector,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcRelationshipSelectorSet,
+                relationshipSelectorEnumerator: ?*?*IOpcRelationshipSelectorEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcRelationshipSelectorSet,
+                relationshipSelectorEnumerator: ?*?*IOpcRelationshipSelectorEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1737,28 +2593,51 @@ pub const IOpcRelationshipSelectorSet = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcSignatureReferenceSet_Value = @import("../../zig.zig").Guid.initString("f3b02d31-ab12-42dd-9e2f-2b16761c3c1e");
+const IID_IOpcSignatureReferenceSet_Value = Guid.initString("f3b02d31-ab12-42dd-9e2f-2b16761c3c1e");
 pub const IID_IOpcSignatureReferenceSet = &IID_IOpcSignatureReferenceSet_Value;
 pub const IOpcSignatureReferenceSet = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Create: fn(
-            self: *const IOpcSignatureReferenceSet,
-            referenceUri: ?*IUri,
-            referenceId: ?[*:0]const u16,
-            type: ?[*:0]const u16,
-            digestMethod: ?[*:0]const u16,
-            transformMethod: OPC_CANONICALIZATION_METHOD,
-            reference: ?*?*IOpcSignatureReference,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Delete: fn(
-            self: *const IOpcSignatureReferenceSet,
-            reference: ?*IOpcSignatureReference,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetEnumerator: fn(
-            self: *const IOpcSignatureReferenceSet,
-            referenceEnumerator: ?*?*IOpcSignatureReferenceEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Create: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureReferenceSet,
+                referenceUri: ?*IUri,
+                referenceId: ?[*:0]const u16,
+                type: ?[*:0]const u16,
+                digestMethod: ?[*:0]const u16,
+                transformMethod: OPC_CANONICALIZATION_METHOD,
+                reference: ?*?*IOpcSignatureReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureReferenceSet,
+                referenceUri: ?*IUri,
+                referenceId: ?[*:0]const u16,
+                type: ?[*:0]const u16,
+                digestMethod: ?[*:0]const u16,
+                transformMethod: OPC_CANONICALIZATION_METHOD,
+                reference: ?*?*IOpcSignatureReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Delete: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureReferenceSet,
+                reference: ?*IOpcSignatureReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureReferenceSet,
+                reference: ?*IOpcSignatureReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureReferenceSet,
+                referenceEnumerator: ?*?*IOpcSignatureReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureReferenceSet,
+                referenceEnumerator: ?*?*IOpcSignatureReferenceEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1780,25 +2659,45 @@ pub const IOpcSignatureReferenceSet = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcSignatureCustomObjectSet_Value = @import("../../zig.zig").Guid.initString("8f792ac5-7947-4e11-bc3d-2659ff046ae1");
+const IID_IOpcSignatureCustomObjectSet_Value = Guid.initString("8f792ac5-7947-4e11-bc3d-2659ff046ae1");
 pub const IID_IOpcSignatureCustomObjectSet = &IID_IOpcSignatureCustomObjectSet_Value;
 pub const IOpcSignatureCustomObjectSet = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Create: fn(
-            self: *const IOpcSignatureCustomObjectSet,
-            xmlMarkup: [*:0]const u8,
-            count: u32,
-            customObject: ?*?*IOpcSignatureCustomObject,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Delete: fn(
-            self: *const IOpcSignatureCustomObjectSet,
-            customObject: ?*IOpcSignatureCustomObject,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetEnumerator: fn(
-            self: *const IOpcSignatureCustomObjectSet,
-            customObjectEnumerator: ?*?*IOpcSignatureCustomObjectEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Create: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureCustomObjectSet,
+                xmlMarkup: [*:0]const u8,
+                count: u32,
+                customObject: ?*?*IOpcSignatureCustomObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureCustomObjectSet,
+                xmlMarkup: [*:0]const u8,
+                count: u32,
+                customObject: ?*?*IOpcSignatureCustomObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Delete: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureCustomObjectSet,
+                customObject: ?*IOpcSignatureCustomObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureCustomObjectSet,
+                customObject: ?*IOpcSignatureCustomObject,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcSignatureCustomObjectSet,
+                customObjectEnumerator: ?*?*IOpcSignatureCustomObjectEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcSignatureCustomObjectSet,
+                customObjectEnumerator: ?*?*IOpcSignatureCustomObjectEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1820,23 +2719,41 @@ pub const IOpcSignatureCustomObjectSet = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcCertificateSet_Value = @import("../../zig.zig").Guid.initString("56ea4325-8e2d-4167-b1a4-e486d24c8fa7");
+const IID_IOpcCertificateSet_Value = Guid.initString("56ea4325-8e2d-4167-b1a4-e486d24c8fa7");
 pub const IID_IOpcCertificateSet = &IID_IOpcCertificateSet_Value;
 pub const IOpcCertificateSet = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Add: fn(
-            self: *const IOpcCertificateSet,
-            certificate: ?*const CERT_CONTEXT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Remove: fn(
-            self: *const IOpcCertificateSet,
-            certificate: ?*const CERT_CONTEXT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetEnumerator: fn(
-            self: *const IOpcCertificateSet,
-            certificateEnumerator: ?*?*IOpcCertificateEnumerator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Add: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcCertificateSet,
+                certificate: ?*const CERT_CONTEXT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcCertificateSet,
+                certificate: ?*const CERT_CONTEXT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Remove: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcCertificateSet,
+                certificate: ?*const CERT_CONTEXT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcCertificateSet,
+                certificate: ?*const CERT_CONTEXT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetEnumerator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcCertificateSet,
+                certificateEnumerator: ?*?*IOpcCertificateEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcCertificateSet,
+                certificateEnumerator: ?*?*IOpcCertificateEnumerator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1858,49 +2775,101 @@ pub const IOpcCertificateSet = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IOpcFactory_Value = @import("../../zig.zig").Guid.initString("6d0b4446-cd73-4ab3-94f4-8ccdf6116154");
+const IID_IOpcFactory_Value = Guid.initString("6d0b4446-cd73-4ab3-94f4-8ccdf6116154");
 pub const IID_IOpcFactory = &IID_IOpcFactory_Value;
 pub const IOpcFactory = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreatePackageRootUri: fn(
-            self: *const IOpcFactory,
-            rootUri: ?*?*IOpcUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreatePartUri: fn(
-            self: *const IOpcFactory,
-            pwzUri: ?[*:0]const u16,
-            partUri: ?*?*IOpcPartUri,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateStreamOnFile: fn(
-            self: *const IOpcFactory,
-            filename: ?[*:0]const u16,
-            ioMode: OPC_STREAM_IO_MODE,
-            securityAttributes: ?*SECURITY_ATTRIBUTES,
-            dwFlagsAndAttributes: u32,
-            stream: ?*?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreatePackage: fn(
-            self: *const IOpcFactory,
-            package: ?*?*IOpcPackage,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ReadPackageFromStream: fn(
-            self: *const IOpcFactory,
-            stream: ?*IStream,
-            flags: OPC_READ_FLAGS,
-            package: ?*?*IOpcPackage,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        WritePackageToStream: fn(
-            self: *const IOpcFactory,
-            package: ?*IOpcPackage,
-            flags: OPC_WRITE_FLAGS,
-            stream: ?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateDigitalSignatureManager: fn(
-            self: *const IOpcFactory,
-            package: ?*IOpcPackage,
-            signatureManager: ?*?*IOpcDigitalSignatureManager,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreatePackageRootUri: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcFactory,
+                rootUri: ?*?*IOpcUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcFactory,
+                rootUri: ?*?*IOpcUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreatePartUri: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcFactory,
+                pwzUri: ?[*:0]const u16,
+                partUri: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcFactory,
+                pwzUri: ?[*:0]const u16,
+                partUri: ?*?*IOpcPartUri,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateStreamOnFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcFactory,
+                filename: ?[*:0]const u16,
+                ioMode: OPC_STREAM_IO_MODE,
+                securityAttributes: ?*SECURITY_ATTRIBUTES,
+                dwFlagsAndAttributes: u32,
+                stream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcFactory,
+                filename: ?[*:0]const u16,
+                ioMode: OPC_STREAM_IO_MODE,
+                securityAttributes: ?*SECURITY_ATTRIBUTES,
+                dwFlagsAndAttributes: u32,
+                stream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreatePackage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcFactory,
+                package: ?*?*IOpcPackage,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcFactory,
+                package: ?*?*IOpcPackage,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ReadPackageFromStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcFactory,
+                stream: ?*IStream,
+                flags: OPC_READ_FLAGS,
+                package: ?*?*IOpcPackage,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcFactory,
+                stream: ?*IStream,
+                flags: OPC_READ_FLAGS,
+                package: ?*?*IOpcPackage,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        WritePackageToStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcFactory,
+                package: ?*IOpcPackage,
+                flags: OPC_WRITE_FLAGS,
+                stream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcFactory,
+                package: ?*IOpcPackage,
+                flags: OPC_WRITE_FLAGS,
+                stream: ?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateDigitalSignatureManager: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IOpcFactory,
+                package: ?*IOpcPackage,
+                signatureManager: ?*?*IOpcDigitalSignatureManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IOpcFactory,
+                package: ?*IOpcPackage,
+                signatureManager: ?*?*IOpcDigitalSignatureManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1956,8 +2925,9 @@ pub usingnamespace switch (@import("../../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (8)
+// Section: Imports (9)
 //--------------------------------------------------------------------------------
+const Guid = @import("../../zig.zig").Guid;
 const BOOL = @import("../../foundation.zig").BOOL;
 const CERT_CONTEXT = @import("../../security/cryptography.zig").CERT_CONTEXT;
 const HRESULT = @import("../../foundation.zig").HRESULT;
@@ -1969,14 +2939,14 @@ const SECURITY_ATTRIBUTES = @import("../../security.zig").SECURITY_ATTRIBUTES;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

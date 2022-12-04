@@ -8,7 +8,7 @@ pub const NLM_UNKNOWN_DATAPLAN_STATUS = @as(u32, 4294967295);
 //--------------------------------------------------------------------------------
 // Section: Types (26)
 //--------------------------------------------------------------------------------
-const CLSID_NetworkListManager_Value = @import("../zig.zig").Guid.initString("dcb00c01-570f-4a9b-8d69-199fdba5723b");
+const CLSID_NetworkListManager_Value = Guid.initString("dcb00c01-570f-4a9b-8d69-199fdba5723b");
 pub const CLSID_NetworkListManager = &CLSID_NetworkListManager_Value;
 
 pub const NLM_CONNECTION_COST = enum(i32) {
@@ -115,51 +115,111 @@ pub const NLM_ENUM_NETWORK_DISCONNECTED = NLM_ENUM_NETWORK.DISCONNECTED;
 pub const NLM_ENUM_NETWORK_ALL = NLM_ENUM_NETWORK.ALL;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_INetworkListManager_Value = @import("../zig.zig").Guid.initString("dcb00000-570f-4a9b-8d69-199fdba5723b");
+const IID_INetworkListManager_Value = Guid.initString("dcb00000-570f-4a9b-8d69-199fdba5723b");
 pub const IID_INetworkListManager = &IID_INetworkListManager_Value;
 pub const INetworkListManager = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        GetNetworks: fn(
-            self: *const INetworkListManager,
-            Flags: NLM_ENUM_NETWORK,
-            ppEnumNetwork: ?*?*IEnumNetworks,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNetwork: fn(
-            self: *const INetworkListManager,
-            gdNetworkId: Guid,
-            ppNetwork: ?*?*INetwork,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNetworkConnections: fn(
-            self: *const INetworkListManager,
-            ppEnum: ?*?*IEnumNetworkConnections,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNetworkConnection: fn(
-            self: *const INetworkListManager,
-            gdNetworkConnectionId: Guid,
-            ppNetworkConnection: ?*?*INetworkConnection,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetNetworks: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkListManager,
+                Flags: NLM_ENUM_NETWORK,
+                ppEnumNetwork: ?*?*IEnumNetworks,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkListManager,
+                Flags: NLM_ENUM_NETWORK,
+                ppEnumNetwork: ?*?*IEnumNetworks,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNetwork: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkListManager,
+                gdNetworkId: Guid,
+                ppNetwork: ?*?*INetwork,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkListManager,
+                gdNetworkId: Guid,
+                ppNetwork: ?*?*INetwork,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNetworkConnections: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkListManager,
+                ppEnum: ?*?*IEnumNetworkConnections,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkListManager,
+                ppEnum: ?*?*IEnumNetworkConnections,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNetworkConnection: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkListManager,
+                gdNetworkConnectionId: Guid,
+                ppNetworkConnection: ?*?*INetworkConnection,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkListManager,
+                gdNetworkConnectionId: Guid,
+                ppNetworkConnection: ?*?*INetworkConnection,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_IsConnectedToInternet: fn(
-            self: *const INetworkListManager,
-            pbIsConnected: ?*i16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_IsConnectedToInternet: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const INetworkListManager,
+                pbIsConnected: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const INetworkListManager,
+                pbIsConnected: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_IsConnected: fn(
-            self: *const INetworkListManager,
-            pbIsConnected: ?*i16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetConnectivity: fn(
-            self: *const INetworkListManager,
-            pConnectivity: ?*NLM_CONNECTIVITY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetSimulatedProfileInfo: fn(
-            self: *const INetworkListManager,
-            pSimulatedInfo: ?*NLM_SIMULATED_PROFILE_INFO,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ClearSimulatedProfileInfo: fn(
-            self: *const INetworkListManager,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_IsConnected: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const INetworkListManager,
+                pbIsConnected: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const INetworkListManager,
+                pbIsConnected: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetConnectivity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkListManager,
+                pConnectivity: ?*NLM_CONNECTIVITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkListManager,
+                pConnectivity: ?*NLM_CONNECTIVITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetSimulatedProfileInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkListManager,
+                pSimulatedInfo: ?*NLM_SIMULATED_PROFILE_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkListManager,
+                pSimulatedInfo: ?*NLM_SIMULATED_PROFILE_INFO,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ClearSimulatedProfileInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkListManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkListManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -205,15 +265,21 @@ pub const INetworkListManager = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_INetworkListManagerEvents_Value = @import("../zig.zig").Guid.initString("dcb00001-570f-4a9b-8d69-199fdba5723b");
+const IID_INetworkListManagerEvents_Value = Guid.initString("dcb00001-570f-4a9b-8d69-199fdba5723b");
 pub const IID_INetworkListManagerEvents = &IID_INetworkListManagerEvents_Value;
 pub const INetworkListManagerEvents = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ConnectivityChanged: fn(
-            self: *const INetworkListManagerEvents,
-            newConnectivity: NLM_CONNECTIVITY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ConnectivityChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkListManagerEvents,
+                newConnectivity: NLM_CONNECTIVITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkListManagerEvents,
+                newConnectivity: NLM_CONNECTIVITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -236,68 +302,153 @@ pub const NLM_NETWORK_CATEGORY_PRIVATE = NLM_NETWORK_CATEGORY.PRIVATE;
 pub const NLM_NETWORK_CATEGORY_DOMAIN_AUTHENTICATED = NLM_NETWORK_CATEGORY.DOMAIN_AUTHENTICATED;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_INetwork_Value = @import("../zig.zig").Guid.initString("dcb00002-570f-4a9b-8d69-199fdba5723b");
+const IID_INetwork_Value = Guid.initString("dcb00002-570f-4a9b-8d69-199fdba5723b");
 pub const IID_INetwork = &IID_INetwork_Value;
 pub const INetwork = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        GetName: fn(
-            self: *const INetwork,
-            pszNetworkName: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetName: fn(
-            self: *const INetwork,
-            szNetworkNewName: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDescription: fn(
-            self: *const INetwork,
-            pszDescription: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDescription: fn(
-            self: *const INetwork,
-            szDescription: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNetworkId: fn(
-            self: *const INetwork,
-            pgdGuidNetworkId: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDomainType: fn(
-            self: *const INetwork,
-            pNetworkType: ?*NLM_DOMAIN_TYPE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNetworkConnections: fn(
-            self: *const INetwork,
-            ppEnumNetworkConnection: ?*?*IEnumNetworkConnections,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTimeCreatedAndConnected: fn(
-            self: *const INetwork,
-            pdwLowDateTimeCreated: ?*u32,
-            pdwHighDateTimeCreated: ?*u32,
-            pdwLowDateTimeConnected: ?*u32,
-            pdwHighDateTimeConnected: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetwork,
+                pszNetworkName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetwork,
+                pszNetworkName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetwork,
+                szNetworkNewName: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetwork,
+                szNetworkNewName: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDescription: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetwork,
+                pszDescription: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetwork,
+                pszDescription: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDescription: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetwork,
+                szDescription: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetwork,
+                szDescription: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNetworkId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetwork,
+                pgdGuidNetworkId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetwork,
+                pgdGuidNetworkId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDomainType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetwork,
+                pNetworkType: ?*NLM_DOMAIN_TYPE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetwork,
+                pNetworkType: ?*NLM_DOMAIN_TYPE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNetworkConnections: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetwork,
+                ppEnumNetworkConnection: ?*?*IEnumNetworkConnections,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetwork,
+                ppEnumNetworkConnection: ?*?*IEnumNetworkConnections,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTimeCreatedAndConnected: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetwork,
+                pdwLowDateTimeCreated: ?*u32,
+                pdwHighDateTimeCreated: ?*u32,
+                pdwLowDateTimeConnected: ?*u32,
+                pdwHighDateTimeConnected: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetwork,
+                pdwLowDateTimeCreated: ?*u32,
+                pdwHighDateTimeCreated: ?*u32,
+                pdwLowDateTimeConnected: ?*u32,
+                pdwHighDateTimeConnected: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_IsConnectedToInternet: fn(
-            self: *const INetwork,
-            pbIsConnected: ?*i16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_IsConnectedToInternet: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const INetwork,
+                pbIsConnected: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const INetwork,
+                pbIsConnected: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_IsConnected: fn(
-            self: *const INetwork,
-            pbIsConnected: ?*i16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetConnectivity: fn(
-            self: *const INetwork,
-            pConnectivity: ?*NLM_CONNECTIVITY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCategory: fn(
-            self: *const INetwork,
-            pCategory: ?*NLM_NETWORK_CATEGORY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetCategory: fn(
-            self: *const INetwork,
-            NewCategory: NLM_NETWORK_CATEGORY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_IsConnected: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const INetwork,
+                pbIsConnected: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const INetwork,
+                pbIsConnected: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetConnectivity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetwork,
+                pConnectivity: ?*NLM_CONNECTIVITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetwork,
+                pConnectivity: ?*NLM_CONNECTIVITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCategory: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetwork,
+                pCategory: ?*NLM_NETWORK_CATEGORY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetwork,
+                pCategory: ?*NLM_NETWORK_CATEGORY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetCategory: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetwork,
+                NewCategory: NLM_NETWORK_CATEGORY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetwork,
+                NewCategory: NLM_NETWORK_CATEGORY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -359,33 +510,66 @@ pub const INetwork = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IEnumNetworks_Value = @import("../zig.zig").Guid.initString("dcb00003-570f-4a9b-8d69-199fdba5723b");
+const IID_IEnumNetworks_Value = Guid.initString("dcb00003-570f-4a9b-8d69-199fdba5723b");
 pub const IID_IEnumNetworks = &IID_IEnumNetworks_Value;
 pub const IEnumNetworks = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get__NewEnum: fn(
-            self: *const IEnumNetworks,
-            ppEnumVar: ?*?*IEnumVARIANT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Next: fn(
-            self: *const IEnumNetworks,
-            celt: u32,
-            rgelt: [*]?*INetwork,
-            pceltFetched: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Skip: fn(
-            self: *const IEnumNetworks,
-            celt: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Reset: fn(
-            self: *const IEnumNetworks,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IEnumNetworks,
-            ppEnumNetwork: ?*?*IEnumNetworks,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get__NewEnum: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IEnumNetworks,
+                ppEnumVar: ?*?*IEnumVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IEnumNetworks,
+                ppEnumVar: ?*?*IEnumVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Next: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumNetworks,
+                celt: u32,
+                rgelt: [*]?*INetwork,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumNetworks,
+                celt: u32,
+                rgelt: [*]?*INetwork,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Skip: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumNetworks,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumNetworks,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Reset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumNetworks,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumNetworks,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumNetworks,
+                ppEnumNetwork: ?*?*IEnumNetworks,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumNetworks,
+                ppEnumNetwork: ?*?*IEnumNetworks,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -428,29 +612,55 @@ pub const NLM_NETWORK_PROPERTY_CHANGE_ICON = NLM_NETWORK_PROPERTY_CHANGE.ICON;
 pub const NLM_NETWORK_PROPERTY_CHANGE_CATEGORY_VALUE = NLM_NETWORK_PROPERTY_CHANGE.CATEGORY_VALUE;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_INetworkEvents_Value = @import("../zig.zig").Guid.initString("dcb00004-570f-4a9b-8d69-199fdba5723b");
+const IID_INetworkEvents_Value = Guid.initString("dcb00004-570f-4a9b-8d69-199fdba5723b");
 pub const IID_INetworkEvents = &IID_INetworkEvents_Value;
 pub const INetworkEvents = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        NetworkAdded: fn(
-            self: *const INetworkEvents,
-            networkId: Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        NetworkDeleted: fn(
-            self: *const INetworkEvents,
-            networkId: Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        NetworkConnectivityChanged: fn(
-            self: *const INetworkEvents,
-            networkId: Guid,
-            newConnectivity: NLM_CONNECTIVITY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        NetworkPropertyChanged: fn(
-            self: *const INetworkEvents,
-            networkId: Guid,
-            flags: NLM_NETWORK_PROPERTY_CHANGE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        NetworkAdded: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkEvents,
+                networkId: Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkEvents,
+                networkId: Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        NetworkDeleted: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkEvents,
+                networkId: Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkEvents,
+                networkId: Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        NetworkConnectivityChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkEvents,
+                networkId: Guid,
+                newConnectivity: NLM_CONNECTIVITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkEvents,
+                networkId: Guid,
+                newConnectivity: NLM_CONNECTIVITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        NetworkPropertyChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkEvents,
+                networkId: Guid,
+                flags: NLM_NETWORK_PROPERTY_CHANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkEvents,
+                networkId: Guid,
+                flags: NLM_NETWORK_PROPERTY_CHANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -476,41 +686,87 @@ pub const INetworkEvents = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_INetworkConnection_Value = @import("../zig.zig").Guid.initString("dcb00005-570f-4a9b-8d69-199fdba5723b");
+const IID_INetworkConnection_Value = Guid.initString("dcb00005-570f-4a9b-8d69-199fdba5723b");
 pub const IID_INetworkConnection = &IID_INetworkConnection_Value;
 pub const INetworkConnection = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        GetNetwork: fn(
-            self: *const INetworkConnection,
-            ppNetwork: ?*?*INetwork,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetNetwork: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkConnection,
+                ppNetwork: ?*?*INetwork,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkConnection,
+                ppNetwork: ?*?*INetwork,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_IsConnectedToInternet: fn(
-            self: *const INetworkConnection,
-            pbIsConnected: ?*i16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_IsConnectedToInternet: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const INetworkConnection,
+                pbIsConnected: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const INetworkConnection,
+                pbIsConnected: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_IsConnected: fn(
-            self: *const INetworkConnection,
-            pbIsConnected: ?*i16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetConnectivity: fn(
-            self: *const INetworkConnection,
-            pConnectivity: ?*NLM_CONNECTIVITY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetConnectionId: fn(
-            self: *const INetworkConnection,
-            pgdConnectionId: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAdapterId: fn(
-            self: *const INetworkConnection,
-            pgdAdapterId: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDomainType: fn(
-            self: *const INetworkConnection,
-            pDomainType: ?*NLM_DOMAIN_TYPE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_IsConnected: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const INetworkConnection,
+                pbIsConnected: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const INetworkConnection,
+                pbIsConnected: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetConnectivity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkConnection,
+                pConnectivity: ?*NLM_CONNECTIVITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkConnection,
+                pConnectivity: ?*NLM_CONNECTIVITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetConnectionId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkConnection,
+                pgdConnectionId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkConnection,
+                pgdConnectionId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAdapterId: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkConnection,
+                pgdAdapterId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkConnection,
+                pgdAdapterId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDomainType: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkConnection,
+                pDomainType: ?*NLM_DOMAIN_TYPE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkConnection,
+                pDomainType: ?*NLM_DOMAIN_TYPE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -548,33 +804,66 @@ pub const INetworkConnection = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IEnumNetworkConnections_Value = @import("../zig.zig").Guid.initString("dcb00006-570f-4a9b-8d69-199fdba5723b");
+const IID_IEnumNetworkConnections_Value = Guid.initString("dcb00006-570f-4a9b-8d69-199fdba5723b");
 pub const IID_IEnumNetworkConnections = &IID_IEnumNetworkConnections_Value;
 pub const IEnumNetworkConnections = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get__NewEnum: fn(
-            self: *const IEnumNetworkConnections,
-            ppEnumVar: ?*?*IEnumVARIANT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Next: fn(
-            self: *const IEnumNetworkConnections,
-            celt: u32,
-            rgelt: [*]?*INetworkConnection,
-            pceltFetched: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Skip: fn(
-            self: *const IEnumNetworkConnections,
-            celt: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Reset: fn(
-            self: *const IEnumNetworkConnections,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clone: fn(
-            self: *const IEnumNetworkConnections,
-            ppEnumNetwork: ?*?*IEnumNetworkConnections,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get__NewEnum: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IEnumNetworkConnections,
+                ppEnumVar: ?*?*IEnumVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IEnumNetworkConnections,
+                ppEnumVar: ?*?*IEnumVARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Next: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumNetworkConnections,
+                celt: u32,
+                rgelt: [*]?*INetworkConnection,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumNetworkConnections,
+                celt: u32,
+                rgelt: [*]?*INetworkConnection,
+                pceltFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Skip: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumNetworkConnections,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumNetworkConnections,
+                celt: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Reset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumNetworkConnections,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumNetworkConnections,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clone: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEnumNetworkConnections,
+                ppEnumNetwork: ?*?*IEnumNetworkConnections,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEnumNetworkConnections,
+                ppEnumNetwork: ?*?*IEnumNetworkConnections,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -609,21 +898,35 @@ pub const NLM_CONNECTION_PROPERTY_CHANGE = enum(i32) {
 pub const NLM_CONNECTION_PROPERTY_CHANGE_AUTHENTICATION = NLM_CONNECTION_PROPERTY_CHANGE.N;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_INetworkConnectionEvents_Value = @import("../zig.zig").Guid.initString("dcb00007-570f-4a9b-8d69-199fdba5723b");
+const IID_INetworkConnectionEvents_Value = Guid.initString("dcb00007-570f-4a9b-8d69-199fdba5723b");
 pub const IID_INetworkConnectionEvents = &IID_INetworkConnectionEvents_Value;
 pub const INetworkConnectionEvents = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        NetworkConnectionConnectivityChanged: fn(
-            self: *const INetworkConnectionEvents,
-            connectionId: Guid,
-            newConnectivity: NLM_CONNECTIVITY,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        NetworkConnectionPropertyChanged: fn(
-            self: *const INetworkConnectionEvents,
-            connectionId: Guid,
-            flags: NLM_CONNECTION_PROPERTY_CHANGE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        NetworkConnectionConnectivityChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkConnectionEvents,
+                connectionId: Guid,
+                newConnectivity: NLM_CONNECTIVITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkConnectionEvents,
+                connectionId: Guid,
+                newConnectivity: NLM_CONNECTIVITY,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        NetworkConnectionPropertyChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkConnectionEvents,
+                connectionId: Guid,
+                flags: NLM_CONNECTION_PROPERTY_CHANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkConnectionEvents,
+                connectionId: Guid,
+                flags: NLM_CONNECTION_PROPERTY_CHANGE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -641,27 +944,49 @@ pub const INetworkConnectionEvents = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_INetworkCostManager_Value = @import("../zig.zig").Guid.initString("dcb00008-570f-4a9b-8d69-199fdba5723b");
+const IID_INetworkCostManager_Value = Guid.initString("dcb00008-570f-4a9b-8d69-199fdba5723b");
 pub const IID_INetworkCostManager = &IID_INetworkCostManager_Value;
 pub const INetworkCostManager = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCost: fn(
-            self: *const INetworkCostManager,
-            pCost: ?*u32,
-            pDestIPAddr: ?*NLM_SOCKADDR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDataPlanStatus: fn(
-            self: *const INetworkCostManager,
-            pDataPlanStatus: ?*NLM_DATAPLAN_STATUS,
-            pDestIPAddr: ?*NLM_SOCKADDR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDestinationAddresses: fn(
-            self: *const INetworkCostManager,
-            length: u32,
-            pDestIPAddrList: [*]NLM_SOCKADDR,
-            bAppend: i16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCost: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkCostManager,
+                pCost: ?*u32,
+                pDestIPAddr: ?*NLM_SOCKADDR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkCostManager,
+                pCost: ?*u32,
+                pDestIPAddr: ?*NLM_SOCKADDR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDataPlanStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkCostManager,
+                pDataPlanStatus: ?*NLM_DATAPLAN_STATUS,
+                pDestIPAddr: ?*NLM_SOCKADDR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkCostManager,
+                pDataPlanStatus: ?*NLM_DATAPLAN_STATUS,
+                pDestIPAddr: ?*NLM_SOCKADDR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDestinationAddresses: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkCostManager,
+                length: u32,
+                pDestIPAddrList: [*]NLM_SOCKADDR,
+                bAppend: i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkCostManager,
+                length: u32,
+                pDestIPAddrList: [*]NLM_SOCKADDR,
+                bAppend: i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -683,20 +1008,33 @@ pub const INetworkCostManager = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_INetworkCostManagerEvents_Value = @import("../zig.zig").Guid.initString("dcb00009-570f-4a9b-8d69-199fdba5723b");
+const IID_INetworkCostManagerEvents_Value = Guid.initString("dcb00009-570f-4a9b-8d69-199fdba5723b");
 pub const IID_INetworkCostManagerEvents = &IID_INetworkCostManagerEvents_Value;
 pub const INetworkCostManagerEvents = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CostChanged: fn(
-            self: *const INetworkCostManagerEvents,
-            newCost: u32,
-            pDestAddr: ?*NLM_SOCKADDR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        DataPlanStatusChanged: fn(
-            self: *const INetworkCostManagerEvents,
-            pDestAddr: ?*NLM_SOCKADDR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CostChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkCostManagerEvents,
+                newCost: u32,
+                pDestAddr: ?*NLM_SOCKADDR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkCostManagerEvents,
+                newCost: u32,
+                pDestAddr: ?*NLM_SOCKADDR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        DataPlanStatusChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkCostManagerEvents,
+                pDestAddr: ?*NLM_SOCKADDR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkCostManagerEvents,
+                pDestAddr: ?*NLM_SOCKADDR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -714,19 +1052,31 @@ pub const INetworkCostManagerEvents = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_INetworkConnectionCost_Value = @import("../zig.zig").Guid.initString("dcb0000a-570f-4a9b-8d69-199fdba5723b");
+const IID_INetworkConnectionCost_Value = Guid.initString("dcb0000a-570f-4a9b-8d69-199fdba5723b");
 pub const IID_INetworkConnectionCost = &IID_INetworkConnectionCost_Value;
 pub const INetworkConnectionCost = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCost: fn(
-            self: *const INetworkConnectionCost,
-            pCost: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDataPlanStatus: fn(
-            self: *const INetworkConnectionCost,
-            pDataPlanStatus: ?*NLM_DATAPLAN_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCost: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkConnectionCost,
+                pCost: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkConnectionCost,
+                pCost: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDataPlanStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkConnectionCost,
+                pDataPlanStatus: ?*NLM_DATAPLAN_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkConnectionCost,
+                pDataPlanStatus: ?*NLM_DATAPLAN_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -744,20 +1094,33 @@ pub const INetworkConnectionCost = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_INetworkConnectionCostEvents_Value = @import("../zig.zig").Guid.initString("dcb0000b-570f-4a9b-8d69-199fdba5723b");
+const IID_INetworkConnectionCostEvents_Value = Guid.initString("dcb0000b-570f-4a9b-8d69-199fdba5723b");
 pub const IID_INetworkConnectionCostEvents = &IID_INetworkConnectionCostEvents_Value;
 pub const INetworkConnectionCostEvents = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ConnectionCostChanged: fn(
-            self: *const INetworkConnectionCostEvents,
-            connectionId: Guid,
-            newCost: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ConnectionDataPlanStatusChanged: fn(
-            self: *const INetworkConnectionCostEvents,
-            connectionId: Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ConnectionCostChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkConnectionCostEvents,
+                connectionId: Guid,
+                newCost: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkConnectionCostEvents,
+                connectionId: Guid,
+                newCost: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ConnectionDataPlanStatusChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const INetworkConnectionCostEvents,
+                connectionId: Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const INetworkConnectionCostEvents,
+                connectionId: Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -805,14 +1168,14 @@ const IUnknown = @import("../system/com.zig").IUnknown;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

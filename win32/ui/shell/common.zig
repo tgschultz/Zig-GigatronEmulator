@@ -167,21 +167,35 @@ pub const SCALE_450_PERCENT = DEVICE_SCALE_FACTOR.SCALE_450_PERCENT;
 pub const SCALE_500_PERCENT = DEVICE_SCALE_FACTOR.SCALE_500_PERCENT;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IObjectArray_Value = @import("../../zig.zig").Guid.initString("92ca9dcd-5622-4bba-a805-5e9f541bd8c9");
+const IID_IObjectArray_Value = Guid.initString("92ca9dcd-5622-4bba-a805-5e9f541bd8c9");
 pub const IID_IObjectArray = &IID_IObjectArray_Value;
 pub const IObjectArray = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCount: fn(
-            self: *const IObjectArray,
-            pcObjects: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAt: fn(
-            self: *const IObjectArray,
-            uiIndex: u32,
-            riid: ?*const Guid,
-            ppv: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IObjectArray,
+                pcObjects: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IObjectArray,
+                pcObjects: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAt: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IObjectArray,
+                uiIndex: u32,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IObjectArray,
+                uiIndex: u32,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -199,26 +213,49 @@ pub const IObjectArray = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IObjectCollection_Value = @import("../../zig.zig").Guid.initString("5632b1a4-e38a-400a-928a-d4cd63230295");
+const IID_IObjectCollection_Value = Guid.initString("5632b1a4-e38a-400a-928a-d4cd63230295");
 pub const IID_IObjectCollection = &IID_IObjectCollection_Value;
 pub const IObjectCollection = extern struct {
     pub const VTable = extern struct {
         base: IObjectArray.VTable,
-        AddObject: fn(
-            self: *const IObjectCollection,
-            punk: ?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddFromArray: fn(
-            self: *const IObjectCollection,
-            poaSource: ?*IObjectArray,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RemoveObjectAt: fn(
-            self: *const IObjectCollection,
-            uiIndex: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Clear: fn(
-            self: *const IObjectCollection,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddObject: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IObjectCollection,
+                punk: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IObjectCollection,
+                punk: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddFromArray: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IObjectCollection,
+                poaSource: ?*IObjectArray,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IObjectCollection,
+                poaSource: ?*IObjectArray,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RemoveObjectAt: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IObjectCollection,
+                uiIndex: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IObjectCollection,
+                uiIndex: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Clear: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IObjectCollection,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IObjectCollection,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -271,14 +308,14 @@ const PWSTR = @import("../../foundation.zig").PWSTR;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

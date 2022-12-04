@@ -254,73 +254,155 @@ pub const WINTRUST_CERT_INFO = extern struct {
     psftVerifyAsOf: ?*FILETIME,
 };
 
-pub const PFN_CPD_MEM_ALLOC = fn(
-    cbSize: u32,
-) callconv(@import("std").os.windows.WINAPI) ?*anyopaque;
+pub const PFN_CPD_MEM_ALLOC = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        cbSize: u32,
+    ) callconv(@import("std").os.windows.WINAPI) ?*anyopaque,
+    else => *const fn(
+        cbSize: u32,
+    ) callconv(@import("std").os.windows.WINAPI) ?*anyopaque,
+} ;
 
-pub const PFN_CPD_MEM_FREE = fn(
-    pvMem2Free: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const PFN_CPD_MEM_FREE = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pvMem2Free: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        pvMem2Free: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const PFN_CPD_ADD_STORE = fn(
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-    hStore2Add: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const PFN_CPD_ADD_STORE = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+        hStore2Add: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+        hStore2Add: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
-pub const PFN_CPD_ADD_SGNR = fn(
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-    fCounterSigner: BOOL,
-    idxSigner: u32,
-    pSgnr2Add: ?*CRYPT_PROVIDER_SGNR,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const PFN_CPD_ADD_SGNR = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+        fCounterSigner: BOOL,
+        idxSigner: u32,
+        pSgnr2Add: ?*CRYPT_PROVIDER_SGNR,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+        fCounterSigner: BOOL,
+        idxSigner: u32,
+        pSgnr2Add: ?*CRYPT_PROVIDER_SGNR,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
-pub const PFN_CPD_ADD_CERT = fn(
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-    idxSigner: u32,
-    fCounterSigner: BOOL,
-    idxCounterSigner: u32,
-    pCert2Add: ?*const CERT_CONTEXT,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const PFN_CPD_ADD_CERT = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+        idxSigner: u32,
+        fCounterSigner: BOOL,
+        idxCounterSigner: u32,
+        pCert2Add: ?*const CERT_CONTEXT,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+        idxSigner: u32,
+        fCounterSigner: BOOL,
+        idxCounterSigner: u32,
+        pCert2Add: ?*const CERT_CONTEXT,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
-pub const PFN_CPD_ADD_PRIVDATA = fn(
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-    pPrivData2Add: ?*CRYPT_PROVIDER_PRIVDATA,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const PFN_CPD_ADD_PRIVDATA = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+        pPrivData2Add: ?*CRYPT_PROVIDER_PRIVDATA,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+        pPrivData2Add: ?*CRYPT_PROVIDER_PRIVDATA,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
-pub const PFN_PROVIDER_INIT_CALL = fn(
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PFN_PROVIDER_INIT_CALL = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const PFN_PROVIDER_OBJTRUST_CALL = fn(
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PFN_PROVIDER_OBJTRUST_CALL = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const PFN_PROVIDER_SIGTRUST_CALL = fn(
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PFN_PROVIDER_SIGTRUST_CALL = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const PFN_PROVIDER_CERTTRUST_CALL = fn(
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PFN_PROVIDER_CERTTRUST_CALL = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const PFN_PROVIDER_FINALPOLICY_CALL = fn(
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PFN_PROVIDER_FINALPOLICY_CALL = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const PFN_PROVIDER_TESTFINALPOLICY_CALL = fn(
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PFN_PROVIDER_TESTFINALPOLICY_CALL = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const PFN_PROVIDER_CLEANUP_CALL = fn(
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PFN_PROVIDER_CLEANUP_CALL = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const PFN_PROVIDER_CERTCHKPOLICY_CALL = fn(
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-    idxSigner: u32,
-    fCounterSignerChain: BOOL,
-    idxCounterSigner: u32,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const PFN_PROVIDER_CERTCHKPOLICY_CALL = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+        idxSigner: u32,
+        fCounterSignerChain: BOOL,
+        idxCounterSigner: u32,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+        idxSigner: u32,
+        fCounterSignerChain: BOOL,
+        idxCounterSigner: u32,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
 pub const CRYPT_PROVIDER_DATA = extern struct {
     cbStruct: u32,
@@ -394,10 +476,16 @@ pub const CRYPT_PROVIDER_FUNCTIONS = extern struct {
     pfnCleanupPolicy: ?PFN_PROVIDER_CLEANUP_CALL,
 };
 
-pub const PFN_PROVUI_CALL = fn(
-    hWndSecurityDialog: ?HWND,
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const PFN_PROVUI_CALL = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        hWndSecurityDialog: ?HWND,
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        hWndSecurityDialog: ?HWND,
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
 pub const CRYPT_PROVUI_FUNCS = extern struct {
     cbStruct: u32,
@@ -486,15 +574,27 @@ pub const CRYPT_REGISTER_ACTIONID = extern struct {
     sCleanupProvider: CRYPT_TRUST_REG_ENTRY,
 };
 
-pub const PFN_ALLOCANDFILLDEFUSAGE = fn(
-    pszUsageOID: ?[*:0]const u8,
-    psDefUsage: ?*CRYPT_PROVIDER_DEFUSAGE,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const PFN_ALLOCANDFILLDEFUSAGE = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pszUsageOID: ?[*:0]const u8,
+        psDefUsage: ?*CRYPT_PROVIDER_DEFUSAGE,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        pszUsageOID: ?[*:0]const u8,
+        psDefUsage: ?*CRYPT_PROVIDER_DEFUSAGE,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
-pub const PFN_FREEDEFUSAGE = fn(
-    pszUsageOID: ?[*:0]const u8,
-    psDefUsage: ?*CRYPT_PROVIDER_DEFUSAGE,
-) callconv(@import("std").os.windows.WINAPI) BOOL;
+pub const PFN_FREEDEFUSAGE = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pszUsageOID: ?[*:0]const u8,
+        psDefUsage: ?*CRYPT_PROVIDER_DEFUSAGE,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+    else => *const fn(
+        pszUsageOID: ?[*:0]const u8,
+        psDefUsage: ?*CRYPT_PROVIDER_DEFUSAGE,
+    ) callconv(@import("std").os.windows.WINAPI) BOOL,
+} ;
 
 pub const CRYPT_PROVIDER_REGDEFUSAGE = extern struct {
     cbStruct: u32,
@@ -658,14 +758,24 @@ pub const WTD_GENERIC_CHAIN_POLICY_SIGNER_INFO = extern struct {
     rgpCounterSigner: ?*?*WTD_GENERIC_CHAIN_POLICY_SIGNER_INFO,
 };
 
-pub const PFN_WTD_GENERIC_CHAIN_POLICY_CALLBACK = fn(
-    pProvData: ?*CRYPT_PROVIDER_DATA,
-    dwStepError: u32,
-    dwRegPolicySettings: u32,
-    cSigner: u32,
-    rgpSigner: ?*?*WTD_GENERIC_CHAIN_POLICY_SIGNER_INFO,
-    pvPolicyArg: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PFN_WTD_GENERIC_CHAIN_POLICY_CALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+        dwStepError: u32,
+        dwRegPolicySettings: u32,
+        cSigner: u32,
+        rgpSigner: ?*?*WTD_GENERIC_CHAIN_POLICY_SIGNER_INFO,
+        pvPolicyArg: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pProvData: ?*CRYPT_PROVIDER_DATA,
+        dwStepError: u32,
+        dwRegPolicySettings: u32,
+        cSigner: u32,
+        rgpSigner: ?*?*WTD_GENERIC_CHAIN_POLICY_SIGNER_INFO,
+        pvPolicyArg: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
 pub const WTD_GENERIC_CHAIN_POLICY_CREATE_INFO = extern struct {
     Anonymous: extern union {
@@ -729,62 +839,62 @@ pub const CONFIG_CI_PROV_INFO = extern struct {
 // Section: Functions (18)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WinVerifyTrust(
+pub extern "wintrust" fn WinVerifyTrust(
     hwnd: ?HWND,
     pgActionID: ?*Guid,
     pWVTData: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WinVerifyTrustEx(
+pub extern "wintrust" fn WinVerifyTrustEx(
     hwnd: ?HWND,
     pgActionID: ?*Guid,
     pWinTrustData: ?*WINTRUST_DATA,
 ) callconv(@import("std").os.windows.WINAPI) i32;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WintrustGetRegPolicyFlags(
+pub extern "wintrust" fn WintrustGetRegPolicyFlags(
     pdwPolicyFlags: ?*WINTRUST_POLICY_FLAGS,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WintrustSetRegPolicyFlags(
+pub extern "wintrust" fn WintrustSetRegPolicyFlags(
     dwPolicyFlags: WINTRUST_POLICY_FLAGS,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WintrustAddActionID(
+pub extern "wintrust" fn WintrustAddActionID(
     pgActionID: ?*Guid,
     fdwFlags: u32,
     psProvInfo: ?*CRYPT_REGISTER_ACTIONID,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WintrustRemoveActionID(
+pub extern "wintrust" fn WintrustRemoveActionID(
     pgActionID: ?*Guid,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WintrustLoadFunctionPointers(
+pub extern "wintrust" fn WintrustLoadFunctionPointers(
     pgActionID: ?*Guid,
     pPfns: ?*CRYPT_PROVIDER_FUNCTIONS,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WintrustAddDefaultForUsage(
+pub extern "wintrust" fn WintrustAddDefaultForUsage(
     pszUsageOID: ?[*:0]const u8,
     psDefUsage: ?*CRYPT_PROVIDER_REGDEFUSAGE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WintrustGetDefaultForUsage(
+pub extern "wintrust" fn WintrustGetDefaultForUsage(
     dwAction: WINTRUST_GET_DEFAULT_FOR_USAGE_ACTION,
     pszUsageOID: ?[*:0]const u8,
     psUsage: ?*CRYPT_PROVIDER_DEFUSAGE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WTHelperGetProvSignerFromChain(
+pub extern "wintrust" fn WTHelperGetProvSignerFromChain(
     pProvData: ?*CRYPT_PROVIDER_DATA,
     idxSigner: u32,
     fCounterSigner: BOOL,
@@ -792,47 +902,47 @@ pub extern "WINTRUST" fn WTHelperGetProvSignerFromChain(
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPT_PROVIDER_SGNR;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WTHelperGetProvCertFromChain(
+pub extern "wintrust" fn WTHelperGetProvCertFromChain(
     pSgnr: ?*CRYPT_PROVIDER_SGNR,
     idxCert: u32,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPT_PROVIDER_CERT;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WTHelperProvDataFromStateData(
+pub extern "wintrust" fn WTHelperProvDataFromStateData(
     hStateData: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPT_PROVIDER_DATA;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WTHelperGetProvPrivateDataFromChain(
+pub extern "wintrust" fn WTHelperGetProvPrivateDataFromChain(
     pProvData: ?*CRYPT_PROVIDER_DATA,
     pgProviderID: ?*Guid,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPT_PROVIDER_PRIVDATA;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn WTHelperCertIsSelfSigned(
+pub extern "wintrust" fn WTHelperCertIsSelfSigned(
     dwEncoding: u32,
     pCert: ?*CERT_INFO,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "WINTRUST" fn WTHelperCertCheckValidSignature(
+pub extern "wintrust" fn WTHelperCertCheckValidSignature(
     pProvData: ?*CRYPT_PROVIDER_DATA,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn OpenPersonalTrustDBDialogEx(
+pub extern "wintrust" fn OpenPersonalTrustDBDialogEx(
     hwndParent: ?HWND,
     dwFlags: u32,
     pvReserved: ?*?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn OpenPersonalTrustDBDialog(
+pub extern "wintrust" fn OpenPersonalTrustDBDialog(
     hwndParent: ?HWND,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "WINTRUST" fn WintrustSetDefaultIncludePEPageHashes(
+pub extern "wintrust" fn WintrustSetDefaultIncludePEPageHashes(
     fIncludePEPageHashes: BOOL,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
@@ -902,14 +1012,14 @@ test {
     if (@hasDecl(@This(), "PFN_WTD_GENERIC_CHAIN_POLICY_CALLBACK")) { _ = PFN_WTD_GENERIC_CHAIN_POLICY_CALLBACK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

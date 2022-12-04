@@ -35,35 +35,60 @@ pub const DXC_CP_ACP = DXC_CP.ACP;
 pub const DXC_CP_UTF16 = DXC_CP.UTF16;
 pub const DXC_CP_UTF8 = DXC_CP.UTF8;
 
-pub const DxcCreateInstanceProc = fn(
-    rclsid: ?*const Guid,
-    riid: ?*const Guid,
-    ppv: ?*?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const DxcCreateInstanceProc = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        rclsid: ?*const Guid,
+        riid: ?*const Guid,
+        ppv: ?*?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        rclsid: ?*const Guid,
+        riid: ?*const Guid,
+        ppv: ?*?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const DxcCreateInstance2Proc = fn(
-    pMalloc: ?*IMalloc,
-    rclsid: ?*const Guid,
-    riid: ?*const Guid,
-    ppv: ?*?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const DxcCreateInstance2Proc = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pMalloc: ?*IMalloc,
+        rclsid: ?*const Guid,
+        riid: ?*const Guid,
+        ppv: ?*?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pMalloc: ?*IMalloc,
+        rclsid: ?*const Guid,
+        riid: ?*const Guid,
+        ppv: ?*?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
 pub const DxcShaderHash = extern struct {
     Flags: u32,
     HashDigest: [16]u8,
 };
 
-const IID_IDxcBlob_Value = @import("../../zig.zig").Guid.initString("8ba5fb08-5195-40e2-ac58-0d989c3a0102");
+const IID_IDxcBlob_Value = Guid.initString("8ba5fb08-5195-40e2-ac58-0d989c3a0102");
 pub const IID_IDxcBlob = &IID_IDxcBlob_Value;
 pub const IDxcBlob = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetBufferPointer: fn(
-            self: *const IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) ?*anyopaque,
-        GetBufferSize: fn(
-            self: *const IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) usize,
+        GetBufferPointer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) ?*anyopaque,
+            else => *const fn(
+                self: *const IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) ?*anyopaque,
+        },
+        GetBufferSize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) usize,
+            else => *const fn(
+                self: *const IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) usize,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -80,16 +105,23 @@ pub const IDxcBlob = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcBlobEncoding_Value = @import("../../zig.zig").Guid.initString("7241d424-2646-4191-97c0-98e96e42fc68");
+const IID_IDxcBlobEncoding_Value = Guid.initString("7241d424-2646-4191-97c0-98e96e42fc68");
 pub const IID_IDxcBlobEncoding = &IID_IDxcBlobEncoding_Value;
 pub const IDxcBlobEncoding = extern struct {
     pub const VTable = extern struct {
         base: IDxcBlob.VTable,
-        GetEncoding: fn(
-            self: *const IDxcBlobEncoding,
-            pKnown: ?*BOOL,
-            pCodePage: ?*DXC_CP,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetEncoding: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcBlobEncoding,
+                pKnown: ?*BOOL,
+                pCodePage: ?*DXC_CP,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcBlobEncoding,
+                pKnown: ?*BOOL,
+                pCodePage: ?*DXC_CP,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -102,17 +134,27 @@ pub const IDxcBlobEncoding = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcBlobUtf16_Value = @import("../../zig.zig").Guid.initString("a3f84eab-0faa-497e-a39c-ee6ed60b2d84");
+const IID_IDxcBlobUtf16_Value = Guid.initString("a3f84eab-0faa-497e-a39c-ee6ed60b2d84");
 pub const IID_IDxcBlobUtf16 = &IID_IDxcBlobUtf16_Value;
 pub const IDxcBlobUtf16 = extern struct {
     pub const VTable = extern struct {
         base: IDxcBlobEncoding.VTable,
-        GetStringPointer: fn(
-            self: *const IDxcBlobUtf16,
-        ) callconv(@import("std").os.windows.WINAPI) ?PWSTR,
-        GetStringLength: fn(
-            self: *const IDxcBlobUtf16,
-        ) callconv(@import("std").os.windows.WINAPI) usize,
+        GetStringPointer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcBlobUtf16,
+            ) callconv(@import("std").os.windows.WINAPI) ?PWSTR,
+            else => *const fn(
+                self: *const IDxcBlobUtf16,
+            ) callconv(@import("std").os.windows.WINAPI) ?PWSTR,
+        },
+        GetStringLength: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcBlobUtf16,
+            ) callconv(@import("std").os.windows.WINAPI) usize,
+            else => *const fn(
+                self: *const IDxcBlobUtf16,
+            ) callconv(@import("std").os.windows.WINAPI) usize,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -129,17 +171,27 @@ pub const IDxcBlobUtf16 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcBlobUtf8_Value = @import("../../zig.zig").Guid.initString("3da636c9-ba71-4024-a301-30cbf125305b");
+const IID_IDxcBlobUtf8_Value = Guid.initString("3da636c9-ba71-4024-a301-30cbf125305b");
 pub const IID_IDxcBlobUtf8 = &IID_IDxcBlobUtf8_Value;
 pub const IDxcBlobUtf8 = extern struct {
     pub const VTable = extern struct {
         base: IDxcBlobEncoding.VTable,
-        GetStringPointer: fn(
-            self: *const IDxcBlobUtf8,
-        ) callconv(@import("std").os.windows.WINAPI) ?PSTR,
-        GetStringLength: fn(
-            self: *const IDxcBlobUtf8,
-        ) callconv(@import("std").os.windows.WINAPI) usize,
+        GetStringPointer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcBlobUtf8,
+            ) callconv(@import("std").os.windows.WINAPI) ?PSTR,
+            else => *const fn(
+                self: *const IDxcBlobUtf8,
+            ) callconv(@import("std").os.windows.WINAPI) ?PSTR,
+        },
+        GetStringLength: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcBlobUtf8,
+            ) callconv(@import("std").os.windows.WINAPI) usize,
+            else => *const fn(
+                self: *const IDxcBlobUtf8,
+            ) callconv(@import("std").os.windows.WINAPI) usize,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -156,16 +208,23 @@ pub const IDxcBlobUtf8 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcIncludeHandler_Value = @import("../../zig.zig").Guid.initString("7f61fc7d-950d-467f-b3e3-3c02fb49187c");
+const IID_IDxcIncludeHandler_Value = Guid.initString("7f61fc7d-950d-467f-b3e3-3c02fb49187c");
 pub const IID_IDxcIncludeHandler = &IID_IDxcIncludeHandler_Value;
 pub const IDxcIncludeHandler = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        LoadSource: fn(
-            self: *const IDxcIncludeHandler,
-            pFilename: ?[*:0]const u16,
-            ppIncludeSource: ?*?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        LoadSource: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcIncludeHandler,
+                pFilename: ?[*:0]const u16,
+                ppIncludeSource: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcIncludeHandler,
+                pFilename: ?[*:0]const u16,
+                ppIncludeSource: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -189,32 +248,63 @@ pub const DxcDefine = extern struct {
     Value: ?[*:0]const u16,
 };
 
-const IID_IDxcCompilerArgs_Value = @import("../../zig.zig").Guid.initString("73effe2a-70dc-45f8-9690-eff64c02429d");
+const IID_IDxcCompilerArgs_Value = Guid.initString("73effe2a-70dc-45f8-9690-eff64c02429d");
 pub const IID_IDxcCompilerArgs = &IID_IDxcCompilerArgs_Value;
 pub const IDxcCompilerArgs = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetArguments: fn(
-            self: *const IDxcCompilerArgs,
-        ) callconv(@import("std").os.windows.WINAPI) ?*?PWSTR,
-        GetCount: fn(
-            self: *const IDxcCompilerArgs,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        AddArguments: fn(
-            self: *const IDxcCompilerArgs,
-            pArguments: ?[*]?PWSTR,
-            argCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddArgumentsUTF8: fn(
-            self: *const IDxcCompilerArgs,
-            pArguments: ?[*]?PSTR,
-            argCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddDefines: fn(
-            self: *const IDxcCompilerArgs,
-            pDefines: [*]const DxcDefine,
-            defineCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetArguments: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcCompilerArgs,
+            ) callconv(@import("std").os.windows.WINAPI) ?*?PWSTR,
+            else => *const fn(
+                self: *const IDxcCompilerArgs,
+            ) callconv(@import("std").os.windows.WINAPI) ?*?PWSTR,
+        },
+        GetCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcCompilerArgs,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDxcCompilerArgs,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        AddArguments: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcCompilerArgs,
+                pArguments: ?[*]?PWSTR,
+                argCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcCompilerArgs,
+                pArguments: ?[*]?PWSTR,
+                argCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddArgumentsUTF8: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcCompilerArgs,
+                pArguments: ?[*]?PSTR,
+                argCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcCompilerArgs,
+                pArguments: ?[*]?PSTR,
+                argCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddDefines: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcCompilerArgs,
+                pDefines: [*]const DxcDefine,
+                defineCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcCompilerArgs,
+                pDefines: [*]const DxcDefine,
+                defineCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -243,72 +333,153 @@ pub const IDxcCompilerArgs = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcLibrary_Value = @import("../../zig.zig").Guid.initString("e5204dc7-d18c-4c3c-bdfb-851673980fe7");
+const IID_IDxcLibrary_Value = Guid.initString("e5204dc7-d18c-4c3c-bdfb-851673980fe7");
 pub const IID_IDxcLibrary = &IID_IDxcLibrary_Value;
 pub const IDxcLibrary = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetMalloc: fn(
-            self: *const IDxcLibrary,
-            pMalloc: ?*IMalloc,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateBlobFromBlob: fn(
-            self: *const IDxcLibrary,
-            pBlob: ?*IDxcBlob,
-            offset: u32,
-            length: u32,
-            ppResult: ?*?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateBlobFromFile: fn(
-            self: *const IDxcLibrary,
-            pFileName: ?[*:0]const u16,
-            codePage: ?*DXC_CP,
-            pBlobEncoding: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateBlobWithEncodingFromPinned: fn(
-            self: *const IDxcLibrary,
-            // TODO: what to do with BytesParamIndex 1?
-            pText: ?*const anyopaque,
-            size: u32,
-            codePage: DXC_CP,
-            pBlobEncoding: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateBlobWithEncodingOnHeapCopy: fn(
-            self: *const IDxcLibrary,
-            // TODO: what to do with BytesParamIndex 1?
-            pText: ?*const anyopaque,
-            size: u32,
-            codePage: DXC_CP,
-            pBlobEncoding: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateBlobWithEncodingOnMalloc: fn(
-            self: *const IDxcLibrary,
-            // TODO: what to do with BytesParamIndex 2?
-            pText: ?*const anyopaque,
-            pIMalloc: ?*IMalloc,
-            size: u32,
-            codePage: DXC_CP,
-            pBlobEncoding: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateIncludeHandler: fn(
-            self: *const IDxcLibrary,
-            ppResult: ?*?*IDxcIncludeHandler,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateStreamFromBlobReadOnly: fn(
-            self: *const IDxcLibrary,
-            pBlob: ?*IDxcBlob,
-            ppStream: ?*?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetBlobAsUtf8: fn(
-            self: *const IDxcLibrary,
-            pBlob: ?*IDxcBlob,
-            pBlobEncoding: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetBlobAsUtf16: fn(
-            self: *const IDxcLibrary,
-            pBlob: ?*IDxcBlob,
-            pBlobEncoding: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetMalloc: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcLibrary,
+                pMalloc: ?*IMalloc,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcLibrary,
+                pMalloc: ?*IMalloc,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateBlobFromBlob: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcLibrary,
+                pBlob: ?*IDxcBlob,
+                offset: u32,
+                length: u32,
+                ppResult: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcLibrary,
+                pBlob: ?*IDxcBlob,
+                offset: u32,
+                length: u32,
+                ppResult: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateBlobFromFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcLibrary,
+                pFileName: ?[*:0]const u16,
+                codePage: ?*DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcLibrary,
+                pFileName: ?[*:0]const u16,
+                codePage: ?*DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateBlobWithEncodingFromPinned: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcLibrary,
+                // TODO: what to do with BytesParamIndex 1?
+                pText: ?*const anyopaque,
+                size: u32,
+                codePage: DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcLibrary,
+                // TODO: what to do with BytesParamIndex 1?
+                pText: ?*const anyopaque,
+                size: u32,
+                codePage: DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateBlobWithEncodingOnHeapCopy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcLibrary,
+                // TODO: what to do with BytesParamIndex 1?
+                pText: ?*const anyopaque,
+                size: u32,
+                codePage: DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcLibrary,
+                // TODO: what to do with BytesParamIndex 1?
+                pText: ?*const anyopaque,
+                size: u32,
+                codePage: DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateBlobWithEncodingOnMalloc: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcLibrary,
+                // TODO: what to do with BytesParamIndex 2?
+                pText: ?*const anyopaque,
+                pIMalloc: ?*IMalloc,
+                size: u32,
+                codePage: DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcLibrary,
+                // TODO: what to do with BytesParamIndex 2?
+                pText: ?*const anyopaque,
+                pIMalloc: ?*IMalloc,
+                size: u32,
+                codePage: DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateIncludeHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcLibrary,
+                ppResult: ?*?*IDxcIncludeHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcLibrary,
+                ppResult: ?*?*IDxcIncludeHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateStreamFromBlobReadOnly: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcLibrary,
+                pBlob: ?*IDxcBlob,
+                ppStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcLibrary,
+                pBlob: ?*IDxcBlob,
+                ppStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetBlobAsUtf8: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcLibrary,
+                pBlob: ?*IDxcBlob,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcLibrary,
+                pBlob: ?*IDxcBlob,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetBlobAsUtf16: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcLibrary,
+                pBlob: ?*IDxcBlob,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcLibrary,
+                pBlob: ?*IDxcBlob,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -357,23 +528,41 @@ pub const IDxcLibrary = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcOperationResult_Value = @import("../../zig.zig").Guid.initString("cedb484a-d4e9-445a-b991-ca21ca157dc2");
+const IID_IDxcOperationResult_Value = Guid.initString("cedb484a-d4e9-445a-b991-ca21ca157dc2");
 pub const IID_IDxcOperationResult = &IID_IDxcOperationResult_Value;
 pub const IDxcOperationResult = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetStatus: fn(
-            self: *const IDxcOperationResult,
-            pStatus: ?*HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetResult: fn(
-            self: *const IDxcOperationResult,
-            ppResult: ?*?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetErrorBuffer: fn(
-            self: *const IDxcOperationResult,
-            ppErrors: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcOperationResult,
+                pStatus: ?*HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcOperationResult,
+                pStatus: ?*HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetResult: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcOperationResult,
+                ppResult: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcOperationResult,
+                ppResult: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetErrorBuffer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcOperationResult,
+                ppErrors: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcOperationResult,
+                ppErrors: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -394,40 +583,75 @@ pub const IDxcOperationResult = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcCompiler_Value = @import("../../zig.zig").Guid.initString("8c210bf3-011f-4422-8d70-6f9acb8db617");
+const IID_IDxcCompiler_Value = Guid.initString("8c210bf3-011f-4422-8d70-6f9acb8db617");
 pub const IID_IDxcCompiler = &IID_IDxcCompiler_Value;
 pub const IDxcCompiler = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Compile: fn(
-            self: *const IDxcCompiler,
-            pSource: ?*IDxcBlob,
-            pSourceName: ?[*:0]const u16,
-            pEntryPoint: ?[*:0]const u16,
-            pTargetProfile: ?[*:0]const u16,
-            pArguments: ?[*]?PWSTR,
-            argCount: u32,
-            pDefines: [*]const DxcDefine,
-            defineCount: u32,
-            pIncludeHandler: ?*IDxcIncludeHandler,
-            ppResult: ?*?*IDxcOperationResult,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Preprocess: fn(
-            self: *const IDxcCompiler,
-            pSource: ?*IDxcBlob,
-            pSourceName: ?[*:0]const u16,
-            pArguments: ?[*]?PWSTR,
-            argCount: u32,
-            pDefines: [*]const DxcDefine,
-            defineCount: u32,
-            pIncludeHandler: ?*IDxcIncludeHandler,
-            ppResult: ?*?*IDxcOperationResult,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Disassemble: fn(
-            self: *const IDxcCompiler,
-            pSource: ?*IDxcBlob,
-            ppDisassembly: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Compile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcCompiler,
+                pSource: ?*IDxcBlob,
+                pSourceName: ?[*:0]const u16,
+                pEntryPoint: ?[*:0]const u16,
+                pTargetProfile: ?[*:0]const u16,
+                pArguments: ?[*]?PWSTR,
+                argCount: u32,
+                pDefines: [*]const DxcDefine,
+                defineCount: u32,
+                pIncludeHandler: ?*IDxcIncludeHandler,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcCompiler,
+                pSource: ?*IDxcBlob,
+                pSourceName: ?[*:0]const u16,
+                pEntryPoint: ?[*:0]const u16,
+                pTargetProfile: ?[*:0]const u16,
+                pArguments: ?[*]?PWSTR,
+                argCount: u32,
+                pDefines: [*]const DxcDefine,
+                defineCount: u32,
+                pIncludeHandler: ?*IDxcIncludeHandler,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Preprocess: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcCompiler,
+                pSource: ?*IDxcBlob,
+                pSourceName: ?[*:0]const u16,
+                pArguments: ?[*]?PWSTR,
+                argCount: u32,
+                pDefines: [*]const DxcDefine,
+                defineCount: u32,
+                pIncludeHandler: ?*IDxcIncludeHandler,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcCompiler,
+                pSource: ?*IDxcBlob,
+                pSourceName: ?[*:0]const u16,
+                pArguments: ?[*]?PWSTR,
+                argCount: u32,
+                pDefines: [*]const DxcDefine,
+                defineCount: u32,
+                pIncludeHandler: ?*IDxcIncludeHandler,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Disassemble: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcCompiler,
+                pSource: ?*IDxcBlob,
+                ppDisassembly: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcCompiler,
+                pSource: ?*IDxcBlob,
+                ppDisassembly: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -448,26 +672,43 @@ pub const IDxcCompiler = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcCompiler2_Value = @import("../../zig.zig").Guid.initString("a005a9d9-b8bb-4594-b5c9-0e633bec4d37");
+const IID_IDxcCompiler2_Value = Guid.initString("a005a9d9-b8bb-4594-b5c9-0e633bec4d37");
 pub const IID_IDxcCompiler2 = &IID_IDxcCompiler2_Value;
 pub const IDxcCompiler2 = extern struct {
     pub const VTable = extern struct {
         base: IDxcCompiler.VTable,
-        CompileWithDebug: fn(
-            self: *const IDxcCompiler2,
-            pSource: ?*IDxcBlob,
-            pSourceName: ?[*:0]const u16,
-            pEntryPoint: ?[*:0]const u16,
-            pTargetProfile: ?[*:0]const u16,
-            pArguments: ?[*]?PWSTR,
-            argCount: u32,
-            pDefines: [*]const DxcDefine,
-            defineCount: u32,
-            pIncludeHandler: ?*IDxcIncludeHandler,
-            ppResult: ?*?*IDxcOperationResult,
-            ppDebugBlobName: ?*?PWSTR,
-            ppDebugBlob: ?*?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CompileWithDebug: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcCompiler2,
+                pSource: ?*IDxcBlob,
+                pSourceName: ?[*:0]const u16,
+                pEntryPoint: ?[*:0]const u16,
+                pTargetProfile: ?[*:0]const u16,
+                pArguments: ?[*]?PWSTR,
+                argCount: u32,
+                pDefines: [*]const DxcDefine,
+                defineCount: u32,
+                pIncludeHandler: ?*IDxcIncludeHandler,
+                ppResult: ?*?*IDxcOperationResult,
+                ppDebugBlobName: ?*?PWSTR,
+                ppDebugBlob: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcCompiler2,
+                pSource: ?*IDxcBlob,
+                pSourceName: ?[*:0]const u16,
+                pEntryPoint: ?[*:0]const u16,
+                pTargetProfile: ?[*:0]const u16,
+                pArguments: ?[*]?PWSTR,
+                argCount: u32,
+                pDefines: [*]const DxcDefine,
+                defineCount: u32,
+                pIncludeHandler: ?*IDxcIncludeHandler,
+                ppResult: ?*?*IDxcOperationResult,
+                ppDebugBlobName: ?*?PWSTR,
+                ppDebugBlob: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -480,26 +721,45 @@ pub const IDxcCompiler2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcLinker_Value = @import("../../zig.zig").Guid.initString("f1b5be2a-62dd-4327-a1c2-42ac1e1e78e6");
+const IID_IDxcLinker_Value = Guid.initString("f1b5be2a-62dd-4327-a1c2-42ac1e1e78e6");
 pub const IID_IDxcLinker = &IID_IDxcLinker_Value;
 pub const IDxcLinker = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        RegisterLibrary: fn(
-            self: *const IDxcLinker,
-            pLibName: ?[*:0]const u16,
-            pLib: ?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Link: fn(
-            self: *const IDxcLinker,
-            pEntryName: ?[*:0]const u16,
-            pTargetProfile: ?[*:0]const u16,
-            pLibNames: [*]const ?[*:0]const u16,
-            libCount: u32,
-            pArguments: ?[*]const ?[*:0]const u16,
-            argCount: u32,
-            ppResult: ?*?*IDxcOperationResult,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        RegisterLibrary: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcLinker,
+                pLibName: ?[*:0]const u16,
+                pLib: ?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcLinker,
+                pLibName: ?[*:0]const u16,
+                pLib: ?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Link: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcLinker,
+                pEntryName: ?[*:0]const u16,
+                pTargetProfile: ?[*:0]const u16,
+                pLibNames: [*]const ?[*:0]const u16,
+                libCount: u32,
+                pArguments: ?[*]const ?[*:0]const u16,
+                argCount: u32,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcLinker,
+                pEntryName: ?[*:0]const u16,
+                pTargetProfile: ?[*:0]const u16,
+                pLibNames: [*]const ?[*:0]const u16,
+                libCount: u32,
+                pArguments: ?[*]const ?[*:0]const u16,
+                argCount: u32,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -516,98 +776,211 @@ pub const IDxcLinker = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcUtils_Value = @import("../../zig.zig").Guid.initString("4605c4cb-2019-492a-ada4-65f20bb7d67f");
+const IID_IDxcUtils_Value = Guid.initString("4605c4cb-2019-492a-ada4-65f20bb7d67f");
 pub const IID_IDxcUtils = &IID_IDxcUtils_Value;
 pub const IDxcUtils = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateBlobFromBlob: fn(
-            self: *const IDxcUtils,
-            pBlob: ?*IDxcBlob,
-            offset: u32,
-            length: u32,
-            ppResult: ?*?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateBlobFromPinned: fn(
-            self: *const IDxcUtils,
-            // TODO: what to do with BytesParamIndex 1?
-            pData: ?*const anyopaque,
-            size: u32,
-            codePage: DXC_CP,
-            pBlobEncoding: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        MoveToBlob: fn(
-            self: *const IDxcUtils,
-            // TODO: what to do with BytesParamIndex 2?
-            pData: ?*const anyopaque,
-            pIMalloc: ?*IMalloc,
-            size: u32,
-            codePage: DXC_CP,
-            pBlobEncoding: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateBlob: fn(
-            self: *const IDxcUtils,
-            // TODO: what to do with BytesParamIndex 1?
-            pData: ?*const anyopaque,
-            size: u32,
-            codePage: DXC_CP,
-            pBlobEncoding: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        LoadFile: fn(
-            self: *const IDxcUtils,
-            pFileName: ?[*:0]const u16,
-            pCodePage: ?*DXC_CP,
-            pBlobEncoding: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateReadOnlyStreamFromBlob: fn(
-            self: *const IDxcUtils,
-            pBlob: ?*IDxcBlob,
-            ppStream: ?*?*IStream,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateDefaultIncludeHandler: fn(
-            self: *const IDxcUtils,
-            ppResult: ?*?*IDxcIncludeHandler,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetBlobAsUtf8: fn(
-            self: *const IDxcUtils,
-            pBlob: ?*IDxcBlob,
-            pBlobEncoding: ?*?*IDxcBlobUtf8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetBlobAsUtf16: fn(
-            self: *const IDxcUtils,
-            pBlob: ?*IDxcBlob,
-            pBlobEncoding: ?*?*IDxcBlobUtf16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDxilContainerPart: fn(
-            self: *const IDxcUtils,
-            pShader: ?*const DxcBuffer,
-            DxcPart: u32,
-            ppPartData: ?*?*anyopaque,
-            pPartSizeInBytes: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateReflection: fn(
-            self: *const IDxcUtils,
-            pData: ?*const DxcBuffer,
-            iid: ?*const Guid,
-            ppvReflection: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        BuildArguments: fn(
-            self: *const IDxcUtils,
-            pSourceName: ?[*:0]const u16,
-            pEntryPoint: ?[*:0]const u16,
-            pTargetProfile: ?[*:0]const u16,
-            pArguments: ?[*]?PWSTR,
-            argCount: u32,
-            pDefines: [*]const DxcDefine,
-            defineCount: u32,
-            ppArgs: ?*?*IDxcCompilerArgs,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPDBContents: fn(
-            self: *const IDxcUtils,
-            pPDBBlob: ?*IDxcBlob,
-            ppHash: ?*?*IDxcBlob,
-            ppContainer: ?*?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateBlobFromBlob: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcUtils,
+                pBlob: ?*IDxcBlob,
+                offset: u32,
+                length: u32,
+                ppResult: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcUtils,
+                pBlob: ?*IDxcBlob,
+                offset: u32,
+                length: u32,
+                ppResult: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateBlobFromPinned: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcUtils,
+                // TODO: what to do with BytesParamIndex 1?
+                pData: ?*const anyopaque,
+                size: u32,
+                codePage: DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcUtils,
+                // TODO: what to do with BytesParamIndex 1?
+                pData: ?*const anyopaque,
+                size: u32,
+                codePage: DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        MoveToBlob: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcUtils,
+                // TODO: what to do with BytesParamIndex 2?
+                pData: ?*const anyopaque,
+                pIMalloc: ?*IMalloc,
+                size: u32,
+                codePage: DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcUtils,
+                // TODO: what to do with BytesParamIndex 2?
+                pData: ?*const anyopaque,
+                pIMalloc: ?*IMalloc,
+                size: u32,
+                codePage: DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateBlob: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcUtils,
+                // TODO: what to do with BytesParamIndex 1?
+                pData: ?*const anyopaque,
+                size: u32,
+                codePage: DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcUtils,
+                // TODO: what to do with BytesParamIndex 1?
+                pData: ?*const anyopaque,
+                size: u32,
+                codePage: DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        LoadFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcUtils,
+                pFileName: ?[*:0]const u16,
+                pCodePage: ?*DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcUtils,
+                pFileName: ?[*:0]const u16,
+                pCodePage: ?*DXC_CP,
+                pBlobEncoding: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateReadOnlyStreamFromBlob: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcUtils,
+                pBlob: ?*IDxcBlob,
+                ppStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcUtils,
+                pBlob: ?*IDxcBlob,
+                ppStream: ?*?*IStream,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateDefaultIncludeHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcUtils,
+                ppResult: ?*?*IDxcIncludeHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcUtils,
+                ppResult: ?*?*IDxcIncludeHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetBlobAsUtf8: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcUtils,
+                pBlob: ?*IDxcBlob,
+                pBlobEncoding: ?*?*IDxcBlobUtf8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcUtils,
+                pBlob: ?*IDxcBlob,
+                pBlobEncoding: ?*?*IDxcBlobUtf8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetBlobAsUtf16: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcUtils,
+                pBlob: ?*IDxcBlob,
+                pBlobEncoding: ?*?*IDxcBlobUtf16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcUtils,
+                pBlob: ?*IDxcBlob,
+                pBlobEncoding: ?*?*IDxcBlobUtf16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDxilContainerPart: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcUtils,
+                pShader: ?*const DxcBuffer,
+                DxcPart: u32,
+                ppPartData: ?*?*anyopaque,
+                pPartSizeInBytes: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcUtils,
+                pShader: ?*const DxcBuffer,
+                DxcPart: u32,
+                ppPartData: ?*?*anyopaque,
+                pPartSizeInBytes: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateReflection: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcUtils,
+                pData: ?*const DxcBuffer,
+                iid: ?*const Guid,
+                ppvReflection: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcUtils,
+                pData: ?*const DxcBuffer,
+                iid: ?*const Guid,
+                ppvReflection: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        BuildArguments: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcUtils,
+                pSourceName: ?[*:0]const u16,
+                pEntryPoint: ?[*:0]const u16,
+                pTargetProfile: ?[*:0]const u16,
+                pArguments: ?[*]?PWSTR,
+                argCount: u32,
+                pDefines: [*]const DxcDefine,
+                defineCount: u32,
+                ppArgs: ?*?*IDxcCompilerArgs,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcUtils,
+                pSourceName: ?[*:0]const u16,
+                pEntryPoint: ?[*:0]const u16,
+                pTargetProfile: ?[*:0]const u16,
+                pArguments: ?[*]?PWSTR,
+                argCount: u32,
+                pDefines: [*]const DxcDefine,
+                defineCount: u32,
+                ppArgs: ?*?*IDxcCompilerArgs,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPDBContents: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcUtils,
+                pPDBBlob: ?*IDxcBlob,
+                ppHash: ?*?*IDxcBlob,
+                ppContainer: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcUtils,
+                pPDBBlob: ?*IDxcBlob,
+                ppHash: ?*?*IDxcBlob,
+                ppContainer: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -695,32 +1068,63 @@ pub const DXC_OUT_ROOT_SIGNATURE = DXC_OUT_KIND.ROOT_SIGNATURE;
 pub const DXC_OUT_EXTRA_OUTPUTS = DXC_OUT_KIND.EXTRA_OUTPUTS;
 pub const DXC_OUT_FORCE_DWORD = DXC_OUT_KIND.FORCE_DWORD;
 
-const IID_IDxcResult_Value = @import("../../zig.zig").Guid.initString("58346cda-dde7-4497-9461-6f87af5e0659");
+const IID_IDxcResult_Value = Guid.initString("58346cda-dde7-4497-9461-6f87af5e0659");
 pub const IID_IDxcResult = &IID_IDxcResult_Value;
 pub const IDxcResult = extern struct {
     pub const VTable = extern struct {
         base: IDxcOperationResult.VTable,
-        HasOutput: fn(
-            self: *const IDxcResult,
-            dxcOutKind: DXC_OUT_KIND,
-        ) callconv(@import("std").os.windows.WINAPI) BOOL,
-        GetOutput: fn(
-            self: *const IDxcResult,
-            dxcOutKind: DXC_OUT_KIND,
-            iid: ?*const Guid,
-            ppvObject: ?*?*anyopaque,
-            ppOutputName: ?*?*IDxcBlobUtf16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNumOutputs: fn(
-            self: *const IDxcResult,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        GetOutputByIndex: fn(
-            self: *const IDxcResult,
-            Index: u32,
-        ) callconv(@import("std").os.windows.WINAPI) DXC_OUT_KIND,
-        PrimaryOutput: fn(
-            self: *const IDxcResult,
-        ) callconv(@import("std").os.windows.WINAPI) DXC_OUT_KIND,
+        HasOutput: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcResult,
+                dxcOutKind: DXC_OUT_KIND,
+            ) callconv(@import("std").os.windows.WINAPI) BOOL,
+            else => *const fn(
+                self: *const IDxcResult,
+                dxcOutKind: DXC_OUT_KIND,
+            ) callconv(@import("std").os.windows.WINAPI) BOOL,
+        },
+        GetOutput: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcResult,
+                dxcOutKind: DXC_OUT_KIND,
+                iid: ?*const Guid,
+                ppvObject: ?*?*anyopaque,
+                ppOutputName: ?*?*IDxcBlobUtf16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcResult,
+                dxcOutKind: DXC_OUT_KIND,
+                iid: ?*const Guid,
+                ppvObject: ?*?*anyopaque,
+                ppOutputName: ?*?*IDxcBlobUtf16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNumOutputs: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcResult,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDxcResult,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        GetOutputByIndex: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcResult,
+                Index: u32,
+            ) callconv(@import("std").os.windows.WINAPI) DXC_OUT_KIND,
+            else => *const fn(
+                self: *const IDxcResult,
+                Index: u32,
+            ) callconv(@import("std").os.windows.WINAPI) DXC_OUT_KIND,
+        },
+        PrimaryOutput: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcResult,
+            ) callconv(@import("std").os.windows.WINAPI) DXC_OUT_KIND,
+            else => *const fn(
+                self: *const IDxcResult,
+            ) callconv(@import("std").os.windows.WINAPI) DXC_OUT_KIND,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -749,22 +1153,37 @@ pub const IDxcResult = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcExtraOutputs_Value = @import("../../zig.zig").Guid.initString("319b37a2-a5c2-494a-a5de-4801b2faf989");
+const IID_IDxcExtraOutputs_Value = Guid.initString("319b37a2-a5c2-494a-a5de-4801b2faf989");
 pub const IID_IDxcExtraOutputs = &IID_IDxcExtraOutputs_Value;
 pub const IDxcExtraOutputs = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetOutputCount: fn(
-            self: *const IDxcExtraOutputs,
-        ) callconv(@import("std").os.windows.WINAPI) u32,
-        GetOutput: fn(
-            self: *const IDxcExtraOutputs,
-            uIndex: u32,
-            iid: ?*const Guid,
-            ppvObject: ?*?*anyopaque,
-            ppOutputType: ?*?*IDxcBlobUtf16,
-            ppOutputName: ?*?*IDxcBlobUtf16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetOutputCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcExtraOutputs,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+            else => *const fn(
+                self: *const IDxcExtraOutputs,
+            ) callconv(@import("std").os.windows.WINAPI) u32,
+        },
+        GetOutput: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcExtraOutputs,
+                uIndex: u32,
+                iid: ?*const Guid,
+                ppvObject: ?*?*anyopaque,
+                ppOutputType: ?*?*IDxcBlobUtf16,
+                ppOutputName: ?*?*IDxcBlobUtf16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcExtraOutputs,
+                uIndex: u32,
+                iid: ?*const Guid,
+                ppvObject: ?*?*anyopaque,
+                ppOutputType: ?*?*IDxcBlobUtf16,
+                ppOutputName: ?*?*IDxcBlobUtf16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -781,26 +1200,45 @@ pub const IDxcExtraOutputs = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcCompiler3_Value = @import("../../zig.zig").Guid.initString("228b4687-5a6a-4730-900c-9702b2203f54");
+const IID_IDxcCompiler3_Value = Guid.initString("228b4687-5a6a-4730-900c-9702b2203f54");
 pub const IID_IDxcCompiler3 = &IID_IDxcCompiler3_Value;
 pub const IDxcCompiler3 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Compile: fn(
-            self: *const IDxcCompiler3,
-            pSource: ?*const DxcBuffer,
-            pArguments: ?[*]?PWSTR,
-            argCount: u32,
-            pIncludeHandler: ?*IDxcIncludeHandler,
-            riid: ?*const Guid,
-            ppResult: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Disassemble: fn(
-            self: *const IDxcCompiler3,
-            pObject: ?*const DxcBuffer,
-            riid: ?*const Guid,
-            ppResult: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Compile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcCompiler3,
+                pSource: ?*const DxcBuffer,
+                pArguments: ?[*]?PWSTR,
+                argCount: u32,
+                pIncludeHandler: ?*IDxcIncludeHandler,
+                riid: ?*const Guid,
+                ppResult: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcCompiler3,
+                pSource: ?*const DxcBuffer,
+                pArguments: ?[*]?PWSTR,
+                argCount: u32,
+                pIncludeHandler: ?*IDxcIncludeHandler,
+                riid: ?*const Guid,
+                ppResult: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Disassemble: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcCompiler3,
+                pObject: ?*const DxcBuffer,
+                riid: ?*const Guid,
+                ppResult: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcCompiler3,
+                pObject: ?*const DxcBuffer,
+                riid: ?*const Guid,
+                ppResult: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -817,17 +1255,25 @@ pub const IDxcCompiler3 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcValidator_Value = @import("../../zig.zig").Guid.initString("a6e82bd2-1fd7-4826-9811-2857e797f49a");
+const IID_IDxcValidator_Value = Guid.initString("a6e82bd2-1fd7-4826-9811-2857e797f49a");
 pub const IID_IDxcValidator = &IID_IDxcValidator_Value;
 pub const IDxcValidator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Validate: fn(
-            self: *const IDxcValidator,
-            pShader: ?*IDxcBlob,
-            Flags: u32,
-            ppResult: ?*?*IDxcOperationResult,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Validate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcValidator,
+                pShader: ?*IDxcBlob,
+                Flags: u32,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcValidator,
+                pShader: ?*IDxcBlob,
+                Flags: u32,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -840,18 +1286,27 @@ pub const IDxcValidator = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcValidator2_Value = @import("../../zig.zig").Guid.initString("458e1fd1-b1b2-4750-a6e1-9c10f03bed92");
+const IID_IDxcValidator2_Value = Guid.initString("458e1fd1-b1b2-4750-a6e1-9c10f03bed92");
 pub const IID_IDxcValidator2 = &IID_IDxcValidator2_Value;
 pub const IDxcValidator2 = extern struct {
     pub const VTable = extern struct {
         base: IDxcValidator.VTable,
-        ValidateWithDebug: fn(
-            self: *const IDxcValidator2,
-            pShader: ?*IDxcBlob,
-            Flags: u32,
-            pOptDebugBitcode: ?*DxcBuffer,
-            ppResult: ?*?*IDxcOperationResult,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ValidateWithDebug: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcValidator2,
+                pShader: ?*IDxcBlob,
+                Flags: u32,
+                pOptDebugBitcode: ?*DxcBuffer,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcValidator2,
+                pShader: ?*IDxcBlob,
+                Flags: u32,
+                pOptDebugBitcode: ?*DxcBuffer,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -864,28 +1319,53 @@ pub const IDxcValidator2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcContainerBuilder_Value = @import("../../zig.zig").Guid.initString("334b1f50-2292-4b35-99a1-25588d8c17fe");
+const IID_IDxcContainerBuilder_Value = Guid.initString("334b1f50-2292-4b35-99a1-25588d8c17fe");
 pub const IID_IDxcContainerBuilder = &IID_IDxcContainerBuilder_Value;
 pub const IDxcContainerBuilder = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Load: fn(
-            self: *const IDxcContainerBuilder,
-            pDxilContainerHeader: ?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddPart: fn(
-            self: *const IDxcContainerBuilder,
-            fourCC: u32,
-            pSource: ?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RemovePart: fn(
-            self: *const IDxcContainerBuilder,
-            fourCC: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SerializeContainer: fn(
-            self: *const IDxcContainerBuilder,
-            ppResult: ?*?*IDxcOperationResult,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Load: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcContainerBuilder,
+                pDxilContainerHeader: ?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcContainerBuilder,
+                pDxilContainerHeader: ?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddPart: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcContainerBuilder,
+                fourCC: u32,
+                pSource: ?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcContainerBuilder,
+                fourCC: u32,
+                pSource: ?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RemovePart: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcContainerBuilder,
+                fourCC: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcContainerBuilder,
+                fourCC: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SerializeContainer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcContainerBuilder,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcContainerBuilder,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -910,16 +1390,23 @@ pub const IDxcContainerBuilder = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcAssembler_Value = @import("../../zig.zig").Guid.initString("091f7a26-1c1f-4948-904b-e6e3a8a771d5");
+const IID_IDxcAssembler_Value = Guid.initString("091f7a26-1c1f-4948-904b-e6e3a8a771d5");
 pub const IID_IDxcAssembler = &IID_IDxcAssembler_Value;
 pub const IDxcAssembler = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AssembleToContainer: fn(
-            self: *const IDxcAssembler,
-            pShader: ?*IDxcBlob,
-            ppResult: ?*?*IDxcOperationResult,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AssembleToContainer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcAssembler,
+                pShader: ?*IDxcBlob,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcAssembler,
+                pShader: ?*IDxcBlob,
+                ppResult: ?*?*IDxcOperationResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -932,40 +1419,81 @@ pub const IDxcAssembler = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcContainerReflection_Value = @import("../../zig.zig").Guid.initString("d2c21b26-8350-4bdc-976a-331ce6f4c54c");
+const IID_IDxcContainerReflection_Value = Guid.initString("d2c21b26-8350-4bdc-976a-331ce6f4c54c");
 pub const IID_IDxcContainerReflection = &IID_IDxcContainerReflection_Value;
 pub const IDxcContainerReflection = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Load: fn(
-            self: *const IDxcContainerReflection,
-            pContainer: ?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPartCount: fn(
-            self: *const IDxcContainerReflection,
-            pResult: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPartKind: fn(
-            self: *const IDxcContainerReflection,
-            idx: u32,
-            pResult: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPartContent: fn(
-            self: *const IDxcContainerReflection,
-            idx: u32,
-            ppResult: ?*?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        FindFirstPartKind: fn(
-            self: *const IDxcContainerReflection,
-            kind: u32,
-            pResult: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPartReflection: fn(
-            self: *const IDxcContainerReflection,
-            idx: u32,
-            iid: ?*const Guid,
-            ppvObject: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Load: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcContainerReflection,
+                pContainer: ?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcContainerReflection,
+                pContainer: ?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPartCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcContainerReflection,
+                pResult: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcContainerReflection,
+                pResult: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPartKind: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcContainerReflection,
+                idx: u32,
+                pResult: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcContainerReflection,
+                idx: u32,
+                pResult: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPartContent: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcContainerReflection,
+                idx: u32,
+                ppResult: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcContainerReflection,
+                idx: u32,
+                ppResult: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        FindFirstPartKind: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcContainerReflection,
+                kind: u32,
+                pResult: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcContainerReflection,
+                kind: u32,
+                pResult: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPartReflection: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcContainerReflection,
+                idx: u32,
+                iid: ?*const Guid,
+                ppvObject: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcContainerReflection,
+                idx: u32,
+                iid: ?*const Guid,
+                ppvObject: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -998,33 +1526,65 @@ pub const IDxcContainerReflection = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcOptimizerPass_Value = @import("../../zig.zig").Guid.initString("ae2cd79f-cc22-453f-9b6b-b124e7a5204c");
+const IID_IDxcOptimizerPass_Value = Guid.initString("ae2cd79f-cc22-453f-9b6b-b124e7a5204c");
 pub const IID_IDxcOptimizerPass = &IID_IDxcOptimizerPass_Value;
 pub const IDxcOptimizerPass = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetOptionName: fn(
-            self: *const IDxcOptimizerPass,
-            ppResult: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDescription: fn(
-            self: *const IDxcOptimizerPass,
-            ppResult: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetOptionArgCount: fn(
-            self: *const IDxcOptimizerPass,
-            pCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetOptionArgName: fn(
-            self: *const IDxcOptimizerPass,
-            argIndex: u32,
-            ppResult: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetOptionArgDescription: fn(
-            self: *const IDxcOptimizerPass,
-            argIndex: u32,
-            ppResult: ?*?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetOptionName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcOptimizerPass,
+                ppResult: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcOptimizerPass,
+                ppResult: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDescription: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcOptimizerPass,
+                ppResult: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcOptimizerPass,
+                ppResult: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetOptionArgCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcOptimizerPass,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcOptimizerPass,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetOptionArgName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcOptimizerPass,
+                argIndex: u32,
+                ppResult: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcOptimizerPass,
+                argIndex: u32,
+                ppResult: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetOptionArgDescription: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcOptimizerPass,
+                argIndex: u32,
+                ppResult: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcOptimizerPass,
+                argIndex: u32,
+                ppResult: ?*?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1053,28 +1613,51 @@ pub const IDxcOptimizerPass = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcOptimizer_Value = @import("../../zig.zig").Guid.initString("25740e2e-9cba-401b-9119-4fb42f39f270");
+const IID_IDxcOptimizer_Value = Guid.initString("25740e2e-9cba-401b-9119-4fb42f39f270");
 pub const IID_IDxcOptimizer = &IID_IDxcOptimizer_Value;
 pub const IDxcOptimizer = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetAvailablePassCount: fn(
-            self: *const IDxcOptimizer,
-            pCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetAvailablePass: fn(
-            self: *const IDxcOptimizer,
-            index: u32,
-            ppResult: ?*?*IDxcOptimizerPass,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RunOptimizer: fn(
-            self: *const IDxcOptimizer,
-            pBlob: ?*IDxcBlob,
-            ppOptions: [*]?PWSTR,
-            optionCount: u32,
-            pOutputModule: ?*?*IDxcBlob,
-            ppOutputText: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetAvailablePassCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcOptimizer,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcOptimizer,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetAvailablePass: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcOptimizer,
+                index: u32,
+                ppResult: ?*?*IDxcOptimizerPass,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcOptimizer,
+                index: u32,
+                ppResult: ?*?*IDxcOptimizerPass,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RunOptimizer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcOptimizer,
+                pBlob: ?*IDxcBlob,
+                ppOptions: [*]?PWSTR,
+                optionCount: u32,
+                pOutputModule: ?*?*IDxcBlob,
+                ppOutputText: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcOptimizer,
+                pBlob: ?*IDxcBlob,
+                ppOptions: [*]?PWSTR,
+                optionCount: u32,
+                pOutputModule: ?*?*IDxcBlob,
+                ppOutputText: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1095,20 +1678,33 @@ pub const IDxcOptimizer = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcVersionInfo_Value = @import("../../zig.zig").Guid.initString("b04f5b50-2059-4f12-a8ff-a1e0cde1cc7e");
+const IID_IDxcVersionInfo_Value = Guid.initString("b04f5b50-2059-4f12-a8ff-a1e0cde1cc7e");
 pub const IID_IDxcVersionInfo = &IID_IDxcVersionInfo_Value;
 pub const IDxcVersionInfo = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetVersion: fn(
-            self: *const IDxcVersionInfo,
-            pMajor: ?*u32,
-            pMinor: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFlags: fn(
-            self: *const IDxcVersionInfo,
-            pFlags: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetVersion: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcVersionInfo,
+                pMajor: ?*u32,
+                pMinor: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcVersionInfo,
+                pMajor: ?*u32,
+                pMinor: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFlags: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcVersionInfo,
+                pFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcVersionInfo,
+                pFlags: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1125,16 +1721,23 @@ pub const IDxcVersionInfo = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcVersionInfo2_Value = @import("../../zig.zig").Guid.initString("fb6904c4-42f0-4b62-9c46-983af7da7c83");
+const IID_IDxcVersionInfo2_Value = Guid.initString("fb6904c4-42f0-4b62-9c46-983af7da7c83");
 pub const IID_IDxcVersionInfo2 = &IID_IDxcVersionInfo2_Value;
 pub const IDxcVersionInfo2 = extern struct {
     pub const VTable = extern struct {
         base: IDxcVersionInfo.VTable,
-        GetCommitInfo: fn(
-            self: *const IDxcVersionInfo2,
-            pCommitCount: ?*u32,
-            pCommitHash: ?*?*i8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCommitInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcVersionInfo2,
+                pCommitCount: ?*u32,
+                pCommitHash: ?*?*i8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcVersionInfo2,
+                pCommitCount: ?*u32,
+                pCommitHash: ?*?*i8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1147,15 +1750,21 @@ pub const IDxcVersionInfo2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDxcVersionInfo3_Value = @import("../../zig.zig").Guid.initString("5e13e843-9d25-473c-9ad2-03b2d0b44b1e");
+const IID_IDxcVersionInfo3_Value = Guid.initString("5e13e843-9d25-473c-9ad2-03b2d0b44b1e");
 pub const IID_IDxcVersionInfo3 = &IID_IDxcVersionInfo3_Value;
 pub const IDxcVersionInfo3 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetCustomVersionString: fn(
-            self: *const IDxcVersionInfo3,
-            pVersionString: ?*?*i8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetCustomVersionString: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcVersionInfo3,
+                pVersionString: ?*?*i8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcVersionInfo3,
+                pVersionString: ?*?*i8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1173,114 +1782,265 @@ pub const DxcArgPair = extern struct {
     pValue: ?[*:0]const u16,
 };
 
-const IID_IDxcPdbUtils_Value = @import("../../zig.zig").Guid.initString("e6c9647e-9d6a-4c3b-b94c-524b5a6c343d");
+const IID_IDxcPdbUtils_Value = Guid.initString("e6c9647e-9d6a-4c3b-b94c-524b5a6c343d");
 pub const IID_IDxcPdbUtils = &IID_IDxcPdbUtils_Value;
 pub const IDxcPdbUtils = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Load: fn(
-            self: *const IDxcPdbUtils,
-            pPdbOrDxil: ?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSourceCount: fn(
-            self: *const IDxcPdbUtils,
-            pCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSource: fn(
-            self: *const IDxcPdbUtils,
-            uIndex: u32,
-            ppResult: ?*?*IDxcBlobEncoding,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetSourceName: fn(
-            self: *const IDxcPdbUtils,
-            uIndex: u32,
-            pResult: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFlagCount: fn(
-            self: *const IDxcPdbUtils,
-            pCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFlag: fn(
-            self: *const IDxcPdbUtils,
-            uIndex: u32,
-            pResult: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetArgCount: fn(
-            self: *const IDxcPdbUtils,
-            pCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetArg: fn(
-            self: *const IDxcPdbUtils,
-            uIndex: u32,
-            pResult: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetArgPairCount: fn(
-            self: *const IDxcPdbUtils,
-            pCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetArgPair: fn(
-            self: *const IDxcPdbUtils,
-            uIndex: u32,
-            pName: ?*?BSTR,
-            pValue: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDefineCount: fn(
-            self: *const IDxcPdbUtils,
-            pCount: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDefine: fn(
-            self: *const IDxcPdbUtils,
-            uIndex: u32,
-            pResult: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTargetProfile: fn(
-            self: *const IDxcPdbUtils,
-            pResult: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetEntryPoint: fn(
-            self: *const IDxcPdbUtils,
-            pResult: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetMainFileName: fn(
-            self: *const IDxcPdbUtils,
-            pResult: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetHash: fn(
-            self: *const IDxcPdbUtils,
-            ppResult: ?*?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetName: fn(
-            self: *const IDxcPdbUtils,
-            pResult: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsFullPDB: fn(
-            self: *const IDxcPdbUtils,
-        ) callconv(@import("std").os.windows.WINAPI) BOOL,
-        GetFullPDB: fn(
-            self: *const IDxcPdbUtils,
-            ppFullPDB: ?*?*IDxcBlob,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVersionInfo: fn(
-            self: *const IDxcPdbUtils,
-            ppVersionInfo: ?*?*IDxcVersionInfo,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetCompiler: fn(
-            self: *const IDxcPdbUtils,
-            pCompiler: ?*IDxcCompiler3,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CompileForFullPDB: fn(
-            self: *const IDxcPdbUtils,
-            ppResult: ?*?*IDxcResult,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OverrideArgs: fn(
-            self: *const IDxcPdbUtils,
-            pArgPairs: ?*DxcArgPair,
-            uNumArgPairs: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OverrideRootSignature: fn(
-            self: *const IDxcPdbUtils,
-            pRootSignature: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Load: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                pPdbOrDxil: ?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                pPdbOrDxil: ?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSourceCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSource: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                uIndex: u32,
+                ppResult: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                uIndex: u32,
+                ppResult: ?*?*IDxcBlobEncoding,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetSourceName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                uIndex: u32,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                uIndex: u32,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFlagCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFlag: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                uIndex: u32,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                uIndex: u32,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetArgCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetArg: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                uIndex: u32,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                uIndex: u32,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetArgPairCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetArgPair: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                uIndex: u32,
+                pName: ?*?BSTR,
+                pValue: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                uIndex: u32,
+                pName: ?*?BSTR,
+                pValue: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDefineCount: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                pCount: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDefine: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                uIndex: u32,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                uIndex: u32,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTargetProfile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetEntryPoint: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetMainFileName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetHash: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                ppResult: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                ppResult: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                pResult: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsFullPDB: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+            ) callconv(@import("std").os.windows.WINAPI) BOOL,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+            ) callconv(@import("std").os.windows.WINAPI) BOOL,
+        },
+        GetFullPDB: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                ppFullPDB: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                ppFullPDB: ?*?*IDxcBlob,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVersionInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                ppVersionInfo: ?*?*IDxcVersionInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                ppVersionInfo: ?*?*IDxcVersionInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetCompiler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                pCompiler: ?*IDxcCompiler3,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                pCompiler: ?*IDxcCompiler3,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CompileForFullPDB: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                ppResult: ?*?*IDxcResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                ppResult: ?*?*IDxcResult,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OverrideArgs: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                pArgPairs: ?*DxcArgPair,
+                uNumArgPairs: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                pArgPairs: ?*DxcArgPair,
+                uNumArgPairs: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OverrideRootSignature: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDxcPdbUtils,
+                pRootSignature: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDxcPdbUtils,
+                pRootSignature: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1435,14 +2195,14 @@ test {
     if (@hasDecl(@This(), "DxcCreateInstance2Proc")) { _ = DxcCreateInstance2Proc; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

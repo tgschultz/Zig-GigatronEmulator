@@ -414,33 +414,64 @@ pub const WER_RUNTIME_EXCEPTION_INFORMATION = extern struct {
     dwReserved: u32,
 };
 
-pub const PFN_WER_RUNTIME_EXCEPTION_EVENT = fn(
-    pContext: ?*anyopaque,
-    pExceptionInformation: ?*const WER_RUNTIME_EXCEPTION_INFORMATION,
-    pbOwnershipClaimed: ?*BOOL,
-    pwszEventName: [*:0]u16,
-    pchSize: ?*u32,
-    pdwSignatureCount: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PFN_WER_RUNTIME_EXCEPTION_EVENT = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pContext: ?*anyopaque,
+        pExceptionInformation: ?*const WER_RUNTIME_EXCEPTION_INFORMATION,
+        pbOwnershipClaimed: ?*BOOL,
+        pwszEventName: [*:0]u16,
+        pchSize: ?*u32,
+        pdwSignatureCount: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pContext: ?*anyopaque,
+        pExceptionInformation: ?*const WER_RUNTIME_EXCEPTION_INFORMATION,
+        pbOwnershipClaimed: ?*BOOL,
+        pwszEventName: [*:0]u16,
+        pchSize: ?*u32,
+        pdwSignatureCount: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const PFN_WER_RUNTIME_EXCEPTION_EVENT_SIGNATURE = fn(
-    pContext: ?*anyopaque,
-    pExceptionInformation: ?*const WER_RUNTIME_EXCEPTION_INFORMATION,
-    dwIndex: u32,
-    pwszName: [*:0]u16,
-    pchName: ?*u32,
-    pwszValue: [*:0]u16,
-    pchValue: ?*u32,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PFN_WER_RUNTIME_EXCEPTION_EVENT_SIGNATURE = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pContext: ?*anyopaque,
+        pExceptionInformation: ?*const WER_RUNTIME_EXCEPTION_INFORMATION,
+        dwIndex: u32,
+        pwszName: [*:0]u16,
+        pchName: ?*u32,
+        pwszValue: [*:0]u16,
+        pchValue: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pContext: ?*anyopaque,
+        pExceptionInformation: ?*const WER_RUNTIME_EXCEPTION_INFORMATION,
+        dwIndex: u32,
+        pwszName: [*:0]u16,
+        pchName: ?*u32,
+        pwszValue: [*:0]u16,
+        pchValue: ?*u32,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const PFN_WER_RUNTIME_EXCEPTION_DEBUGGER_LAUNCH = fn(
-    pContext: ?*anyopaque,
-    pExceptionInformation: ?*const WER_RUNTIME_EXCEPTION_INFORMATION,
-    pbIsCustomDebugger: ?*BOOL,
-    pwszDebuggerLaunch: [*:0]u16,
-    pchDebuggerLaunch: ?*u32,
-    pbIsDebuggerAutolaunch: ?*BOOL,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PFN_WER_RUNTIME_EXCEPTION_DEBUGGER_LAUNCH = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pContext: ?*anyopaque,
+        pExceptionInformation: ?*const WER_RUNTIME_EXCEPTION_INFORMATION,
+        pbIsCustomDebugger: ?*BOOL,
+        pwszDebuggerLaunch: [*:0]u16,
+        pchDebuggerLaunch: ?*u32,
+        pbIsDebuggerAutolaunch: ?*BOOL,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        pContext: ?*anyopaque,
+        pExceptionInformation: ?*const WER_RUNTIME_EXCEPTION_INFORMATION,
+        pbIsCustomDebugger: ?*BOOL,
+        pwszDebuggerLaunch: [*:0]u16,
+        pchDebuggerLaunch: ?*u32,
+        pbIsDebuggerAutolaunch: ?*BOOL,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
 pub const REPORT_STORE_TYPES = enum(i32) {
     USER_ARCHIVE = 0,
@@ -532,18 +563,34 @@ pub const frrvErrAnotherInstance = EFaultRepRetVal.ErrAnotherInstance;
 pub const frrvErrNoMemory = EFaultRepRetVal.ErrNoMemory;
 pub const frrvErrDoubleFault = EFaultRepRetVal.ErrDoubleFault;
 
-pub const pfn_REPORTFAULT = fn(
-    param0: ?*EXCEPTION_POINTERS,
-    param1: u32,
-) callconv(@import("std").os.windows.WINAPI) EFaultRepRetVal;
+pub const pfn_REPORTFAULT = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?*EXCEPTION_POINTERS,
+        param1: u32,
+    ) callconv(@import("std").os.windows.WINAPI) EFaultRepRetVal,
+    else => *const fn(
+        param0: ?*EXCEPTION_POINTERS,
+        param1: u32,
+    ) callconv(@import("std").os.windows.WINAPI) EFaultRepRetVal,
+} ;
 
-pub const pfn_ADDEREXCLUDEDAPPLICATIONA = fn(
-    param0: ?[*:0]const u8,
-) callconv(@import("std").os.windows.WINAPI) EFaultRepRetVal;
+pub const pfn_ADDEREXCLUDEDAPPLICATIONA = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?[*:0]const u8,
+    ) callconv(@import("std").os.windows.WINAPI) EFaultRepRetVal,
+    else => *const fn(
+        param0: ?[*:0]const u8,
+    ) callconv(@import("std").os.windows.WINAPI) EFaultRepRetVal,
+} ;
 
-pub const pfn_ADDEREXCLUDEDAPPLICATIONW = fn(
-    param0: ?[*:0]const u16,
-) callconv(@import("std").os.windows.WINAPI) EFaultRepRetVal;
+pub const pfn_ADDEREXCLUDEDAPPLICATIONW = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        param0: ?[*:0]const u16,
+    ) callconv(@import("std").os.windows.WINAPI) EFaultRepRetVal,
+    else => *const fn(
+        param0: ?[*:0]const u16,
+    ) callconv(@import("std").os.windows.WINAPI) EFaultRepRetVal,
+} ;
 
 
 //--------------------------------------------------------------------------------
@@ -605,77 +652,77 @@ pub extern "wer" fn WerReportCloseHandle(
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "KERNEL32" fn WerRegisterFile(
+pub extern "kernel32" fn WerRegisterFile(
     pwzFile: ?[*:0]const u16,
     regFileType: WER_REGISTER_FILE_TYPE,
     dwFlags: WER_FILE,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "KERNEL32" fn WerUnregisterFile(
+pub extern "kernel32" fn WerUnregisterFile(
     pwzFilePath: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "KERNEL32" fn WerRegisterMemoryBlock(
+pub extern "kernel32" fn WerRegisterMemoryBlock(
     pvAddress: ?*anyopaque,
     dwSize: u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "KERNEL32" fn WerUnregisterMemoryBlock(
+pub extern "kernel32" fn WerUnregisterMemoryBlock(
     pvAddress: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-pub extern "KERNEL32" fn WerRegisterExcludedMemoryBlock(
+pub extern "kernel32" fn WerRegisterExcludedMemoryBlock(
     address: ?*const anyopaque,
     size: u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-pub extern "KERNEL32" fn WerUnregisterExcludedMemoryBlock(
+pub extern "kernel32" fn WerUnregisterExcludedMemoryBlock(
     address: ?*const anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-pub extern "KERNEL32" fn WerRegisterCustomMetadata(
+pub extern "kernel32" fn WerRegisterCustomMetadata(
     key: ?[*:0]const u16,
     value: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-pub extern "KERNEL32" fn WerUnregisterCustomMetadata(
+pub extern "kernel32" fn WerUnregisterCustomMetadata(
     key: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-pub extern "KERNEL32" fn WerRegisterAdditionalProcess(
+pub extern "kernel32" fn WerRegisterAdditionalProcess(
     processId: u32,
     captureExtraInfoForThreadId: u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-pub extern "KERNEL32" fn WerUnregisterAdditionalProcess(
+pub extern "kernel32" fn WerUnregisterAdditionalProcess(
     processId: u32,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows10.0.16299'
-pub extern "KERNEL32" fn WerRegisterAppLocalDump(
+pub extern "kernel32" fn WerRegisterAppLocalDump(
     localAppDataRelativePath: ?[*:0]const u16,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows10.0.16299'
-pub extern "KERNEL32" fn WerUnregisterAppLocalDump(
+pub extern "kernel32" fn WerUnregisterAppLocalDump(
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "KERNEL32" fn WerSetFlags(
+pub extern "kernel32" fn WerSetFlags(
     dwFlags: WER_FAULT_REPORTING,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-pub extern "KERNEL32" fn WerGetFlags(
+pub extern "kernel32" fn WerGetFlags(
     hProcess: ?HANDLE,
     pdwFlags: ?*WER_FAULT_REPORTING,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
@@ -693,13 +740,13 @@ pub extern "wer" fn WerRemoveExcludedApplication(
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "KERNEL32" fn WerRegisterRuntimeExceptionModule(
+pub extern "kernel32" fn WerRegisterRuntimeExceptionModule(
     pwszOutOfProcessCallbackDll: ?[*:0]const u16,
     pContext: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "KERNEL32" fn WerUnregisterRuntimeExceptionModule(
+pub extern "kernel32" fn WerUnregisterRuntimeExceptionModule(
     pwszOutOfProcessCallbackDll: ?[*:0]const u16,
     pContext: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
@@ -840,14 +887,14 @@ test {
     if (@hasDecl(@This(), "pfn_ADDEREXCLUDEDAPPLICATIONW")) { _ = pfn_ADDEREXCLUDEDAPPLICATIONW; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

@@ -672,10 +672,16 @@ pub const CF_CALLBACK_PARAMETERS = extern struct {
     },
 };
 
-pub const CF_CALLBACK = fn(
-    CallbackInfo: ?*const CF_CALLBACK_INFO,
-    CallbackParameters: ?*const CF_CALLBACK_PARAMETERS,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const CF_CALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        CallbackInfo: ?*const CF_CALLBACK_INFO,
+        CallbackParameters: ?*const CF_CALLBACK_PARAMETERS,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        CallbackInfo: ?*const CF_CALLBACK_INFO,
+        CallbackParameters: ?*const CF_CALLBACK_PARAMETERS,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 pub const CF_CALLBACK_TYPE = enum(i32) {
     FETCH_DATA = 0,
@@ -1593,14 +1599,14 @@ test {
     if (@hasDecl(@This(), "CF_CALLBACK")) { _ = CF_CALLBACK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

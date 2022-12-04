@@ -133,18 +133,25 @@ pub const CATALOG_INFO = extern struct {
     wszCatalogFile: [260]u16,
 };
 
-pub const PFN_CDF_PARSE_ERROR_CALLBACK = fn(
-    dwErrorArea: u32,
-    dwLocalError: u32,
-    pwszLine: ?PWSTR,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const PFN_CDF_PARSE_ERROR_CALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        dwErrorArea: u32,
+        dwLocalError: u32,
+        pwszLine: ?PWSTR,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        dwErrorArea: u32,
+        dwLocalError: u32,
+        pwszLine: ?PWSTR,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 
 //--------------------------------------------------------------------------------
 // Section: Functions (34)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATOpen(
+pub extern "wintrust" fn CryptCATOpen(
     pwszFileName: ?PWSTR,
     fdwOpenFlags: CRYPTCAT_OPEN_FLAGS,
     hProv: usize,
@@ -153,32 +160,32 @@ pub extern "WINTRUST" fn CryptCATOpen(
 ) callconv(@import("std").os.windows.WINAPI) ?HANDLE;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATClose(
+pub extern "wintrust" fn CryptCATClose(
     hCatalog: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATStoreFromHandle(
+pub extern "wintrust" fn CryptCATStoreFromHandle(
     hCatalog: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATSTORE;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATHandleFromStore(
+pub extern "wintrust" fn CryptCATHandleFromStore(
     pCatStore: ?*CRYPTCATSTORE,
 ) callconv(@import("std").os.windows.WINAPI) ?HANDLE;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATPersistStore(
+pub extern "wintrust" fn CryptCATPersistStore(
     hCatalog: ?HANDLE,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINTRUST" fn CryptCATGetCatAttrInfo(
+pub extern "wintrust" fn CryptCATGetCatAttrInfo(
     hCatalog: ?HANDLE,
     pwszReferenceTag: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATATTRIBUTE;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATPutCatAttrInfo(
+pub extern "wintrust" fn CryptCATPutCatAttrInfo(
     hCatalog: ?HANDLE,
     pwszReferenceTag: ?PWSTR,
     dwAttrTypeAndAction: u32,
@@ -187,36 +194,36 @@ pub extern "WINTRUST" fn CryptCATPutCatAttrInfo(
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATATTRIBUTE;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATEnumerateCatAttr(
+pub extern "wintrust" fn CryptCATEnumerateCatAttr(
     hCatalog: ?HANDLE,
     pPrevAttr: ?*CRYPTCATATTRIBUTE,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATATTRIBUTE;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATGetMemberInfo(
+pub extern "wintrust" fn CryptCATGetMemberInfo(
     hCatalog: ?HANDLE,
     pwszReferenceTag: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATMEMBER;
 
-pub extern "WINTRUST" fn CryptCATAllocSortedMemberInfo(
+pub extern "wintrust" fn CryptCATAllocSortedMemberInfo(
     hCatalog: ?HANDLE,
     pwszReferenceTag: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATMEMBER;
 
-pub extern "WINTRUST" fn CryptCATFreeSortedMemberInfo(
+pub extern "wintrust" fn CryptCATFreeSortedMemberInfo(
     hCatalog: ?HANDLE,
     pCatMember: ?*CRYPTCATMEMBER,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATGetAttrInfo(
+pub extern "wintrust" fn CryptCATGetAttrInfo(
     hCatalog: ?HANDLE,
     pCatMember: ?*CRYPTCATMEMBER,
     pwszReferenceTag: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATATTRIBUTE;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATPutMemberInfo(
+pub extern "wintrust" fn CryptCATPutMemberInfo(
     hCatalog: ?HANDLE,
     pwszFileName: ?PWSTR,
     pwszReferenceTag: ?PWSTR,
@@ -227,7 +234,7 @@ pub extern "WINTRUST" fn CryptCATPutMemberInfo(
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATMEMBER;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATPutAttrInfo(
+pub extern "wintrust" fn CryptCATPutAttrInfo(
     hCatalog: ?HANDLE,
     pCatMember: ?*CRYPTCATMEMBER,
     pwszReferenceTag: ?PWSTR,
@@ -237,43 +244,43 @@ pub extern "WINTRUST" fn CryptCATPutAttrInfo(
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATATTRIBUTE;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATEnumerateMember(
+pub extern "wintrust" fn CryptCATEnumerateMember(
     hCatalog: ?HANDLE,
     pPrevMember: ?*CRYPTCATMEMBER,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATMEMBER;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATEnumerateAttr(
+pub extern "wintrust" fn CryptCATEnumerateAttr(
     hCatalog: ?HANDLE,
     pCatMember: ?*CRYPTCATMEMBER,
     pPrevAttr: ?*CRYPTCATATTRIBUTE,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATATTRIBUTE;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATCDFOpen(
+pub extern "wintrust" fn CryptCATCDFOpen(
     pwszFilePath: ?PWSTR,
     pfnParseError: ?PFN_CDF_PARSE_ERROR_CALLBACK,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATCDF;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATCDFClose(
+pub extern "wintrust" fn CryptCATCDFClose(
     pCDF: ?*CRYPTCATCDF,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATCDFEnumCatAttributes(
+pub extern "wintrust" fn CryptCATCDFEnumCatAttributes(
     pCDF: ?*CRYPTCATCDF,
     pPrevAttr: ?*CRYPTCATATTRIBUTE,
     pfnParseError: ?PFN_CDF_PARSE_ERROR_CALLBACK,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATATTRIBUTE;
 
-pub extern "WINTRUST" fn CryptCATCDFEnumMembers(
+pub extern "wintrust" fn CryptCATCDFEnumMembers(
     pCDF: ?*CRYPTCATCDF,
     pPrevMember: ?*CRYPTCATMEMBER,
     pfnParseError: ?PFN_CDF_PARSE_ERROR_CALLBACK,
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATMEMBER;
 
-pub extern "WINTRUST" fn CryptCATCDFEnumAttributes(
+pub extern "wintrust" fn CryptCATCDFEnumAttributes(
     pCDF: ?*CRYPTCATCDF,
     pMember: ?*CRYPTCATMEMBER,
     pPrevAttr: ?*CRYPTCATATTRIBUTE,
@@ -281,20 +288,20 @@ pub extern "WINTRUST" fn CryptCATCDFEnumAttributes(
 ) callconv(@import("std").os.windows.WINAPI) ?*CRYPTCATATTRIBUTE;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn IsCatalogFile(
+pub extern "wintrust" fn IsCatalogFile(
     hFile: ?HANDLE,
     pwszFileName: ?PWSTR,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATAdminAcquireContext(
+pub extern "wintrust" fn CryptCATAdminAcquireContext(
     phCatAdmin: ?*isize,
     pgSubsystem: ?*const Guid,
     dwFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "WINTRUST" fn CryptCATAdminAcquireContext2(
+pub extern "wintrust" fn CryptCATAdminAcquireContext2(
     phCatAdmin: ?*isize,
     pgSubsystem: ?*const Guid,
     pwszHashAlgorithm: ?[*:0]const u16,
@@ -303,20 +310,20 @@ pub extern "WINTRUST" fn CryptCATAdminAcquireContext2(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATAdminReleaseContext(
+pub extern "wintrust" fn CryptCATAdminReleaseContext(
     hCatAdmin: isize,
     dwFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATAdminReleaseCatalogContext(
+pub extern "wintrust" fn CryptCATAdminReleaseCatalogContext(
     hCatAdmin: isize,
     hCatInfo: isize,
     dwFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATAdminEnumCatalogFromHash(
+pub extern "wintrust" fn CryptCATAdminEnumCatalogFromHash(
     hCatAdmin: isize,
     // TODO: what to do with BytesParamIndex 2?
     pbHash: ?*u8,
@@ -326,7 +333,7 @@ pub extern "WINTRUST" fn CryptCATAdminEnumCatalogFromHash(
 ) callconv(@import("std").os.windows.WINAPI) isize;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATAdminCalcHashFromFileHandle(
+pub extern "wintrust" fn CryptCATAdminCalcHashFromFileHandle(
     hFile: ?HANDLE,
     pcbHash: ?*u32,
     // TODO: what to do with BytesParamIndex 1?
@@ -335,7 +342,7 @@ pub extern "WINTRUST" fn CryptCATAdminCalcHashFromFileHandle(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "WINTRUST" fn CryptCATAdminCalcHashFromFileHandle2(
+pub extern "wintrust" fn CryptCATAdminCalcHashFromFileHandle2(
     hCatAdmin: isize,
     hFile: ?HANDLE,
     pcbHash: ?*u32,
@@ -345,7 +352,7 @@ pub extern "WINTRUST" fn CryptCATAdminCalcHashFromFileHandle2(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATAdminAddCatalog(
+pub extern "wintrust" fn CryptCATAdminAddCatalog(
     hCatAdmin: isize,
     pwszCatalogFile: ?PWSTR,
     pwszSelectBaseName: ?PWSTR,
@@ -353,28 +360,28 @@ pub extern "WINTRUST" fn CryptCATAdminAddCatalog(
 ) callconv(@import("std").os.windows.WINAPI) isize;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATAdminRemoveCatalog(
+pub extern "wintrust" fn CryptCATAdminRemoveCatalog(
     hCatAdmin: isize,
     pwszCatalogFile: ?[*:0]const u16,
     dwFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATCatalogInfoFromContext(
+pub extern "wintrust" fn CryptCATCatalogInfoFromContext(
     hCatInfo: isize,
     psCatInfo: ?*CATALOG_INFO,
     dwFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows5.1.2600'
-pub extern "WINTRUST" fn CryptCATAdminResolveCatalogPath(
+pub extern "wintrust" fn CryptCATAdminResolveCatalogPath(
     hCatAdmin: isize,
     pwszCatalogFile: ?PWSTR,
     psCatInfo: ?*CATALOG_INFO,
     dwFlags: u32,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
-pub extern "WINTRUST" fn CryptCATAdminPauseServiceForBackup(
+pub extern "wintrust" fn CryptCATAdminPauseServiceForBackup(
     dwFlags: u32,
     fResume: BOOL,
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
@@ -409,14 +416,14 @@ test {
     if (@hasDecl(@This(), "PFN_CDF_PARSE_ERROR_CALLBACK")) { _ = PFN_CDF_PARSE_ERROR_CALLBACK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

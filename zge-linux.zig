@@ -14,7 +14,7 @@ pub fn main() !void {
     babelfish.init(&tape);
     
     const current_dir = std.fs.cwd();
-    const rom_file = try current_dir.openFile("ROMv5a.rom", .{ .read = true });
+    const rom_file = try current_dir.openFile("ROMv5a.rom", .{ .mode = .read_only });
     var reader = rom_file.reader();
     _ = try vm.loadRom(reader);
     rom_file.close();

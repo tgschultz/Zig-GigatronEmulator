@@ -846,15 +846,26 @@ pub const WSMAN_RESPONSE_DATA = extern union {
     createData: WSMAN_CREATE_SHELL_DATA,
 };
 
-pub const WSMAN_SHELL_COMPLETION_FUNCTION = fn(
-    operationContext: ?*anyopaque,
-    flags: u32,
-    @"error": ?*WSMAN_ERROR,
-    shell: ?*WSMAN_SHELL,
-    command: ?*WSMAN_COMMAND,
-    operationHandle: ?*WSMAN_OPERATION,
-    data: ?*WSMAN_RESPONSE_DATA,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const WSMAN_SHELL_COMPLETION_FUNCTION = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        operationContext: ?*anyopaque,
+        flags: u32,
+        @"error": ?*WSMAN_ERROR,
+        shell: ?*WSMAN_SHELL,
+        command: ?*WSMAN_COMMAND,
+        operationHandle: ?*WSMAN_OPERATION,
+        data: ?*WSMAN_RESPONSE_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        operationContext: ?*anyopaque,
+        flags: u32,
+        @"error": ?*WSMAN_ERROR,
+        shell: ?*WSMAN_SHELL,
+        command: ?*WSMAN_COMMAND,
+        operationHandle: ?*WSMAN_OPERATION,
+        data: ?*WSMAN_RESPONSE_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 pub const WSMAN_SHELL_ASYNC = extern struct {
     operationContext: ?*anyopaque,
@@ -891,76 +902,157 @@ pub const WSMAN_PLUGIN_REQUEST = extern struct {
     dataLocale: ?[*:0]const u16,
 };
 
-pub const WSMAN_PLUGIN_RELEASE_SHELL_CONTEXT = fn(
-    shellContext: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const WSMAN_PLUGIN_RELEASE_SHELL_CONTEXT = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        shellContext: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        shellContext: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const WSMAN_PLUGIN_RELEASE_COMMAND_CONTEXT = fn(
-    shellContext: ?*anyopaque,
-    commandContext: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const WSMAN_PLUGIN_RELEASE_COMMAND_CONTEXT = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        shellContext: ?*anyopaque,
+        commandContext: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        shellContext: ?*anyopaque,
+        commandContext: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const WSMAN_PLUGIN_STARTUP = fn(
-    flags: u32,
-    applicationIdentification: ?[*:0]const u16,
-    extraInfo: ?[*:0]const u16,
-    pluginContext: ?*?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const WSMAN_PLUGIN_STARTUP = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        flags: u32,
+        applicationIdentification: ?[*:0]const u16,
+        extraInfo: ?[*:0]const u16,
+        pluginContext: ?*?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        flags: u32,
+        applicationIdentification: ?[*:0]const u16,
+        extraInfo: ?[*:0]const u16,
+        pluginContext: ?*?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const WSMAN_PLUGIN_SHUTDOWN = fn(
-    pluginContext: ?*anyopaque,
-    flags: u32,
-    reason: u32,
-) callconv(@import("std").os.windows.WINAPI) u32;
+pub const WSMAN_PLUGIN_SHUTDOWN = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pluginContext: ?*anyopaque,
+        flags: u32,
+        reason: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+    else => *const fn(
+        pluginContext: ?*anyopaque,
+        flags: u32,
+        reason: u32,
+    ) callconv(@import("std").os.windows.WINAPI) u32,
+} ;
 
-pub const WSMAN_PLUGIN_SHELL = fn(
-    pluginContext: ?*anyopaque,
-    requestDetails: ?*WSMAN_PLUGIN_REQUEST,
-    flags: u32,
-    startupInfo: ?*WSMAN_SHELL_STARTUP_INFO_V11,
-    inboundShellInformation: ?*WSMAN_DATA,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const WSMAN_PLUGIN_SHELL = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pluginContext: ?*anyopaque,
+        requestDetails: ?*WSMAN_PLUGIN_REQUEST,
+        flags: u32,
+        startupInfo: ?*WSMAN_SHELL_STARTUP_INFO_V11,
+        inboundShellInformation: ?*WSMAN_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        pluginContext: ?*anyopaque,
+        requestDetails: ?*WSMAN_PLUGIN_REQUEST,
+        flags: u32,
+        startupInfo: ?*WSMAN_SHELL_STARTUP_INFO_V11,
+        inboundShellInformation: ?*WSMAN_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const WSMAN_PLUGIN_COMMAND = fn(
-    requestDetails: ?*WSMAN_PLUGIN_REQUEST,
-    flags: u32,
-    shellContext: ?*anyopaque,
-    commandLine: ?[*:0]const u16,
-    arguments: ?*WSMAN_COMMAND_ARG_SET,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const WSMAN_PLUGIN_COMMAND = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        requestDetails: ?*WSMAN_PLUGIN_REQUEST,
+        flags: u32,
+        shellContext: ?*anyopaque,
+        commandLine: ?[*:0]const u16,
+        arguments: ?*WSMAN_COMMAND_ARG_SET,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        requestDetails: ?*WSMAN_PLUGIN_REQUEST,
+        flags: u32,
+        shellContext: ?*anyopaque,
+        commandLine: ?[*:0]const u16,
+        arguments: ?*WSMAN_COMMAND_ARG_SET,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const WSMAN_PLUGIN_SEND = fn(
-    requestDetails: ?*WSMAN_PLUGIN_REQUEST,
-    flags: u32,
-    shellContext: ?*anyopaque,
-    commandContext: ?*anyopaque,
-    stream: ?[*:0]const u16,
-    inboundData: ?*WSMAN_DATA,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const WSMAN_PLUGIN_SEND = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        requestDetails: ?*WSMAN_PLUGIN_REQUEST,
+        flags: u32,
+        shellContext: ?*anyopaque,
+        commandContext: ?*anyopaque,
+        stream: ?[*:0]const u16,
+        inboundData: ?*WSMAN_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        requestDetails: ?*WSMAN_PLUGIN_REQUEST,
+        flags: u32,
+        shellContext: ?*anyopaque,
+        commandContext: ?*anyopaque,
+        stream: ?[*:0]const u16,
+        inboundData: ?*WSMAN_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const WSMAN_PLUGIN_RECEIVE = fn(
-    requestDetails: ?*WSMAN_PLUGIN_REQUEST,
-    flags: u32,
-    shellContext: ?*anyopaque,
-    commandContext: ?*anyopaque,
-    streamSet: ?*WSMAN_STREAM_ID_SET,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const WSMAN_PLUGIN_RECEIVE = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        requestDetails: ?*WSMAN_PLUGIN_REQUEST,
+        flags: u32,
+        shellContext: ?*anyopaque,
+        commandContext: ?*anyopaque,
+        streamSet: ?*WSMAN_STREAM_ID_SET,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        requestDetails: ?*WSMAN_PLUGIN_REQUEST,
+        flags: u32,
+        shellContext: ?*anyopaque,
+        commandContext: ?*anyopaque,
+        streamSet: ?*WSMAN_STREAM_ID_SET,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const WSMAN_PLUGIN_SIGNAL = fn(
-    requestDetails: ?*WSMAN_PLUGIN_REQUEST,
-    flags: u32,
-    shellContext: ?*anyopaque,
-    commandContext: ?*anyopaque,
-    code: ?[*:0]const u16,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const WSMAN_PLUGIN_SIGNAL = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        requestDetails: ?*WSMAN_PLUGIN_REQUEST,
+        flags: u32,
+        shellContext: ?*anyopaque,
+        commandContext: ?*anyopaque,
+        code: ?[*:0]const u16,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        requestDetails: ?*WSMAN_PLUGIN_REQUEST,
+        flags: u32,
+        shellContext: ?*anyopaque,
+        commandContext: ?*anyopaque,
+        code: ?[*:0]const u16,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const WSMAN_PLUGIN_CONNECT = fn(
-    requestDetails: ?*WSMAN_PLUGIN_REQUEST,
-    flags: u32,
-    shellContext: ?*anyopaque,
-    commandContext: ?*anyopaque,
-    inboundConnectInformation: ?*WSMAN_DATA,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const WSMAN_PLUGIN_CONNECT = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        requestDetails: ?*WSMAN_PLUGIN_REQUEST,
+        flags: u32,
+        shellContext: ?*anyopaque,
+        commandContext: ?*anyopaque,
+        inboundConnectInformation: ?*WSMAN_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        requestDetails: ?*WSMAN_PLUGIN_REQUEST,
+        flags: u32,
+        shellContext: ?*anyopaque,
+        commandContext: ?*anyopaque,
+        inboundConnectInformation: ?*WSMAN_DATA,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 pub const WSMAN_AUTHZ_QUOTA = extern struct {
     maxAllowedConcurrentShells: u32,
@@ -969,35 +1061,64 @@ pub const WSMAN_AUTHZ_QUOTA = extern struct {
     maxAllowedOperationsPerTimeslot: u32,
 };
 
-pub const WSMAN_PLUGIN_AUTHORIZE_USER = fn(
-    pluginContext: ?*anyopaque,
-    senderDetails: ?*WSMAN_SENDER_DETAILS,
-    flags: u32,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const WSMAN_PLUGIN_AUTHORIZE_USER = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pluginContext: ?*anyopaque,
+        senderDetails: ?*WSMAN_SENDER_DETAILS,
+        flags: u32,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        pluginContext: ?*anyopaque,
+        senderDetails: ?*WSMAN_SENDER_DETAILS,
+        flags: u32,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const WSMAN_PLUGIN_AUTHORIZE_OPERATION = fn(
-    pluginContext: ?*anyopaque,
-    senderDetails: ?*WSMAN_SENDER_DETAILS,
-    flags: u32,
-    operation: u32,
-    action: ?[*:0]const u16,
-    resourceUri: ?[*:0]const u16,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const WSMAN_PLUGIN_AUTHORIZE_OPERATION = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pluginContext: ?*anyopaque,
+        senderDetails: ?*WSMAN_SENDER_DETAILS,
+        flags: u32,
+        operation: u32,
+        action: ?[*:0]const u16,
+        resourceUri: ?[*:0]const u16,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        pluginContext: ?*anyopaque,
+        senderDetails: ?*WSMAN_SENDER_DETAILS,
+        flags: u32,
+        operation: u32,
+        action: ?[*:0]const u16,
+        resourceUri: ?[*:0]const u16,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const WSMAN_PLUGIN_AUTHORIZE_QUERY_QUOTA = fn(
-    pluginContext: ?*anyopaque,
-    senderDetails: ?*WSMAN_SENDER_DETAILS,
-    flags: u32,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const WSMAN_PLUGIN_AUTHORIZE_QUERY_QUOTA = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        pluginContext: ?*anyopaque,
+        senderDetails: ?*WSMAN_SENDER_DETAILS,
+        flags: u32,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        pluginContext: ?*anyopaque,
+        senderDetails: ?*WSMAN_SENDER_DETAILS,
+        flags: u32,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-pub const WSMAN_PLUGIN_AUTHORIZE_RELEASE_CONTEXT = fn(
-    userAuthorizationContext: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const WSMAN_PLUGIN_AUTHORIZE_RELEASE_CONTEXT = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        userAuthorizationContext: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        userAuthorizationContext: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
-const CLSID_WSMan_Value = @import("../zig.zig").Guid.initString("bced617b-ec03-420b-8508-977dc7a686bd");
+const CLSID_WSMan_Value = Guid.initString("bced617b-ec03-420b-8508-977dc7a686bd");
 pub const CLSID_WSMan = &CLSID_WSMan_Value;
 
-const CLSID_WSManInternal_Value = @import("../zig.zig").Guid.initString("7de087a5-5dcb-4df7-bb12-0924ad8fbd9a");
+const CLSID_WSManInternal_Value = Guid.initString("7de087a5-5dcb-4df7-bb12-0924ad8fbd9a");
 pub const CLSID_WSManInternal = &CLSID_WSManInternal_Value;
 
 pub const WSManSessionFlags = enum(i32) {
@@ -1079,32 +1200,63 @@ pub const WSManFlagProxyAuthenticationUseBasic = WSManProxyAuthenticationFlags.B
 pub const WSManFlagProxyAuthenticationUseDigest = WSManProxyAuthenticationFlags.Digest;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IWSMan_Value = @import("../zig.zig").Guid.initString("190d8637-5cd3-496d-ad24-69636bb5a3b5");
+const IID_IWSMan_Value = Guid.initString("190d8637-5cd3-496d-ad24-69636bb5a3b5");
 pub const IID_IWSMan = &IID_IWSMan_Value;
 pub const IWSMan = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        CreateSession: fn(
-            self: *const IWSMan,
-            connection: ?BSTR,
-            flags: i32,
-            connectionOptions: ?*IDispatch,
-            session: ?*?*IDispatch,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateConnectionOptions: fn(
-            self: *const IWSMan,
-            connectionOptions: ?*?*IDispatch,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateSession: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSMan,
+                connection: ?BSTR,
+                flags: i32,
+                connectionOptions: ?*IDispatch,
+                session: ?*?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSMan,
+                connection: ?BSTR,
+                flags: i32,
+                connectionOptions: ?*IDispatch,
+                session: ?*?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateConnectionOptions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSMan,
+                connectionOptions: ?*?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSMan,
+                connectionOptions: ?*?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_CommandLine: fn(
-            self: *const IWSMan,
-            value: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_CommandLine: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSMan,
+                value: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSMan,
+                value: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Error: fn(
-            self: *const IWSMan,
-            value: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Error: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSMan,
+                value: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSMan,
+                value: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1130,93 +1282,215 @@ pub const IWSMan = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IWSManEx_Value = @import("../zig.zig").Guid.initString("2d53bdaa-798e-49e6-a1aa-74d01256f411");
+const IID_IWSManEx_Value = Guid.initString("2d53bdaa-798e-49e6-a1aa-74d01256f411");
 pub const IID_IWSManEx = &IID_IWSManEx_Value;
 pub const IWSManEx = extern struct {
     pub const VTable = extern struct {
         base: IWSMan.VTable,
-        CreateResourceLocator: fn(
-            self: *const IWSManEx,
-            strResourceLocator: ?BSTR,
-            newResourceLocator: ?*?*IDispatch,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagUTF8: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagCredUsernamePassword: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagSkipCACheck: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagSkipCNCheck: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagUseDigest: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagUseNegotiate: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagUseBasic: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagUseKerberos: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagNoEncryption: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagEnableSPNServerPort: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagUseNoAuthentication: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumerationFlagNonXmlText: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumerationFlagReturnEPR: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumerationFlagReturnObjectAndEPR: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetErrorMessage: fn(
-            self: *const IWSManEx,
-            errorNumber: u32,
-            errorMessage: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumerationFlagHierarchyDeep: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumerationFlagHierarchyShallow: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumerationFlagHierarchyDeepBasePropsOnly: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumerationFlagReturnObject: fn(
-            self: *const IWSManEx,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateResourceLocator: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                strResourceLocator: ?BSTR,
+                newResourceLocator: ?*?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                strResourceLocator: ?BSTR,
+                newResourceLocator: ?*?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagUTF8: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagCredUsernamePassword: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagSkipCACheck: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagSkipCNCheck: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagUseDigest: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagUseNegotiate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagUseBasic: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagUseKerberos: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagNoEncryption: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagEnableSPNServerPort: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagUseNoAuthentication: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumerationFlagNonXmlText: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumerationFlagReturnEPR: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumerationFlagReturnObjectAndEPR: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetErrorMessage: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                errorNumber: u32,
+                errorMessage: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                errorNumber: u32,
+                errorMessage: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumerationFlagHierarchyDeep: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumerationFlagHierarchyShallow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumerationFlagHierarchyDeepBasePropsOnly: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumerationFlagReturnObject: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1306,15 +1580,21 @@ pub const IWSManEx = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IWSManEx2_Value = @import("../zig.zig").Guid.initString("1d1b5ae0-42d9-4021-8261-3987619512e9");
+const IID_IWSManEx2_Value = Guid.initString("1d1b5ae0-42d9-4021-8261-3987619512e9");
 pub const IID_IWSManEx2 = &IID_IWSManEx2_Value;
 pub const IWSManEx2 = extern struct {
     pub const VTable = extern struct {
         base: IWSManEx.VTable,
-        SessionFlagUseClientCertificate: fn(
-            self: *const IWSManEx2,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SessionFlagUseClientCertificate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx2,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx2,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1328,39 +1608,81 @@ pub const IWSManEx2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IWSManEx3_Value = @import("../zig.zig").Guid.initString("6400e966-011d-4eac-8474-049e0848afad");
+const IID_IWSManEx3_Value = Guid.initString("6400e966-011d-4eac-8474-049e0848afad");
 pub const IID_IWSManEx3 = &IID_IWSManEx3_Value;
 pub const IWSManEx3 = extern struct {
     pub const VTable = extern struct {
         base: IWSManEx2.VTable,
-        SessionFlagUTF16: fn(
-            self: *const IWSManEx3,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagUseCredSsp: fn(
-            self: *const IWSManEx3,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumerationFlagAssociationInstance: fn(
-            self: *const IWSManEx3,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EnumerationFlagAssociatedInstance: fn(
-            self: *const IWSManEx3,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagSkipRevocationCheck: fn(
-            self: *const IWSManEx3,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagAllowNegotiateImplicitCredentials: fn(
-            self: *const IWSManEx3,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SessionFlagUseSsl: fn(
-            self: *const IWSManEx3,
-            flags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SessionFlagUTF16: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagUseCredSsp: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumerationFlagAssociationInstance: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EnumerationFlagAssociatedInstance: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagSkipRevocationCheck: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagAllowNegotiateImplicitCredentials: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SessionFlagUseSsl: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEx3,
+                flags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1398,26 +1720,50 @@ pub const IWSManEx3 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IWSManConnectionOptions_Value = @import("../zig.zig").Guid.initString("f704e861-9e52-464f-b786-da5eb2320fdd");
+const IID_IWSManConnectionOptions_Value = Guid.initString("f704e861-9e52-464f-b786-da5eb2320fdd");
 pub const IID_IWSManConnectionOptions = &IID_IWSManConnectionOptions_Value;
 pub const IWSManConnectionOptions = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_UserName: fn(
-            self: *const IWSManConnectionOptions,
-            name: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_UserName: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManConnectionOptions,
+                name: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManConnectionOptions,
+                name: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_UserName: fn(
-            self: *const IWSManConnectionOptions,
-            name: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_UserName: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManConnectionOptions,
+                name: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManConnectionOptions,
+                name: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_Password: fn(
-            self: *const IWSManConnectionOptions,
-            password: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_Password: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManConnectionOptions,
+                password: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManConnectionOptions,
+                password: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1439,21 +1785,37 @@ pub const IWSManConnectionOptions = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IWSManConnectionOptionsEx_Value = @import("../zig.zig").Guid.initString("ef43edf7-2a48-4d93-9526-8bd6ab6d4a6b");
+const IID_IWSManConnectionOptionsEx_Value = Guid.initString("ef43edf7-2a48-4d93-9526-8bd6ab6d4a6b");
 pub const IID_IWSManConnectionOptionsEx = &IID_IWSManConnectionOptionsEx_Value;
 pub const IWSManConnectionOptionsEx = extern struct {
     pub const VTable = extern struct {
         base: IWSManConnectionOptions.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_CertificateThumbprint: fn(
-            self: *const IWSManConnectionOptionsEx,
-            thumbprint: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_CertificateThumbprint: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManConnectionOptionsEx,
+                thumbprint: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManConnectionOptionsEx,
+                thumbprint: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_CertificateThumbprint: fn(
-            self: *const IWSManConnectionOptionsEx,
-            thumbprint: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_CertificateThumbprint: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManConnectionOptionsEx,
+                thumbprint: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManConnectionOptionsEx,
+                thumbprint: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1471,46 +1833,97 @@ pub const IWSManConnectionOptionsEx = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IWSManConnectionOptionsEx2_Value = @import("../zig.zig").Guid.initString("f500c9ec-24ee-48ab-b38d-fc9a164c658e");
+const IID_IWSManConnectionOptionsEx2_Value = Guid.initString("f500c9ec-24ee-48ab-b38d-fc9a164c658e");
 pub const IID_IWSManConnectionOptionsEx2 = &IID_IWSManConnectionOptionsEx2_Value;
 pub const IWSManConnectionOptionsEx2 = extern struct {
     pub const VTable = extern struct {
         base: IWSManConnectionOptionsEx.VTable,
-        SetProxy: fn(
-            self: *const IWSManConnectionOptionsEx2,
-            accessType: i32,
-            authenticationMechanism: i32,
-            userName: ?BSTR,
-            password: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProxyIEConfig: fn(
-            self: *const IWSManConnectionOptionsEx2,
-            value: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProxyWinHttpConfig: fn(
-            self: *const IWSManConnectionOptionsEx2,
-            value: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProxyAutoDetect: fn(
-            self: *const IWSManConnectionOptionsEx2,
-            value: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProxyNoProxyServer: fn(
-            self: *const IWSManConnectionOptionsEx2,
-            value: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProxyAuthenticationUseNegotiate: fn(
-            self: *const IWSManConnectionOptionsEx2,
-            value: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProxyAuthenticationUseBasic: fn(
-            self: *const IWSManConnectionOptionsEx2,
-            value: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProxyAuthenticationUseDigest: fn(
-            self: *const IWSManConnectionOptionsEx2,
-            value: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetProxy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManConnectionOptionsEx2,
+                accessType: i32,
+                authenticationMechanism: i32,
+                userName: ?BSTR,
+                password: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManConnectionOptionsEx2,
+                accessType: i32,
+                authenticationMechanism: i32,
+                userName: ?BSTR,
+                password: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProxyIEConfig: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProxyWinHttpConfig: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProxyAutoDetect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProxyNoProxyServer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProxyAuthenticationUseNegotiate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProxyAuthenticationUseBasic: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProxyAuthenticationUseDigest: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManConnectionOptionsEx2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1552,82 +1965,182 @@ pub const IWSManConnectionOptionsEx2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IWSManSession_Value = @import("../zig.zig").Guid.initString("fc84fc58-1286-40c4-9da0-c8ef6ec241e0");
+const IID_IWSManSession_Value = Guid.initString("fc84fc58-1286-40c4-9da0-c8ef6ec241e0");
 pub const IID_IWSManSession = &IID_IWSManSession_Value;
 pub const IWSManSession = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        Get: fn(
-            self: *const IWSManSession,
-            resourceUri: VARIANT,
-            flags: i32,
-            resource: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Put: fn(
-            self: *const IWSManSession,
-            resourceUri: VARIANT,
-            resource: ?BSTR,
-            flags: i32,
-            resultResource: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Create: fn(
-            self: *const IWSManSession,
-            resourceUri: VARIANT,
-            resource: ?BSTR,
-            flags: i32,
-            newUri: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Delete: fn(
-            self: *const IWSManSession,
-            resourceUri: VARIANT,
-            flags: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Invoke: fn(
-            self: *const IWSManSession,
-            actionUri: ?BSTR,
-            resourceUri: VARIANT,
-            parameters: ?BSTR,
-            flags: i32,
-            result: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Enumerate: fn(
-            self: *const IWSManSession,
-            resourceUri: VARIANT,
-            filter: ?BSTR,
-            dialect: ?BSTR,
-            flags: i32,
-            resultSet: ?*?*IDispatch,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Identify: fn(
-            self: *const IWSManSession,
-            flags: i32,
-            result: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Get: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManSession,
+                resourceUri: VARIANT,
+                flags: i32,
+                resource: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManSession,
+                resourceUri: VARIANT,
+                flags: i32,
+                resource: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Put: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManSession,
+                resourceUri: VARIANT,
+                resource: ?BSTR,
+                flags: i32,
+                resultResource: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManSession,
+                resourceUri: VARIANT,
+                resource: ?BSTR,
+                flags: i32,
+                resultResource: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Create: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManSession,
+                resourceUri: VARIANT,
+                resource: ?BSTR,
+                flags: i32,
+                newUri: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManSession,
+                resourceUri: VARIANT,
+                resource: ?BSTR,
+                flags: i32,
+                newUri: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Delete: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManSession,
+                resourceUri: VARIANT,
+                flags: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManSession,
+                resourceUri: VARIANT,
+                flags: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Invoke: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManSession,
+                actionUri: ?BSTR,
+                resourceUri: VARIANT,
+                parameters: ?BSTR,
+                flags: i32,
+                result: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManSession,
+                actionUri: ?BSTR,
+                resourceUri: VARIANT,
+                parameters: ?BSTR,
+                flags: i32,
+                result: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Enumerate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManSession,
+                resourceUri: VARIANT,
+                filter: ?BSTR,
+                dialect: ?BSTR,
+                flags: i32,
+                resultSet: ?*?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManSession,
+                resourceUri: VARIANT,
+                filter: ?BSTR,
+                dialect: ?BSTR,
+                flags: i32,
+                resultSet: ?*?*IDispatch,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Identify: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManSession,
+                flags: i32,
+                result: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManSession,
+                flags: i32,
+                result: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Error: fn(
-            self: *const IWSManSession,
-            value: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Error: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManSession,
+                value: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManSession,
+                value: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_BatchItems: fn(
-            self: *const IWSManSession,
-            value: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_BatchItems: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManSession,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManSession,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_BatchItems: fn(
-            self: *const IWSManSession,
-            value: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_BatchItems: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManSession,
+                value: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManSession,
+                value: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Timeout: fn(
-            self: *const IWSManSession,
-            value: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Timeout: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManSession,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManSession,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_Timeout: fn(
-            self: *const IWSManSession,
-            value: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_Timeout: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManSession,
+                value: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManSession,
+                value: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1685,25 +2198,47 @@ pub const IWSManSession = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IWSManEnumerator_Value = @import("../zig.zig").Guid.initString("f3457ca9-abb9-4fa5-b850-90e8ca300e7f");
+const IID_IWSManEnumerator_Value = Guid.initString("f3457ca9-abb9-4fa5-b850-90e8ca300e7f");
 pub const IID_IWSManEnumerator = &IID_IWSManEnumerator_Value;
 pub const IWSManEnumerator = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        ReadItem: fn(
-            self: *const IWSManEnumerator,
-            resource: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ReadItem: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManEnumerator,
+                resource: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManEnumerator,
+                resource: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_AtEndOfStream: fn(
-            self: *const IWSManEnumerator,
-            eos: ?*i16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_AtEndOfStream: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManEnumerator,
+                eos: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManEnumerator,
+                eos: ?*i16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Error: fn(
-            self: *const IWSManEnumerator,
-            value: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Error: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManEnumerator,
+                value: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManEnumerator,
+                value: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1725,73 +2260,170 @@ pub const IWSManEnumerator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IWSManResourceLocator_Value = @import("../zig.zig").Guid.initString("a7a1ba28-de41-466a-ad0a-c4059ead7428");
+const IID_IWSManResourceLocator_Value = Guid.initString("a7a1ba28-de41-466a-ad0a-c4059ead7428");
 pub const IID_IWSManResourceLocator = &IID_IWSManResourceLocator_Value;
 pub const IWSManResourceLocator = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_ResourceURI: fn(
-            self: *const IWSManResourceLocator,
-            uri: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_ResourceURI: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManResourceLocator,
+                uri: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManResourceLocator,
+                uri: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_ResourceURI: fn(
-            self: *const IWSManResourceLocator,
-            uri: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddSelector: fn(
-            self: *const IWSManResourceLocator,
-            resourceSelName: ?BSTR,
-            selValue: VARIANT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ClearSelectors: fn(
-            self: *const IWSManResourceLocator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_ResourceURI: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManResourceLocator,
+                uri: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManResourceLocator,
+                uri: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddSelector: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManResourceLocator,
+                resourceSelName: ?BSTR,
+                selValue: VARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManResourceLocator,
+                resourceSelName: ?BSTR,
+                selValue: VARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ClearSelectors: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManResourceLocator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManResourceLocator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_FragmentPath: fn(
-            self: *const IWSManResourceLocator,
-            text: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_FragmentPath: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManResourceLocator,
+                text: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManResourceLocator,
+                text: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_FragmentPath: fn(
-            self: *const IWSManResourceLocator,
-            text: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_FragmentPath: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManResourceLocator,
+                text: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManResourceLocator,
+                text: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_FragmentDialect: fn(
-            self: *const IWSManResourceLocator,
-            text: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_FragmentDialect: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManResourceLocator,
+                text: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManResourceLocator,
+                text: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_FragmentDialect: fn(
-            self: *const IWSManResourceLocator,
-            text: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddOption: fn(
-            self: *const IWSManResourceLocator,
-            OptionName: ?BSTR,
-            OptionValue: VARIANT,
-            mustComply: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_FragmentDialect: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManResourceLocator,
+                text: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManResourceLocator,
+                text: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddOption: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManResourceLocator,
+                OptionName: ?BSTR,
+                OptionValue: VARIANT,
+                mustComply: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManResourceLocator,
+                OptionName: ?BSTR,
+                OptionValue: VARIANT,
+                mustComply: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_MustUnderstandOptions: fn(
-            self: *const IWSManResourceLocator,
-            mustUnderstand: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_MustUnderstandOptions: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManResourceLocator,
+                mustUnderstand: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManResourceLocator,
+                mustUnderstand: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_MustUnderstandOptions: fn(
-            self: *const IWSManResourceLocator,
-            mustUnderstand: ?*BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ClearOptions: fn(
-            self: *const IWSManResourceLocator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_MustUnderstandOptions: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManResourceLocator,
+                mustUnderstand: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManResourceLocator,
+                mustUnderstand: ?*BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ClearOptions: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManResourceLocator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManResourceLocator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Error: fn(
-            self: *const IWSManResourceLocator,
-            value: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Error: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IWSManResourceLocator,
+                value: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IWSManResourceLocator,
+                value: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1852,7 +2484,7 @@ pub const IWSManResourceLocator = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IWSManResourceLocatorInternal_Value = @import("../zig.zig").Guid.initString("effaead7-7ec8-4716-b9be-f2e7e9fb4adb");
+const IID_IWSManResourceLocatorInternal_Value = Guid.initString("effaead7-7ec8-4716-b9be-f2e7e9fb4adb");
 pub const IID_IWSManResourceLocatorInternal = &IID_IWSManResourceLocatorInternal_Value;
 pub const IWSManResourceLocatorInternal = extern struct {
     pub const VTable = extern struct {
@@ -1865,18 +2497,27 @@ pub const IWSManResourceLocatorInternal = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IWSManInternal_Value = @import("../zig.zig").Guid.initString("04ae2b1d-9954-4d99-94a9-a961e72c3a13");
+const IID_IWSManInternal_Value = Guid.initString("04ae2b1d-9954-4d99-94a9-a961e72c3a13");
 pub const IID_IWSManInternal = &IID_IWSManInternal_Value;
 pub const IWSManInternal = extern struct {
     pub const VTable = extern struct {
         base: IDispatch.VTable,
-        ConfigSDDL: fn(
-            self: *const IWSManInternal,
-            session: ?*IDispatch,
-            resourceUri: VARIANT,
-            flags: i32,
-            resource: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ConfigSDDL: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWSManInternal,
+                session: ?*IDispatch,
+                resourceUri: VARIANT,
+                flags: i32,
+                resource: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWSManInternal,
+                session: ?*IDispatch,
+                resourceUri: VARIANT,
+                flags: i32,
+                resource: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1894,19 +2535,19 @@ pub const IWSManInternal = extern struct {
 // Section: Functions (33)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "WsmSvc" fn WSManInitialize(
+pub extern "wsmsvc" fn WSManInitialize(
     flags: u32,
     apiHandle: ?*?*WSMAN_API,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManDeinitialize(
+pub extern "wsmsvc" fn WSManDeinitialize(
     apiHandle: ?*WSMAN_API,
     flags: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManGetErrorMessage(
+pub extern "wsmsvc" fn WSManGetErrorMessage(
     apiHandle: ?*WSMAN_API,
     flags: u32,
     languageCode: ?[*:0]const u16,
@@ -1917,7 +2558,7 @@ pub extern "WsmSvc" fn WSManGetErrorMessage(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManCreateSession(
+pub extern "wsmsvc" fn WSManCreateSession(
     apiHandle: ?*WSMAN_API,
     connection: ?[*:0]const u16,
     flags: u32,
@@ -1927,27 +2568,27 @@ pub extern "WsmSvc" fn WSManCreateSession(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManCloseSession(
+pub extern "wsmsvc" fn WSManCloseSession(
     session: ?*WSMAN_SESSION,
     flags: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManSetSessionOption(
+pub extern "wsmsvc" fn WSManSetSessionOption(
     session: ?*WSMAN_SESSION,
     option: WSManSessionOption,
     data: ?*WSMAN_DATA,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManGetSessionOptionAsDword(
+pub extern "wsmsvc" fn WSManGetSessionOptionAsDword(
     session: ?*WSMAN_SESSION,
     option: WSManSessionOption,
     value: ?*u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManGetSessionOptionAsString(
+pub extern "wsmsvc" fn WSManGetSessionOptionAsString(
     session: ?*WSMAN_SESSION,
     option: WSManSessionOption,
     stringLength: u32,
@@ -1956,13 +2597,13 @@ pub extern "WsmSvc" fn WSManGetSessionOptionAsString(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManCloseOperation(
+pub extern "wsmsvc" fn WSManCloseOperation(
     operationHandle: ?*WSMAN_OPERATION,
     flags: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManCreateShell(
+pub extern "wsmsvc" fn WSManCreateShell(
     session: ?*WSMAN_SESSION,
     flags: u32,
     resourceUri: ?[*:0]const u16,
@@ -1974,7 +2615,7 @@ pub extern "WsmSvc" fn WSManCreateShell(
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManRunShellCommand(
+pub extern "wsmsvc" fn WSManRunShellCommand(
     shell: ?*WSMAN_SHELL,
     flags: u32,
     commandLine: ?[*:0]const u16,
@@ -1985,7 +2626,7 @@ pub extern "WsmSvc" fn WSManRunShellCommand(
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManSignalShell(
+pub extern "wsmsvc" fn WSManSignalShell(
     shell: ?*WSMAN_SHELL,
     command: ?*WSMAN_COMMAND,
     flags: u32,
@@ -1995,7 +2636,7 @@ pub extern "WsmSvc" fn WSManSignalShell(
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManReceiveShellOutput(
+pub extern "wsmsvc" fn WSManReceiveShellOutput(
     shell: ?*WSMAN_SHELL,
     command: ?*WSMAN_COMMAND,
     flags: u32,
@@ -2005,7 +2646,7 @@ pub extern "WsmSvc" fn WSManReceiveShellOutput(
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManSendShellInput(
+pub extern "wsmsvc" fn WSManSendShellInput(
     shell: ?*WSMAN_SHELL,
     command: ?*WSMAN_COMMAND,
     flags: u32,
@@ -2017,21 +2658,21 @@ pub extern "WsmSvc" fn WSManSendShellInput(
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManCloseCommand(
+pub extern "wsmsvc" fn WSManCloseCommand(
     commandHandle: ?*WSMAN_COMMAND,
     flags: u32,
     @"async": ?*WSMAN_SHELL_ASYNC,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManCloseShell(
+pub extern "wsmsvc" fn WSManCloseShell(
     shellHandle: ?*WSMAN_SHELL,
     flags: u32,
     @"async": ?*WSMAN_SHELL_ASYNC,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "WsmSvc" fn WSManCreateShellEx(
+pub extern "wsmsvc" fn WSManCreateShellEx(
     session: ?*WSMAN_SESSION,
     flags: u32,
     resourceUri: ?[*:0]const u16,
@@ -2044,7 +2685,7 @@ pub extern "WsmSvc" fn WSManCreateShellEx(
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "WsmSvc" fn WSManRunShellCommandEx(
+pub extern "wsmsvc" fn WSManRunShellCommandEx(
     shell: ?*WSMAN_SHELL,
     flags: u32,
     commandId: ?[*:0]const u16,
@@ -2056,7 +2697,7 @@ pub extern "WsmSvc" fn WSManRunShellCommandEx(
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "WsmSvc" fn WSManDisconnectShell(
+pub extern "wsmsvc" fn WSManDisconnectShell(
     shell: ?*WSMAN_SHELL,
     flags: u32,
     disconnectInfo: ?*WSMAN_SHELL_DISCONNECT_INFO,
@@ -2064,21 +2705,21 @@ pub extern "WsmSvc" fn WSManDisconnectShell(
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "WsmSvc" fn WSManReconnectShell(
+pub extern "wsmsvc" fn WSManReconnectShell(
     shell: ?*WSMAN_SHELL,
     flags: u32,
     @"async": ?*WSMAN_SHELL_ASYNC,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "WsmSvc" fn WSManReconnectShellCommand(
+pub extern "wsmsvc" fn WSManReconnectShellCommand(
     commandHandle: ?*WSMAN_COMMAND,
     flags: u32,
     @"async": ?*WSMAN_SHELL_ASYNC,
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "WsmSvc" fn WSManConnectShell(
+pub extern "wsmsvc" fn WSManConnectShell(
     session: ?*WSMAN_SESSION,
     flags: u32,
     resourceUri: ?[*:0]const u16,
@@ -2090,7 +2731,7 @@ pub extern "WsmSvc" fn WSManConnectShell(
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "WsmSvc" fn WSManConnectShellCommand(
+pub extern "wsmsvc" fn WSManConnectShellCommand(
     shell: ?*WSMAN_SHELL,
     flags: u32,
     commandID: ?[*:0]const u16,
@@ -2101,14 +2742,14 @@ pub extern "WsmSvc" fn WSManConnectShellCommand(
 ) callconv(@import("std").os.windows.WINAPI) void;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManPluginReportContext(
+pub extern "wsmsvc" fn WSManPluginReportContext(
     requestDetails: ?*WSMAN_PLUGIN_REQUEST,
     flags: u32,
     context: ?*anyopaque,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManPluginReceiveResult(
+pub extern "wsmsvc" fn WSManPluginReceiveResult(
     requestDetails: ?*WSMAN_PLUGIN_REQUEST,
     flags: u32,
     stream: ?[*:0]const u16,
@@ -2118,7 +2759,7 @@ pub extern "WsmSvc" fn WSManPluginReceiveResult(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManPluginOperationComplete(
+pub extern "wsmsvc" fn WSManPluginOperationComplete(
     requestDetails: ?*WSMAN_PLUGIN_REQUEST,
     flags: u32,
     errorCode: u32,
@@ -2126,30 +2767,30 @@ pub extern "WsmSvc" fn WSManPluginOperationComplete(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManPluginGetOperationParameters(
+pub extern "wsmsvc" fn WSManPluginGetOperationParameters(
     requestDetails: ?*WSMAN_PLUGIN_REQUEST,
     flags: u32,
     data: ?*WSMAN_DATA,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WsmSvc" fn WSManPluginGetConfiguration(
+pub extern "wsmsvc" fn WSManPluginGetConfiguration(
     pluginContext: ?*anyopaque,
     flags: u32,
     data: ?*WSMAN_DATA,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
-pub extern "WsmSvc" fn WSManPluginReportCompletion(
+pub extern "wsmsvc" fn WSManPluginReportCompletion(
     pluginContext: ?*anyopaque,
     flags: u32,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManPluginFreeRequestDetails(
+pub extern "wsmsvc" fn WSManPluginFreeRequestDetails(
     requestDetails: ?*WSMAN_PLUGIN_REQUEST,
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManPluginAuthzUserComplete(
+pub extern "wsmsvc" fn WSManPluginAuthzUserComplete(
     senderDetails: ?*WSMAN_SENDER_DETAILS,
     flags: u32,
     userAuthorizationContext: ?*anyopaque,
@@ -2160,7 +2801,7 @@ pub extern "WsmSvc" fn WSManPluginAuthzUserComplete(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManPluginAuthzOperationComplete(
+pub extern "wsmsvc" fn WSManPluginAuthzOperationComplete(
     senderDetails: ?*WSMAN_SENDER_DETAILS,
     flags: u32,
     userAuthorizationContext: ?*anyopaque,
@@ -2169,7 +2810,7 @@ pub extern "WsmSvc" fn WSManPluginAuthzOperationComplete(
 ) callconv(@import("std").os.windows.WINAPI) u32;
 
 // TODO: this type is limited to platform 'windows6.1'
-pub extern "WsmSvc" fn WSManPluginAuthzQueryQuotaComplete(
+pub extern "wsmsvc" fn WSManPluginAuthzQueryQuotaComplete(
     senderDetails: ?*WSMAN_SENDER_DETAILS,
     flags: u32,
     quota: ?*WSMAN_AUTHZ_QUOTA,
@@ -2192,8 +2833,9 @@ pub usingnamespace switch (@import("../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (8)
+// Section: Imports (9)
 //--------------------------------------------------------------------------------
+const Guid = @import("../zig.zig").Guid;
 const BOOL = @import("../foundation.zig").BOOL;
 const BSTR = @import("../foundation.zig").BSTR;
 const HANDLE = @import("../foundation.zig").HANDLE;
@@ -2222,14 +2864,14 @@ test {
     if (@hasDecl(@This(), "WSMAN_PLUGIN_AUTHORIZE_RELEASE_CONTEXT")) { _ = WSMAN_PLUGIN_AUTHORIZE_RELEASE_CONTEXT; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

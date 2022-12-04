@@ -10,7 +10,7 @@ pub const DISPID_EVENT_ON_SEND_ERROR = @as(u32, 8);
 //--------------------------------------------------------------------------------
 // Section: Types (6)
 //--------------------------------------------------------------------------------
-const CLSID_RendezvousApplication_Value = @import("../zig.zig").Guid.initString("0b7e019a-b5de-47fa-8966-9082f82fb192");
+const CLSID_RendezvousApplication_Value = Guid.initString("0b7e019a-b5de-47fa-8966-9082f82fb192");
 pub const CLSID_RendezvousApplication = &CLSID_RendezvousApplication_Value;
 
 pub const RENDEZVOUS_SESSION_STATE = enum(i32) {
@@ -48,35 +48,72 @@ pub const RSF_REMOTE_LEGACYSESSION = RENDEZVOUS_SESSION_FLAGS.REMOTE_LEGACYSESSI
 pub const RSF_REMOTE_WIN7SESSION = RENDEZVOUS_SESSION_FLAGS.REMOTE_WIN7SESSION;
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IRendezvousSession_Value = @import("../zig.zig").Guid.initString("9ba4b1dd-8b0c-48b7-9e7c-2f25857c8df5");
+const IID_IRendezvousSession_Value = Guid.initString("9ba4b1dd-8b0c-48b7-9e7c-2f25857c8df5");
 pub const IID_IRendezvousSession = &IID_IRendezvousSession_Value;
 pub const IRendezvousSession = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_State: fn(
-            self: *const IRendezvousSession,
-            pSessionState: ?*RENDEZVOUS_SESSION_STATE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_State: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IRendezvousSession,
+                pSessionState: ?*RENDEZVOUS_SESSION_STATE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IRendezvousSession,
+                pSessionState: ?*RENDEZVOUS_SESSION_STATE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_RemoteUser: fn(
-            self: *const IRendezvousSession,
-            bstrUserName: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_RemoteUser: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IRendezvousSession,
+                bstrUserName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IRendezvousSession,
+                bstrUserName: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_Flags: fn(
-            self: *const IRendezvousSession,
-            pFlags: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SendContextData: fn(
-            self: *const IRendezvousSession,
-            bstrData: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Terminate: fn(
-            self: *const IRendezvousSession,
-            hr: HRESULT,
-            bstrAppData: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_Flags: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const IRendezvousSession,
+                pFlags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const IRendezvousSession,
+                pFlags: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SendContextData: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRendezvousSession,
+                bstrData: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRendezvousSession,
+                bstrData: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Terminate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRendezvousSession,
+                hr: HRESULT,
+                bstrAppData: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRendezvousSession,
+                hr: HRESULT,
+                bstrAppData: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -106,7 +143,7 @@ pub const IRendezvousSession = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_DRendezvousSessionEvents_Value = @import("../zig.zig").Guid.initString("3fa19cf8-64c4-4f53-ae60-635b3806eca6");
+const IID_DRendezvousSessionEvents_Value = Guid.initString("3fa19cf8-64c4-4f53-ae60-635b3806eca6");
 pub const IID_DRendezvousSessionEvents = &IID_DRendezvousSessionEvents_Value;
 pub const DRendezvousSessionEvents = extern struct {
     pub const VTable = extern struct {
@@ -120,15 +157,21 @@ pub const DRendezvousSessionEvents = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.0.6000'
-const IID_IRendezvousApplication_Value = @import("../zig.zig").Guid.initString("4f4d070b-a275-49fb-b10d-8ec26387b50d");
+const IID_IRendezvousApplication_Value = Guid.initString("4f4d070b-a275-49fb-b10d-8ec26387b50d");
 pub const IID_IRendezvousApplication = &IID_IRendezvousApplication_Value;
 pub const IRendezvousApplication = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetRendezvousSession: fn(
-            self: *const IRendezvousApplication,
-            pRendezvousSession: ?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetRendezvousSession: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRendezvousApplication,
+                pRendezvousSession: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRendezvousApplication,
+                pRendezvousSession: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -160,8 +203,9 @@ pub usingnamespace switch (@import("../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (4)
+// Section: Imports (5)
 //--------------------------------------------------------------------------------
+const Guid = @import("../zig.zig").Guid;
 const BSTR = @import("../foundation.zig").BSTR;
 const HRESULT = @import("../foundation.zig").HRESULT;
 const IDispatch = @import("../system/com.zig").IDispatch;
@@ -169,14 +213,14 @@ const IUnknown = @import("../system/com.zig").IUnknown;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

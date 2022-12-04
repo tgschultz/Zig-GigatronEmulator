@@ -6,23 +6,39 @@
 //--------------------------------------------------------------------------------
 // Section: Types (1)
 //--------------------------------------------------------------------------------
-const IID_IGraphicsCaptureItemInterop_Value = @import("../../../zig.zig").Guid.initString("3628e81b-3cac-4c60-b7f4-23ce0e0c3356");
+const IID_IGraphicsCaptureItemInterop_Value = Guid.initString("3628e81b-3cac-4c60-b7f4-23ce0e0c3356");
 pub const IID_IGraphicsCaptureItemInterop = &IID_IGraphicsCaptureItemInterop_Value;
 pub const IGraphicsCaptureItemInterop = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateForWindow: fn(
-            self: *const IGraphicsCaptureItemInterop,
-            window: ?HWND,
-            riid: ?*const Guid,
-            result: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateForMonitor: fn(
-            self: *const IGraphicsCaptureItemInterop,
-            monitor: ?HMONITOR,
-            riid: ?*const Guid,
-            result: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IGraphicsCaptureItemInterop,
+                window: ?HWND,
+                riid: ?*const Guid,
+                result: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IGraphicsCaptureItemInterop,
+                window: ?HWND,
+                riid: ?*const Guid,
+                result: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateForMonitor: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IGraphicsCaptureItemInterop,
+                monitor: ?HMONITOR,
+                riid: ?*const Guid,
+                result: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IGraphicsCaptureItemInterop,
+                monitor: ?HMONITOR,
+                riid: ?*const Guid,
+                result: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -68,14 +84,14 @@ const IUnknown = @import("../../../system/com.zig").IUnknown;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

@@ -39,16 +39,23 @@ pub const ACTIVATIONTYPE_FROM_STREAM = ACTIVATIONTYPE.FROM_STREAM;
 pub const ACTIVATIONTYPE_FROM_FILE = ACTIVATIONTYPE.FROM_FILE;
 
 // TODO: this type is limited to platform 'windows8.1'
-const IID_IAgileReference_Value = @import("../zig.zig").Guid.initString("c03f6a43-65a4-9818-987e-e0b810d2a6f2");
+const IID_IAgileReference_Value = Guid.initString("c03f6a43-65a4-9818-987e-e0b810d2a6f2");
 pub const IID_IAgileReference = &IID_IAgileReference_Value;
 pub const IAgileReference = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Resolve: fn(
-            self: *const IAgileReference,
-            riid: ?*const Guid,
-            ppvObjectReference: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Resolve: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAgileReference,
+                riid: ?*const Guid,
+                ppvObjectReference: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAgileReference,
+                riid: ?*const Guid,
+                ppvObjectReference: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -62,15 +69,21 @@ pub const IAgileReference = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IApartmentShutdown_Value = @import("../zig.zig").Guid.initString("a2f05a09-27a2-42b5-bc0e-ac163ef49d9b");
+const IID_IApartmentShutdown_Value = Guid.initString("a2f05a09-27a2-42b5-bc0e-ac163ef49d9b");
 pub const IID_IApartmentShutdown = &IID_IApartmentShutdown_Value;
 pub const IApartmentShutdown = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnUninitialize: fn(
-            self: *const IApartmentShutdown,
-            ui64ApartmentIdentifier: u64,
-        ) callconv(@import("std").os.windows.WINAPI) void,
+        OnUninitialize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IApartmentShutdown,
+                ui64ApartmentIdentifier: u64,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+            else => *const fn(
+                self: *const IApartmentShutdown,
+                ui64ApartmentIdentifier: u64,
+            ) callconv(@import("std").os.windows.WINAPI) void,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -97,17 +110,25 @@ pub const AGILEREFERENCE_DEFAULT = AgileReferenceOptions.FAULT;
 pub const AGILEREFERENCE_DELAYEDMARSHAL = AgileReferenceOptions.LAYEDMARSHAL;
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-const IID_ISpatialInteractionManagerInterop_Value = @import("../zig.zig").Guid.initString("5c4ee536-6a98-4b86-a170-587013d6fd4b");
+const IID_ISpatialInteractionManagerInterop_Value = Guid.initString("5c4ee536-6a98-4b86-a170-587013d6fd4b");
 pub const IID_ISpatialInteractionManagerInterop = &IID_ISpatialInteractionManagerInterop_Value;
 pub const ISpatialInteractionManagerInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        GetForWindow: fn(
-            self: *const ISpatialInteractionManagerInterop,
-            window: ?HWND,
-            riid: ?*const Guid,
-            spatialInteractionManager: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISpatialInteractionManagerInterop,
+                window: ?HWND,
+                riid: ?*const Guid,
+                spatialInteractionManager: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISpatialInteractionManagerInterop,
+                window: ?HWND,
+                riid: ?*const Guid,
+                spatialInteractionManager: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -121,17 +142,25 @@ pub const ISpatialInteractionManagerInterop = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-const IID_IHolographicSpaceInterop_Value = @import("../zig.zig").Guid.initString("5c4ee536-6a98-4b86-a170-587013d6fd4b");
+const IID_IHolographicSpaceInterop_Value = Guid.initString("5c4ee536-6a98-4b86-a170-587013d6fd4b");
 pub const IID_IHolographicSpaceInterop = &IID_IHolographicSpaceInterop_Value;
 pub const IHolographicSpaceInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        CreateForWindow: fn(
-            self: *const IHolographicSpaceInterop,
-            window: ?HWND,
-            riid: ?*const Guid,
-            holographicSpace: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IHolographicSpaceInterop,
+                window: ?HWND,
+                riid: ?*const Guid,
+                holographicSpace: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IHolographicSpaceInterop,
+                window: ?HWND,
+                riid: ?*const Guid,
+                holographicSpace: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -161,24 +190,43 @@ pub const PartialTrust = TrustLevel.PartialTrust;
 pub const FullTrust = TrustLevel.FullTrust;
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IInspectable_Value = @import("../zig.zig").Guid.initString("af86e2e0-b12d-4c6a-9c5a-d7aa65101e90");
+const IID_IInspectable_Value = Guid.initString("af86e2e0-b12d-4c6a-9c5a-d7aa65101e90");
 pub const IID_IInspectable = &IID_IInspectable_Value;
 pub const IInspectable = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetIids: fn(
-            self: *const IInspectable,
-            iidCount: ?*u32,
-            iids: ?[*]?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRuntimeClassName: fn(
-            self: *const IInspectable,
-            className: ?*?HSTRING,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTrustLevel: fn(
-            self: *const IInspectable,
-            trustLevel: ?*TrustLevel,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetIids: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInspectable,
+                iidCount: ?*u32,
+                iids: ?[*]?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInspectable,
+                iidCount: ?*u32,
+                iids: ?[*]?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRuntimeClassName: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInspectable,
+                className: ?*?HSTRING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInspectable,
+                className: ?*?HSTRING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTrustLevel: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInspectable,
+                trustLevel: ?*TrustLevel,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInspectable,
+                trustLevel: ?*TrustLevel,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -199,19 +247,35 @@ pub const IInspectable = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-pub const PINSPECT_HSTRING_CALLBACK = fn(
-    context: ?*anyopaque,
-    readAddress: usize,
-    length: u32,
-    buffer: [*:0]u8,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PINSPECT_HSTRING_CALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        context: ?*anyopaque,
+        readAddress: usize,
+        length: u32,
+        buffer: [*:0]u8,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        context: ?*anyopaque,
+        readAddress: usize,
+        length: u32,
+        buffer: [*:0]u8,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
-pub const PINSPECT_HSTRING_CALLBACK2 = fn(
-    context: ?*anyopaque,
-    readAddress: u64,
-    length: u32,
-    buffer: [*:0]u8,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PINSPECT_HSTRING_CALLBACK2 = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        context: ?*anyopaque,
+        readAddress: u64,
+        length: u32,
+        buffer: [*:0]u8,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        context: ?*anyopaque,
+        readAddress: u64,
+        length: u32,
+        buffer: [*:0]u8,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
 pub const DISPATCHERQUEUE_THREAD_APARTMENTTYPE = enum(i32) {
     NONE = 0,
@@ -235,29 +299,53 @@ pub const DispatcherQueueOptions = extern struct {
     apartmentType: DISPATCHERQUEUE_THREAD_APARTMENTTYPE,
 };
 
-const IID_IAccountsSettingsPaneInterop_Value = @import("../zig.zig").Guid.initString("d3ee12ad-3865-4362-9746-b75a682df0e6");
+const IID_IAccountsSettingsPaneInterop_Value = Guid.initString("d3ee12ad-3865-4362-9746-b75a682df0e6");
 pub const IID_IAccountsSettingsPaneInterop = &IID_IAccountsSettingsPaneInterop_Value;
 pub const IAccountsSettingsPaneInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        GetForWindow: fn(
-            self: *const IAccountsSettingsPaneInterop,
-            appWindow: ?HWND,
-            riid: ?*const Guid,
-            accountsSettingsPane: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ShowManageAccountsForWindowAsync: fn(
-            self: *const IAccountsSettingsPaneInterop,
-            appWindow: ?HWND,
-            riid: ?*const Guid,
-            asyncAction: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ShowAddAccountForWindowAsync: fn(
-            self: *const IAccountsSettingsPaneInterop,
-            appWindow: ?HWND,
-            riid: ?*const Guid,
-            asyncAction: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAccountsSettingsPaneInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                accountsSettingsPane: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAccountsSettingsPaneInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                accountsSettingsPane: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ShowManageAccountsForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAccountsSettingsPaneInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                asyncAction: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAccountsSettingsPaneInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                asyncAction: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ShowAddAccountForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAccountsSettingsPaneInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                asyncAction: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAccountsSettingsPaneInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                asyncAction: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -278,16 +366,23 @@ pub const IAccountsSettingsPaneInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAppServiceConnectionExtendedExecution_Value = @import("../zig.zig").Guid.initString("65219584-f9cb-4ae3-81f9-a28a6ca450d9");
+const IID_IAppServiceConnectionExtendedExecution_Value = Guid.initString("65219584-f9cb-4ae3-81f9-a28a6ca450d9");
 pub const IID_IAppServiceConnectionExtendedExecution = &IID_IAppServiceConnectionExtendedExecution_Value;
 pub const IAppServiceConnectionExtendedExecution = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OpenForExtendedExecutionAsync: fn(
-            self: *const IAppServiceConnectionExtendedExecution,
-            riid: ?*const Guid,
-            operation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OpenForExtendedExecutionAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAppServiceConnectionExtendedExecution,
+                riid: ?*const Guid,
+                operation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAppServiceConnectionExtendedExecution,
+                riid: ?*const Guid,
+                operation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -300,16 +395,24 @@ pub const IAppServiceConnectionExtendedExecution = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_ICorrelationVectorSource_Value = @import("../zig.zig").Guid.initString("152b8a3b-b9b9-4685-b56e-974847bc7545");
+const IID_ICorrelationVectorSource_Value = Guid.initString("152b8a3b-b9b9-4685-b56e-974847bc7545");
 pub const IID_ICorrelationVectorSource = &IID_ICorrelationVectorSource_Value;
 pub const ICorrelationVectorSource = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_CorrelationVector: fn(
-            self: *const ICorrelationVectorSource,
-            cv: ?*?HSTRING,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_CorrelationVector: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const ICorrelationVectorSource,
+                cv: ?*?HSTRING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const ICorrelationVectorSource,
+                cv: ?*?HSTRING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -352,20 +455,33 @@ pub const CASTING_CONNECTION_STATE_RENDERING = CASTING_CONNECTION_STATE.RENDERIN
 pub const CASTING_CONNECTION_STATE_DISCONNECTING = CASTING_CONNECTION_STATE.DISCONNECTING;
 pub const CASTING_CONNECTION_STATE_CONNECTING = CASTING_CONNECTION_STATE.CONNECTING;
 
-const IID_ICastingEventHandler_Value = @import("../zig.zig").Guid.initString("c79a6cb7-bebd-47a6-a2ad-4d45ad79c7bc");
+const IID_ICastingEventHandler_Value = Guid.initString("c79a6cb7-bebd-47a6-a2ad-4d45ad79c7bc");
 pub const IID_ICastingEventHandler = &IID_ICastingEventHandler_Value;
 pub const ICastingEventHandler = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnStateChanged: fn(
-            self: *const ICastingEventHandler,
-            newState: CASTING_CONNECTION_STATE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnError: fn(
-            self: *const ICastingEventHandler,
-            errorStatus: CASTING_CONNECTION_ERROR_STATUS,
-            errorMessage: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnStateChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICastingEventHandler,
+                newState: CASTING_CONNECTION_STATE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICastingEventHandler,
+                newState: CASTING_CONNECTION_STATE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnError: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICastingEventHandler,
+                errorStatus: CASTING_CONNECTION_ERROR_STATUS,
+                errorMessage: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICastingEventHandler,
+                errorStatus: CASTING_CONNECTION_ERROR_STATUS,
+                errorMessage: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -382,31 +498,61 @@ pub const ICastingEventHandler = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_ICastingController_Value = @import("../zig.zig").Guid.initString("f0a56423-a664-4fbd-8b43-409a45e8d9a1");
+const IID_ICastingController_Value = Guid.initString("f0a56423-a664-4fbd-8b43-409a45e8d9a1");
 pub const IID_ICastingController = &IID_ICastingController_Value;
 pub const ICastingController = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Initialize: fn(
-            self: *const ICastingController,
-            castingEngine: ?*IUnknown,
-            castingSource: ?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Connect: fn(
-            self: *const ICastingController,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Disconnect: fn(
-            self: *const ICastingController,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Advise: fn(
-            self: *const ICastingController,
-            eventHandler: ?*ICastingEventHandler,
-            cookie: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        UnAdvise: fn(
-            self: *const ICastingController,
-            cookie: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Initialize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICastingController,
+                castingEngine: ?*IUnknown,
+                castingSource: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICastingController,
+                castingEngine: ?*IUnknown,
+                castingSource: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Connect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICastingController,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICastingController,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Disconnect: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICastingController,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICastingController,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Advise: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICastingController,
+                eventHandler: ?*ICastingEventHandler,
+                cookie: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICastingController,
+                eventHandler: ?*ICastingEventHandler,
+                cookie: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        UnAdvise: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICastingController,
+                cookie: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICastingController,
+                cookie: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -435,19 +581,31 @@ pub const ICastingController = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_ICastingSourceInfo_Value = @import("../zig.zig").Guid.initString("45101ab7-7c3a-4bce-9500-12c09024b298");
+const IID_ICastingSourceInfo_Value = Guid.initString("45101ab7-7c3a-4bce-9500-12c09024b298");
 pub const IID_ICastingSourceInfo = &IID_ICastingSourceInfo_Value;
 pub const ICastingSourceInfo = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetController: fn(
-            self: *const ICastingSourceInfo,
-            controller: ?*?*ICastingController,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetProperties: fn(
-            self: *const ICastingSourceInfo,
-            props: ?*?*INamedPropertyStore,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetController: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICastingSourceInfo,
+                controller: ?*?*ICastingController,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICastingSourceInfo,
+                controller: ?*?*ICastingController,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetProperties: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ICastingSourceInfo,
+                props: ?*?*INamedPropertyStore,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ICastingSourceInfo,
+                props: ?*?*INamedPropertyStore,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -464,17 +622,25 @@ pub const ICastingSourceInfo = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDragDropManagerInterop_Value = @import("../zig.zig").Guid.initString("5ad8cba7-4c01-4dac-9074-827894292d63");
+const IID_IDragDropManagerInterop_Value = Guid.initString("5ad8cba7-4c01-4dac-9074-827894292d63");
 pub const IID_IDragDropManagerInterop = &IID_IDragDropManagerInterop_Value;
 pub const IDragDropManagerInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        GetForWindow: fn(
-            self: *const IDragDropManagerInterop,
-            hwnd: ?HWND,
-            riid: ?*const Guid,
-            ppv: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDragDropManagerInterop,
+                hwnd: ?HWND,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDragDropManagerInterop,
+                hwnd: ?HWND,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -488,17 +654,25 @@ pub const IDragDropManagerInterop = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.14393'
-const IID_IInputPaneInterop_Value = @import("../zig.zig").Guid.initString("75cf2c57-9195-4931-8332-f0b409e916af");
+const IID_IInputPaneInterop_Value = Guid.initString("75cf2c57-9195-4931-8332-f0b409e916af");
 pub const IID_IInputPaneInterop = &IID_IInputPaneInterop_Value;
 pub const IInputPaneInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        GetForWindow: fn(
-            self: *const IInputPaneInterop,
-            appWindow: ?HWND,
-            riid: ?*const Guid,
-            inputPane: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IInputPaneInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                inputPane: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IInputPaneInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                inputPane: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -512,21 +686,35 @@ pub const IInputPaneInterop = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IPlayToManagerInterop_Value = @import("../zig.zig").Guid.initString("24394699-1f2c-4eb3-8cd7-0ec1da42a540");
+const IID_IPlayToManagerInterop_Value = Guid.initString("24394699-1f2c-4eb3-8cd7-0ec1da42a540");
 pub const IID_IPlayToManagerInterop = &IID_IPlayToManagerInterop_Value;
 pub const IPlayToManagerInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        GetForWindow: fn(
-            self: *const IPlayToManagerInterop,
-            appWindow: ?HWND,
-            riid: ?*const Guid,
-            playToManager: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ShowPlayToUIForWindow: fn(
-            self: *const IPlayToManagerInterop,
-            appWindow: ?HWND,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPlayToManagerInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                playToManager: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPlayToManagerInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                playToManager: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ShowPlayToUIForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IPlayToManagerInterop,
+                appWindow: ?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IPlayToManagerInterop,
+                appWindow: ?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -543,26 +731,50 @@ pub const IPlayToManagerInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_ICorrelationVectorInformation_Value = @import("../zig.zig").Guid.initString("83c78b3c-d88b-4950-aa6e-22b8d22aabd3");
+const IID_ICorrelationVectorInformation_Value = Guid.initString("83c78b3c-d88b-4950-aa6e-22b8d22aabd3");
 pub const IID_ICorrelationVectorInformation = &IID_ICorrelationVectorInformation_Value;
 pub const ICorrelationVectorInformation = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_LastCorrelationVectorForThread: fn(
-            self: *const ICorrelationVectorInformation,
-            cv: ?*?HSTRING,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_LastCorrelationVectorForThread: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const ICorrelationVectorInformation,
+                cv: ?*?HSTRING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const ICorrelationVectorInformation,
+                cv: ?*?HSTRING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        get_NextCorrelationVectorForThread: fn(
-            self: *const ICorrelationVectorInformation,
-            cv: ?*?HSTRING,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        get_NextCorrelationVectorForThread: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const ICorrelationVectorInformation,
+                cv: ?*?HSTRING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const ICorrelationVectorInformation,
+                cv: ?*?HSTRING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
         // TODO: this function has a "SpecialName", should Zig do anything with this?
-        put_NextCorrelationVectorForThread: fn(
-            self: *const ICorrelationVectorInformation,
-            cv: ?HSTRING,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        put_NextCorrelationVectorForThread: switch (@import("builtin").zig_backend) {
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            .stage1 => fn(
+                self: *const ICorrelationVectorInformation,
+                cv: ?HSTRING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            // TODO: this function has a "SpecialName", should Zig do anything with this?
+            else => *const fn(
+                self: *const ICorrelationVectorInformation,
+                cv: ?HSTRING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -583,17 +795,25 @@ pub const ICorrelationVectorInformation = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IUIViewSettingsInterop_Value = @import("../zig.zig").Guid.initString("3694dbf9-8f68-44be-8ff5-195c98ede8a6");
+const IID_IUIViewSettingsInterop_Value = Guid.initString("3694dbf9-8f68-44be-8ff5-195c98ede8a6");
 pub const IID_IUIViewSettingsInterop = &IID_IUIViewSettingsInterop_Value;
 pub const IUIViewSettingsInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        GetForWindow: fn(
-            self: *const IUIViewSettingsInterop,
-            hwnd: ?HWND,
-            riid: ?*const Guid,
-            ppv: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIViewSettingsInterop,
+                hwnd: ?HWND,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIViewSettingsInterop,
+                hwnd: ?HWND,
+                riid: ?*const Guid,
+                ppv: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -606,17 +826,25 @@ pub const IUIViewSettingsInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IUserActivityInterop_Value = @import("../zig.zig").Guid.initString("1ade314d-0e0a-40d9-824c-9a088a50059f");
+const IID_IUserActivityInterop_Value = Guid.initString("1ade314d-0e0a-40d9-824c-9a088a50059f");
 pub const IID_IUserActivityInterop = &IID_IUserActivityInterop_Value;
 pub const IUserActivityInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        CreateSessionForWindow: fn(
-            self: *const IUserActivityInterop,
-            window: ?HWND,
-            iid: ?*const Guid,
-            value: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateSessionForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUserActivityInterop,
+                window: ?HWND,
+                iid: ?*const Guid,
+                value: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUserActivityInterop,
+                window: ?HWND,
+                iid: ?*const Guid,
+                value: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -629,15 +857,21 @@ pub const IUserActivityInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IUserActivitySourceHostInterop_Value = @import("../zig.zig").Guid.initString("c15df8bc-8844-487a-b85b-7578e0f61419");
+const IID_IUserActivitySourceHostInterop_Value = Guid.initString("c15df8bc-8844-487a-b85b-7578e0f61419");
 pub const IID_IUserActivitySourceHostInterop = &IID_IUserActivitySourceHostInterop_Value;
 pub const IUserActivitySourceHostInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        SetActivitySourceHost: fn(
-            self: *const IUserActivitySourceHostInterop,
-            activitySourceHost: ?HSTRING,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetActivitySourceHost: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUserActivitySourceHostInterop,
+                activitySourceHost: ?HSTRING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUserActivitySourceHostInterop,
+                activitySourceHost: ?HSTRING,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -650,17 +884,25 @@ pub const IUserActivitySourceHostInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IUserActivityRequestManagerInterop_Value = @import("../zig.zig").Guid.initString("dd69f876-9699-4715-9095-e37ea30dfa1b");
+const IID_IUserActivityRequestManagerInterop_Value = Guid.initString("dd69f876-9699-4715-9095-e37ea30dfa1b");
 pub const IID_IUserActivityRequestManagerInterop = &IID_IUserActivityRequestManagerInterop_Value;
 pub const IUserActivityRequestManagerInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        GetForWindow: fn(
-            self: *const IUserActivityRequestManagerInterop,
-            window: ?HWND,
-            iid: ?*const Guid,
-            value: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUserActivityRequestManagerInterop,
+                window: ?HWND,
+                iid: ?*const Guid,
+                value: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUserActivityRequestManagerInterop,
+                window: ?HWND,
+                iid: ?*const Guid,
+                value: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -673,18 +915,27 @@ pub const IUserActivityRequestManagerInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IUserConsentVerifierInterop_Value = @import("../zig.zig").Guid.initString("39e050c3-4e74-441a-8dc0-b81104df949c");
+const IID_IUserConsentVerifierInterop_Value = Guid.initString("39e050c3-4e74-441a-8dc0-b81104df949c");
 pub const IID_IUserConsentVerifierInterop = &IID_IUserConsentVerifierInterop_Value;
 pub const IUserConsentVerifierInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        RequestVerificationForWindowAsync: fn(
-            self: *const IUserConsentVerifierInterop,
-            appWindow: ?HWND,
-            message: ?HSTRING,
-            riid: ?*const Guid,
-            asyncOperation: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        RequestVerificationForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUserConsentVerifierInterop,
+                appWindow: ?HWND,
+                message: ?HSTRING,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUserConsentVerifierInterop,
+                appWindow: ?HWND,
+                message: ?HSTRING,
+                riid: ?*const Guid,
+                asyncOperation: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -697,26 +948,45 @@ pub const IUserConsentVerifierInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IWebAuthenticationCoreManagerInterop_Value = @import("../zig.zig").Guid.initString("f4b8e804-811e-4436-b69c-44cb67b72084");
+const IID_IWebAuthenticationCoreManagerInterop_Value = Guid.initString("f4b8e804-811e-4436-b69c-44cb67b72084");
 pub const IID_IWebAuthenticationCoreManagerInterop = &IID_IWebAuthenticationCoreManagerInterop_Value;
 pub const IWebAuthenticationCoreManagerInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        RequestTokenForWindowAsync: fn(
-            self: *const IWebAuthenticationCoreManagerInterop,
-            appWindow: ?HWND,
-            request: ?*IInspectable,
-            riid: ?*const Guid,
-            asyncInfo: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RequestTokenWithWebAccountForWindowAsync: fn(
-            self: *const IWebAuthenticationCoreManagerInterop,
-            appWindow: ?HWND,
-            request: ?*IInspectable,
-            webAccount: ?*IInspectable,
-            riid: ?*const Guid,
-            asyncInfo: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        RequestTokenForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebAuthenticationCoreManagerInterop,
+                appWindow: ?HWND,
+                request: ?*IInspectable,
+                riid: ?*const Guid,
+                asyncInfo: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebAuthenticationCoreManagerInterop,
+                appWindow: ?HWND,
+                request: ?*IInspectable,
+                riid: ?*const Guid,
+                asyncInfo: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RequestTokenWithWebAccountForWindowAsync: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWebAuthenticationCoreManagerInterop,
+                appWindow: ?HWND,
+                request: ?*IInspectable,
+                webAccount: ?*IInspectable,
+                riid: ?*const Guid,
+                asyncInfo: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWebAuthenticationCoreManagerInterop,
+                appWindow: ?HWND,
+                request: ?*IInspectable,
+                webAccount: ?*IInspectable,
+                riid: ?*const Guid,
+                asyncInfo: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -734,22 +1004,37 @@ pub const IWebAuthenticationCoreManagerInterop = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IRestrictedErrorInfo_Value = @import("../zig.zig").Guid.initString("82ba7092-4c88-427d-a7bc-16dd93feb67e");
+const IID_IRestrictedErrorInfo_Value = Guid.initString("82ba7092-4c88-427d-a7bc-16dd93feb67e");
 pub const IID_IRestrictedErrorInfo = &IID_IRestrictedErrorInfo_Value;
 pub const IRestrictedErrorInfo = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetErrorDetails: fn(
-            self: *const IRestrictedErrorInfo,
-            description: ?*?BSTR,
-            @"error": ?*HRESULT,
-            restrictedDescription: ?*?BSTR,
-            capabilitySid: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetReference: fn(
-            self: *const IRestrictedErrorInfo,
-            reference: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetErrorDetails: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRestrictedErrorInfo,
+                description: ?*?BSTR,
+                @"error": ?*HRESULT,
+                restrictedDescription: ?*?BSTR,
+                capabilitySid: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRestrictedErrorInfo,
+                description: ?*?BSTR,
+                @"error": ?*HRESULT,
+                restrictedDescription: ?*?BSTR,
+                capabilitySid: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetReference: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRestrictedErrorInfo,
+                reference: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRestrictedErrorInfo,
+                reference: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -767,15 +1052,21 @@ pub const IRestrictedErrorInfo = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.1'
-const IID_ILanguageExceptionErrorInfo_Value = @import("../zig.zig").Guid.initString("04a2dbf3-df83-116c-0946-0812abf6e07d");
+const IID_ILanguageExceptionErrorInfo_Value = Guid.initString("04a2dbf3-df83-116c-0946-0812abf6e07d");
 pub const IID_ILanguageExceptionErrorInfo = &IID_ILanguageExceptionErrorInfo_Value;
 pub const ILanguageExceptionErrorInfo = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetLanguageException: fn(
-            self: *const ILanguageExceptionErrorInfo,
-            languageException: ?*?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetLanguageException: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILanguageExceptionErrorInfo,
+                languageException: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILanguageExceptionErrorInfo,
+                languageException: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -789,15 +1080,21 @@ pub const ILanguageExceptionErrorInfo = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-const IID_ILanguageExceptionTransform_Value = @import("../zig.zig").Guid.initString("feb5a271-a6cd-45ce-880a-696706badc65");
+const IID_ILanguageExceptionTransform_Value = Guid.initString("feb5a271-a6cd-45ce-880a-696706badc65");
 pub const IID_ILanguageExceptionTransform = &IID_ILanguageExceptionTransform_Value;
 pub const ILanguageExceptionTransform = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetTransformedRestrictedErrorInfo: fn(
-            self: *const ILanguageExceptionTransform,
-            restrictedErrorInfo: ?*?*IRestrictedErrorInfo,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetTransformedRestrictedErrorInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILanguageExceptionTransform,
+                restrictedErrorInfo: ?*?*IRestrictedErrorInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILanguageExceptionTransform,
+                restrictedErrorInfo: ?*?*IRestrictedErrorInfo,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -811,17 +1108,25 @@ pub const ILanguageExceptionTransform = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-const IID_ILanguageExceptionStackBackTrace_Value = @import("../zig.zig").Guid.initString("cbe53fb5-f967-4258-8d34-42f5e25833de");
+const IID_ILanguageExceptionStackBackTrace_Value = Guid.initString("cbe53fb5-f967-4258-8d34-42f5e25833de");
 pub const IID_ILanguageExceptionStackBackTrace = &IID_ILanguageExceptionStackBackTrace_Value;
 pub const ILanguageExceptionStackBackTrace = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetStackBackTrace: fn(
-            self: *const ILanguageExceptionStackBackTrace,
-            maxFramesToCapture: u32,
-            stackBackTrace: ?*usize,
-            framesCaptured: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetStackBackTrace: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILanguageExceptionStackBackTrace,
+                maxFramesToCapture: u32,
+                stackBackTrace: ?*usize,
+                framesCaptured: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILanguageExceptionStackBackTrace,
+                maxFramesToCapture: u32,
+                stackBackTrace: ?*usize,
+                framesCaptured: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -835,23 +1140,41 @@ pub const ILanguageExceptionStackBackTrace = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows10.0.15063'
-const IID_ILanguageExceptionErrorInfo2_Value = @import("../zig.zig").Guid.initString("5746e5c4-5b97-424c-b620-2822915734dd");
+const IID_ILanguageExceptionErrorInfo2_Value = Guid.initString("5746e5c4-5b97-424c-b620-2822915734dd");
 pub const IID_ILanguageExceptionErrorInfo2 = &IID_ILanguageExceptionErrorInfo2_Value;
 pub const ILanguageExceptionErrorInfo2 = extern struct {
     pub const VTable = extern struct {
         base: ILanguageExceptionErrorInfo.VTable,
-        GetPreviousLanguageExceptionErrorInfo: fn(
-            self: *const ILanguageExceptionErrorInfo2,
-            previousLanguageExceptionErrorInfo: ?*?*ILanguageExceptionErrorInfo2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CapturePropagationContext: fn(
-            self: *const ILanguageExceptionErrorInfo2,
-            languageException: ?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPropagationContextHead: fn(
-            self: *const ILanguageExceptionErrorInfo2,
-            propagatedLanguageExceptionErrorInfoHead: ?*?*ILanguageExceptionErrorInfo2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetPreviousLanguageExceptionErrorInfo: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILanguageExceptionErrorInfo2,
+                previousLanguageExceptionErrorInfo: ?*?*ILanguageExceptionErrorInfo2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILanguageExceptionErrorInfo2,
+                previousLanguageExceptionErrorInfo: ?*?*ILanguageExceptionErrorInfo2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CapturePropagationContext: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILanguageExceptionErrorInfo2,
+                languageException: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILanguageExceptionErrorInfo2,
+                languageException: ?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPropagationContextHead: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ILanguageExceptionErrorInfo2,
+                propagatedLanguageExceptionErrorInfoHead: ?*?*ILanguageExceptionErrorInfo2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ILanguageExceptionErrorInfo2,
+                propagatedLanguageExceptionErrorInfoHead: ?*?*ILanguageExceptionErrorInfo2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -873,15 +1196,21 @@ pub const ILanguageExceptionErrorInfo2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IActivationFactory_Value = @import("../zig.zig").Guid.initString("00000035-0000-0000-c000-000000000046");
+const IID_IActivationFactory_Value = Guid.initString("00000035-0000-0000-c000-000000000046");
 pub const IID_IActivationFactory = &IID_IActivationFactory_Value;
 pub const IActivationFactory = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        ActivateInstance: fn(
-            self: *const IActivationFactory,
-            instance: ?*?*IInspectable,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ActivateInstance: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IActivationFactory,
+                instance: ?*?*IInspectable,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IActivationFactory,
+                instance: ?*?*IInspectable,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -905,15 +1234,21 @@ pub const _RO_REGISTRATION_COOKIE = extern struct {
     placeholder: usize, // TODO: why is this type empty?
 };
 
-const IID_IBufferByteAccess_Value = @import("../zig.zig").Guid.initString("905a0fef-bc53-11df-8c49-001e4fc686da");
+const IID_IBufferByteAccess_Value = Guid.initString("905a0fef-bc53-11df-8c49-001e4fc686da");
 pub const IID_IBufferByteAccess = &IID_IBufferByteAccess_Value;
 pub const IBufferByteAccess = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Buffer: fn(
-            self: *const IBufferByteAccess,
-            value: ?*?*u8,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Buffer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IBufferByteAccess,
+                value: ?*?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IBufferByteAccess,
+                value: ?*?*u8,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -955,68 +1290,149 @@ pub const RO_ERROR_REPORTING_FORCEEXCEPTIONS = RO_ERROR_REPORTING_FLAGS.FORCEEXC
 pub const RO_ERROR_REPORTING_USESETERRORINFO = RO_ERROR_REPORTING_FLAGS.USESETERRORINFO;
 pub const RO_ERROR_REPORTING_SUPPRESSSETERRORINFO = RO_ERROR_REPORTING_FLAGS.SUPPRESSSETERRORINFO;
 
-pub const PINSPECT_MEMORY_CALLBACK = fn(
-    context: ?*anyopaque,
-    readAddress: usize,
-    length: u32,
-    buffer: [*:0]u8,
-) callconv(@import("std").os.windows.WINAPI) HRESULT;
+pub const PINSPECT_MEMORY_CALLBACK = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        context: ?*anyopaque,
+        readAddress: usize,
+        length: u32,
+        buffer: [*:0]u8,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+    else => *const fn(
+        context: ?*anyopaque,
+        readAddress: usize,
+        length: u32,
+        buffer: [*:0]u8,
+    ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+} ;
 
 pub const IRoSimpleMetaDataBuilder = extern struct {
     pub const VTable = extern struct {
-        SetWinRtInterface: fn(
-            self: *const IRoSimpleMetaDataBuilder,
-            iid: Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDelegate: fn(
-            self: *const IRoSimpleMetaDataBuilder,
-            iid: Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetInterfaceGroupSimpleDefault: fn(
-            self: *const IRoSimpleMetaDataBuilder,
-            name: ?[*:0]const u16,
-            defaultInterfaceName: ?[*:0]const u16,
-            defaultInterfaceIID: ?*const Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetInterfaceGroupParameterizedDefault: fn(
-            self: *const IRoSimpleMetaDataBuilder,
-            name: ?[*:0]const u16,
-            elementCount: u32,
-            defaultInterfaceNameElements: [*]?PWSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetRuntimeClassSimpleDefault: fn(
-            self: *const IRoSimpleMetaDataBuilder,
-            name: ?[*:0]const u16,
-            defaultInterfaceName: ?[*:0]const u16,
-            defaultInterfaceIID: ?*const Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetRuntimeClassParameterizedDefault: fn(
-            self: *const IRoSimpleMetaDataBuilder,
-            name: ?[*:0]const u16,
-            elementCount: u32,
-            defaultInterfaceNameElements: [*]const ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetStruct: fn(
-            self: *const IRoSimpleMetaDataBuilder,
-            name: ?[*:0]const u16,
-            numFields: u32,
-            fieldTypeNames: [*]const ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetEnum: fn(
-            self: *const IRoSimpleMetaDataBuilder,
-            name: ?[*:0]const u16,
-            baseType: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetParameterizedInterface: fn(
-            self: *const IRoSimpleMetaDataBuilder,
-            piid: Guid,
-            numArgs: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetParameterizedDelegate: fn(
-            self: *const IRoSimpleMetaDataBuilder,
-            piid: Guid,
-            numArgs: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetWinRtInterface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                iid: Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                iid: Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDelegate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                iid: Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                iid: Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetInterfaceGroupSimpleDefault: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                name: ?[*:0]const u16,
+                defaultInterfaceName: ?[*:0]const u16,
+                defaultInterfaceIID: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                name: ?[*:0]const u16,
+                defaultInterfaceName: ?[*:0]const u16,
+                defaultInterfaceIID: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetInterfaceGroupParameterizedDefault: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                name: ?[*:0]const u16,
+                elementCount: u32,
+                defaultInterfaceNameElements: [*]?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                name: ?[*:0]const u16,
+                elementCount: u32,
+                defaultInterfaceNameElements: [*]?PWSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetRuntimeClassSimpleDefault: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                name: ?[*:0]const u16,
+                defaultInterfaceName: ?[*:0]const u16,
+                defaultInterfaceIID: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                name: ?[*:0]const u16,
+                defaultInterfaceName: ?[*:0]const u16,
+                defaultInterfaceIID: ?*const Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetRuntimeClassParameterizedDefault: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                name: ?[*:0]const u16,
+                elementCount: u32,
+                defaultInterfaceNameElements: [*]const ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                name: ?[*:0]const u16,
+                elementCount: u32,
+                defaultInterfaceNameElements: [*]const ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetStruct: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                name: ?[*:0]const u16,
+                numFields: u32,
+                fieldTypeNames: [*]const ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                name: ?[*:0]const u16,
+                numFields: u32,
+                fieldTypeNames: [*]const ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetEnum: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                name: ?[*:0]const u16,
+                baseType: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                name: ?[*:0]const u16,
+                baseType: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetParameterizedInterface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                piid: Guid,
+                numArgs: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                piid: Guid,
+                numArgs: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetParameterizedDelegate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                piid: Guid,
+                numArgs: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRoSimpleMetaDataBuilder,
+                piid: Guid,
+                numArgs: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1066,11 +1482,18 @@ pub const IRoSimpleMetaDataBuilder = extern struct {
 
 pub const IRoMetaDataLocator = extern struct {
     pub const VTable = extern struct {
-        Locate: fn(
-            self: *const IRoMetaDataLocator,
-            nameElement: ?[*:0]const u16,
-            metaDataDestination: ?*IRoSimpleMetaDataBuilder,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Locate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRoMetaDataLocator,
+                nameElement: ?[*:0]const u16,
+                metaDataDestination: ?*IRoSimpleMetaDataBuilder,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRoMetaDataLocator,
+                nameElement: ?[*:0]const u16,
+                metaDataDestination: ?*IRoSimpleMetaDataBuilder,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1089,16 +1512,23 @@ pub const BSOS_OPTIONS = enum(i32) {
 pub const BSOS_DEFAULT = BSOS_OPTIONS.DEFAULT;
 pub const BSOS_PREFERDESTINATIONSTREAM = BSOS_OPTIONS.PREFERDESTINATIONSTREAM;
 
-const IID_IMemoryBufferByteAccess_Value = @import("../zig.zig").Guid.initString("5b0d3235-4dba-4d44-865e-8f1d0e4fd04d");
+const IID_IMemoryBufferByteAccess_Value = Guid.initString("5b0d3235-4dba-4d44-865e-8f1d0e4fd04d");
 pub const IID_IMemoryBufferByteAccess = &IID_IMemoryBufferByteAccess_Value;
 pub const IMemoryBufferByteAccess = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetBuffer: fn(
-            self: *const IMemoryBufferByteAccess,
-            value: ?*?*u8,
-            capacity: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetBuffer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IMemoryBufferByteAccess,
+                value: ?*?*u8,
+                capacity: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IMemoryBufferByteAccess,
+                value: ?*?*u8,
+                capacity: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1112,16 +1542,23 @@ pub const IMemoryBufferByteAccess = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IWeakReference_Value = @import("../zig.zig").Guid.initString("00000037-0000-0000-c000-000000000046");
+const IID_IWeakReference_Value = Guid.initString("00000037-0000-0000-c000-000000000046");
 pub const IID_IWeakReference = &IID_IWeakReference_Value;
 pub const IWeakReference = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Resolve: fn(
-            self: *const IWeakReference,
-            riid: ?*const Guid,
-            objectReference: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Resolve: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWeakReference,
+                riid: ?*const Guid,
+                objectReference: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWeakReference,
+                riid: ?*const Guid,
+                objectReference: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1135,15 +1572,21 @@ pub const IWeakReference = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IWeakReferenceSource_Value = @import("../zig.zig").Guid.initString("00000038-0000-0000-c000-000000000046");
+const IID_IWeakReferenceSource_Value = Guid.initString("00000038-0000-0000-c000-000000000046");
 pub const IID_IWeakReferenceSource = &IID_IWeakReferenceSource_Value;
 pub const IWeakReferenceSource = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetWeakReference: fn(
-            self: *const IWeakReferenceSource,
-            weakReference: ?*?*IWeakReference,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetWeakReference: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWeakReferenceSource,
+                weakReference: ?*?*IWeakReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWeakReferenceSource,
+                weakReference: ?*?*IWeakReference,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1156,17 +1599,25 @@ pub const IWeakReferenceSource = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_ISystemMediaTransportControlsInterop_Value = @import("../zig.zig").Guid.initString("ddb0472d-c911-4a1f-86d9-dc3d71a95f5a");
+const IID_ISystemMediaTransportControlsInterop_Value = Guid.initString("ddb0472d-c911-4a1f-86d9-dc3d71a95f5a");
 pub const IID_ISystemMediaTransportControlsInterop = &IID_ISystemMediaTransportControlsInterop_Value;
 pub const ISystemMediaTransportControlsInterop = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        GetForWindow: fn(
-            self: *const ISystemMediaTransportControlsInterop,
-            appWindow: ?HWND,
-            riid: ?*const Guid,
-            mediaTransportControl: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const ISystemMediaTransportControlsInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                mediaTransportControl: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const ISystemMediaTransportControlsInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                mediaTransportControl: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1179,15 +1630,21 @@ pub const ISystemMediaTransportControlsInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IShareWindowCommandEventArgsInterop_Value = @import("../zig.zig").Guid.initString("6571a721-643d-43d4-aca4-6b6f5f30f1ad");
+const IID_IShareWindowCommandEventArgsInterop_Value = Guid.initString("6571a721-643d-43d4-aca4-6b6f5f30f1ad");
 pub const IID_IShareWindowCommandEventArgsInterop = &IID_IShareWindowCommandEventArgsInterop_Value;
 pub const IShareWindowCommandEventArgsInterop = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetWindow: fn(
-            self: *const IShareWindowCommandEventArgsInterop,
-            value: ?*?HWND,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IShareWindowCommandEventArgsInterop,
+                value: ?*?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IShareWindowCommandEventArgsInterop,
+                value: ?*?HWND,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1200,17 +1657,25 @@ pub const IShareWindowCommandEventArgsInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IShareWindowCommandSourceInterop_Value = @import("../zig.zig").Guid.initString("461a191f-8424-43a6-a0fa-3451a22f56ab");
+const IID_IShareWindowCommandSourceInterop_Value = Guid.initString("461a191f-8424-43a6-a0fa-3451a22f56ab");
 pub const IID_IShareWindowCommandSourceInterop = &IID_IShareWindowCommandSourceInterop_Value;
 pub const IShareWindowCommandSourceInterop = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetForWindow: fn(
-            self: *const IShareWindowCommandSourceInterop,
-            appWindow: ?HWND,
-            riid: ?*const Guid,
-            shareWindowCommandSource: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetForWindow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IShareWindowCommandSourceInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                shareWindowCommandSource: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IShareWindowCommandSourceInterop,
+                appWindow: ?HWND,
+                riid: ?*const Guid,
+                shareWindowCommandSource: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1223,14 +1688,19 @@ pub const IShareWindowCommandSourceInterop = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IMessageDispatcher_Value = @import("../zig.zig").Guid.initString("f5f84c8f-cfd0-4cd6-b66b-c5d26ff1689d");
+const IID_IMessageDispatcher_Value = Guid.initString("f5f84c8f-cfd0-4cd6-b66b-c5d26ff1689d");
 pub const IID_IMessageDispatcher = &IID_IMessageDispatcher_Value;
 pub const IMessageDispatcher = extern struct {
     pub const VTable = extern struct {
         base: IInspectable.VTable,
-        PumpMessages: fn(
-            self: *const IMessageDispatcher,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        PumpMessages: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IMessageDispatcher,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IMessageDispatcher,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1247,14 +1717,14 @@ pub const IMessageDispatcher = extern struct {
 //--------------------------------------------------------------------------------
 // Section: Functions (68)
 //--------------------------------------------------------------------------------
-pub extern "OLE32" fn CoDecodeProxy(
+pub extern "ole32" fn CoDecodeProxy(
     dwClientPid: u32,
     ui64ProxyAddress: u64,
     pServerInformation: ?*ServerInformation,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
 // TODO: this type is limited to platform 'windows8.1'
-pub extern "OLE32" fn RoGetAgileReference(
+pub extern "ole32" fn RoGetAgileReference(
     options: AgileReferenceOptions,
     riid: ?*const Guid,
     pUnk: ?*IUnknown,
@@ -1452,7 +1922,7 @@ pub extern "api-ms-win-core-winrt-string-l1-1-1" fn WindowsInspectString2(
     targetStringAddress: ?*u64,
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
 
-pub extern "CoreMessaging" fn CreateDispatcherQueueController(
+pub extern "coremessaging" fn CreateDispatcherQueueController(
     options: DispatcherQueueOptions,
     dispatcherQueueController: ?**struct{comment: []const u8 = "MissingClrType DispatcherQueueController.Windows.System"},
 ) callconv(@import("std").os.windows.WINAPI) HRESULT;
@@ -1627,7 +2097,7 @@ pub extern "api-ms-win-core-winrt-error-l1-1-1" fn IsErrorPropagationEnabled(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 // TODO: this type is limited to platform 'windows8.0'
-pub extern "RoMetadata" fn MetaDataGetDispenser(
+pub extern "rometadata" fn MetaDataGetDispenser(
     rclsid: ?*const Guid,
     riid: ?*const Guid,
     ppv: ?*?*anyopaque,
@@ -1719,14 +2189,14 @@ test {
     if (@hasDecl(@This(), "PINSPECT_MEMORY_CALLBACK")) { _ = PINSPECT_MEMORY_CALLBACK; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

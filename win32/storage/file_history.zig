@@ -48,10 +48,10 @@ pub const FH_STATE_RUNNING = @as(u32, 256);
 //--------------------------------------------------------------------------------
 // Section: Types (14)
 //--------------------------------------------------------------------------------
-const CLSID_FhConfigMgr_Value = @import("../zig.zig").Guid.initString("ed43bb3c-09e9-498a-9df6-2177244c6db4");
+const CLSID_FhConfigMgr_Value = Guid.initString("ed43bb3c-09e9-498a-9df6-2177244c6db4");
 pub const CLSID_FhConfigMgr = &CLSID_FhConfigMgr_Value;
 
-const CLSID_FhReassociation_Value = @import("../zig.zig").Guid.initString("4d728e35-16fa-4320-9e8b-bfd7100a8846");
+const CLSID_FhReassociation_Value = Guid.initString("4d728e35-16fa-4320-9e8b-bfd7100a8846");
 pub const CLSID_FhReassociation = &CLSID_FhReassociation_Value;
 
 pub const FH_TARGET_PROPERTY_TYPE = enum(i32) {
@@ -77,21 +77,35 @@ pub const FH_DRIVE_FIXED = FH_TARGET_DRIVE_TYPES.FIXED;
 pub const FH_DRIVE_REMOTE = FH_TARGET_DRIVE_TYPES.REMOTE;
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IFhTarget_Value = @import("../zig.zig").Guid.initString("d87965fd-2bad-4657-bd3b-9567eb300ced");
+const IID_IFhTarget_Value = Guid.initString("d87965fd-2bad-4657-bd3b-9567eb300ced");
 pub const IID_IFhTarget = &IID_IFhTarget_Value;
 pub const IFhTarget = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetStringProperty: fn(
-            self: *const IFhTarget,
-            PropertyType: FH_TARGET_PROPERTY_TYPE,
-            PropertyValue: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetNumericalProperty: fn(
-            self: *const IFhTarget,
-            PropertyType: FH_TARGET_PROPERTY_TYPE,
-            PropertyValue: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetStringProperty: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhTarget,
+                PropertyType: FH_TARGET_PROPERTY_TYPE,
+                PropertyValue: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhTarget,
+                PropertyType: FH_TARGET_PROPERTY_TYPE,
+                PropertyValue: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetNumericalProperty: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhTarget,
+                PropertyType: FH_TARGET_PROPERTY_TYPE,
+                PropertyValue: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhTarget,
+                PropertyType: FH_TARGET_PROPERTY_TYPE,
+                PropertyValue: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -109,18 +123,29 @@ pub const IFhTarget = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IFhScopeIterator_Value = @import("../zig.zig").Guid.initString("3197abce-532a-44c6-8615-f3666566a720");
+const IID_IFhScopeIterator_Value = Guid.initString("3197abce-532a-44c6-8615-f3666566a720");
 pub const IID_IFhScopeIterator = &IID_IFhScopeIterator_Value;
 pub const IFhScopeIterator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        MoveToNextItem: fn(
-            self: *const IFhScopeIterator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetItem: fn(
-            self: *const IFhScopeIterator,
-            Item: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        MoveToNextItem: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhScopeIterator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhScopeIterator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetItem: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhScopeIterator,
+                Item: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhScopeIterator,
+                Item: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -201,74 +226,165 @@ pub const FH_VALID_TARGET = FH_DEVICE_VALIDATION_RESULT.FH_VALID_TARGET;
 pub const MAX_VALIDATION_RESULT = FH_DEVICE_VALIDATION_RESULT.MAX_VALIDATION_RESULT;
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IFhConfigMgr_Value = @import("../zig.zig").Guid.initString("6a5fea5b-bf8f-4ee5-b8c3-44d8a0d7331c");
+const IID_IFhConfigMgr_Value = Guid.initString("6a5fea5b-bf8f-4ee5-b8c3-44d8a0d7331c");
 pub const IID_IFhConfigMgr = &IID_IFhConfigMgr_Value;
 pub const IFhConfigMgr = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        LoadConfiguration: fn(
-            self: *const IFhConfigMgr,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateDefaultConfiguration: fn(
-            self: *const IFhConfigMgr,
-            OverwriteIfExists: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SaveConfiguration: fn(
-            self: *const IFhConfigMgr,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddRemoveExcludeRule: fn(
-            self: *const IFhConfigMgr,
-            Add: BOOL,
-            Category: FH_PROTECTED_ITEM_CATEGORY,
-            Item: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetIncludeExcludeRules: fn(
-            self: *const IFhConfigMgr,
-            Include: BOOL,
-            Category: FH_PROTECTED_ITEM_CATEGORY,
-            Iterator: ?*?*IFhScopeIterator,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetLocalPolicy: fn(
-            self: *const IFhConfigMgr,
-            LocalPolicyType: FH_LOCAL_POLICY_TYPE,
-            PolicyValue: ?*u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetLocalPolicy: fn(
-            self: *const IFhConfigMgr,
-            LocalPolicyType: FH_LOCAL_POLICY_TYPE,
-            PolicyValue: u64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetBackupStatus: fn(
-            self: *const IFhConfigMgr,
-            BackupStatus: ?*FH_BACKUP_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetBackupStatus: fn(
-            self: *const IFhConfigMgr,
-            BackupStatus: FH_BACKUP_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDefaultTarget: fn(
-            self: *const IFhConfigMgr,
-            DefaultTarget: ?*?*IFhTarget,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ValidateTarget: fn(
-            self: *const IFhConfigMgr,
-            TargetUrl: ?BSTR,
-            ValidationResult: ?*FH_DEVICE_VALIDATION_RESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ProvisionAndSetNewTarget: fn(
-            self: *const IFhConfigMgr,
-            TargetUrl: ?BSTR,
-            TargetName: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ChangeDefaultTargetRecommendation: fn(
-            self: *const IFhConfigMgr,
-            Recommend: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        QueryProtectionStatus: fn(
-            self: *const IFhConfigMgr,
-            ProtectionState: ?*u32,
-            ProtectedUntilTime: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        LoadConfiguration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateDefaultConfiguration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+                OverwriteIfExists: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+                OverwriteIfExists: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SaveConfiguration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddRemoveExcludeRule: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+                Add: BOOL,
+                Category: FH_PROTECTED_ITEM_CATEGORY,
+                Item: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+                Add: BOOL,
+                Category: FH_PROTECTED_ITEM_CATEGORY,
+                Item: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetIncludeExcludeRules: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+                Include: BOOL,
+                Category: FH_PROTECTED_ITEM_CATEGORY,
+                Iterator: ?*?*IFhScopeIterator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+                Include: BOOL,
+                Category: FH_PROTECTED_ITEM_CATEGORY,
+                Iterator: ?*?*IFhScopeIterator,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetLocalPolicy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+                LocalPolicyType: FH_LOCAL_POLICY_TYPE,
+                PolicyValue: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+                LocalPolicyType: FH_LOCAL_POLICY_TYPE,
+                PolicyValue: ?*u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetLocalPolicy: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+                LocalPolicyType: FH_LOCAL_POLICY_TYPE,
+                PolicyValue: u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+                LocalPolicyType: FH_LOCAL_POLICY_TYPE,
+                PolicyValue: u64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetBackupStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+                BackupStatus: ?*FH_BACKUP_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+                BackupStatus: ?*FH_BACKUP_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetBackupStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+                BackupStatus: FH_BACKUP_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+                BackupStatus: FH_BACKUP_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDefaultTarget: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+                DefaultTarget: ?*?*IFhTarget,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+                DefaultTarget: ?*?*IFhTarget,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ValidateTarget: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+                TargetUrl: ?BSTR,
+                ValidationResult: ?*FH_DEVICE_VALIDATION_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+                TargetUrl: ?BSTR,
+                ValidationResult: ?*FH_DEVICE_VALIDATION_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ProvisionAndSetNewTarget: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+                TargetUrl: ?BSTR,
+                TargetName: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+                TargetUrl: ?BSTR,
+                TargetName: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ChangeDefaultTargetRecommendation: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+                Recommend: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+                Recommend: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        QueryProtectionStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhConfigMgr,
+                ProtectionState: ?*u32,
+                ProtectedUntilTime: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhConfigMgr,
+                ProtectionState: ?*u32,
+                ProtectedUntilTime: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -334,35 +450,69 @@ pub const IFhConfigMgr = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IFhReassociation_Value = @import("../zig.zig").Guid.initString("6544a28a-f68d-47ac-91ef-16b2b36aa3ee");
+const IID_IFhReassociation_Value = Guid.initString("6544a28a-f68d-47ac-91ef-16b2b36aa3ee");
 pub const IID_IFhReassociation = &IID_IFhReassociation_Value;
 pub const IFhReassociation = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ValidateTarget: fn(
-            self: *const IFhReassociation,
-            TargetUrl: ?BSTR,
-            ValidationResult: ?*FH_DEVICE_VALIDATION_RESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ScanTargetForConfigurations: fn(
-            self: *const IFhReassociation,
-            TargetUrl: ?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetConfigurationDetails: fn(
-            self: *const IFhReassociation,
-            Index: u32,
-            UserName: ?*?BSTR,
-            PcName: ?*?BSTR,
-            BackupTime: ?*FILETIME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SelectConfiguration: fn(
-            self: *const IFhReassociation,
-            Index: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        PerformReassociation: fn(
-            self: *const IFhReassociation,
-            OverwriteIfExists: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ValidateTarget: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhReassociation,
+                TargetUrl: ?BSTR,
+                ValidationResult: ?*FH_DEVICE_VALIDATION_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhReassociation,
+                TargetUrl: ?BSTR,
+                ValidationResult: ?*FH_DEVICE_VALIDATION_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ScanTargetForConfigurations: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhReassociation,
+                TargetUrl: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhReassociation,
+                TargetUrl: ?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetConfigurationDetails: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhReassociation,
+                Index: u32,
+                UserName: ?*?BSTR,
+                PcName: ?*?BSTR,
+                BackupTime: ?*FILETIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhReassociation,
+                Index: u32,
+                UserName: ?*?BSTR,
+                PcName: ?*?BSTR,
+                BackupTime: ?*FILETIME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SelectConfiguration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhReassociation,
+                Index: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhReassociation,
+                Index: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        PerformReassociation: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IFhReassociation,
+                OverwriteIfExists: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IFhReassociation,
+                OverwriteIfExists: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -461,8 +611,9 @@ pub usingnamespace switch (@import("../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (6)
+// Section: Imports (7)
 //--------------------------------------------------------------------------------
+const Guid = @import("../zig.zig").Guid;
 const BOOL = @import("../foundation.zig").BOOL;
 const BSTR = @import("../foundation.zig").BSTR;
 const FH_SERVICE_PIPE_HANDLE = @import("../system/windows_programming.zig").FH_SERVICE_PIPE_HANDLE;
@@ -472,14 +623,14 @@ const IUnknown = @import("../system/com.zig").IUnknown;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

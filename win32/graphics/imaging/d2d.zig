@@ -7,29 +7,53 @@
 // Section: Types (2)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IWICImageEncoder_Value = @import("../../zig.zig").Guid.initString("04c75bf8-3ce1-473b-acc5-3cc4f5e94999");
+const IID_IWICImageEncoder_Value = Guid.initString("04c75bf8-3ce1-473b-acc5-3cc4f5e94999");
 pub const IID_IWICImageEncoder = &IID_IWICImageEncoder_Value;
 pub const IWICImageEncoder = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        WriteFrame: fn(
-            self: *const IWICImageEncoder,
-            pImage: ?*ID2D1Image,
-            pFrameEncode: ?*IWICBitmapFrameEncode,
-            pImageParameters: ?*const WICImageParameters,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        WriteFrameThumbnail: fn(
-            self: *const IWICImageEncoder,
-            pImage: ?*ID2D1Image,
-            pFrameEncode: ?*IWICBitmapFrameEncode,
-            pImageParameters: ?*const WICImageParameters,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        WriteThumbnail: fn(
-            self: *const IWICImageEncoder,
-            pImage: ?*ID2D1Image,
-            pEncoder: ?*IWICBitmapEncoder,
-            pImageParameters: ?*const WICImageParameters,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        WriteFrame: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWICImageEncoder,
+                pImage: ?*ID2D1Image,
+                pFrameEncode: ?*IWICBitmapFrameEncode,
+                pImageParameters: ?*const WICImageParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWICImageEncoder,
+                pImage: ?*ID2D1Image,
+                pFrameEncode: ?*IWICBitmapFrameEncode,
+                pImageParameters: ?*const WICImageParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        WriteFrameThumbnail: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWICImageEncoder,
+                pImage: ?*ID2D1Image,
+                pFrameEncode: ?*IWICBitmapFrameEncode,
+                pImageParameters: ?*const WICImageParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWICImageEncoder,
+                pImage: ?*ID2D1Image,
+                pFrameEncode: ?*IWICBitmapFrameEncode,
+                pImageParameters: ?*const WICImageParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        WriteThumbnail: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWICImageEncoder,
+                pImage: ?*ID2D1Image,
+                pEncoder: ?*IWICBitmapEncoder,
+                pImageParameters: ?*const WICImageParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWICImageEncoder,
+                pImage: ?*ID2D1Image,
+                pEncoder: ?*IWICBitmapEncoder,
+                pImageParameters: ?*const WICImageParameters,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -51,16 +75,23 @@ pub const IWICImageEncoder = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IWICImagingFactory2_Value = @import("../../zig.zig").Guid.initString("7b816b45-1996-4476-b132-de9e247c8af0");
+const IID_IWICImagingFactory2_Value = Guid.initString("7b816b45-1996-4476-b132-de9e247c8af0");
 pub const IID_IWICImagingFactory2 = &IID_IWICImagingFactory2_Value;
 pub const IWICImagingFactory2 = extern struct {
     pub const VTable = extern struct {
         base: IWICImagingFactory.VTable,
-        CreateImageEncoder: fn(
-            self: *const IWICImagingFactory2,
-            pD2DDevice: ?*ID2D1Device,
-            ppWICImageEncoder: ?*?*IWICImageEncoder,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateImageEncoder: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IWICImagingFactory2,
+                pD2DDevice: ?*ID2D1Device,
+                ppWICImageEncoder: ?*?*IWICImageEncoder,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IWICImagingFactory2,
+                pD2DDevice: ?*ID2D1Device,
+                ppWICImageEncoder: ?*?*IWICImageEncoder,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -92,8 +123,9 @@ pub usingnamespace switch (@import("../../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (8)
+// Section: Imports (9)
 //--------------------------------------------------------------------------------
+const Guid = @import("../../zig.zig").Guid;
 const HRESULT = @import("../../foundation.zig").HRESULT;
 const ID2D1Device = @import("../../graphics/direct2d.zig").ID2D1Device;
 const ID2D1Image = @import("../../graphics/direct2d.zig").ID2D1Image;
@@ -105,14 +137,14 @@ const WICImageParameters = @import("../../graphics/imaging.zig").WICImageParamet
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

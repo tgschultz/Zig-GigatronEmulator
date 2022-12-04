@@ -11,7 +11,7 @@
 // Section: Functions (1)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows8.1'
-pub extern "KERNEL32" fn CeipIsOptedIn(
+pub extern "kernel32" fn CeipIsOptedIn(
 ) callconv(@import("std").os.windows.WINAPI) BOOL;
 
 
@@ -35,14 +35,14 @@ const BOOL = @import("../../foundation.zig").BOOL;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

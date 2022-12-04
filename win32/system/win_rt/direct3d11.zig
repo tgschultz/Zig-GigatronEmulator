@@ -6,16 +6,23 @@
 //--------------------------------------------------------------------------------
 // Section: Types (1)
 //--------------------------------------------------------------------------------
-const IID_IDirect3DDxgiInterfaceAccess_Value = @import("../../zig.zig").Guid.initString("a9b3d012-3df2-4ee3-b8d1-8695f457d3c1");
+const IID_IDirect3DDxgiInterfaceAccess_Value = Guid.initString("a9b3d012-3df2-4ee3-b8d1-8695f457d3c1");
 pub const IID_IDirect3DDxgiInterfaceAccess = &IID_IDirect3DDxgiInterfaceAccess_Value;
 pub const IDirect3DDxgiInterfaceAccess = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetInterface: fn(
-            self: *const IDirect3DDxgiInterfaceAccess,
-            iid: ?*const Guid,
-            p: ?*?*anyopaque,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetInterface: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDirect3DDxgiInterfaceAccess,
+                iid: ?*const Guid,
+                p: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDirect3DDxgiInterfaceAccess,
+                iid: ?*const Guid,
+                p: ?*?*anyopaque,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -68,14 +75,14 @@ const IUnknown = @import("../../system/com.zig").IUnknown;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

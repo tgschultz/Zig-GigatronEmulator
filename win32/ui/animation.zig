@@ -13,25 +13,25 @@ pub const UI_ANIMATION_SECONDS_INFINITE = @as(i32, -1);
 //--------------------------------------------------------------------------------
 pub const UI_ANIMATION_KEYFRAME = isize;
 
-const CLSID_UIAnimationManager_Value = @import("../zig.zig").Guid.initString("4c1fc63a-695c-47e8-a339-1a194be3d0b8");
+const CLSID_UIAnimationManager_Value = Guid.initString("4c1fc63a-695c-47e8-a339-1a194be3d0b8");
 pub const CLSID_UIAnimationManager = &CLSID_UIAnimationManager_Value;
 
-const CLSID_UIAnimationManager2_Value = @import("../zig.zig").Guid.initString("d25d8842-8884-4a4a-b321-091314379bdd");
+const CLSID_UIAnimationManager2_Value = Guid.initString("d25d8842-8884-4a4a-b321-091314379bdd");
 pub const CLSID_UIAnimationManager2 = &CLSID_UIAnimationManager2_Value;
 
-const CLSID_UIAnimationTransitionLibrary_Value = @import("../zig.zig").Guid.initString("1d6322ad-aa85-4ef5-a828-86d71067d145");
+const CLSID_UIAnimationTransitionLibrary_Value = Guid.initString("1d6322ad-aa85-4ef5-a828-86d71067d145");
 pub const CLSID_UIAnimationTransitionLibrary = &CLSID_UIAnimationTransitionLibrary_Value;
 
-const CLSID_UIAnimationTransitionLibrary2_Value = @import("../zig.zig").Guid.initString("812f944a-c5c8-4cd9-b0a6-b3da802f228d");
+const CLSID_UIAnimationTransitionLibrary2_Value = Guid.initString("812f944a-c5c8-4cd9-b0a6-b3da802f228d");
 pub const CLSID_UIAnimationTransitionLibrary2 = &CLSID_UIAnimationTransitionLibrary2_Value;
 
-const CLSID_UIAnimationTransitionFactory_Value = @import("../zig.zig").Guid.initString("8a9b1cdd-fcd7-419c-8b44-42fd17db1887");
+const CLSID_UIAnimationTransitionFactory_Value = Guid.initString("8a9b1cdd-fcd7-419c-8b44-42fd17db1887");
 pub const CLSID_UIAnimationTransitionFactory = &CLSID_UIAnimationTransitionFactory_Value;
 
-const CLSID_UIAnimationTransitionFactory2_Value = @import("../zig.zig").Guid.initString("84302f97-7f7b-4040-b190-72ac9d18e420");
+const CLSID_UIAnimationTransitionFactory2_Value = Guid.initString("84302f97-7f7b-4040-b190-72ac9d18e420");
 pub const CLSID_UIAnimationTransitionFactory2 = &CLSID_UIAnimationTransitionFactory2_Value;
 
-const CLSID_UIAnimationTimer_Value = @import("../zig.zig").Guid.initString("bfcd4a0c-06b6-4384-b768-0daa792c380e");
+const CLSID_UIAnimationTimer_Value = Guid.initString("bfcd4a0c-06b6-4384-b768-0daa792c380e");
 pub const CLSID_UIAnimationTimer = &CLSID_UIAnimationTimer_Value;
 
 pub const UI_ANIMATION_UPDATE_RESULT = enum(i32) {
@@ -65,91 +65,209 @@ pub const UI_ANIMATION_REPEAT_MODE_NORMAL = UI_ANIMATION_REPEAT_MODE.NORMAL;
 pub const UI_ANIMATION_REPEAT_MODE_ALTERNATE = UI_ANIMATION_REPEAT_MODE.ALTERNATE;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationManager_Value = @import("../zig.zig").Guid.initString("9169896c-ac8d-4e7d-94e5-67fa4dc2f2e8");
+const IID_IUIAnimationManager_Value = Guid.initString("9169896c-ac8d-4e7d-94e5-67fa4dc2f2e8");
 pub const IID_IUIAnimationManager = &IID_IUIAnimationManager_Value;
 pub const IUIAnimationManager = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateAnimationVariable: fn(
-            self: *const IUIAnimationManager,
-            initialValue: f64,
-            variable: ?*?*IUIAnimationVariable,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ScheduleTransition: fn(
-            self: *const IUIAnimationManager,
-            variable: ?*IUIAnimationVariable,
-            transition: ?*IUIAnimationTransition,
-            timeNow: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateStoryboard: fn(
-            self: *const IUIAnimationManager,
-            storyboard: ?*?*IUIAnimationStoryboard,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        FinishAllStoryboards: fn(
-            self: *const IUIAnimationManager,
-            completionDeadline: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AbandonAllStoryboards: fn(
-            self: *const IUIAnimationManager,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Update: fn(
-            self: *const IUIAnimationManager,
-            timeNow: f64,
-            updateResult: ?*UI_ANIMATION_UPDATE_RESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVariableFromTag: fn(
-            self: *const IUIAnimationManager,
-            object: ?*IUnknown,
-            id: u32,
-            variable: ?*?*IUIAnimationVariable,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStoryboardFromTag: fn(
-            self: *const IUIAnimationManager,
-            object: ?*IUnknown,
-            id: u32,
-            storyboard: ?*?*IUIAnimationStoryboard,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStatus: fn(
-            self: *const IUIAnimationManager,
-            status: ?*UI_ANIMATION_MANAGER_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetAnimationMode: fn(
-            self: *const IUIAnimationManager,
-            mode: UI_ANIMATION_MODE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Pause: fn(
-            self: *const IUIAnimationManager,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Resume: fn(
-            self: *const IUIAnimationManager,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetManagerEventHandler: fn(
-            self: *const IUIAnimationManager,
-            handler: ?*IUIAnimationManagerEventHandler,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetCancelPriorityComparison: fn(
-            self: *const IUIAnimationManager,
-            comparison: ?*IUIAnimationPriorityComparison,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetTrimPriorityComparison: fn(
-            self: *const IUIAnimationManager,
-            comparison: ?*IUIAnimationPriorityComparison,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetCompressPriorityComparison: fn(
-            self: *const IUIAnimationManager,
-            comparison: ?*IUIAnimationPriorityComparison,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetConcludePriorityComparison: fn(
-            self: *const IUIAnimationManager,
-            comparison: ?*IUIAnimationPriorityComparison,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDefaultLongestAcceptableDelay: fn(
-            self: *const IUIAnimationManager,
-            delay: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Shutdown: fn(
-            self: *const IUIAnimationManager,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateAnimationVariable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                initialValue: f64,
+                variable: ?*?*IUIAnimationVariable,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                initialValue: f64,
+                variable: ?*?*IUIAnimationVariable,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ScheduleTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                variable: ?*IUIAnimationVariable,
+                transition: ?*IUIAnimationTransition,
+                timeNow: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                variable: ?*IUIAnimationVariable,
+                transition: ?*IUIAnimationTransition,
+                timeNow: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateStoryboard: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                storyboard: ?*?*IUIAnimationStoryboard,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                storyboard: ?*?*IUIAnimationStoryboard,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        FinishAllStoryboards: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                completionDeadline: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                completionDeadline: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AbandonAllStoryboards: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Update: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                timeNow: f64,
+                updateResult: ?*UI_ANIMATION_UPDATE_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                timeNow: f64,
+                updateResult: ?*UI_ANIMATION_UPDATE_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVariableFromTag: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                object: ?*IUnknown,
+                id: u32,
+                variable: ?*?*IUIAnimationVariable,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                object: ?*IUnknown,
+                id: u32,
+                variable: ?*?*IUIAnimationVariable,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStoryboardFromTag: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                object: ?*IUnknown,
+                id: u32,
+                storyboard: ?*?*IUIAnimationStoryboard,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                object: ?*IUnknown,
+                id: u32,
+                storyboard: ?*?*IUIAnimationStoryboard,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                status: ?*UI_ANIMATION_MANAGER_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                status: ?*UI_ANIMATION_MANAGER_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetAnimationMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                mode: UI_ANIMATION_MODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                mode: UI_ANIMATION_MODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Pause: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Resume: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetManagerEventHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                handler: ?*IUIAnimationManagerEventHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                handler: ?*IUIAnimationManagerEventHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetCancelPriorityComparison: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                comparison: ?*IUIAnimationPriorityComparison,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                comparison: ?*IUIAnimationPriorityComparison,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetTrimPriorityComparison: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                comparison: ?*IUIAnimationPriorityComparison,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                comparison: ?*IUIAnimationPriorityComparison,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetCompressPriorityComparison: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                comparison: ?*IUIAnimationPriorityComparison,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                comparison: ?*IUIAnimationPriorityComparison,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetConcludePriorityComparison: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                comparison: ?*IUIAnimationPriorityComparison,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                comparison: ?*IUIAnimationPriorityComparison,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDefaultLongestAcceptableDelay: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+                delay: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+                delay: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Shutdown: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -244,69 +362,155 @@ pub const UI_ANIMATION_ROUNDING_FLOOR = UI_ANIMATION_ROUNDING_MODE.FLOOR;
 pub const UI_ANIMATION_ROUNDING_CEILING = UI_ANIMATION_ROUNDING_MODE.CEILING;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationVariable_Value = @import("../zig.zig").Guid.initString("8ceeb155-2849-4ce5-9448-91ff70e1e4d9");
+const IID_IUIAnimationVariable_Value = Guid.initString("8ceeb155-2849-4ce5-9448-91ff70e1e4d9");
 pub const IID_IUIAnimationVariable = &IID_IUIAnimationVariable_Value;
 pub const IUIAnimationVariable = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetValue: fn(
-            self: *const IUIAnimationVariable,
-            value: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFinalValue: fn(
-            self: *const IUIAnimationVariable,
-            finalValue: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPreviousValue: fn(
-            self: *const IUIAnimationVariable,
-            previousValue: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetIntegerValue: fn(
-            self: *const IUIAnimationVariable,
-            value: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFinalIntegerValue: fn(
-            self: *const IUIAnimationVariable,
-            finalValue: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPreviousIntegerValue: fn(
-            self: *const IUIAnimationVariable,
-            previousValue: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrentStoryboard: fn(
-            self: *const IUIAnimationVariable,
-            storyboard: ?*?*IUIAnimationStoryboard,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetLowerBound: fn(
-            self: *const IUIAnimationVariable,
-            bound: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetUpperBound: fn(
-            self: *const IUIAnimationVariable,
-            bound: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetRoundingMode: fn(
-            self: *const IUIAnimationVariable,
-            mode: UI_ANIMATION_ROUNDING_MODE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetTag: fn(
-            self: *const IUIAnimationVariable,
-            object: ?*IUnknown,
-            id: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTag: fn(
-            self: *const IUIAnimationVariable,
-            object: ?*?*IUnknown,
-            id: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetVariableChangeHandler: fn(
-            self: *const IUIAnimationVariable,
-            handler: ?*IUIAnimationVariableChangeHandler,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetVariableIntegerChangeHandler: fn(
-            self: *const IUIAnimationVariable,
-            handler: ?*IUIAnimationVariableIntegerChangeHandler,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                value: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                value: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFinalValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                finalValue: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                finalValue: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPreviousValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                previousValue: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                previousValue: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetIntegerValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFinalIntegerValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                finalValue: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                finalValue: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPreviousIntegerValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                previousValue: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                previousValue: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrentStoryboard: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                storyboard: ?*?*IUIAnimationStoryboard,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                storyboard: ?*?*IUIAnimationStoryboard,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetLowerBound: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                bound: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                bound: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetUpperBound: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                bound: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                bound: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetRoundingMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                mode: UI_ANIMATION_ROUNDING_MODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                mode: UI_ANIMATION_ROUNDING_MODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetTag: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                object: ?*IUnknown,
+                id: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                object: ?*IUnknown,
+                id: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTag: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                object: ?*?*IUnknown,
+                id: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                object: ?*?*IUnknown,
+                id: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetVariableChangeHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                handler: ?*IUIAnimationVariableChangeHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                handler: ?*IUIAnimationVariableChangeHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetVariableIntegerChangeHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable,
+                handler: ?*IUIAnimationVariableIntegerChangeHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable,
+                handler: ?*IUIAnimationVariableIntegerChangeHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -404,91 +608,205 @@ pub const UI_ANIMATION_SCHEDULING_SUCCEEDED = UI_ANIMATION_SCHEDULING_RESULT.SUC
 pub const UI_ANIMATION_SCHEDULING_DEFERRED = UI_ANIMATION_SCHEDULING_RESULT.DEFERRED;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationStoryboard_Value = @import("../zig.zig").Guid.initString("a8ff128f-9bf9-4af1-9e67-e5e410defb84");
+const IID_IUIAnimationStoryboard_Value = Guid.initString("a8ff128f-9bf9-4af1-9e67-e5e410defb84");
 pub const IID_IUIAnimationStoryboard = &IID_IUIAnimationStoryboard_Value;
 pub const IUIAnimationStoryboard = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddTransition: fn(
-            self: *const IUIAnimationStoryboard,
-            variable: ?*IUIAnimationVariable,
-            transition: ?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddKeyframeAtOffset: fn(
-            self: *const IUIAnimationStoryboard,
-            existingKeyframe: UI_ANIMATION_KEYFRAME,
-            offset: f64,
-            keyframe: ?*UI_ANIMATION_KEYFRAME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddKeyframeAfterTransition: fn(
-            self: *const IUIAnimationStoryboard,
-            transition: ?*IUIAnimationTransition,
-            keyframe: ?*UI_ANIMATION_KEYFRAME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddTransitionAtKeyframe: fn(
-            self: *const IUIAnimationStoryboard,
-            variable: ?*IUIAnimationVariable,
-            transition: ?*IUIAnimationTransition,
-            startKeyframe: UI_ANIMATION_KEYFRAME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddTransitionBetweenKeyframes: fn(
-            self: *const IUIAnimationStoryboard,
-            variable: ?*IUIAnimationVariable,
-            transition: ?*IUIAnimationTransition,
-            startKeyframe: UI_ANIMATION_KEYFRAME,
-            endKeyframe: UI_ANIMATION_KEYFRAME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RepeatBetweenKeyframes: fn(
-            self: *const IUIAnimationStoryboard,
-            startKeyframe: UI_ANIMATION_KEYFRAME,
-            endKeyframe: UI_ANIMATION_KEYFRAME,
-            repetitionCount: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        HoldVariable: fn(
-            self: *const IUIAnimationStoryboard,
-            variable: ?*IUIAnimationVariable,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetLongestAcceptableDelay: fn(
-            self: *const IUIAnimationStoryboard,
-            delay: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Schedule: fn(
-            self: *const IUIAnimationStoryboard,
-            timeNow: f64,
-            schedulingResult: ?*UI_ANIMATION_SCHEDULING_RESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Conclude: fn(
-            self: *const IUIAnimationStoryboard,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Finish: fn(
-            self: *const IUIAnimationStoryboard,
-            completionDeadline: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Abandon: fn(
-            self: *const IUIAnimationStoryboard,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetTag: fn(
-            self: *const IUIAnimationStoryboard,
-            object: ?*IUnknown,
-            id: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTag: fn(
-            self: *const IUIAnimationStoryboard,
-            object: ?*?*IUnknown,
-            id: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStatus: fn(
-            self: *const IUIAnimationStoryboard,
-            status: ?*UI_ANIMATION_STORYBOARD_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetElapsedTime: fn(
-            self: *const IUIAnimationStoryboard,
-            elapsedTime: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetStoryboardEventHandler: fn(
-            self: *const IUIAnimationStoryboard,
-            handler: ?*IUIAnimationStoryboardEventHandler,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                variable: ?*IUIAnimationVariable,
+                transition: ?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                variable: ?*IUIAnimationVariable,
+                transition: ?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddKeyframeAtOffset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                existingKeyframe: UI_ANIMATION_KEYFRAME,
+                offset: f64,
+                keyframe: ?*UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                existingKeyframe: UI_ANIMATION_KEYFRAME,
+                offset: f64,
+                keyframe: ?*UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddKeyframeAfterTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                transition: ?*IUIAnimationTransition,
+                keyframe: ?*UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                transition: ?*IUIAnimationTransition,
+                keyframe: ?*UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddTransitionAtKeyframe: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                variable: ?*IUIAnimationVariable,
+                transition: ?*IUIAnimationTransition,
+                startKeyframe: UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                variable: ?*IUIAnimationVariable,
+                transition: ?*IUIAnimationTransition,
+                startKeyframe: UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddTransitionBetweenKeyframes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                variable: ?*IUIAnimationVariable,
+                transition: ?*IUIAnimationTransition,
+                startKeyframe: UI_ANIMATION_KEYFRAME,
+                endKeyframe: UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                variable: ?*IUIAnimationVariable,
+                transition: ?*IUIAnimationTransition,
+                startKeyframe: UI_ANIMATION_KEYFRAME,
+                endKeyframe: UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RepeatBetweenKeyframes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                startKeyframe: UI_ANIMATION_KEYFRAME,
+                endKeyframe: UI_ANIMATION_KEYFRAME,
+                repetitionCount: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                startKeyframe: UI_ANIMATION_KEYFRAME,
+                endKeyframe: UI_ANIMATION_KEYFRAME,
+                repetitionCount: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        HoldVariable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                variable: ?*IUIAnimationVariable,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                variable: ?*IUIAnimationVariable,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetLongestAcceptableDelay: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                delay: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                delay: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Schedule: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                timeNow: f64,
+                schedulingResult: ?*UI_ANIMATION_SCHEDULING_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                timeNow: f64,
+                schedulingResult: ?*UI_ANIMATION_SCHEDULING_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Conclude: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Finish: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                completionDeadline: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                completionDeadline: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Abandon: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetTag: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                object: ?*IUnknown,
+                id: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                object: ?*IUnknown,
+                id: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTag: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                object: ?*?*IUnknown,
+                id: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                object: ?*?*IUnknown,
+                id: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                status: ?*UI_ANIMATION_STORYBOARD_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                status: ?*UI_ANIMATION_STORYBOARD_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetElapsedTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                elapsedTime: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                elapsedTime: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetStoryboardEventHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard,
+                handler: ?*IUIAnimationStoryboardEventHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard,
+                handler: ?*IUIAnimationStoryboardEventHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -566,26 +884,49 @@ pub const IUIAnimationStoryboard = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationTransition_Value = @import("../zig.zig").Guid.initString("dc6ce252-f731-41cf-b610-614b6ca049ad");
+const IID_IUIAnimationTransition_Value = Guid.initString("dc6ce252-f731-41cf-b610-614b6ca049ad");
 pub const IID_IUIAnimationTransition = &IID_IUIAnimationTransition_Value;
 pub const IUIAnimationTransition = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetInitialValue: fn(
-            self: *const IUIAnimationTransition,
-            value: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetInitialVelocity: fn(
-            self: *const IUIAnimationTransition,
-            velocity: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsDurationKnown: fn(
-            self: *const IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDuration: fn(
-            self: *const IUIAnimationTransition,
-            duration: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetInitialValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransition,
+                value: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransition,
+                value: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetInitialVelocity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransition,
+                velocity: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransition,
+                velocity: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsDurationKnown: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDuration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransition,
+                duration: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransition,
+                duration: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -611,16 +952,23 @@ pub const IUIAnimationTransition = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationManagerEventHandler_Value = @import("../zig.zig").Guid.initString("783321ed-78a3-4366-b574-6af607a64788");
+const IID_IUIAnimationManagerEventHandler_Value = Guid.initString("783321ed-78a3-4366-b574-6af607a64788");
 pub const IID_IUIAnimationManagerEventHandler = &IID_IUIAnimationManagerEventHandler_Value;
 pub const IUIAnimationManagerEventHandler = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnManagerStatusChanged: fn(
-            self: *const IUIAnimationManagerEventHandler,
-            newStatus: UI_ANIMATION_MANAGER_STATUS,
-            previousStatus: UI_ANIMATION_MANAGER_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnManagerStatusChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManagerEventHandler,
+                newStatus: UI_ANIMATION_MANAGER_STATUS,
+                previousStatus: UI_ANIMATION_MANAGER_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManagerEventHandler,
+                newStatus: UI_ANIMATION_MANAGER_STATUS,
+                previousStatus: UI_ANIMATION_MANAGER_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -634,18 +982,27 @@ pub const IUIAnimationManagerEventHandler = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationVariableChangeHandler_Value = @import("../zig.zig").Guid.initString("6358b7ba-87d2-42d5-bf71-82e919dd5862");
+const IID_IUIAnimationVariableChangeHandler_Value = Guid.initString("6358b7ba-87d2-42d5-bf71-82e919dd5862");
 pub const IID_IUIAnimationVariableChangeHandler = &IID_IUIAnimationVariableChangeHandler_Value;
 pub const IUIAnimationVariableChangeHandler = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnValueChanged: fn(
-            self: *const IUIAnimationVariableChangeHandler,
-            storyboard: ?*IUIAnimationStoryboard,
-            variable: ?*IUIAnimationVariable,
-            newValue: f64,
-            previousValue: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnValueChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariableChangeHandler,
+                storyboard: ?*IUIAnimationStoryboard,
+                variable: ?*IUIAnimationVariable,
+                newValue: f64,
+                previousValue: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariableChangeHandler,
+                storyboard: ?*IUIAnimationStoryboard,
+                variable: ?*IUIAnimationVariable,
+                newValue: f64,
+                previousValue: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -659,18 +1016,27 @@ pub const IUIAnimationVariableChangeHandler = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationVariableIntegerChangeHandler_Value = @import("../zig.zig").Guid.initString("bb3e1550-356e-44b0-99da-85ac6017865e");
+const IID_IUIAnimationVariableIntegerChangeHandler_Value = Guid.initString("bb3e1550-356e-44b0-99da-85ac6017865e");
 pub const IID_IUIAnimationVariableIntegerChangeHandler = &IID_IUIAnimationVariableIntegerChangeHandler_Value;
 pub const IUIAnimationVariableIntegerChangeHandler = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnIntegerValueChanged: fn(
-            self: *const IUIAnimationVariableIntegerChangeHandler,
-            storyboard: ?*IUIAnimationStoryboard,
-            variable: ?*IUIAnimationVariable,
-            newValue: i32,
-            previousValue: i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnIntegerValueChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariableIntegerChangeHandler,
+                storyboard: ?*IUIAnimationStoryboard,
+                variable: ?*IUIAnimationVariable,
+                newValue: i32,
+                previousValue: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariableIntegerChangeHandler,
+                storyboard: ?*IUIAnimationStoryboard,
+                variable: ?*IUIAnimationVariable,
+                newValue: i32,
+                previousValue: i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -684,21 +1050,35 @@ pub const IUIAnimationVariableIntegerChangeHandler = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationStoryboardEventHandler_Value = @import("../zig.zig").Guid.initString("3d5c9008-ec7c-4364-9f8a-9af3c58cbae6");
+const IID_IUIAnimationStoryboardEventHandler_Value = Guid.initString("3d5c9008-ec7c-4364-9f8a-9af3c58cbae6");
 pub const IID_IUIAnimationStoryboardEventHandler = &IID_IUIAnimationStoryboardEventHandler_Value;
 pub const IUIAnimationStoryboardEventHandler = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnStoryboardStatusChanged: fn(
-            self: *const IUIAnimationStoryboardEventHandler,
-            storyboard: ?*IUIAnimationStoryboard,
-            newStatus: UI_ANIMATION_STORYBOARD_STATUS,
-            previousStatus: UI_ANIMATION_STORYBOARD_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnStoryboardUpdated: fn(
-            self: *const IUIAnimationStoryboardEventHandler,
-            storyboard: ?*IUIAnimationStoryboard,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnStoryboardStatusChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboardEventHandler,
+                storyboard: ?*IUIAnimationStoryboard,
+                newStatus: UI_ANIMATION_STORYBOARD_STATUS,
+                previousStatus: UI_ANIMATION_STORYBOARD_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboardEventHandler,
+                storyboard: ?*IUIAnimationStoryboard,
+                newStatus: UI_ANIMATION_STORYBOARD_STATUS,
+                previousStatus: UI_ANIMATION_STORYBOARD_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnStoryboardUpdated: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboardEventHandler,
+                storyboard: ?*IUIAnimationStoryboard,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboardEventHandler,
+                storyboard: ?*IUIAnimationStoryboard,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -723,17 +1103,25 @@ pub const UI_ANIMATION_PRIORITY_EFFECT_FAILURE = UI_ANIMATION_PRIORITY_EFFECT.FA
 pub const UI_ANIMATION_PRIORITY_EFFECT_DELAY = UI_ANIMATION_PRIORITY_EFFECT.DELAY;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationPriorityComparison_Value = @import("../zig.zig").Guid.initString("83fa9b74-5f86-4618-bc6a-a2fac19b3f44");
+const IID_IUIAnimationPriorityComparison_Value = Guid.initString("83fa9b74-5f86-4618-bc6a-a2fac19b3f44");
 pub const IID_IUIAnimationPriorityComparison = &IID_IUIAnimationPriorityComparison_Value;
 pub const IUIAnimationPriorityComparison = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        HasPriority: fn(
-            self: *const IUIAnimationPriorityComparison,
-            scheduledStoryboard: ?*IUIAnimationStoryboard,
-            newStoryboard: ?*IUIAnimationStoryboard,
-            priorityEffect: UI_ANIMATION_PRIORITY_EFFECT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        HasPriority: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationPriorityComparison,
+                scheduledStoryboard: ?*IUIAnimationStoryboard,
+                newStoryboard: ?*IUIAnimationStoryboard,
+                priorityEffect: UI_ANIMATION_PRIORITY_EFFECT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationPriorityComparison,
+                scheduledStoryboard: ?*IUIAnimationStoryboard,
+                newStoryboard: ?*IUIAnimationStoryboard,
+                priorityEffect: UI_ANIMATION_PRIORITY_EFFECT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -754,88 +1142,189 @@ pub const UI_ANIMATION_SLOPE_INCREASING = UI_ANIMATION_SLOPE.INCREASING;
 pub const UI_ANIMATION_SLOPE_DECREASING = UI_ANIMATION_SLOPE.DECREASING;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationTransitionLibrary_Value = @import("../zig.zig").Guid.initString("ca5a14b1-d24f-48b8-8fe4-c78169ba954e");
+const IID_IUIAnimationTransitionLibrary_Value = Guid.initString("ca5a14b1-d24f-48b8-8fe4-c78169ba954e");
 pub const IID_IUIAnimationTransitionLibrary = &IID_IUIAnimationTransitionLibrary_Value;
 pub const IUIAnimationTransitionLibrary = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateInstantaneousTransition: fn(
-            self: *const IUIAnimationTransitionLibrary,
-            finalValue: f64,
-            transition: ?*?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateConstantTransition: fn(
-            self: *const IUIAnimationTransitionLibrary,
-            duration: f64,
-            transition: ?*?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateDiscreteTransition: fn(
-            self: *const IUIAnimationTransitionLibrary,
-            delay: f64,
-            finalValue: f64,
-            hold: f64,
-            transition: ?*?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateLinearTransition: fn(
-            self: *const IUIAnimationTransitionLibrary,
-            duration: f64,
-            finalValue: f64,
-            transition: ?*?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateLinearTransitionFromSpeed: fn(
-            self: *const IUIAnimationTransitionLibrary,
-            speed: f64,
-            finalValue: f64,
-            transition: ?*?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateSinusoidalTransitionFromVelocity: fn(
-            self: *const IUIAnimationTransitionLibrary,
-            duration: f64,
-            period: f64,
-            transition: ?*?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateSinusoidalTransitionFromRange: fn(
-            self: *const IUIAnimationTransitionLibrary,
-            duration: f64,
-            minimumValue: f64,
-            maximumValue: f64,
-            period: f64,
-            slope: UI_ANIMATION_SLOPE,
-            transition: ?*?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateAccelerateDecelerateTransition: fn(
-            self: *const IUIAnimationTransitionLibrary,
-            duration: f64,
-            finalValue: f64,
-            accelerationRatio: f64,
-            decelerationRatio: f64,
-            transition: ?*?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateReversalTransition: fn(
-            self: *const IUIAnimationTransitionLibrary,
-            duration: f64,
-            transition: ?*?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateCubicTransition: fn(
-            self: *const IUIAnimationTransitionLibrary,
-            duration: f64,
-            finalValue: f64,
-            finalVelocity: f64,
-            transition: ?*?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateSmoothStopTransition: fn(
-            self: *const IUIAnimationTransitionLibrary,
-            maximumDuration: f64,
-            finalValue: f64,
-            transition: ?*?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateParabolicTransitionFromAcceleration: fn(
-            self: *const IUIAnimationTransitionLibrary,
-            finalValue: f64,
-            finalVelocity: f64,
-            acceleration: f64,
-            transition: ?*?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateInstantaneousTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateConstantTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateDiscreteTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary,
+                delay: f64,
+                finalValue: f64,
+                hold: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary,
+                delay: f64,
+                finalValue: f64,
+                hold: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateLinearTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateLinearTransitionFromSpeed: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary,
+                speed: f64,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary,
+                speed: f64,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateSinusoidalTransitionFromVelocity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                period: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                period: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateSinusoidalTransitionFromRange: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                minimumValue: f64,
+                maximumValue: f64,
+                period: f64,
+                slope: UI_ANIMATION_SLOPE,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                minimumValue: f64,
+                maximumValue: f64,
+                period: f64,
+                slope: UI_ANIMATION_SLOPE,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateAccelerateDecelerateTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                finalValue: f64,
+                accelerationRatio: f64,
+                decelerationRatio: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                finalValue: f64,
+                accelerationRatio: f64,
+                decelerationRatio: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateReversalTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateCubicTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                finalValue: f64,
+                finalVelocity: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary,
+                duration: f64,
+                finalValue: f64,
+                finalVelocity: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateSmoothStopTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary,
+                maximumDuration: f64,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary,
+                maximumDuration: f64,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateParabolicTransitionFromAcceleration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary,
+                finalValue: f64,
+                finalVelocity: f64,
+                acceleration: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary,
+                finalValue: f64,
+                finalVelocity: f64,
+                acceleration: f64,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -922,44 +1411,91 @@ pub const UI_ANIMATION_DEPENDENCY_FINAL_VELOCITY = UI_ANIMATION_DEPENDENCIES.FIN
 pub const UI_ANIMATION_DEPENDENCY_DURATION = UI_ANIMATION_DEPENDENCIES.DURATION;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationInterpolator_Value = @import("../zig.zig").Guid.initString("7815cbba-ddf7-478c-a46c-7b6c738b7978");
+const IID_IUIAnimationInterpolator_Value = Guid.initString("7815cbba-ddf7-478c-a46c-7b6c738b7978");
 pub const IID_IUIAnimationInterpolator = &IID_IUIAnimationInterpolator_Value;
 pub const IUIAnimationInterpolator = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetInitialValueAndVelocity: fn(
-            self: *const IUIAnimationInterpolator,
-            initialValue: f64,
-            initialVelocity: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDuration: fn(
-            self: *const IUIAnimationInterpolator,
-            duration: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDuration: fn(
-            self: *const IUIAnimationInterpolator,
-            duration: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFinalValue: fn(
-            self: *const IUIAnimationInterpolator,
-            value: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        InterpolateValue: fn(
-            self: *const IUIAnimationInterpolator,
-            offset: f64,
-            value: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        InterpolateVelocity: fn(
-            self: *const IUIAnimationInterpolator,
-            offset: f64,
-            velocity: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDependencies: fn(
-            self: *const IUIAnimationInterpolator,
-            initialValueDependencies: ?*UI_ANIMATION_DEPENDENCIES,
-            initialVelocityDependencies: ?*UI_ANIMATION_DEPENDENCIES,
-            durationDependencies: ?*UI_ANIMATION_DEPENDENCIES,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetInitialValueAndVelocity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator,
+                initialValue: f64,
+                initialVelocity: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator,
+                initialValue: f64,
+                initialVelocity: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDuration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator,
+                duration: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator,
+                duration: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDuration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator,
+                duration: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator,
+                duration: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFinalValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator,
+                value: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator,
+                value: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        InterpolateValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator,
+                offset: f64,
+                value: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator,
+                offset: f64,
+                value: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        InterpolateVelocity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator,
+                offset: f64,
+                velocity: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator,
+                offset: f64,
+                velocity: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDependencies: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator,
+                initialValueDependencies: ?*UI_ANIMATION_DEPENDENCIES,
+                initialVelocityDependencies: ?*UI_ANIMATION_DEPENDENCIES,
+                durationDependencies: ?*UI_ANIMATION_DEPENDENCIES,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator,
+                initialValueDependencies: ?*UI_ANIMATION_DEPENDENCIES,
+                initialVelocityDependencies: ?*UI_ANIMATION_DEPENDENCIES,
+                durationDependencies: ?*UI_ANIMATION_DEPENDENCIES,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -997,16 +1533,23 @@ pub const IUIAnimationInterpolator = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationTransitionFactory_Value = @import("../zig.zig").Guid.initString("fcd91e03-3e3b-45ad-bbb1-6dfc8153743d");
+const IID_IUIAnimationTransitionFactory_Value = Guid.initString("fcd91e03-3e3b-45ad-bbb1-6dfc8153743d");
 pub const IID_IUIAnimationTransitionFactory = &IID_IUIAnimationTransitionFactory_Value;
 pub const IUIAnimationTransitionFactory = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateTransition: fn(
-            self: *const IUIAnimationTransitionFactory,
-            interpolator: ?*IUIAnimationInterpolator,
-            transition: ?*?*IUIAnimationTransition,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionFactory,
+                interpolator: ?*IUIAnimationInterpolator,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionFactory,
+                interpolator: ?*IUIAnimationInterpolator,
+                transition: ?*?*IUIAnimationTransition,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1027,37 +1570,77 @@ pub const UI_ANIMATION_IDLE_BEHAVIOR_CONTINUE = UI_ANIMATION_IDLE_BEHAVIOR.CONTI
 pub const UI_ANIMATION_IDLE_BEHAVIOR_DISABLE = UI_ANIMATION_IDLE_BEHAVIOR.DISABLE;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationTimer_Value = @import("../zig.zig").Guid.initString("6b0efad1-a053-41d6-9085-33a689144665");
+const IID_IUIAnimationTimer_Value = Guid.initString("6b0efad1-a053-41d6-9085-33a689144665");
 pub const IID_IUIAnimationTimer = &IID_IUIAnimationTimer_Value;
 pub const IUIAnimationTimer = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        SetTimerUpdateHandler: fn(
-            self: *const IUIAnimationTimer,
-            updateHandler: ?*IUIAnimationTimerUpdateHandler,
-            idleBehavior: UI_ANIMATION_IDLE_BEHAVIOR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetTimerEventHandler: fn(
-            self: *const IUIAnimationTimer,
-            handler: ?*IUIAnimationTimerEventHandler,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Enable: fn(
-            self: *const IUIAnimationTimer,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Disable: fn(
-            self: *const IUIAnimationTimer,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsEnabled: fn(
-            self: *const IUIAnimationTimer,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTime: fn(
-            self: *const IUIAnimationTimer,
-            seconds: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetFrameRateThreshold: fn(
-            self: *const IUIAnimationTimer,
-            framesPerSecond: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        SetTimerUpdateHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimer,
+                updateHandler: ?*IUIAnimationTimerUpdateHandler,
+                idleBehavior: UI_ANIMATION_IDLE_BEHAVIOR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimer,
+                updateHandler: ?*IUIAnimationTimerUpdateHandler,
+                idleBehavior: UI_ANIMATION_IDLE_BEHAVIOR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetTimerEventHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimer,
+                handler: ?*IUIAnimationTimerEventHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimer,
+                handler: ?*IUIAnimationTimerEventHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Enable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Disable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsEnabled: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimer,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimer,
+                seconds: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimer,
+                seconds: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetFrameRateThreshold: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimer,
+                framesPerSecond: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimer,
+                framesPerSecond: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1095,23 +1678,41 @@ pub const IUIAnimationTimer = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationTimerUpdateHandler_Value = @import("../zig.zig").Guid.initString("195509b7-5d5e-4e3e-b278-ee3759b367ad");
+const IID_IUIAnimationTimerUpdateHandler_Value = Guid.initString("195509b7-5d5e-4e3e-b278-ee3759b367ad");
 pub const IID_IUIAnimationTimerUpdateHandler = &IID_IUIAnimationTimerUpdateHandler_Value;
 pub const IUIAnimationTimerUpdateHandler = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnUpdate: fn(
-            self: *const IUIAnimationTimerUpdateHandler,
-            timeNow: f64,
-            result: ?*UI_ANIMATION_UPDATE_RESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetTimerClientEventHandler: fn(
-            self: *const IUIAnimationTimerUpdateHandler,
-            handler: ?*IUIAnimationTimerClientEventHandler,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ClearTimerClientEventHandler: fn(
-            self: *const IUIAnimationTimerUpdateHandler,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnUpdate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimerUpdateHandler,
+                timeNow: f64,
+                result: ?*UI_ANIMATION_UPDATE_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimerUpdateHandler,
+                timeNow: f64,
+                result: ?*UI_ANIMATION_UPDATE_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetTimerClientEventHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimerUpdateHandler,
+                handler: ?*IUIAnimationTimerClientEventHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimerUpdateHandler,
+                handler: ?*IUIAnimationTimerClientEventHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ClearTimerClientEventHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimerUpdateHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimerUpdateHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1140,16 +1741,23 @@ pub const UI_ANIMATION_TIMER_CLIENT_IDLE = UI_ANIMATION_TIMER_CLIENT_STATUS.IDLE
 pub const UI_ANIMATION_TIMER_CLIENT_BUSY = UI_ANIMATION_TIMER_CLIENT_STATUS.BUSY;
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationTimerClientEventHandler_Value = @import("../zig.zig").Guid.initString("bedb4db6-94fa-4bfb-a47f-ef2d9e408c25");
+const IID_IUIAnimationTimerClientEventHandler_Value = Guid.initString("bedb4db6-94fa-4bfb-a47f-ef2d9e408c25");
 pub const IID_IUIAnimationTimerClientEventHandler = &IID_IUIAnimationTimerClientEventHandler_Value;
 pub const IUIAnimationTimerClientEventHandler = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnTimerClientStatusChanged: fn(
-            self: *const IUIAnimationTimerClientEventHandler,
-            newStatus: UI_ANIMATION_TIMER_CLIENT_STATUS,
-            previousStatus: UI_ANIMATION_TIMER_CLIENT_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnTimerClientStatusChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimerClientEventHandler,
+                newStatus: UI_ANIMATION_TIMER_CLIENT_STATUS,
+                previousStatus: UI_ANIMATION_TIMER_CLIENT_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimerClientEventHandler,
+                newStatus: UI_ANIMATION_TIMER_CLIENT_STATUS,
+                previousStatus: UI_ANIMATION_TIMER_CLIENT_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1163,21 +1771,37 @@ pub const IUIAnimationTimerClientEventHandler = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows6.1'
-const IID_IUIAnimationTimerEventHandler_Value = @import("../zig.zig").Guid.initString("274a7dea-d771-4095-abbd-8df7abd23ce3");
+const IID_IUIAnimationTimerEventHandler_Value = Guid.initString("274a7dea-d771-4095-abbd-8df7abd23ce3");
 pub const IID_IUIAnimationTimerEventHandler = &IID_IUIAnimationTimerEventHandler_Value;
 pub const IUIAnimationTimerEventHandler = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnPreUpdate: fn(
-            self: *const IUIAnimationTimerEventHandler,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnPostUpdate: fn(
-            self: *const IUIAnimationTimerEventHandler,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnRenderingTooSlow: fn(
-            self: *const IUIAnimationTimerEventHandler,
-            framesPerSecond: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnPreUpdate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimerEventHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimerEventHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnPostUpdate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimerEventHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimerEventHandler,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnRenderingTooSlow: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTimerEventHandler,
+                framesPerSecond: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTimerEventHandler,
+                framesPerSecond: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1199,102 +1823,235 @@ pub const IUIAnimationTimerEventHandler = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationManager2_Value = @import("../zig.zig").Guid.initString("d8b6f7d4-4109-4d3f-acee-879926968cb1");
+const IID_IUIAnimationManager2_Value = Guid.initString("d8b6f7d4-4109-4d3f-acee-879926968cb1");
 pub const IID_IUIAnimationManager2 = &IID_IUIAnimationManager2_Value;
 pub const IUIAnimationManager2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateAnimationVectorVariable: fn(
-            self: *const IUIAnimationManager2,
-            initialValue: [*]const f64,
-            cDimension: u32,
-            variable: ?*?*IUIAnimationVariable2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateAnimationVariable: fn(
-            self: *const IUIAnimationManager2,
-            initialValue: f64,
-            variable: ?*?*IUIAnimationVariable2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ScheduleTransition: fn(
-            self: *const IUIAnimationManager2,
-            variable: ?*IUIAnimationVariable2,
-            transition: ?*IUIAnimationTransition2,
-            timeNow: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateStoryboard: fn(
-            self: *const IUIAnimationManager2,
-            storyboard: ?*?*IUIAnimationStoryboard2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        FinishAllStoryboards: fn(
-            self: *const IUIAnimationManager2,
-            completionDeadline: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AbandonAllStoryboards: fn(
-            self: *const IUIAnimationManager2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Update: fn(
-            self: *const IUIAnimationManager2,
-            timeNow: f64,
-            updateResult: ?*UI_ANIMATION_UPDATE_RESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVariableFromTag: fn(
-            self: *const IUIAnimationManager2,
-            object: ?*IUnknown,
-            id: u32,
-            variable: ?*?*IUIAnimationVariable2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStoryboardFromTag: fn(
-            self: *const IUIAnimationManager2,
-            object: ?*IUnknown,
-            id: u32,
-            storyboard: ?*?*IUIAnimationStoryboard2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        EstimateNextEventTime: fn(
-            self: *const IUIAnimationManager2,
-            seconds: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStatus: fn(
-            self: *const IUIAnimationManager2,
-            status: ?*UI_ANIMATION_MANAGER_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetAnimationMode: fn(
-            self: *const IUIAnimationManager2,
-            mode: UI_ANIMATION_MODE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Pause: fn(
-            self: *const IUIAnimationManager2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Resume: fn(
-            self: *const IUIAnimationManager2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetManagerEventHandler: fn(
-            self: *const IUIAnimationManager2,
-            handler: ?*IUIAnimationManagerEventHandler2,
-            fRegisterForNextAnimationEvent: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetCancelPriorityComparison: fn(
-            self: *const IUIAnimationManager2,
-            comparison: ?*IUIAnimationPriorityComparison2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetTrimPriorityComparison: fn(
-            self: *const IUIAnimationManager2,
-            comparison: ?*IUIAnimationPriorityComparison2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetCompressPriorityComparison: fn(
-            self: *const IUIAnimationManager2,
-            comparison: ?*IUIAnimationPriorityComparison2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetConcludePriorityComparison: fn(
-            self: *const IUIAnimationManager2,
-            comparison: ?*IUIAnimationPriorityComparison2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDefaultLongestAcceptableDelay: fn(
-            self: *const IUIAnimationManager2,
-            delay: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Shutdown: fn(
-            self: *const IUIAnimationManager2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateAnimationVectorVariable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                initialValue: [*]const f64,
+                cDimension: u32,
+                variable: ?*?*IUIAnimationVariable2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                initialValue: [*]const f64,
+                cDimension: u32,
+                variable: ?*?*IUIAnimationVariable2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateAnimationVariable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                initialValue: f64,
+                variable: ?*?*IUIAnimationVariable2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                initialValue: f64,
+                variable: ?*?*IUIAnimationVariable2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ScheduleTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                variable: ?*IUIAnimationVariable2,
+                transition: ?*IUIAnimationTransition2,
+                timeNow: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                variable: ?*IUIAnimationVariable2,
+                transition: ?*IUIAnimationTransition2,
+                timeNow: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateStoryboard: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                storyboard: ?*?*IUIAnimationStoryboard2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                storyboard: ?*?*IUIAnimationStoryboard2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        FinishAllStoryboards: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                completionDeadline: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                completionDeadline: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AbandonAllStoryboards: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Update: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                timeNow: f64,
+                updateResult: ?*UI_ANIMATION_UPDATE_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                timeNow: f64,
+                updateResult: ?*UI_ANIMATION_UPDATE_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVariableFromTag: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                object: ?*IUnknown,
+                id: u32,
+                variable: ?*?*IUIAnimationVariable2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                object: ?*IUnknown,
+                id: u32,
+                variable: ?*?*IUIAnimationVariable2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStoryboardFromTag: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                object: ?*IUnknown,
+                id: u32,
+                storyboard: ?*?*IUIAnimationStoryboard2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                object: ?*IUnknown,
+                id: u32,
+                storyboard: ?*?*IUIAnimationStoryboard2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        EstimateNextEventTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                seconds: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                seconds: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                status: ?*UI_ANIMATION_MANAGER_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                status: ?*UI_ANIMATION_MANAGER_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetAnimationMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                mode: UI_ANIMATION_MODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                mode: UI_ANIMATION_MODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Pause: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Resume: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetManagerEventHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                handler: ?*IUIAnimationManagerEventHandler2,
+                fRegisterForNextAnimationEvent: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                handler: ?*IUIAnimationManagerEventHandler2,
+                fRegisterForNextAnimationEvent: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetCancelPriorityComparison: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                comparison: ?*IUIAnimationPriorityComparison2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                comparison: ?*IUIAnimationPriorityComparison2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetTrimPriorityComparison: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                comparison: ?*IUIAnimationPriorityComparison2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                comparison: ?*IUIAnimationPriorityComparison2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetCompressPriorityComparison: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                comparison: ?*IUIAnimationPriorityComparison2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                comparison: ?*IUIAnimationPriorityComparison2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetConcludePriorityComparison: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                comparison: ?*IUIAnimationPriorityComparison2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                comparison: ?*IUIAnimationPriorityComparison2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDefaultLongestAcceptableDelay: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+                delay: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+                delay: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Shutdown: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManager2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManager2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1388,128 +2145,297 @@ pub const IUIAnimationManager2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationVariable2_Value = @import("../zig.zig").Guid.initString("4914b304-96ab-44d9-9e77-d5109b7e7466");
+const IID_IUIAnimationVariable2_Value = Guid.initString("4914b304-96ab-44d9-9e77-d5109b7e7466");
 pub const IID_IUIAnimationVariable2 = &IID_IUIAnimationVariable2_Value;
 pub const IUIAnimationVariable2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetDimension: fn(
-            self: *const IUIAnimationVariable2,
-            dimension: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetValue: fn(
-            self: *const IUIAnimationVariable2,
-            value: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVectorValue: fn(
-            self: *const IUIAnimationVariable2,
-            value: [*]f64,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurve: fn(
-            self: *const IUIAnimationVariable2,
-            animation: ?*IDCompositionAnimation,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVectorCurve: fn(
-            self: *const IUIAnimationVariable2,
-            animation: [*]?*IDCompositionAnimation,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFinalValue: fn(
-            self: *const IUIAnimationVariable2,
-            finalValue: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFinalVectorValue: fn(
-            self: *const IUIAnimationVariable2,
-            finalValue: [*]f64,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPreviousValue: fn(
-            self: *const IUIAnimationVariable2,
-            previousValue: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPreviousVectorValue: fn(
-            self: *const IUIAnimationVariable2,
-            previousValue: [*]f64,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetIntegerValue: fn(
-            self: *const IUIAnimationVariable2,
-            value: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetIntegerVectorValue: fn(
-            self: *const IUIAnimationVariable2,
-            value: [*]i32,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFinalIntegerValue: fn(
-            self: *const IUIAnimationVariable2,
-            finalValue: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFinalIntegerVectorValue: fn(
-            self: *const IUIAnimationVariable2,
-            finalValue: [*]i32,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPreviousIntegerValue: fn(
-            self: *const IUIAnimationVariable2,
-            previousValue: ?*i32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPreviousIntegerVectorValue: fn(
-            self: *const IUIAnimationVariable2,
-            previousValue: [*]i32,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetCurrentStoryboard: fn(
-            self: *const IUIAnimationVariable2,
-            storyboard: ?*?*IUIAnimationStoryboard2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetLowerBound: fn(
-            self: *const IUIAnimationVariable2,
-            bound: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetLowerBoundVector: fn(
-            self: *const IUIAnimationVariable2,
-            bound: [*]const f64,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetUpperBound: fn(
-            self: *const IUIAnimationVariable2,
-            bound: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetUpperBoundVector: fn(
-            self: *const IUIAnimationVariable2,
-            bound: [*]const f64,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetRoundingMode: fn(
-            self: *const IUIAnimationVariable2,
-            mode: UI_ANIMATION_ROUNDING_MODE,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetTag: fn(
-            self: *const IUIAnimationVariable2,
-            object: ?*IUnknown,
-            id: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTag: fn(
-            self: *const IUIAnimationVariable2,
-            object: ?*?*IUnknown,
-            id: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetVariableChangeHandler: fn(
-            self: *const IUIAnimationVariable2,
-            handler: ?*IUIAnimationVariableChangeHandler2,
-            fRegisterForNextAnimationEvent: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetVariableIntegerChangeHandler: fn(
-            self: *const IUIAnimationVariable2,
-            handler: ?*IUIAnimationVariableIntegerChangeHandler2,
-            fRegisterForNextAnimationEvent: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetVariableCurveChangeHandler: fn(
-            self: *const IUIAnimationVariable2,
-            handler: ?*IUIAnimationVariableCurveChangeHandler2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetDimension: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                dimension: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                dimension: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                value: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                value: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVectorValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                value: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                value: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurve: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                animation: ?*IDCompositionAnimation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                animation: ?*IDCompositionAnimation,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVectorCurve: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                animation: [*]?*IDCompositionAnimation,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                animation: [*]?*IDCompositionAnimation,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFinalValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                finalValue: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                finalValue: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFinalVectorValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                finalValue: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                finalValue: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPreviousValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                previousValue: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                previousValue: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPreviousVectorValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                previousValue: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                previousValue: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetIntegerValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                value: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetIntegerVectorValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                value: [*]i32,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                value: [*]i32,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFinalIntegerValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                finalValue: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                finalValue: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFinalIntegerVectorValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                finalValue: [*]i32,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                finalValue: [*]i32,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPreviousIntegerValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                previousValue: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                previousValue: ?*i32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPreviousIntegerVectorValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                previousValue: [*]i32,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                previousValue: [*]i32,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetCurrentStoryboard: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                storyboard: ?*?*IUIAnimationStoryboard2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                storyboard: ?*?*IUIAnimationStoryboard2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetLowerBound: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                bound: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                bound: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetLowerBoundVector: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                bound: [*]const f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                bound: [*]const f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetUpperBound: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                bound: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                bound: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetUpperBoundVector: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                bound: [*]const f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                bound: [*]const f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetRoundingMode: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                mode: UI_ANIMATION_ROUNDING_MODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                mode: UI_ANIMATION_ROUNDING_MODE,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetTag: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                object: ?*IUnknown,
+                id: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                object: ?*IUnknown,
+                id: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTag: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                object: ?*?*IUnknown,
+                id: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                object: ?*?*IUnknown,
+                id: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetVariableChangeHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                handler: ?*IUIAnimationVariableChangeHandler2,
+                fRegisterForNextAnimationEvent: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                handler: ?*IUIAnimationVariableChangeHandler2,
+                fRegisterForNextAnimationEvent: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetVariableIntegerChangeHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                handler: ?*IUIAnimationVariableIntegerChangeHandler2,
+                fRegisterForNextAnimationEvent: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                handler: ?*IUIAnimationVariableIntegerChangeHandler2,
+                fRegisterForNextAnimationEvent: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetVariableCurveChangeHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariable2,
+                handler: ?*IUIAnimationVariableCurveChangeHandler2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariable2,
+                handler: ?*IUIAnimationVariableCurveChangeHandler2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1623,40 +2549,83 @@ pub const IUIAnimationVariable2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationTransition2_Value = @import("../zig.zig").Guid.initString("62ff9123-a85a-4e9b-a218-435a93e268fd");
+const IID_IUIAnimationTransition2_Value = Guid.initString("62ff9123-a85a-4e9b-a218-435a93e268fd");
 pub const IID_IUIAnimationTransition2 = &IID_IUIAnimationTransition2_Value;
 pub const IUIAnimationTransition2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetDimension: fn(
-            self: *const IUIAnimationTransition2,
-            dimension: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetInitialValue: fn(
-            self: *const IUIAnimationTransition2,
-            value: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetInitialVectorValue: fn(
-            self: *const IUIAnimationTransition2,
-            value: [*]const f64,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetInitialVelocity: fn(
-            self: *const IUIAnimationTransition2,
-            velocity: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetInitialVectorVelocity: fn(
-            self: *const IUIAnimationTransition2,
-            velocity: [*]const f64,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        IsDurationKnown: fn(
-            self: *const IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDuration: fn(
-            self: *const IUIAnimationTransition2,
-            duration: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetDimension: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransition2,
+                dimension: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransition2,
+                dimension: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetInitialValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransition2,
+                value: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransition2,
+                value: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetInitialVectorValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransition2,
+                value: [*]const f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransition2,
+                value: [*]const f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetInitialVelocity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransition2,
+                velocity: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransition2,
+                velocity: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetInitialVectorVelocity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransition2,
+                velocity: [*]const f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransition2,
+                velocity: [*]const f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        IsDurationKnown: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDuration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransition2,
+                duration: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransition2,
+                duration: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1694,16 +2663,23 @@ pub const IUIAnimationTransition2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationManagerEventHandler2_Value = @import("../zig.zig").Guid.initString("f6e022ba-bff3-42ec-9033-e073f33e83c3");
+const IID_IUIAnimationManagerEventHandler2_Value = Guid.initString("f6e022ba-bff3-42ec-9033-e073f33e83c3");
 pub const IID_IUIAnimationManagerEventHandler2 = &IID_IUIAnimationManagerEventHandler2_Value;
 pub const IUIAnimationManagerEventHandler2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnManagerStatusChanged: fn(
-            self: *const IUIAnimationManagerEventHandler2,
-            newStatus: UI_ANIMATION_MANAGER_STATUS,
-            previousStatus: UI_ANIMATION_MANAGER_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnManagerStatusChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationManagerEventHandler2,
+                newStatus: UI_ANIMATION_MANAGER_STATUS,
+                previousStatus: UI_ANIMATION_MANAGER_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationManagerEventHandler2,
+                newStatus: UI_ANIMATION_MANAGER_STATUS,
+                previousStatus: UI_ANIMATION_MANAGER_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1717,19 +2693,29 @@ pub const IUIAnimationManagerEventHandler2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationVariableChangeHandler2_Value = @import("../zig.zig").Guid.initString("63acc8d2-6eae-4bb0-b879-586dd8cfbe42");
+const IID_IUIAnimationVariableChangeHandler2_Value = Guid.initString("63acc8d2-6eae-4bb0-b879-586dd8cfbe42");
 pub const IID_IUIAnimationVariableChangeHandler2 = &IID_IUIAnimationVariableChangeHandler2_Value;
 pub const IUIAnimationVariableChangeHandler2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnValueChanged: fn(
-            self: *const IUIAnimationVariableChangeHandler2,
-            storyboard: ?*IUIAnimationStoryboard2,
-            variable: ?*IUIAnimationVariable2,
-            newValue: [*]f64,
-            previousValue: [*]f64,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnValueChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariableChangeHandler2,
+                storyboard: ?*IUIAnimationStoryboard2,
+                variable: ?*IUIAnimationVariable2,
+                newValue: [*]f64,
+                previousValue: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariableChangeHandler2,
+                storyboard: ?*IUIAnimationStoryboard2,
+                variable: ?*IUIAnimationVariable2,
+                newValue: [*]f64,
+                previousValue: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1743,19 +2729,29 @@ pub const IUIAnimationVariableChangeHandler2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationVariableIntegerChangeHandler2_Value = @import("../zig.zig").Guid.initString("829b6cf1-4f3a-4412-ae09-b243eb4c6b58");
+const IID_IUIAnimationVariableIntegerChangeHandler2_Value = Guid.initString("829b6cf1-4f3a-4412-ae09-b243eb4c6b58");
 pub const IID_IUIAnimationVariableIntegerChangeHandler2 = &IID_IUIAnimationVariableIntegerChangeHandler2_Value;
 pub const IUIAnimationVariableIntegerChangeHandler2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnIntegerValueChanged: fn(
-            self: *const IUIAnimationVariableIntegerChangeHandler2,
-            storyboard: ?*IUIAnimationStoryboard2,
-            variable: ?*IUIAnimationVariable2,
-            newValue: [*]i32,
-            previousValue: [*]i32,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnIntegerValueChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariableIntegerChangeHandler2,
+                storyboard: ?*IUIAnimationStoryboard2,
+                variable: ?*IUIAnimationVariable2,
+                newValue: [*]i32,
+                previousValue: [*]i32,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariableIntegerChangeHandler2,
+                storyboard: ?*IUIAnimationStoryboard2,
+                variable: ?*IUIAnimationVariable2,
+                newValue: [*]i32,
+                previousValue: [*]i32,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1769,15 +2765,21 @@ pub const IUIAnimationVariableIntegerChangeHandler2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationVariableCurveChangeHandler2_Value = @import("../zig.zig").Guid.initString("72895e91-0145-4c21-9192-5aab40eddf80");
+const IID_IUIAnimationVariableCurveChangeHandler2_Value = Guid.initString("72895e91-0145-4c21-9192-5aab40eddf80");
 pub const IID_IUIAnimationVariableCurveChangeHandler2 = &IID_IUIAnimationVariableCurveChangeHandler2_Value;
 pub const IUIAnimationVariableCurveChangeHandler2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnCurveChanged: fn(
-            self: *const IUIAnimationVariableCurveChangeHandler2,
-            variable: ?*IUIAnimationVariable2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnCurveChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationVariableCurveChangeHandler2,
+                variable: ?*IUIAnimationVariable2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationVariableCurveChangeHandler2,
+                variable: ?*IUIAnimationVariable2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1791,21 +2793,35 @@ pub const IUIAnimationVariableCurveChangeHandler2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationStoryboardEventHandler2_Value = @import("../zig.zig").Guid.initString("bac5f55a-ba7c-414c-b599-fbf850f553c6");
+const IID_IUIAnimationStoryboardEventHandler2_Value = Guid.initString("bac5f55a-ba7c-414c-b599-fbf850f553c6");
 pub const IID_IUIAnimationStoryboardEventHandler2 = &IID_IUIAnimationStoryboardEventHandler2_Value;
 pub const IUIAnimationStoryboardEventHandler2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnStoryboardStatusChanged: fn(
-            self: *const IUIAnimationStoryboardEventHandler2,
-            storyboard: ?*IUIAnimationStoryboard2,
-            newStatus: UI_ANIMATION_STORYBOARD_STATUS,
-            previousStatus: UI_ANIMATION_STORYBOARD_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OnStoryboardUpdated: fn(
-            self: *const IUIAnimationStoryboardEventHandler2,
-            storyboard: ?*IUIAnimationStoryboard2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnStoryboardStatusChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboardEventHandler2,
+                storyboard: ?*IUIAnimationStoryboard2,
+                newStatus: UI_ANIMATION_STORYBOARD_STATUS,
+                previousStatus: UI_ANIMATION_STORYBOARD_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboardEventHandler2,
+                storyboard: ?*IUIAnimationStoryboard2,
+                newStatus: UI_ANIMATION_STORYBOARD_STATUS,
+                previousStatus: UI_ANIMATION_STORYBOARD_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OnStoryboardUpdated: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboardEventHandler2,
+                storyboard: ?*IUIAnimationStoryboard2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboardEventHandler2,
+                storyboard: ?*IUIAnimationStoryboard2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1823,18 +2839,27 @@ pub const IUIAnimationStoryboardEventHandler2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationLoopIterationChangeHandler2_Value = @import("../zig.zig").Guid.initString("2d3b15a4-4762-47ab-a030-b23221df3ae0");
+const IID_IUIAnimationLoopIterationChangeHandler2_Value = Guid.initString("2d3b15a4-4762-47ab-a030-b23221df3ae0");
 pub const IID_IUIAnimationLoopIterationChangeHandler2 = &IID_IUIAnimationLoopIterationChangeHandler2_Value;
 pub const IUIAnimationLoopIterationChangeHandler2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        OnLoopIterationChanged: fn(
-            self: *const IUIAnimationLoopIterationChangeHandler2,
-            storyboard: ?*IUIAnimationStoryboard2,
-            id: usize,
-            newIterationCount: u32,
-            oldIterationCount: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        OnLoopIterationChanged: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationLoopIterationChangeHandler2,
+                storyboard: ?*IUIAnimationStoryboard2,
+                id: usize,
+                newIterationCount: u32,
+                oldIterationCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationLoopIterationChangeHandler2,
+                storyboard: ?*IUIAnimationStoryboard2,
+                id: usize,
+                newIterationCount: u32,
+                oldIterationCount: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1848,17 +2873,25 @@ pub const IUIAnimationLoopIterationChangeHandler2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationPriorityComparison2_Value = @import("../zig.zig").Guid.initString("5b6d7a37-4621-467c-8b05-70131de62ddb");
+const IID_IUIAnimationPriorityComparison2_Value = Guid.initString("5b6d7a37-4621-467c-8b05-70131de62ddb");
 pub const IID_IUIAnimationPriorityComparison2 = &IID_IUIAnimationPriorityComparison2_Value;
 pub const IUIAnimationPriorityComparison2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        HasPriority: fn(
-            self: *const IUIAnimationPriorityComparison2,
-            scheduledStoryboard: ?*IUIAnimationStoryboard2,
-            newStoryboard: ?*IUIAnimationStoryboard2,
-            priorityEffect: UI_ANIMATION_PRIORITY_EFFECT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        HasPriority: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationPriorityComparison2,
+                scheduledStoryboard: ?*IUIAnimationStoryboard2,
+                newStoryboard: ?*IUIAnimationStoryboard2,
+                priorityEffect: UI_ANIMATION_PRIORITY_EFFECT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationPriorityComparison2,
+                scheduledStoryboard: ?*IUIAnimationStoryboard2,
+                newStoryboard: ?*IUIAnimationStoryboard2,
+                priorityEffect: UI_ANIMATION_PRIORITY_EFFECT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1872,145 +2905,317 @@ pub const IUIAnimationPriorityComparison2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationTransitionLibrary2_Value = @import("../zig.zig").Guid.initString("03cfae53-9580-4ee3-b363-2ece51b4af6a");
+const IID_IUIAnimationTransitionLibrary2_Value = Guid.initString("03cfae53-9580-4ee3-b363-2ece51b4af6a");
 pub const IID_IUIAnimationTransitionLibrary2 = &IID_IUIAnimationTransitionLibrary2_Value;
 pub const IUIAnimationTransitionLibrary2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateInstantaneousTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            finalValue: f64,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateInstantaneousVectorTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            finalValue: [*]const f64,
-            cDimension: u32,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateConstantTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            duration: f64,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateDiscreteTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            delay: f64,
-            finalValue: f64,
-            hold: f64,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateDiscreteVectorTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            delay: f64,
-            finalValue: [*]const f64,
-            cDimension: u32,
-            hold: f64,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateLinearTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            duration: f64,
-            finalValue: f64,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateLinearVectorTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            duration: f64,
-            finalValue: [*]const f64,
-            cDimension: u32,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateLinearTransitionFromSpeed: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            speed: f64,
-            finalValue: f64,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateLinearVectorTransitionFromSpeed: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            speed: f64,
-            finalValue: [*]const f64,
-            cDimension: u32,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateSinusoidalTransitionFromVelocity: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            duration: f64,
-            period: f64,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateSinusoidalTransitionFromRange: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            duration: f64,
-            minimumValue: f64,
-            maximumValue: f64,
-            period: f64,
-            slope: UI_ANIMATION_SLOPE,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateAccelerateDecelerateTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            duration: f64,
-            finalValue: f64,
-            accelerationRatio: f64,
-            decelerationRatio: f64,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateReversalTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            duration: f64,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateCubicTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            duration: f64,
-            finalValue: f64,
-            finalVelocity: f64,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateCubicVectorTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            duration: f64,
-            finalValue: [*]const f64,
-            finalVelocity: [*]const f64,
-            cDimension: u32,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateSmoothStopTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            maximumDuration: f64,
-            finalValue: f64,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateParabolicTransitionFromAcceleration: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            finalValue: f64,
-            finalVelocity: f64,
-            acceleration: f64,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateCubicBezierLinearTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            duration: f64,
-            finalValue: f64,
-            x1: f64,
-            y1: f64,
-            x2: f64,
-            y2: f64,
-            ppTransition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CreateCubicBezierLinearVectorTransition: fn(
-            self: *const IUIAnimationTransitionLibrary2,
-            duration: f64,
-            finalValue: [*]const f64,
-            cDimension: u32,
-            x1: f64,
-            y1: f64,
-            x2: f64,
-            y2: f64,
-            ppTransition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateInstantaneousTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateInstantaneousVectorTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                finalValue: [*]const f64,
+                cDimension: u32,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                finalValue: [*]const f64,
+                cDimension: u32,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateConstantTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateDiscreteTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                delay: f64,
+                finalValue: f64,
+                hold: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                delay: f64,
+                finalValue: f64,
+                hold: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateDiscreteVectorTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                delay: f64,
+                finalValue: [*]const f64,
+                cDimension: u32,
+                hold: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                delay: f64,
+                finalValue: [*]const f64,
+                cDimension: u32,
+                hold: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateLinearTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateLinearVectorTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: [*]const f64,
+                cDimension: u32,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: [*]const f64,
+                cDimension: u32,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateLinearTransitionFromSpeed: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                speed: f64,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                speed: f64,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateLinearVectorTransitionFromSpeed: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                speed: f64,
+                finalValue: [*]const f64,
+                cDimension: u32,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                speed: f64,
+                finalValue: [*]const f64,
+                cDimension: u32,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateSinusoidalTransitionFromVelocity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                period: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                period: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateSinusoidalTransitionFromRange: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                minimumValue: f64,
+                maximumValue: f64,
+                period: f64,
+                slope: UI_ANIMATION_SLOPE,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                minimumValue: f64,
+                maximumValue: f64,
+                period: f64,
+                slope: UI_ANIMATION_SLOPE,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateAccelerateDecelerateTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: f64,
+                accelerationRatio: f64,
+                decelerationRatio: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: f64,
+                accelerationRatio: f64,
+                decelerationRatio: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateReversalTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateCubicTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: f64,
+                finalVelocity: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: f64,
+                finalVelocity: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateCubicVectorTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: [*]const f64,
+                finalVelocity: [*]const f64,
+                cDimension: u32,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: [*]const f64,
+                finalVelocity: [*]const f64,
+                cDimension: u32,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateSmoothStopTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                maximumDuration: f64,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                maximumDuration: f64,
+                finalValue: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateParabolicTransitionFromAcceleration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                finalValue: f64,
+                finalVelocity: f64,
+                acceleration: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                finalValue: f64,
+                finalVelocity: f64,
+                acceleration: f64,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateCubicBezierLinearTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: f64,
+                x1: f64,
+                y1: f64,
+                x2: f64,
+                y2: f64,
+                ppTransition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: f64,
+                x1: f64,
+                y1: f64,
+                x2: f64,
+                y2: f64,
+                ppTransition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CreateCubicBezierLinearVectorTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: [*]const f64,
+                cDimension: u32,
+                x1: f64,
+                y1: f64,
+                x2: f64,
+                y2: f64,
+                ppTransition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionLibrary2,
+                duration: f64,
+                finalValue: [*]const f64,
+                cDimension: u32,
+                x1: f64,
+                y1: f64,
+                x2: f64,
+                y2: f64,
+                ppTransition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2096,29 +3301,51 @@ pub const IUIAnimationTransitionLibrary2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationPrimitiveInterpolation_Value = @import("../zig.zig").Guid.initString("bab20d63-4361-45da-a24f-ab8508846b5b");
+const IID_IUIAnimationPrimitiveInterpolation_Value = Guid.initString("bab20d63-4361-45da-a24f-ab8508846b5b");
 pub const IID_IUIAnimationPrimitiveInterpolation = &IID_IUIAnimationPrimitiveInterpolation_Value;
 pub const IUIAnimationPrimitiveInterpolation = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddCubic: fn(
-            self: *const IUIAnimationPrimitiveInterpolation,
-            dimension: u32,
-            beginOffset: f64,
-            constantCoefficient: f32,
-            linearCoefficient: f32,
-            quadraticCoefficient: f32,
-            cubicCoefficient: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddSinusoidal: fn(
-            self: *const IUIAnimationPrimitiveInterpolation,
-            dimension: u32,
-            beginOffset: f64,
-            bias: f32,
-            amplitude: f32,
-            frequency: f32,
-            phase: f32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddCubic: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationPrimitiveInterpolation,
+                dimension: u32,
+                beginOffset: f64,
+                constantCoefficient: f32,
+                linearCoefficient: f32,
+                quadraticCoefficient: f32,
+                cubicCoefficient: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationPrimitiveInterpolation,
+                dimension: u32,
+                beginOffset: f64,
+                constantCoefficient: f32,
+                linearCoefficient: f32,
+                quadraticCoefficient: f32,
+                cubicCoefficient: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddSinusoidal: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationPrimitiveInterpolation,
+                dimension: u32,
+                beginOffset: f64,
+                bias: f32,
+                amplitude: f32,
+                frequency: f32,
+                phase: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationPrimitiveInterpolation,
+                dimension: u32,
+                beginOffset: f64,
+                bias: f32,
+                amplitude: f32,
+                frequency: f32,
+                phase: f32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2136,57 +3363,121 @@ pub const IUIAnimationPrimitiveInterpolation = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationInterpolator2_Value = @import("../zig.zig").Guid.initString("ea76aff8-ea22-4a23-a0ef-a6a966703518");
+const IID_IUIAnimationInterpolator2_Value = Guid.initString("ea76aff8-ea22-4a23-a0ef-a6a966703518");
 pub const IID_IUIAnimationInterpolator2 = &IID_IUIAnimationInterpolator2_Value;
 pub const IUIAnimationInterpolator2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetDimension: fn(
-            self: *const IUIAnimationInterpolator2,
-            dimension: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetInitialValueAndVelocity: fn(
-            self: *const IUIAnimationInterpolator2,
-            initialValue: [*]f64,
-            initialVelocity: [*]f64,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetDuration: fn(
-            self: *const IUIAnimationInterpolator2,
-            duration: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDuration: fn(
-            self: *const IUIAnimationInterpolator2,
-            duration: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetFinalValue: fn(
-            self: *const IUIAnimationInterpolator2,
-            value: [*]f64,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        InterpolateValue: fn(
-            self: *const IUIAnimationInterpolator2,
-            offset: f64,
-            value: [*]f64,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        InterpolateVelocity: fn(
-            self: *const IUIAnimationInterpolator2,
-            offset: f64,
-            velocity: [*]f64,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetPrimitiveInterpolation: fn(
-            self: *const IUIAnimationInterpolator2,
-            interpolation: ?*IUIAnimationPrimitiveInterpolation,
-            cDimension: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetDependencies: fn(
-            self: *const IUIAnimationInterpolator2,
-            initialValueDependencies: ?*UI_ANIMATION_DEPENDENCIES,
-            initialVelocityDependencies: ?*UI_ANIMATION_DEPENDENCIES,
-            durationDependencies: ?*UI_ANIMATION_DEPENDENCIES,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetDimension: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator2,
+                dimension: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator2,
+                dimension: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetInitialValueAndVelocity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator2,
+                initialValue: [*]f64,
+                initialVelocity: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator2,
+                initialValue: [*]f64,
+                initialVelocity: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetDuration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator2,
+                duration: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator2,
+                duration: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDuration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator2,
+                duration: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator2,
+                duration: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetFinalValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator2,
+                value: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator2,
+                value: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        InterpolateValue: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator2,
+                offset: f64,
+                value: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator2,
+                offset: f64,
+                value: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        InterpolateVelocity: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator2,
+                offset: f64,
+                velocity: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator2,
+                offset: f64,
+                velocity: [*]f64,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetPrimitiveInterpolation: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator2,
+                interpolation: ?*IUIAnimationPrimitiveInterpolation,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator2,
+                interpolation: ?*IUIAnimationPrimitiveInterpolation,
+                cDimension: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetDependencies: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationInterpolator2,
+                initialValueDependencies: ?*UI_ANIMATION_DEPENDENCIES,
+                initialVelocityDependencies: ?*UI_ANIMATION_DEPENDENCIES,
+                durationDependencies: ?*UI_ANIMATION_DEPENDENCIES,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationInterpolator2,
+                initialValueDependencies: ?*UI_ANIMATION_DEPENDENCIES,
+                initialVelocityDependencies: ?*UI_ANIMATION_DEPENDENCIES,
+                durationDependencies: ?*UI_ANIMATION_DEPENDENCIES,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2232,16 +3523,23 @@ pub const IUIAnimationInterpolator2 = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows8.0'
-const IID_IUIAnimationTransitionFactory2_Value = @import("../zig.zig").Guid.initString("937d4916-c1a6-42d5-88d8-30344d6efe31");
+const IID_IUIAnimationTransitionFactory2_Value = Guid.initString("937d4916-c1a6-42d5-88d8-30344d6efe31");
 pub const IID_IUIAnimationTransitionFactory2 = &IID_IUIAnimationTransitionFactory2_Value;
 pub const IUIAnimationTransitionFactory2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        CreateTransition: fn(
-            self: *const IUIAnimationTransitionFactory2,
-            interpolator: ?*IUIAnimationInterpolator2,
-            transition: ?*?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        CreateTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationTransitionFactory2,
+                interpolator: ?*IUIAnimationInterpolator2,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationTransitionFactory2,
+                interpolator: ?*IUIAnimationInterpolator2,
+                transition: ?*?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2254,101 +3552,227 @@ pub const IUIAnimationTransitionFactory2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IUIAnimationStoryboard2_Value = @import("../zig.zig").Guid.initString("ae289cd2-12d4-4945-9419-9e41be034df2");
+const IID_IUIAnimationStoryboard2_Value = Guid.initString("ae289cd2-12d4-4945-9419-9e41be034df2");
 pub const IID_IUIAnimationStoryboard2 = &IID_IUIAnimationStoryboard2_Value;
 pub const IUIAnimationStoryboard2 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddTransition: fn(
-            self: *const IUIAnimationStoryboard2,
-            variable: ?*IUIAnimationVariable2,
-            transition: ?*IUIAnimationTransition2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddKeyframeAtOffset: fn(
-            self: *const IUIAnimationStoryboard2,
-            existingKeyframe: UI_ANIMATION_KEYFRAME,
-            offset: f64,
-            keyframe: ?*UI_ANIMATION_KEYFRAME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddKeyframeAfterTransition: fn(
-            self: *const IUIAnimationStoryboard2,
-            transition: ?*IUIAnimationTransition2,
-            keyframe: ?*UI_ANIMATION_KEYFRAME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddTransitionAtKeyframe: fn(
-            self: *const IUIAnimationStoryboard2,
-            variable: ?*IUIAnimationVariable2,
-            transition: ?*IUIAnimationTransition2,
-            startKeyframe: UI_ANIMATION_KEYFRAME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        AddTransitionBetweenKeyframes: fn(
-            self: *const IUIAnimationStoryboard2,
-            variable: ?*IUIAnimationVariable2,
-            transition: ?*IUIAnimationTransition2,
-            startKeyframe: UI_ANIMATION_KEYFRAME,
-            endKeyframe: UI_ANIMATION_KEYFRAME,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RepeatBetweenKeyframes: fn(
-            self: *const IUIAnimationStoryboard2,
-            startKeyframe: UI_ANIMATION_KEYFRAME,
-            endKeyframe: UI_ANIMATION_KEYFRAME,
-            cRepetition: f64,
-            repeatMode: UI_ANIMATION_REPEAT_MODE,
-            pIterationChangeHandler: ?*IUIAnimationLoopIterationChangeHandler2,
-            id: usize,
-            fRegisterForNextAnimationEvent: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        HoldVariable: fn(
-            self: *const IUIAnimationStoryboard2,
-            variable: ?*IUIAnimationVariable2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetLongestAcceptableDelay: fn(
-            self: *const IUIAnimationStoryboard2,
-            delay: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetSkipDuration: fn(
-            self: *const IUIAnimationStoryboard2,
-            secondsDuration: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Schedule: fn(
-            self: *const IUIAnimationStoryboard2,
-            timeNow: f64,
-            schedulingResult: ?*UI_ANIMATION_SCHEDULING_RESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Conclude: fn(
-            self: *const IUIAnimationStoryboard2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Finish: fn(
-            self: *const IUIAnimationStoryboard2,
-            completionDeadline: f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Abandon: fn(
-            self: *const IUIAnimationStoryboard2,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetTag: fn(
-            self: *const IUIAnimationStoryboard2,
-            object: ?*IUnknown,
-            id: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetTag: fn(
-            self: *const IUIAnimationStoryboard2,
-            object: ?*?*IUnknown,
-            id: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStatus: fn(
-            self: *const IUIAnimationStoryboard2,
-            status: ?*UI_ANIMATION_STORYBOARD_STATUS,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetElapsedTime: fn(
-            self: *const IUIAnimationStoryboard2,
-            elapsedTime: ?*f64,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetStoryboardEventHandler: fn(
-            self: *const IUIAnimationStoryboard2,
-            handler: ?*IUIAnimationStoryboardEventHandler2,
-            fRegisterStatusChangeForNextAnimationEvent: BOOL,
-            fRegisterUpdateForNextAnimationEvent: BOOL,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                variable: ?*IUIAnimationVariable2,
+                transition: ?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                variable: ?*IUIAnimationVariable2,
+                transition: ?*IUIAnimationTransition2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddKeyframeAtOffset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                existingKeyframe: UI_ANIMATION_KEYFRAME,
+                offset: f64,
+                keyframe: ?*UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                existingKeyframe: UI_ANIMATION_KEYFRAME,
+                offset: f64,
+                keyframe: ?*UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddKeyframeAfterTransition: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                transition: ?*IUIAnimationTransition2,
+                keyframe: ?*UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                transition: ?*IUIAnimationTransition2,
+                keyframe: ?*UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddTransitionAtKeyframe: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                variable: ?*IUIAnimationVariable2,
+                transition: ?*IUIAnimationTransition2,
+                startKeyframe: UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                variable: ?*IUIAnimationVariable2,
+                transition: ?*IUIAnimationTransition2,
+                startKeyframe: UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        AddTransitionBetweenKeyframes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                variable: ?*IUIAnimationVariable2,
+                transition: ?*IUIAnimationTransition2,
+                startKeyframe: UI_ANIMATION_KEYFRAME,
+                endKeyframe: UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                variable: ?*IUIAnimationVariable2,
+                transition: ?*IUIAnimationTransition2,
+                startKeyframe: UI_ANIMATION_KEYFRAME,
+                endKeyframe: UI_ANIMATION_KEYFRAME,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RepeatBetweenKeyframes: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                startKeyframe: UI_ANIMATION_KEYFRAME,
+                endKeyframe: UI_ANIMATION_KEYFRAME,
+                cRepetition: f64,
+                repeatMode: UI_ANIMATION_REPEAT_MODE,
+                pIterationChangeHandler: ?*IUIAnimationLoopIterationChangeHandler2,
+                id: usize,
+                fRegisterForNextAnimationEvent: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                startKeyframe: UI_ANIMATION_KEYFRAME,
+                endKeyframe: UI_ANIMATION_KEYFRAME,
+                cRepetition: f64,
+                repeatMode: UI_ANIMATION_REPEAT_MODE,
+                pIterationChangeHandler: ?*IUIAnimationLoopIterationChangeHandler2,
+                id: usize,
+                fRegisterForNextAnimationEvent: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        HoldVariable: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                variable: ?*IUIAnimationVariable2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                variable: ?*IUIAnimationVariable2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetLongestAcceptableDelay: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                delay: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                delay: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetSkipDuration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                secondsDuration: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                secondsDuration: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Schedule: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                timeNow: f64,
+                schedulingResult: ?*UI_ANIMATION_SCHEDULING_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                timeNow: f64,
+                schedulingResult: ?*UI_ANIMATION_SCHEDULING_RESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Conclude: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Finish: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                completionDeadline: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                completionDeadline: f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Abandon: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetTag: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                object: ?*IUnknown,
+                id: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                object: ?*IUnknown,
+                id: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetTag: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                object: ?*?*IUnknown,
+                id: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                object: ?*?*IUnknown,
+                id: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                status: ?*UI_ANIMATION_STORYBOARD_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                status: ?*UI_ANIMATION_STORYBOARD_STATUS,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetElapsedTime: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                elapsedTime: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                elapsedTime: ?*f64,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetStoryboardEventHandler: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IUIAnimationStoryboard2,
+                handler: ?*IUIAnimationStoryboardEventHandler2,
+                fRegisterStatusChangeForNextAnimationEvent: BOOL,
+                fRegisterUpdateForNextAnimationEvent: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IUIAnimationStoryboard2,
+                handler: ?*IUIAnimationStoryboardEventHandler2,
+                fRegisterStatusChangeForNextAnimationEvent: BOOL,
+                fRegisterUpdateForNextAnimationEvent: BOOL,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -2448,8 +3872,9 @@ pub usingnamespace switch (@import("../zig.zig").unicode_mode) {
     },
 };
 //--------------------------------------------------------------------------------
-// Section: Imports (4)
+// Section: Imports (5)
 //--------------------------------------------------------------------------------
+const Guid = @import("../zig.zig").Guid;
 const BOOL = @import("../foundation.zig").BOOL;
 const HRESULT = @import("../foundation.zig").HRESULT;
 const IDCompositionAnimation = @import("../graphics/direct_composition.zig").IDCompositionAnimation;
@@ -2457,14 +3882,14 @@ const IUnknown = @import("../system/com.zig").IUnknown;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

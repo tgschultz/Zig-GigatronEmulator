@@ -490,31 +490,55 @@ pub const LEGACY_INTERACTIVE_UI_PARAMS = extern struct {
     dwError: u32,
 };
 
-const IID_IRouterProtocolConfig_Value = @import("../zig.zig").Guid.initString("66a2db16-d706-11d0-a37b-00c04fc9da04");
+const IID_IRouterProtocolConfig_Value = Guid.initString("66a2db16-d706-11d0-a37b-00c04fc9da04");
 pub const IID_IRouterProtocolConfig = &IID_IRouterProtocolConfig_Value;
 pub const IRouterProtocolConfig = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        AddProtocol: fn(
-            self: *const IRouterProtocolConfig,
-            pszMachineName: ?[*:0]const u16,
-            dwTransportId: u32,
-            dwProtocolId: u32,
-            hWnd: ?HWND,
-            dwFlags: u32,
-            pRouter: ?*IUnknown,
-            uReserved1: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RemoveProtocol: fn(
-            self: *const IRouterProtocolConfig,
-            pszMachineName: ?[*:0]const u16,
-            dwTransportId: u32,
-            dwProtocolId: u32,
-            hWnd: ?HWND,
-            dwFlags: u32,
-            pRouter: ?*IUnknown,
-            uReserved1: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        AddProtocol: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRouterProtocolConfig,
+                pszMachineName: ?[*:0]const u16,
+                dwTransportId: u32,
+                dwProtocolId: u32,
+                hWnd: ?HWND,
+                dwFlags: u32,
+                pRouter: ?*IUnknown,
+                uReserved1: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRouterProtocolConfig,
+                pszMachineName: ?[*:0]const u16,
+                dwTransportId: u32,
+                dwProtocolId: u32,
+                hWnd: ?HWND,
+                dwFlags: u32,
+                pRouter: ?*IUnknown,
+                uReserved1: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RemoveProtocol: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IRouterProtocolConfig,
+                pszMachineName: ?[*:0]const u16,
+                dwTransportId: u32,
+                dwProtocolId: u32,
+                hWnd: ?HWND,
+                dwFlags: u32,
+                pRouter: ?*IUnknown,
+                uReserved1: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IRouterProtocolConfig,
+                pszMachineName: ?[*:0]const u16,
+                dwTransportId: u32,
+                dwProtocolId: u32,
+                hWnd: ?HWND,
+                dwFlags: u32,
+                pRouter: ?*IUnknown,
+                uReserved1: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -531,40 +555,79 @@ pub const IRouterProtocolConfig = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAuthenticationProviderConfig_Value = @import("../zig.zig").Guid.initString("66a2db17-d706-11d0-a37b-00c04fc9da04");
+const IID_IAuthenticationProviderConfig_Value = Guid.initString("66a2db17-d706-11d0-a37b-00c04fc9da04");
 pub const IID_IAuthenticationProviderConfig = &IID_IAuthenticationProviderConfig_Value;
 pub const IAuthenticationProviderConfig = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Initialize: fn(
-            self: *const IAuthenticationProviderConfig,
-            pszMachineName: ?[*:0]const u16,
-            puConnectionParam: ?*usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Uninitialize: fn(
-            self: *const IAuthenticationProviderConfig,
-            uConnectionParam: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Configure: fn(
-            self: *const IAuthenticationProviderConfig,
-            uConnectionParam: usize,
-            hWnd: ?HWND,
-            dwFlags: u32,
-            uReserved1: usize,
-            uReserved2: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Activate: fn(
-            self: *const IAuthenticationProviderConfig,
-            uConnectionParam: usize,
-            uReserved1: usize,
-            uReserved2: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Deactivate: fn(
-            self: *const IAuthenticationProviderConfig,
-            uConnectionParam: usize,
-            uReserved1: usize,
-            uReserved2: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Initialize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAuthenticationProviderConfig,
+                pszMachineName: ?[*:0]const u16,
+                puConnectionParam: ?*usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAuthenticationProviderConfig,
+                pszMachineName: ?[*:0]const u16,
+                puConnectionParam: ?*usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Uninitialize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAuthenticationProviderConfig,
+                uConnectionParam: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAuthenticationProviderConfig,
+                uConnectionParam: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Configure: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAuthenticationProviderConfig,
+                uConnectionParam: usize,
+                hWnd: ?HWND,
+                dwFlags: u32,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAuthenticationProviderConfig,
+                uConnectionParam: usize,
+                hWnd: ?HWND,
+                dwFlags: u32,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Activate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAuthenticationProviderConfig,
+                uConnectionParam: usize,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAuthenticationProviderConfig,
+                uConnectionParam: usize,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Deactivate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAuthenticationProviderConfig,
+                uConnectionParam: usize,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAuthenticationProviderConfig,
+                uConnectionParam: usize,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -593,40 +656,79 @@ pub const IAuthenticationProviderConfig = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IAccountingProviderConfig_Value = @import("../zig.zig").Guid.initString("66a2db18-d706-11d0-a37b-00c04fc9da04");
+const IID_IAccountingProviderConfig_Value = Guid.initString("66a2db18-d706-11d0-a37b-00c04fc9da04");
 pub const IID_IAccountingProviderConfig = &IID_IAccountingProviderConfig_Value;
 pub const IAccountingProviderConfig = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Initialize: fn(
-            self: *const IAccountingProviderConfig,
-            pszMachineName: ?[*:0]const u16,
-            puConnectionParam: ?*usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Uninitialize: fn(
-            self: *const IAccountingProviderConfig,
-            uConnectionParam: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Configure: fn(
-            self: *const IAccountingProviderConfig,
-            uConnectionParam: usize,
-            hWnd: ?HWND,
-            dwFlags: u32,
-            uReserved1: usize,
-            uReserved2: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Activate: fn(
-            self: *const IAccountingProviderConfig,
-            uConnectionParam: usize,
-            uReserved1: usize,
-            uReserved2: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Deactivate: fn(
-            self: *const IAccountingProviderConfig,
-            uConnectionParam: usize,
-            uReserved1: usize,
-            uReserved2: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Initialize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAccountingProviderConfig,
+                pszMachineName: ?[*:0]const u16,
+                puConnectionParam: ?*usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAccountingProviderConfig,
+                pszMachineName: ?[*:0]const u16,
+                puConnectionParam: ?*usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Uninitialize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAccountingProviderConfig,
+                uConnectionParam: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAccountingProviderConfig,
+                uConnectionParam: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Configure: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAccountingProviderConfig,
+                uConnectionParam: usize,
+                hWnd: ?HWND,
+                dwFlags: u32,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAccountingProviderConfig,
+                uConnectionParam: usize,
+                hWnd: ?HWND,
+                dwFlags: u32,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Activate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAccountingProviderConfig,
+                uConnectionParam: usize,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAccountingProviderConfig,
+                uConnectionParam: usize,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Deactivate: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IAccountingProviderConfig,
+                uConnectionParam: usize,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IAccountingProviderConfig,
+                uConnectionParam: usize,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -656,54 +758,107 @@ pub const IAccountingProviderConfig = extern struct {
 };
 
 // TODO: this type is limited to platform 'windows5.0'
-const IID_IEAPProviderConfig_Value = @import("../zig.zig").Guid.initString("66a2db19-d706-11d0-a37b-00c04fc9da04");
+const IID_IEAPProviderConfig_Value = Guid.initString("66a2db19-d706-11d0-a37b-00c04fc9da04");
 pub const IID_IEAPProviderConfig = &IID_IEAPProviderConfig_Value;
 pub const IEAPProviderConfig = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        Initialize: fn(
-            self: *const IEAPProviderConfig,
-            pszMachineName: ?[*:0]const u16,
-            dwEapTypeId: u32,
-            puConnectionParam: ?*usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Uninitialize: fn(
-            self: *const IEAPProviderConfig,
-            dwEapTypeId: u32,
-            uConnectionParam: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        ServerInvokeConfigUI: fn(
-            self: *const IEAPProviderConfig,
-            dwEapTypeId: u32,
-            uConnectionParam: usize,
-            hWnd: ?HWND,
-            uReserved1: usize,
-            uReserved2: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RouterInvokeConfigUI: fn(
-            self: *const IEAPProviderConfig,
-            dwEapTypeId: u32,
-            uConnectionParam: usize,
-            hwndParent: ?HWND,
-            dwFlags: u32,
-            pConnectionDataIn: [*:0]u8,
-            dwSizeOfConnectionDataIn: u32,
-            ppConnectionDataOut: [*]?*u8,
-            pdwSizeOfConnectionDataOut: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        RouterInvokeCredentialsUI: fn(
-            self: *const IEAPProviderConfig,
-            dwEapTypeId: u32,
-            uConnectionParam: usize,
-            hwndParent: ?HWND,
-            dwFlags: u32,
-            pConnectionDataIn: [*:0]u8,
-            dwSizeOfConnectionDataIn: u32,
-            pUserDataIn: [*:0]u8,
-            dwSizeOfUserDataIn: u32,
-            ppUserDataOut: [*]?*u8,
-            pdwSizeOfUserDataOut: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        Initialize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEAPProviderConfig,
+                pszMachineName: ?[*:0]const u16,
+                dwEapTypeId: u32,
+                puConnectionParam: ?*usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEAPProviderConfig,
+                pszMachineName: ?[*:0]const u16,
+                dwEapTypeId: u32,
+                puConnectionParam: ?*usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Uninitialize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEAPProviderConfig,
+                dwEapTypeId: u32,
+                uConnectionParam: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEAPProviderConfig,
+                dwEapTypeId: u32,
+                uConnectionParam: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        ServerInvokeConfigUI: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEAPProviderConfig,
+                dwEapTypeId: u32,
+                uConnectionParam: usize,
+                hWnd: ?HWND,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEAPProviderConfig,
+                dwEapTypeId: u32,
+                uConnectionParam: usize,
+                hWnd: ?HWND,
+                uReserved1: usize,
+                uReserved2: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RouterInvokeConfigUI: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEAPProviderConfig,
+                dwEapTypeId: u32,
+                uConnectionParam: usize,
+                hwndParent: ?HWND,
+                dwFlags: u32,
+                pConnectionDataIn: [*:0]u8,
+                dwSizeOfConnectionDataIn: u32,
+                ppConnectionDataOut: [*]?*u8,
+                pdwSizeOfConnectionDataOut: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEAPProviderConfig,
+                dwEapTypeId: u32,
+                uConnectionParam: usize,
+                hwndParent: ?HWND,
+                dwFlags: u32,
+                pConnectionDataIn: [*:0]u8,
+                dwSizeOfConnectionDataIn: u32,
+                ppConnectionDataOut: [*]?*u8,
+                pdwSizeOfConnectionDataOut: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        RouterInvokeCredentialsUI: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEAPProviderConfig,
+                dwEapTypeId: u32,
+                uConnectionParam: usize,
+                hwndParent: ?HWND,
+                dwFlags: u32,
+                pConnectionDataIn: [*:0]u8,
+                dwSizeOfConnectionDataIn: u32,
+                pUserDataIn: [*:0]u8,
+                dwSizeOfUserDataIn: u32,
+                ppUserDataOut: [*]?*u8,
+                pdwSizeOfUserDataOut: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEAPProviderConfig,
+                dwEapTypeId: u32,
+                uConnectionParam: usize,
+                hwndParent: ?HWND,
+                dwFlags: u32,
+                pConnectionDataIn: [*:0]u8,
+                dwSizeOfConnectionDataIn: u32,
+                pUserDataIn: [*:0]u8,
+                dwSizeOfUserDataIn: u32,
+                ppUserDataOut: [*]?*u8,
+                pdwSizeOfUserDataOut: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -732,27 +887,47 @@ pub const IEAPProviderConfig = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IEAPProviderConfig2_Value = @import("../zig.zig").Guid.initString("d565917a-85c4-4466-856e-671c3742ea9a");
+const IID_IEAPProviderConfig2_Value = Guid.initString("d565917a-85c4-4466-856e-671c3742ea9a");
 pub const IID_IEAPProviderConfig2 = &IID_IEAPProviderConfig2_Value;
 pub const IEAPProviderConfig2 = extern struct {
     pub const VTable = extern struct {
         base: IEAPProviderConfig.VTable,
-        ServerInvokeConfigUI2: fn(
-            self: *const IEAPProviderConfig2,
-            dwEapTypeId: u32,
-            uConnectionParam: usize,
-            hWnd: ?HWND,
-            pConfigDataIn: ?*const u8,
-            dwSizeOfConfigDataIn: u32,
-            ppConfigDataOut: ?*?*u8,
-            pdwSizeOfConfigDataOut: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetGlobalConfig: fn(
-            self: *const IEAPProviderConfig2,
-            dwEapTypeId: u32,
-            ppConfigDataOut: ?*?*u8,
-            pdwSizeOfConfigDataOut: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ServerInvokeConfigUI2: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEAPProviderConfig2,
+                dwEapTypeId: u32,
+                uConnectionParam: usize,
+                hWnd: ?HWND,
+                pConfigDataIn: ?*const u8,
+                dwSizeOfConfigDataIn: u32,
+                ppConfigDataOut: ?*?*u8,
+                pdwSizeOfConfigDataOut: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEAPProviderConfig2,
+                dwEapTypeId: u32,
+                uConnectionParam: usize,
+                hWnd: ?HWND,
+                pConfigDataIn: ?*const u8,
+                dwSizeOfConfigDataIn: u32,
+                ppConfigDataOut: ?*?*u8,
+                pdwSizeOfConfigDataOut: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetGlobalConfig: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEAPProviderConfig2,
+                dwEapTypeId: u32,
+                ppConfigDataOut: ?*?*u8,
+                pdwSizeOfConfigDataOut: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEAPProviderConfig2,
+                dwEapTypeId: u32,
+                ppConfigDataOut: ?*?*u8,
+                pdwSizeOfConfigDataOut: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -769,22 +944,35 @@ pub const IEAPProviderConfig2 = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IEAPProviderConfig3_Value = @import("../zig.zig").Guid.initString("b78ecd12-68bb-4f86-9bf0-8438dd3be982");
+const IID_IEAPProviderConfig3_Value = Guid.initString("b78ecd12-68bb-4f86-9bf0-8438dd3be982");
 pub const IID_IEAPProviderConfig3 = &IID_IEAPProviderConfig3_Value;
 pub const IEAPProviderConfig3 = extern struct {
     pub const VTable = extern struct {
         base: IEAPProviderConfig2.VTable,
-        ServerInvokeCertificateConfigUI: fn(
-            self: *const IEAPProviderConfig3,
-            dwEapTypeId: u32,
-            uConnectionParam: usize,
-            hWnd: ?HWND,
-            pConfigDataIn: ?*const u8,
-            dwSizeOfConfigDataIn: u32,
-            ppConfigDataOut: ?*?*u8,
-            pdwSizeOfConfigDataOut: ?*u32,
-            uReserved: usize,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ServerInvokeCertificateConfigUI: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IEAPProviderConfig3,
+                dwEapTypeId: u32,
+                uConnectionParam: usize,
+                hWnd: ?HWND,
+                pConfigDataIn: ?*const u8,
+                dwSizeOfConfigDataIn: u32,
+                ppConfigDataOut: ?*?*u8,
+                pdwSizeOfConfigDataOut: ?*u32,
+                uReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IEAPProviderConfig3,
+                dwEapTypeId: u32,
+                uConnectionParam: usize,
+                hWnd: ?HWND,
+                pConfigDataIn: ?*const u8,
+                dwSizeOfConfigDataIn: u32,
+                ppConfigDataOut: ?*?*u8,
+                pdwSizeOfConfigDataOut: ?*u32,
+                uReserved: usize,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -1401,10 +1589,16 @@ pub const EapCodeSuccess = EapCode.Success;
 pub const EapCodeFailure = EapCode.Failure;
 pub const EapCodeMaximum = EapCode.Failure;
 
-pub const NotificationHandler = fn(
-    connectionId: Guid,
-    pContextData: ?*anyopaque,
-) callconv(@import("std").os.windows.WINAPI) void;
+pub const NotificationHandler = switch (@import("builtin").zig_backend) {
+    .stage1 => fn(
+        connectionId: Guid,
+        pContextData: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+    else => *const fn(
+        connectionId: Guid,
+        pContextData: ?*anyopaque,
+    ) callconv(@import("std").os.windows.WINAPI) void,
+} ;
 
 pub const EAP_METHOD_AUTHENTICATOR_RESPONSE_ACTION = enum(i32) {
     DISCARD = 0,
@@ -1846,14 +2040,14 @@ test {
     if (@hasDecl(@This(), "NotificationHandler")) { _ = NotificationHandler; }
 
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

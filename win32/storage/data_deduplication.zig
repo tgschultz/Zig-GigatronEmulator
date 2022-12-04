@@ -7,7 +7,7 @@ pub const DEDUP_CHUNKLIB_MAX_CHUNKS_ENUM = @as(u32, 1024);
 //--------------------------------------------------------------------------------
 // Section: Types (24)
 //--------------------------------------------------------------------------------
-const CLSID_DedupBackupSupport_Value = @import("../zig.zig").Guid.initString("73d6b2ad-2984-4715-b2e3-924c149744dd");
+const CLSID_DedupBackupSupport_Value = Guid.initString("73d6b2ad-2984-4715-b2e3-924c149744dd");
 pub const CLSID_DedupBackupSupport = &CLSID_DedupBackupSupport_Value;
 
 pub const DEDUP_CONTAINER_EXTENT = extern struct {
@@ -29,33 +29,61 @@ pub const DEDUP_RECONSTRUCT_UNOPTIMIZED = DEDUP_BACKUP_SUPPORT_PARAM_TYPE.UNOPTI
 pub const DEDUP_RECONSTRUCT_OPTIMIZED = DEDUP_BACKUP_SUPPORT_PARAM_TYPE.OPTIMIZED;
 
 // TODO: this type is limited to platform 'windowsServer2012'
-const IID_IDedupReadFileCallback_Value = @import("../zig.zig").Guid.initString("7bacc67a-2f1d-42d0-897e-6ff62dd533bb");
+const IID_IDedupReadFileCallback_Value = Guid.initString("7bacc67a-2f1d-42d0-897e-6ff62dd533bb");
 pub const IID_IDedupReadFileCallback = &IID_IDedupReadFileCallback_Value;
 pub const IDedupReadFileCallback = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        ReadBackupFile: fn(
-            self: *const IDedupReadFileCallback,
-            FileFullPath: ?BSTR,
-            FileOffset: i64,
-            SizeToRead: u32,
-            FileBuffer: [*:0]u8,
-            ReturnedSize: ?*u32,
-            Flags: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        OrderContainersRestore: fn(
-            self: *const IDedupReadFileCallback,
-            NumberOfContainers: u32,
-            ContainerPaths: [*]?BSTR,
-            ReadPlanEntries: ?*u32,
-            ReadPlan: [*]?*DEDUP_CONTAINER_EXTENT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        PreviewContainerRead: fn(
-            self: *const IDedupReadFileCallback,
-            FileFullPath: ?BSTR,
-            NumberOfReads: u32,
-            ReadOffsets: [*]DDP_FILE_EXTENT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        ReadBackupFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupReadFileCallback,
+                FileFullPath: ?BSTR,
+                FileOffset: i64,
+                SizeToRead: u32,
+                FileBuffer: [*:0]u8,
+                ReturnedSize: ?*u32,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupReadFileCallback,
+                FileFullPath: ?BSTR,
+                FileOffset: i64,
+                SizeToRead: u32,
+                FileBuffer: [*:0]u8,
+                ReturnedSize: ?*u32,
+                Flags: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        OrderContainersRestore: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupReadFileCallback,
+                NumberOfContainers: u32,
+                ContainerPaths: [*]?BSTR,
+                ReadPlanEntries: ?*u32,
+                ReadPlan: [*]?*DEDUP_CONTAINER_EXTENT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupReadFileCallback,
+                NumberOfContainers: u32,
+                ContainerPaths: [*]?BSTR,
+                ReadPlanEntries: ?*u32,
+                ReadPlan: [*]?*DEDUP_CONTAINER_EXTENT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        PreviewContainerRead: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupReadFileCallback,
+                FileFullPath: ?BSTR,
+                NumberOfReads: u32,
+                ReadOffsets: [*]DDP_FILE_EXTENT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupReadFileCallback,
+                FileFullPath: ?BSTR,
+                NumberOfReads: u32,
+                ReadOffsets: [*]DDP_FILE_EXTENT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -77,19 +105,29 @@ pub const IDedupReadFileCallback = extern struct {
 };
 
 // TODO: this type is limited to platform 'windowsServer2012'
-const IID_IDedupBackupSupport_Value = @import("../zig.zig").Guid.initString("c719d963-2b2d-415e-acf7-7eb7ca596ff4");
+const IID_IDedupBackupSupport_Value = Guid.initString("c719d963-2b2d-415e-acf7-7eb7ca596ff4");
 pub const IID_IDedupBackupSupport = &IID_IDedupBackupSupport_Value;
 pub const IDedupBackupSupport = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        RestoreFiles: fn(
-            self: *const IDedupBackupSupport,
-            NumberOfFiles: u32,
-            FileFullPaths: [*]?BSTR,
-            Store: ?*IDedupReadFileCallback,
-            Flags: u32,
-            FileResults: [*]HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        RestoreFiles: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupBackupSupport,
+                NumberOfFiles: u32,
+                FileFullPaths: [*]?BSTR,
+                Store: ?*IDedupReadFileCallback,
+                Flags: u32,
+                FileResults: [*]HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupBackupSupport,
+                NumberOfFiles: u32,
+                FileFullPaths: [*]?BSTR,
+                Store: ?*IDedupReadFileCallback,
+                Flags: u32,
+                FileResults: [*]HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -122,27 +160,51 @@ pub const DEDUP_CHUNK_INFO_HASH32 = extern struct {
     HashVal: [32]u8,
 };
 
-const IID_IDedupChunkLibrary_Value = @import("../zig.zig").Guid.initString("bb5144d7-2720-4dcc-8777-78597416ec23");
+const IID_IDedupChunkLibrary_Value = Guid.initString("bb5144d7-2720-4dcc-8777-78597416ec23");
 pub const IID_IDedupChunkLibrary = &IID_IDedupChunkLibrary_Value;
 pub const IDedupChunkLibrary = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        InitializeForPushBuffers: fn(
-            self: *const IDedupChunkLibrary,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Uninitialize: fn(
-            self: *const IDedupChunkLibrary,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SetParameter: fn(
-            self: *const IDedupChunkLibrary,
-            dwParamType: u32,
-            vParamValue: VARIANT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        StartChunking: fn(
-            self: *const IDedupChunkLibrary,
-            iidIteratorInterfaceID: Guid,
-            ppChunksEnum: ?*?*IUnknown,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        InitializeForPushBuffers: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupChunkLibrary,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupChunkLibrary,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Uninitialize: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupChunkLibrary,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupChunkLibrary,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SetParameter: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupChunkLibrary,
+                dwParamType: u32,
+                vParamValue: VARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupChunkLibrary,
+                dwParamType: u32,
+                vParamValue: VARIANT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        StartChunking: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupChunkLibrary,
+                iidIteratorInterfaceID: Guid,
+                ppChunksEnum: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupChunkLibrary,
+                iidIteratorInterfaceID: Guid,
+                ppChunksEnum: ?*?*IUnknown,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -167,28 +229,53 @@ pub const IDedupChunkLibrary = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDedupIterateChunksHash32_Value = @import("../zig.zig").Guid.initString("90b584d3-72aa-400f-9767-cad866a5a2d8");
+const IID_IDedupIterateChunksHash32_Value = Guid.initString("90b584d3-72aa-400f-9767-cad866a5a2d8");
 pub const IID_IDedupIterateChunksHash32 = &IID_IDedupIterateChunksHash32_Value;
 pub const IDedupIterateChunksHash32 = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        PushBuffer: fn(
-            self: *const IDedupIterateChunksHash32,
-            pBuffer: [*:0]u8,
-            ulBufferLength: u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Next: fn(
-            self: *const IDedupIterateChunksHash32,
-            ulMaxChunks: u32,
-            pArrChunks: [*]DEDUP_CHUNK_INFO_HASH32,
-            pulFetched: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Drain: fn(
-            self: *const IDedupIterateChunksHash32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        Reset: fn(
-            self: *const IDedupIterateChunksHash32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        PushBuffer: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupIterateChunksHash32,
+                pBuffer: [*:0]u8,
+                ulBufferLength: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupIterateChunksHash32,
+                pBuffer: [*:0]u8,
+                ulBufferLength: u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Next: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupIterateChunksHash32,
+                ulMaxChunks: u32,
+                pArrChunks: [*]DEDUP_CHUNK_INFO_HASH32,
+                pulFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupIterateChunksHash32,
+                ulMaxChunks: u32,
+                pArrChunks: [*]DEDUP_CHUNK_INFO_HASH32,
+                pulFetched: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Drain: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupIterateChunksHash32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupIterateChunksHash32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        Reset: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupIterateChunksHash32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupIterateChunksHash32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -306,107 +393,224 @@ pub const DedupCompressionAlgorithm = enum(i32) {
 pub const DedupCompressionAlgorithm_Unknonwn = DedupCompressionAlgorithm.Unknonwn;
 pub const DedupCompressionAlgorithm_Xpress = DedupCompressionAlgorithm.Xpress;
 
-const CLSID_DedupDataPort_Value = @import("../zig.zig").Guid.initString("8f107207-1829-48b2-a64b-e61f8e0d9acb");
+const CLSID_DedupDataPort_Value = Guid.initString("8f107207-1829-48b2-a64b-e61f8e0d9acb");
 pub const CLSID_DedupDataPort = &CLSID_DedupDataPort_Value;
 
-const IID_IDedupDataPort_Value = @import("../zig.zig").Guid.initString("7963d734-40a9-4ea3-bbf6-5a89d26f7ae8");
+const IID_IDedupDataPort_Value = Guid.initString("7963d734-40a9-4ea3-bbf6-5a89d26f7ae8");
 pub const IID_IDedupDataPort = &IID_IDedupDataPort_Value;
 pub const IDedupDataPort = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetStatus: fn(
-            self: *const IDedupDataPort,
-            pStatus: ?*DedupDataPortVolumeStatus,
-            pDataHeadroomMb: ?*u32,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        LookupChunks: fn(
-            self: *const IDedupDataPort,
-            Count: u32,
-            pHashes: [*]DedupHash,
-            pRequestId: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        InsertChunks: fn(
-            self: *const IDedupDataPort,
-            ChunkCount: u32,
-            pChunkMetadata: [*]DedupChunk,
-            DataByteCount: u32,
-            pChunkData: [*:0]u8,
-            pRequestId: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        InsertChunksWithStream: fn(
-            self: *const IDedupDataPort,
-            ChunkCount: u32,
-            pChunkMetadata: [*]DedupChunk,
-            DataByteCount: u32,
-            pChunkDataStream: ?*IStream,
-            pRequestId: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CommitStreams: fn(
-            self: *const IDedupDataPort,
-            StreamCount: u32,
-            pStreams: [*]DedupStream,
-            EntryCount: u32,
-            pEntries: [*]DedupStreamEntry,
-            pRequestId: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        CommitStreamsWithStream: fn(
-            self: *const IDedupDataPort,
-            StreamCount: u32,
-            pStreams: [*]DedupStream,
-            EntryCount: u32,
-            pEntriesStream: ?*IStream,
-            pRequestId: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStreams: fn(
-            self: *const IDedupDataPort,
-            StreamCount: u32,
-            pStreamPaths: [*]?BSTR,
-            pRequestId: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetStreamsResults: fn(
-            self: *const IDedupDataPort,
-            RequestId: Guid,
-            MaxWaitMs: u32,
-            StreamEntryIndex: u32,
-            pStreamCount: ?*u32,
-            ppStreams: [*]?*DedupStream,
-            pEntryCount: ?*u32,
-            ppEntries: [*]?*DedupStreamEntry,
-            pStatus: ?*DedupDataPortRequestStatus,
-            ppItemResults: [*]?*HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetChunks: fn(
-            self: *const IDedupDataPort,
-            Count: u32,
-            pHashes: [*]DedupHash,
-            pRequestId: ?*Guid,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetChunksResults: fn(
-            self: *const IDedupDataPort,
-            RequestId: Guid,
-            MaxWaitMs: u32,
-            ChunkIndex: u32,
-            pChunkCount: ?*u32,
-            ppChunkMetadata: [*]?*DedupChunk,
-            pDataByteCount: ?*u32,
-            ppChunkData: [*]?*u8,
-            pStatus: ?*DedupDataPortRequestStatus,
-            ppItemResults: [*]?*HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRequestStatus: fn(
-            self: *const IDedupDataPort,
-            RequestId: Guid,
-            pStatus: ?*DedupDataPortRequestStatus,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetRequestResults: fn(
-            self: *const IDedupDataPort,
-            RequestId: Guid,
-            MaxWaitMs: u32,
-            pBatchResult: ?*HRESULT,
-            pBatchCount: ?*u32,
-            pStatus: ?*DedupDataPortRequestStatus,
-            ppItemResults: [*]?*HRESULT,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPort,
+                pStatus: ?*DedupDataPortVolumeStatus,
+                pDataHeadroomMb: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPort,
+                pStatus: ?*DedupDataPortVolumeStatus,
+                pDataHeadroomMb: ?*u32,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        LookupChunks: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPort,
+                Count: u32,
+                pHashes: [*]DedupHash,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPort,
+                Count: u32,
+                pHashes: [*]DedupHash,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        InsertChunks: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPort,
+                ChunkCount: u32,
+                pChunkMetadata: [*]DedupChunk,
+                DataByteCount: u32,
+                pChunkData: [*:0]u8,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPort,
+                ChunkCount: u32,
+                pChunkMetadata: [*]DedupChunk,
+                DataByteCount: u32,
+                pChunkData: [*:0]u8,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        InsertChunksWithStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPort,
+                ChunkCount: u32,
+                pChunkMetadata: [*]DedupChunk,
+                DataByteCount: u32,
+                pChunkDataStream: ?*IStream,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPort,
+                ChunkCount: u32,
+                pChunkMetadata: [*]DedupChunk,
+                DataByteCount: u32,
+                pChunkDataStream: ?*IStream,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CommitStreams: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPort,
+                StreamCount: u32,
+                pStreams: [*]DedupStream,
+                EntryCount: u32,
+                pEntries: [*]DedupStreamEntry,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPort,
+                StreamCount: u32,
+                pStreams: [*]DedupStream,
+                EntryCount: u32,
+                pEntries: [*]DedupStreamEntry,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        CommitStreamsWithStream: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPort,
+                StreamCount: u32,
+                pStreams: [*]DedupStream,
+                EntryCount: u32,
+                pEntriesStream: ?*IStream,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPort,
+                StreamCount: u32,
+                pStreams: [*]DedupStream,
+                EntryCount: u32,
+                pEntriesStream: ?*IStream,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStreams: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPort,
+                StreamCount: u32,
+                pStreamPaths: [*]?BSTR,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPort,
+                StreamCount: u32,
+                pStreamPaths: [*]?BSTR,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetStreamsResults: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPort,
+                RequestId: Guid,
+                MaxWaitMs: u32,
+                StreamEntryIndex: u32,
+                pStreamCount: ?*u32,
+                ppStreams: [*]?*DedupStream,
+                pEntryCount: ?*u32,
+                ppEntries: [*]?*DedupStreamEntry,
+                pStatus: ?*DedupDataPortRequestStatus,
+                ppItemResults: [*]?*HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPort,
+                RequestId: Guid,
+                MaxWaitMs: u32,
+                StreamEntryIndex: u32,
+                pStreamCount: ?*u32,
+                ppStreams: [*]?*DedupStream,
+                pEntryCount: ?*u32,
+                ppEntries: [*]?*DedupStreamEntry,
+                pStatus: ?*DedupDataPortRequestStatus,
+                ppItemResults: [*]?*HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetChunks: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPort,
+                Count: u32,
+                pHashes: [*]DedupHash,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPort,
+                Count: u32,
+                pHashes: [*]DedupHash,
+                pRequestId: ?*Guid,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetChunksResults: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPort,
+                RequestId: Guid,
+                MaxWaitMs: u32,
+                ChunkIndex: u32,
+                pChunkCount: ?*u32,
+                ppChunkMetadata: [*]?*DedupChunk,
+                pDataByteCount: ?*u32,
+                ppChunkData: [*]?*u8,
+                pStatus: ?*DedupDataPortRequestStatus,
+                ppItemResults: [*]?*HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPort,
+                RequestId: Guid,
+                MaxWaitMs: u32,
+                ChunkIndex: u32,
+                pChunkCount: ?*u32,
+                ppChunkMetadata: [*]?*DedupChunk,
+                pDataByteCount: ?*u32,
+                ppChunkData: [*]?*u8,
+                pStatus: ?*DedupDataPortRequestStatus,
+                ppItemResults: [*]?*HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRequestStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPort,
+                RequestId: Guid,
+                pStatus: ?*DedupDataPortRequestStatus,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPort,
+                RequestId: Guid,
+                pStatus: ?*DedupDataPortRequestStatus,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetRequestResults: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPort,
+                RequestId: Guid,
+                MaxWaitMs: u32,
+                pBatchResult: ?*HRESULT,
+                pBatchCount: ?*u32,
+                pStatus: ?*DedupDataPortRequestStatus,
+                ppItemResults: [*]?*HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPort,
+                RequestId: Guid,
+                MaxWaitMs: u32,
+                pBatchResult: ?*HRESULT,
+                pBatchCount: ?*u32,
+                pStatus: ?*DedupDataPortRequestStatus,
+                ppItemResults: [*]?*HRESULT,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -463,31 +667,57 @@ pub const IDedupDataPort = extern struct {
     pub usingnamespace MethodMixin(@This());
 };
 
-const IID_IDedupDataPortManager_Value = @import("../zig.zig").Guid.initString("44677452-b90a-445e-8192-cdcfe81511fb");
+const IID_IDedupDataPortManager_Value = Guid.initString("44677452-b90a-445e-8192-cdcfe81511fb");
 pub const IID_IDedupDataPortManager = &IID_IDedupDataPortManager_Value;
 pub const IDedupDataPortManager = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        GetConfiguration: fn(
-            self: *const IDedupDataPortManager,
-            pMinChunkSize: ?*u32,
-            pMaxChunkSize: ?*u32,
-            pChunkingAlgorithm: ?*DedupChunkingAlgorithm,
-            pHashingAlgorithm: ?*DedupHashingAlgorithm,
-            pCompressionAlgorithm: ?*DedupCompressionAlgorithm,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVolumeStatus: fn(
-            self: *const IDedupDataPortManager,
-            Options: u32,
-            Path: ?BSTR,
-            pStatus: ?*DedupDataPortVolumeStatus,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        GetVolumeDataPort: fn(
-            self: *const IDedupDataPortManager,
-            Options: u32,
-            Path: ?BSTR,
-            ppDataPort: ?*?*IDedupDataPort,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        GetConfiguration: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPortManager,
+                pMinChunkSize: ?*u32,
+                pMaxChunkSize: ?*u32,
+                pChunkingAlgorithm: ?*DedupChunkingAlgorithm,
+                pHashingAlgorithm: ?*DedupHashingAlgorithm,
+                pCompressionAlgorithm: ?*DedupCompressionAlgorithm,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPortManager,
+                pMinChunkSize: ?*u32,
+                pMaxChunkSize: ?*u32,
+                pChunkingAlgorithm: ?*DedupChunkingAlgorithm,
+                pHashingAlgorithm: ?*DedupHashingAlgorithm,
+                pCompressionAlgorithm: ?*DedupCompressionAlgorithm,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVolumeStatus: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPortManager,
+                Options: u32,
+                Path: ?BSTR,
+                pStatus: ?*DedupDataPortVolumeStatus,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPortManager,
+                Options: u32,
+                Path: ?BSTR,
+                pStatus: ?*DedupDataPortVolumeStatus,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        GetVolumeDataPort: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IDedupDataPortManager,
+                Options: u32,
+                Path: ?BSTR,
+                ppDataPort: ?*?*IDedupDataPort,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IDedupDataPortManager,
+                Options: u32,
+                Path: ?BSTR,
+                ppDataPort: ?*?*IDedupDataPort,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -538,14 +768,14 @@ const VARIANT = @import("../system/com.zig").VARIANT;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }

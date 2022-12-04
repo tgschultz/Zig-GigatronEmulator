@@ -8,27 +8,49 @@ pub const CLSID_XMLGraphBuilder = Guid.initString("1bb05961-5fbf-11d2-a521-44df0
 // Section: Types (1)
 //--------------------------------------------------------------------------------
 // TODO: this type is limited to platform 'windows5.0'
-const IID_IXMLGraphBuilder_Value = @import("../../zig.zig").Guid.initString("1bb05960-5fbf-11d2-a521-44df07c10000");
+const IID_IXMLGraphBuilder_Value = Guid.initString("1bb05960-5fbf-11d2-a521-44df07c10000");
 pub const IID_IXMLGraphBuilder = &IID_IXMLGraphBuilder_Value;
 pub const IXMLGraphBuilder = extern struct {
     pub const VTable = extern struct {
         base: IUnknown.VTable,
-        BuildFromXML: fn(
-            self: *const IXMLGraphBuilder,
-            pGraph: ?*IGraphBuilder,
-            pxml: ?*IXMLElement,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        SaveToXML: fn(
-            self: *const IXMLGraphBuilder,
-            pGraph: ?*IGraphBuilder,
-            pbstrxml: ?*?BSTR,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
-        BuildFromXMLFile: fn(
-            self: *const IXMLGraphBuilder,
-            pGraph: ?*IGraphBuilder,
-            wszFileName: ?[*:0]const u16,
-            wszBaseURL: ?[*:0]const u16,
-        ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        BuildFromXML: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IXMLGraphBuilder,
+                pGraph: ?*IGraphBuilder,
+                pxml: ?*IXMLElement,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IXMLGraphBuilder,
+                pGraph: ?*IGraphBuilder,
+                pxml: ?*IXMLElement,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        SaveToXML: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IXMLGraphBuilder,
+                pGraph: ?*IGraphBuilder,
+                pbstrxml: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IXMLGraphBuilder,
+                pGraph: ?*IGraphBuilder,
+                pbstrxml: ?*?BSTR,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
+        BuildFromXMLFile: switch (@import("builtin").zig_backend) {
+            .stage1 => fn(
+                self: *const IXMLGraphBuilder,
+                pGraph: ?*IGraphBuilder,
+                wszFileName: ?[*:0]const u16,
+                wszBaseURL: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+            else => *const fn(
+                self: *const IXMLGraphBuilder,
+                pGraph: ?*IGraphBuilder,
+                wszFileName: ?[*:0]const u16,
+                wszBaseURL: ?[*:0]const u16,
+            ) callconv(@import("std").os.windows.WINAPI) HRESULT,
+        },
     };
     vtable: *const VTable,
     pub fn MethodMixin(comptime T: type) type { return struct {
@@ -80,14 +102,14 @@ const PWSTR = @import("../../foundation.zig").PWSTR;
 
 test {
     @setEvalBranchQuota(
-        @import("std").meta.declarations(@This()).len * 3
+        comptime @import("std").meta.declarations(@This()).len * 3
     );
 
     // reference all the pub declarations
     if (!@import("builtin").is_test) return;
-    inline for (@import("std").meta.declarations(@This())) |decl| {
+    inline for (comptime @import("std").meta.declarations(@This())) |decl| {
         if (decl.is_pub) {
-            _ = decl;
+            _ = @field(@This(), decl.name);
         }
     }
 }
