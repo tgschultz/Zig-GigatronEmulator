@@ -551,6 +551,7 @@ pub fn main() !void {
     var tape = [_]u8{0} ** 512;
     babelfish.init(&tape);
     var vga = Gigatron.VgaMonitor{};
+    vga.init();
     var audio = Gigatron.Audio.init(gigatron_clock_rate / 100);
     
     //@TODO: Selectable rom
@@ -580,9 +581,9 @@ pub fn main() !void {
     while(true) : (cycle += 1) {
         vm.cycle();
         babelfish.cycle(&vm);
+        vga.cycle(&vm);
         
-        const render = vga.cycle(&vm);
-        if(render) {
+        if(vm.vsync == .falling) {
             const leds = Gigatron.BlinkenLights.sample(&vm);
             //@TODO: skip rendering if behind on frames
             try main_window.render(&vga, leds);

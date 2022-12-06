@@ -8,7 +8,8 @@ const Gigatron = @import("gigatron.zig");
 
 pub fn main() !void {
     var vm: Gigatron.VirtualMachine = undefined; //std.mem.zeroes(Gigatron.VirtualMachine);
-    var vga = Gigatron.VgaMonitor{}; //std.mem.zeroes(Gigatron.VgaMonitor);
+    var vga = Gigatron.VgaMonitor{};
+    vga.init();
     var babelfish = Gigatron.BabelFish{};
     var tape = [_]u8{0} ** 512;
     babelfish.init(&tape);
@@ -25,7 +26,9 @@ pub fn main() !void {
     while(i < 1_000_000_000):(i += 1) {
         vm.cycle();
         babelfish.cycle(&vm);
-        if(vga.cycle(&vm)) {
+        vga.cycle(&vm);
+        
+        if(vm.vsync == .falling) {
             std.debug.print("==render==\n", .{});
         }
     }

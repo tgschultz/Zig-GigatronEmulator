@@ -387,21 +387,10 @@ pub const VirtualMachine = struct {
 // #    unaffected
 // vBack -= vPulseExtension
 pub const VgaMonitor = struct {
+    coroutine: @Frame(run)      = undefined,
+    vm:        *VirtualMachine  = undefined,
+    
     pixels: [vid_width * vid_height]Pixel = undefined,
-    state: union(enum) {
-        v_blank:      void, //wait for vsync to go high
-        v_back_porch: u5, //count hsync pulses
-        v_visible:    struct {
-            y: u9,
-            state: union(enum) {
-                h_blank:       void, //wait for hsync to go high
-                h_back_porch:  u4, //count cycles
-                h_visible:     u10, //count pixels
-                h_front_porch: void, //wait for h blank
-            },
-        },
-        v_front_porch: void, //wait for vsync to go low
-    } = .{.v_blank = void{}},
 
     pub const vid_width  = 640;
     pub const vid_height = 480;
@@ -466,64 +455,58 @@ pub const VgaMonitor = struct {
             .b = rescale(B, @field(in, "b")),
         };
     }
+    
+    pub fn init(self: *@This()) void {
+        self.coroutine = async run(self);
+    }
 
-    pub fn cycle(self: *@This(), vm: *VirtualMachine) bool {
-        const px = @bitCast(Pixel, vm.reg.out);
+    pub fn cycle(self: *@This(), vm: *VirtualMachine) void {
+        self.vm = vm;
+        resume self.coroutine;
+    }
+    
+    pub fn run(self: *@This()) void {
+        suspend {}
         
-        switch(self.state) {
-            .v_blank => {
-                if(vm.vsync == .rising) self.state = .{.v_back_porch = 0};
-            },
-            .v_back_porch => |*h_pulses| {
-                if(vm.hsync == .rising) {
-                    if(h_pulses.* >= v_back_porch - 1) {
-                        self.state = .{.v_visible = .{
-                            .y = 0,
-                            //not h_blank because we're already rising, which means
-                            // we're already 1 cycle in
-                            .state = .{.h_back_porch = 1}, 
-                        }};
-                        return false;
-                    }
-                    h_pulses.* += 1;
+        while(true) {
+            //wait for vsync to go high
+            while(self.vm.vsync != .rising) { suspend {} }
+            
+            //count v_back_porch hsync pulses
+            //first hsync pulse happens just before vsync pulse
+            // so we start at 1
+            var count: u5 = 1;
+            while(count < v_back_porch) {
+                if(self.vm.hsync == .rising) count += 1;
+                suspend {}
+            }
+            
+            //begin drawing
+            var y: u9 = 0;
+            while(y < vid_height) {
+                //count h_back_porch cycles
+                count = 0;
+                while(count < h_back_porch) { 
+                    count += 1;
+                    suspend {}
                 }
-            },
-            .v_visible => |*vis| switch(vis.state) {
-                .h_blank => if(vm.hsync == .rising) {
-                    vis.y += 1;
-                    if(vis.y >= vid_height) {
-                        self.state = .{.v_front_porch = void{}};
-                        return false;
-                    }
-                    //already rising, so already 1 cycle in
-                    vis.state = .{.h_back_porch = 1}; 
-                },
-                .h_back_porch => |*count| {
-                    if(count.* >= h_back_porch - 1) {
-                        vis.state = .{.h_visible = 0,};
-                        return false;
-                    }
-                    count.* += 1;
-                },
-                .h_visible => |*x| {
-                    if(x.* >= vid_width) {
-                        vis.state = .{.h_front_porch = void{}};
-                        return false;
-                    }
-                    const idx: usize = (@as(usize, vis.y) * vid_width) + @as(usize, x.*);
-                    for(self.pixels[idx..idx + 4]) |*p| p.* = px;
-                    x.* += 4;
-                },
-                .h_front_porch => {
-                    if(vm.hsync == .falling) vis.state = .{.h_blank = void{}};
+                
+                //draw until x >= vid_width
+                var x: u10 = 0;
+                while(x < vid_width) {
+                    const px = @bitCast(Pixel, self.vm.reg.out);
+                    const idx: usize = (@as(usize, y) * vid_width) + @as(usize, x);
+                    
+                    for(self.pixels[idx..idx + 4]) |*p| p.* = px; //4 at a time in default clock rate
+                    x += 4;
+                    suspend {}
                 }
-            },
-            .v_front_porch => if(vm.vsync == .falling) {
-                self.state = .{.v_blank = void{}};
-                return true;
-            },
+                
+                //wait for next hsync
+                while(self.vm.hsync != .rising) { suspend {} }
+                y += 1;
+            }
         }
-        return false;
     }
 };
 
@@ -634,7 +617,7 @@ pub const BabelFish = struct {
     }
     
     pub fn run(self: *@This()) void {
-        suspend {self.frame = @frame();}
+        suspend { self.frame = @frame(); }
         
         var byte: u8 = 0;
         var bits: u4 = 0;
