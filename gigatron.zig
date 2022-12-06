@@ -688,6 +688,13 @@ pub const BabelFish = struct {
         }
     }
     
+    
+    //These are a bit weird. Basically I want them to act like macros,
+    // but I'm not allowed to inline them because async.
+    //Preserving and replacing the frame pointer like we are here seems to
+    // work because these are only called by the coroutine and use its frame,
+    // and coroutine is completely suspended while they are running.
+    
     //wait for given number of emulated milliseconds
     fn waitMs(self: *@This(), ms: usize) void {
         const prev_frame = self.frame;
@@ -769,12 +776,6 @@ pub const BabelFish = struct {
             self.tape.line_empty = true;
         }
     }
-    
-    //pub fn loadGt1(self: *@This()) void {
-    //    //60-bytes per frame
-    //    // 
-    //    
-    //}
     
     ///////////////
     
