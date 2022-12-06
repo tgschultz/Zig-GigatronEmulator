@@ -22,7 +22,7 @@ This is a casual project I work on for my own amusement. I'd never written an em
  - This project depends on zigwin32 (https://github.com/marlersoft/zigwin32) for the Windows build (included)
  
 ## Running
- - Place resulting binary in a directory with a Gigatron rom file named "ROMv5a.rom", which can be obtained here: https://github.com/kervinck/gigatron-rom/blob/master/ROMv5a.rom
+ - Place resulting binary in a directory with a Gigatron rom file named "gigatron.rom". ROMv5a can be obtained here: https://github.com/kervinck/gigatron-rom/blob/master/ROMv5a.rom
  
  ## Images
  ![ROMv5a Menu](https://github.com/tgschultz/Zig-GigatronEmulator/blob/main/snaps/rom5a-menu.png)
