@@ -3,6 +3,8 @@ A Gigatron emulator written in Zig
 
 This is a casual project I work on for my own amusement. I'd never written an emulator before, and CHIP-8 seemed too trivial, so I choose the Gigatron instead.
 
+**Unfortunately the project is completely unbuildable on current Zig master due to the removal of stage1, which is required to handle the async function**
+
 ## Status
  - Emulation of the Gigatron itself is more-or-less cycle accurate, with the exception of how undefined behavior behaves relative to real-world.
  - VGA is emulated well enough to show the Gigatron ROM's intended image, although it could be improved in relation to real VGA hardware.
